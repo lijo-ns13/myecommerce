@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div class="container">
+        <h2>Your Cart</h2>
+        
+        <% if (cart && cart.products && cart.products.length > 0) { %>
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Total</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% let cartTotal = 0; %>
+              <% cart.products.forEach(function(item) { %>
+                <% let product = item.productId; %> <!-- productId now contains product details -->
+                <tr>
+                  <td>
+                    <img src="<%= product.image %>" alt="<%= product.name %>" width="50">
+                    <%= product.name %>
+                  </td>
+                  <td><%= item.quantity %></td>
+                  <td>$<%= product.price %></td>
+                  <td>$<%= item.quantity * product.price %></td>
+                  <td>
+                    <a href="/cart/remove/<%= item.productId._id %>" class="btn btn-danger btn-sm">Remove</a>
+                  </td>
+                </tr>
+                <% cartTotal += item.quantity * product.price; %>
+              <% }); %>
+              <tr>
+                <td colspan="3" class="text-right"><strong>Total:</strong></td>
+                <td>$<%= cartTotal %></td>
+                <td></td>
+              </tr>
+            </tbody>
+          </table>
+        <% } else { %>
+          <p>Your cart is empty!</p>
+        <% } %>
+      </div>
+      
+</body>
+</html>

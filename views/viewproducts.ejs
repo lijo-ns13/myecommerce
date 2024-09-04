@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Show Product Images</title>
+</head>
+<body>
+    `
+    <h1>Products and Their Images</h1>
+
+    <% products.forEach(pro => { %> <!-- Iterate through the list of products -->
+        <div>
+            <h2><%= pro.product %></h2> <!-- Display the product name -->
+
+            <!-- Loop through the images array for each product -->
+            <% pro.images.forEach(image => { %>
+                <img src="<%= image.secured_url %>" alt="<%= pro.product %> Image" style="width: 200px; height: auto; margin: 10px;">
+            <% }); %>
+        </div>
+    <% }); %>
+
+</body>
+</html>
+
+
+

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome for icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet">
+    <!-- Custom Styles -->
+    <style>
+        .navbar {
+            margin-bottom: 20px;
+        }
+        .navbar-brand img {
+            height: 40px;
+        }
+        .nav-link img {
+            height: 20px;
+            margin-right: 8px;
+        }
+        .product-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .product-box {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 10px;
+            width: 100%;
+            max-width: 300px;
+            text-align: center;
+        }
+        .product-title {
+            text-decoration: none;
+            color: #333;
+            font-weight: bold;
+        }
+        .product-details {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+        }
+        .product-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Use container-fluid to make navbar full width -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light py-3 w-100">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">
+                <img src="/img/logo.png" alt="Logo" class="d-inline-block align-text-top" style="height: 40px;">
+            </a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/products">Products</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/about">About</a>
+                    </li>
+                </ul>
+    
+                <!-- Search Bar -->
+                <form class="form-inline mx-lg-4 my-2 my-lg-0">
+                    <input class="form-control mr-sm-2" type="search" placeholder="Search for products..." aria-label="Search">
+                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+                </form>
+                
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/auth/signin">
+                            <img src="/img/log-in.png" alt="Login" class="nav-icon" style="height: 24px;">
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/wishlist">
+                            <img src="/img/wishlist.png" alt="Wishlist" class="nav-icon" style="height: 24px;">
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/cart">
+                            <img src="/img/cart.png" alt="Cart" class="nav-icon" style="height: 24px;">
+                            <span class="badge badge-pill badge-danger">0</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/user-profile">
+                            <img src="/img/userprofile.jpg" alt="User Profile" class="nav-icon rounded-circle" style="height: 24px;">
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <h1>Full Products</h1>
+    <div class="container">
+        <div class="product-grid">
+            <% for (const product of products) { %>
+                <div class="product-box">
+                    <!-- Product Image -->
+                    <a href="/product-detail/<%= product._id %>">
+                        <img src="<%= product.images[0].secured_url %>" alt="Product Image" class="img-fluid">
+                    </a>
+    
+                    <!-- Product Name -->
+                    <a href="/product-detail/<%= product._id %>" class="product-title"><%= product.product %></a>
+    
+                    <!-- Product Details -->
+                    <div class="product-details">
+                        <!-- Rating and Price -->
+                        <div class="details-left">
+                            <p class="product-rating">
+                                <%= product.rating %> <i class="fas fa-star"></i>
+                            </p>
+                        </div>
+                        <div class="details-right">
+                            <p class="product-price">$<%= product.price %></p>
+                        </div>
+                    </div>
+    
+                    <!-- Bottom Buttons -->
+                    <div class="product-actions">
+                        <!-- Add to Cart Button -->
+                        <button class="add-to-cart" data-product-id="<%= product._id %>">Add to Cart</button>
+
+                        
+                        <!-- Add to Wishlist Button -->
+                        <form action="/add-to-wishlist" method="POST" class="wishlist-form">
+                            <input type="hidden" name="productId" value="<%= product._id %>">
+                            <button class="btn btn-outline-danger" type="submit">
+                                <i class="fas fa-heart"></i> Add to Wishlist
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            <% } %>
+        </div>
+    </div>
+    <script>
+        document.querySelectorAll('.add-to-cart').forEach(button => {
+    button.addEventListener('click', async (event) => {
+        const productId = event.target.getAttribute('data-product-id');
+        
+        try {
+            const response = await fetch('/cart/add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ productId }),
+            });
+            
+            if (response.ok) {
+                alert('Product added to cart!');
+            } else {
+                alert('Already added to cart!.');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    });
+});
+
+    </script>
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <%-include('partials/footer')%>
+</body>
+</html>

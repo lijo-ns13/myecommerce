@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Category</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .sidebar {
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 250px;
+            background-color: #343a40;
+            padding-top: 20px;
+        }
+        .sidebar a {
+            padding: 15px 20px;
+            text-decoration: none;
+            font-size: 18px;
+            color: #fff;
+            display: block;
+        }
+        .sidebar a:hover {
+            background-color: #007bff;
+            color: white;
+        }
+        .content {
+            margin-left: 260px;
+            padding: 20px;
+        }
+        .form-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <a href="/admin/dashboard">Dashboard</a>
+        <a href="/admin/category">Categories</a>
+        <a href="/admin/products">Products</a>
+        <a href="/admin/orders">Orders</a>
+        <a href="/admin/customers">Customers</a>
+        <a href="/admin/coupons">Coupons</a>
+        <a href="/admin/banners">Banners</a>
+        <a href="/admin/offers">Offers</a>
+        <a href="/admin/logout">Logout</a>
+    </div>
+
+    <!-- Page Content -->
+    <div class="content">
+        <div class="container">
+            <div class="form-container">
+                <h1 class="text-center">Update Category</h1>
+                <form id="updateForm" class="needs-validation" novalidate>
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Category Name</label>
+                        <input type="text" class="form-control" id="name" name="name" value="<%= category.name %>" required>
+                        <div class="invalid-feedback">
+                            Please provide a valid category name.
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Category Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="3" required><%= category.description %></textarea>
+                        <div class="invalid-feedback">
+                            Please provide a valid category description.
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Update</button>
+                </form>
+                <p id="error" class="text-danger mt-3"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Bootstrap validation script
+        (function () {
+            'use strict'
+            var forms = document.querySelectorAll('.needs-validation')
+            Array.prototype.slice.call(forms)
+                .forEach(function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (!form.checkValidity()) {
+                            event.preventDefault()
+                            event.stopPropagation()
+                        }
+                        form.classList.add('was-validated')
+                    }, false)
+                })
+        })()
+
+        document.getElementById('updateForm').addEventListener('submit', update);
+        
+        async function update(event) {
+            event.preventDefault();
+            const categoryId = "<%= category._id %>";
+            const url = `/admin/category/update/${categoryId}?_method=PATCH`;
+            const name = document.getElementById('name').value;
+            const description = document.getElementById('description').value;
+    
+            const options = {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name, description })
+            };
+    
+            try {
+                const response = await fetch(url, options);
+                const result = await response.json();
+                console.log('result', result);
+    
+                if (response.ok) {
+                    alert('Updated successfully');
+                    window.location.href = '/admin/category';
+                } else {
+                    document.getElementById('error').innerText = result.message;
+                }
+            } catch (error) {
+                document.getElementById('error').innerText = 'An error occurred. Please try again.';
+            }
+        }
+    </script>
+</body>
+</html>

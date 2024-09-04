@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Page</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .navbar {
+            margin-bottom: 20px;
+        }
+        .navbar-brand img {
+            height: 40px;
+        }
+        .nav-link img {
+            height: 20px;
+            margin-right: 8px;
+        }
+
+        .banner {
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        .banner img {
+            width: 100%;
+            height: auto;
+        }
+
+        .section {
+            text-align: center;
+            padding: 40px 20px;
+            background-color: #f8f9fa;
+        }
+        .section h1 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+        .section p {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+        }
+        
+        .discover-section {
+            text-align: center;
+            margin: 40px 20px;
+            padding: 20px;
+            background-color: #f8f9fa; /* Ensure background consistency */
+        }
+        .discover-section h1 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+        .discover-section p {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+        }
+        .discover-section .btn-primary {
+            font-size: 1.2rem;
+        }
+
+        .product-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .product-box {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 15px;
+    margin: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    max-width: 300px;
+    height: 450px; /* Adjusted height to fit content */
+    position: relative;
+    overflow: hidden;
+}
+
+.product-box img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    margin-bottom: 15px;
+}
+
+.product-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+    display: block;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    text-align: center;
+}
+
+.product-details {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.details-left,
+.details-right {
+    display: flex;
+    align-items: center;
+}
+
+.product-rating {
+    font-size: 1rem;
+    color: #f39c12;
+    margin-right: 10px;
+}
+
+.product-price {
+    font-size: 1.2rem;
+    color: #ff5252;
+    font-weight: bold;
+}
+
+.product-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.btn-success,
+.btn-outline-danger {
+    font-size: 0.9rem;
+    padding: 8px 12px;
+    border-radius: 4px;
+}
+
+.btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+    color: #fff;
+}
+
+.btn-success:disabled {
+    background-color: #d6d6d6;
+    border-color: #d6d6d6;
+    cursor: not-allowed;
+}
+
+.btn-outline-danger {
+    border-color: #ff5252;
+    color: #ff5252;
+}
+
+.btn-outline-danger:hover {
+    background-color: #ff5252;
+    color: #fff;
+}
+
+.wishlist-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #ff5252;
+    cursor: pointer;
+}
+
+
+
+        
+
+        .btn-view-more, .btn-success, .btn-primary {
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .product-box {
+                max-width: 100%;
+            }
+        }
+
+        @media (min-width: 769px) and (max-width: 992px) {
+            .product-box {
+                max-width: 45%;
+            }
+        }
+
+        @media (min-width: 993px) {
+            .product-box {
+                max-width: 30%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="/">
+            <img src="img/logo.png" alt="Logo"> <!-- Replace 'your-logo.png' with your logo image -->
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        
+        <!-- Search Bar -->
+        <form class="form-inline my-2 my-lg-0 mx-auto">
+            <input class="form-control mr-sm-2" type="search" placeholder="Search for products..." aria-label="Search">
+            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+        </form>
+    
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/products">Products</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/about">About</a>
+                </li>
+            </ul>
+            
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/auth/signin">
+                        <img src="img/log-in.png" alt="Login"> <!-- Replace 'login-icon.png' with your login icon image -->
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/wishlist">
+                        <img src="img/wishlist.png" alt="Wishlist"> <!-- Replace 'wishlist-icon.png' with your wishlist icon image -->
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/cart">
+                        <img src="img/cart.png" alt="Cart"> <!-- Replace 'cart-icon.png' with your cart icon image -->
+                        <span class="badge badge-pill badge-danger"></span> <!-- This shows the item count -->
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/user-profile">
+                        <img src="img/userprofile.jpg" alt="User Profile"> <!-- Replace 'user-profile-icon.png' with your user profile icon image -->
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    
+    <!-- Banner -->
+    <div class="container-fluid p-0 banner">
+        <img src="img/bannerone.jpg" alt="Banner" class="img-fluid">
+    </div>
+
+    <!-- Discover All Section -->
+    <div class="discover-section">
+        <h1>Step into the Future of Footwear</h1>
+        <p>Discover our full range of shoes that blend innovation with style. Explore now and step up your shoe game!</p>
+        <a href="/products" class="btn btn-primary">Discover All</a>
+    </div>
+
+    <!-- New Arrivals Section -->
+    <div class="section">
+        <h1>New Arrivals</h1>
+        <p>Find your new favorite shoes</p>
+        
+        <!-- Product Section -->
+        <div class="container">
+            <div class="product-grid">
+                <% for (const product of products) { %>
+                    <div class="product-box">
+                        <!-- Product Image -->
+                        <a href="/product-detail/<%= product._id %>">
+                            <img src="<%= product.images[0].secured_url %>" alt="Product Image" class="img-fluid">
+                        </a>
+        
+                        <!-- Product Name -->
+                        <a href="/product-detail/<%= product._id %>" class="product-title"><%= product.product %></a>
+        
+                        <!-- Product Details -->
+                        <div class="product-details">
+                            <!-- Rating and Price -->
+                            <div class="details-left">
+                                <p class="product-rating">
+                                    <%= product.rating %> <i class="fas fa-star"></i>
+                                </p>
+                            </div>
+                            <div class="details-right">
+                                <p class="product-price">$<%= product.price %></p>
+                            </div>
+                        </div>
+        
+                        <!-- Bottom Buttons -->
+                        <div class="product-actions">
+                            <!-- Add to Cart Button -->
+                            <button class="add-to-cart" data-product-id="<%= product._id %>">Add to Cart</button>
+
+                            
+                            <!-- Add to Wishlist Button -->
+                            <form action="/add-to-wishlist" method="POST" class="wishlist-form">
+                                <input type="hidden" name="productId" value="<%= product._id %>">
+                                <button class="btn btn-outline-danger" type="submit">
+                                    <i class="fas fa-heart"></i> Add to Wishlist
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+        
+        
+
+
+            <div class="text-center mt-4">
+                <a href="/products" class="btn btn-primary btn-view-more">View More</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer Bottom -->
+    <footer class="text-center py-3">
+        <div class="container">
+            <a href="#" class="text-light mx-2"><i class="fab fa-facebook"></i></a>
+            <a href="#" class="text-light mx-2"><i class="fab fa-twitter"></i></a>
+            <a href="#" class="text-light mx-2"><i class="fab fa-instagram"></i></a>
+            <a href="#" class="text-light mx-2"><i class="fab fa-linkedin"></i></a>
+        </div>
+        <div class="text-center mt-3">
+            <p>&copy; 2024 ShoeStore. All Rights Reserved.</p>
+        </div>
+    </footer>
+    <script>
+        document.querySelectorAll('.add-to-cart').forEach(button => {
+    button.addEventListener('click', async (event) => {
+        const productId = event.target.getAttribute('data-product-id');
+        
+        try {
+            const response = await fetch('/cart/add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ productId }),
+            });
+            
+            if (response.ok) {
+                alert('Product added to cart!');
+            } else {
+                alert('Already added to cart!.');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    });
+});
+
+    </script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
+

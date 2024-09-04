@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Management</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .sidebar {
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 100;
+            width: 250px;
+            background-color: #212529;
+            color: #fff;
+            overflow-y: auto;
+            border-right: 1px solid #444;
+            border-radius: 0 10px 10px 0;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.5);
+        }
+        .sidebar .nav-link {
+            color: #ddd;
+            transition: background-color 0.3s, color 0.3s;
+            padding: 10px 20px;
+        }
+        .sidebar .nav-link:hover {
+            color: #fff;
+            background-color: #495057;
+        }
+        .sidebar .nav-link.active {
+            background-color: #007bff;
+            color: #fff;
+        }
+        .sidebar .nav-item {
+            margin-bottom: 1px;
+        }
+        .sidebar .nav-item:last-child {
+            margin-bottom: 0;
+        }
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+        }
+        .customer-card {
+            margin-bottom: 1rem;
+            padding: 1rem;
+            border: 1px solid #dee2e6;
+            border-radius: .25rem;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .btn-custom {
+            margin: 0.2rem;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                position: static;
+                border-right: none;
+                box-shadow: none;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="p-3">
+            <h4>Dashboard</h4>
+        </div>
+        <ul class="nav flex-column p-3">
+            <li class="nav-item">
+                <a class="nav-link active" href="/admin/dashboard">Dashboard</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/admin/products">Products</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/admin/orders">Orders</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/admin/category">Category</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/admin/customers">Customers</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/admin/coupons">Coupons</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/admin/banners">Banners</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/admin/offers">Offers</a>
+            </li>
+            <li class="nav-item mt-auto">
+                <a class="nav-link text-danger" href="/auth/logout">Logout</a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <h1 class="my-4">Customers</h1>
+        <div class="row">
+            <% for (const customer of customers) { %>
+                <div class="col-md-4">
+                    <div class="customer-card">
+                        <h5><%= customer.name %></h5>
+                        <p><%= customer.email %></p>
+                        <form action="/admin/customers/<%= customer.isBlocked ? 'unblock-user' : 'block-user' %>/<%= customer._id %>" method="post">
+                            <button type="submit" class="btn btn-<%= customer.isBlocked ? 'success' : 'danger' %> btn-custom">
+                                <%= customer.isBlocked ? 'Unblock' : 'Block' %>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            <% } %>
+        </div>
+    </main>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

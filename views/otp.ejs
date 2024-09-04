@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Sign-up form</title>
+  <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.css" />
+  
+</head>
+<body>
+  <div class="container">
+    <h1 class="brand"><span>Welcome User </span> Sign-up</h1>
+    <div class="wrapper animated bounceInLeft">
+     
+      <div class="contact">
+        <div id="error"></div>
+        <form id="otpForm" >
+          <p>
+            <label>Enter otp</label>
+            <input type="text" name="otp" required id="otp">
+          </p>
+          
+          <p class="full">
+            <button type="submit">Submit</button>
+          </p>
+
+        </form>
+        <br>
+        <form method="POST" action="resend">
+          <p class="full">
+            <button type="submit">resend otp</button>
+          </p>
+          
+      </div>
+    </div>
+  </div>
+  <script>
+    document.getElementById('otpForm').addEventListener('submit', login);
+    
+    async function login(event) {
+        event.preventDefault();
+        const url = "/auth/verify";
+        const otp=document.getElementById('otp').value;
+
+        const options = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ otp })
+        };
+
+        try {
+            const response = await fetch(url, options);
+            const result = await response.json();
+            console.log('result', result);
+
+            if (response.ok) {
+                document.getElementById('otp').value='';
+                window.location.href = '/auth/signin';
+            } else {
+                document.getElementById('error').innerText = result.message;
+            }
+        } catch (error) {
+            document.getElementById('error').innerText = 'An error occurred. Please try again.';
+        }
+    }
+</script>
+</body>
+</html>

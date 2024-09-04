@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Category</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Noty CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/noty@3.2.0/lib/noty.css" />
+    <style>
+        /* Custom styles for the sidebar */
+        .sidebar {
+            height: 100vh;
+            background-color: #343a40;
+            color: #fff;
+            padding-top: 20px;
+        }
+        .sidebar a {
+            color: #fff;
+            text-decoration: none;
+        }
+        .sidebar a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 sidebar">
+                <div class="sidebar-sticky">
+                    <h4 class="text-center">Admin Menu</h4>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="/admin/dashboard">Dashboard</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin/category">Categories</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin/products">Products</a>
+                        </li>
+                        <!-- Add more links as needed -->
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Main Content -->
+            <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+                <h1 class="my-4">Add Category</h1>
+                <div class="container">
+                    <form id="addcategoryForm">
+                        <div class="form-group">
+                            <label for="name">Name</label>
+                            <input type="text" class="form-control" name="name" id="name" placeholder="Enter category name">
+                        </div>
+                        <div class="form-group">
+                            <label for="description">Description</label>
+                            <input type="text" class="form-control" name="description" id="description" placeholder="Enter category description">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Add Category</button>
+                    </form>
+                    <div id="error" class="mt-3 text-danger"></div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- Noty JS -->
+    <script src="https://cdn.jsdelivr.net/npm/noty@3.2.0/lib/noty.min.js"></script>
+    <script>
+        document.getElementById('addcategoryForm').addEventListener('submit', add);
+        
+        async function add(event) {
+            event.preventDefault();
+            const url = "/admin/category/add-category";
+            const name = document.getElementById('name').value;
+            const description =document.getElementById('description').value;
+    
+            const options = {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name,description })
+            };
+    
+            try {
+                const response = await fetch(url, options);
+                const result = await response.json();
+                console.log('result', result);
+    
+                if (response.ok) {
+                    document.getElementById('name').value = '';
+                    document.getElementById('description').value = '';
+                    window.location.href = '/admin/category';
+                    
+                } else {
+                    document.getElementById('error').innerText = result.message;
+                }
+            } catch (error) {
+                document.getElementById('error').innerText = 'An error occurred. Please try again.';
+            }
+        }
+    </script>
+</body>
+</html>
