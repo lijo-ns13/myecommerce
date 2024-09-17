@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Orders</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .order-card {
+            margin-bottom: 20px;
+        }
+        .order-header {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .order-items {
+            padding: 10px;
+        }
+        .btn-cancel {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light py-3 w-100">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <img src="/img/logo.png" alt="Logo" class="d-inline-block align-text-top" style="height: 40px;">
+            </a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/products">Products</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/about">About</a>
+                    </li>
+                </ul>
+
+                <!-- Search Bar -->
+                <form class="form-inline mx-lg-4 my-2 my-lg-0">
+                    <input class="form-control mr-sm-2" type="search" placeholder="Search for products..." aria-label="Search">
+                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+                </form>
+                
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/auth/signin">
+                            <img src="/img/log-in.png" alt="Login" class="nav-icon" style="height: 24px;">
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/user/wishlist">
+                            <img src="/img/wishlist.png" alt="Wishlist" class="nav-icon" style="height: 24px;">
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/cart">
+                            <img src="/img/cart.png" alt="Cart" class="nav-icon" style="height: 24px;">
+                            <span class="badge badge-pill badge-danger">0</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/user-profile">
+                            <img src="/img/userprofile.jpg" alt="User Profile" class="nav-icon rounded-circle" style="height: 24px;">
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <h2>My Orders</h2>
+
+        <% if (orders.length > 0) { %>
+            <% orders.forEach(order => { %>
+                <div class="card order-card">
+                    <div class="card-header order-header">
+                        <h5>Order ID: <%= order._id %></h5>
+                        <p>Status: <%= order.status %></p>
+                        <p>Total Price: $<%= order.totalPrice %></p>
+                        <p>Order Date: <%= new Date(order.orderDate).toLocaleDateString() %></p>
+                    </div>
+                    <div class="card-body order-items">
+                        <% order.products.forEach(product => { %>
+                            <div class="row mb-2">
+                                <div class="col-md-3">
+                                    <img src="<%= product.productId.images[0].secured_url %>" class="img-fluid" alt="<%= product.productId.product %>">
+                                </div>
+                                <div class="col-md-9">
+                                    <h5><%= product.productId.product %></h5>
+                                    <p>Quantity: <%= product.quantity %></p>
+                                    <p>Price per unit: $<%= product.productId.price %></p>
+                                    <p>Subtotal: $<%= product.quantity * product.productId.price %></p>
+                                </div>
+                            </div>
+                        <% }) %>
+                    </div>
+                    <% if (order.status === 'pending') { %>
+                        <div class="card-footer text-right">
+                            <form class="d-inline" method="POST" action="/user/orders/<%= order._id %>/cancel">
+                                <button type="submit" class="btn btn-danger btn-cancel">Cancel Order</button>
+                            </form>
+                        </div>
+                    <% } %>
+                </div>
+            <% }) %>
+        <% } else { %>
+            <div class="alert alert-info" role="alert">
+                You have no orders yet.
+            </div>
+        <% } %>
+    </div>
+
+    <footer class="bg-dark text-white mt-5">
+        <div class="container py-4">
+            <div class="row">
+                <div class="col-md-4">
+                    <h5>About Us</h5>
+                    <p>We offer a wide range of high-quality products. Shop now and find what you need.</p>
+                </div>
+                <div class="col-md-2">
+                    <h5>Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="/" class="text-white">Home</a></li>
+                        <li><a href="/products" class="text-white">Products</a></li>
+                        <li><a href="/contact" class="text-white">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h5>Contact Us</h5>
+                    <p>123 Store Street, Shop City, SC 12345</p>
+                    <p>Email: support@store.com</p>
+                    <p>Phone: +123 456 7890</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
+
+

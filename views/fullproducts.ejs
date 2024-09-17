@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Product Page</title>
     <!-- Bootstrap CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <!-- FontAwesome for icons -->
@@ -32,26 +32,55 @@
             width: 100%;
             max-width: 300px;
             text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .product-box img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            margin-bottom: 10px;
         }
         .product-title {
             text-decoration: none;
             color: #333;
             font-weight: bold;
+            display: block;
+            margin-bottom: 10px;
         }
         .product-details {
             display: flex;
             justify-content: space-between;
             margin: 10px 0;
         }
+        .product-rating {
+            font-size: 1rem;
+            color: #f39c12;
+        }
+        .product-price {
+            font-size: 1.2rem;
+            color: #ff5252;
+            font-weight: bold;
+        }
         .product-actions {
             display: flex;
             justify-content: space-between;
             margin-top: 10px;
         }
+        .btn-outline-danger {
+            font-size: 0.9rem;
+            padding: 8px 12px;
+            border-radius: 4px;
+            color: #ff5252;
+            border-color: #ff5252;
+        }
+        .btn-outline-danger:hover {
+            background-color: #ff5252;
+            color: #fff;
+        }
     </style>
 </head>
 <body>
-    <!-- Use container-fluid to make navbar full width -->
+    <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light py-3 w-100">
         <div class="container-fluid">
             <a class="navbar-brand" href="/">
@@ -107,8 +136,9 @@
         </div>
     </nav>
 
-    <h1>Full Products</h1>
+    <!-- Page Content -->
     <div class="container">
+        <h1 class="my-4">Full Products</h1>
         <div class="product-grid">
             <% for (const product of products) { %>
                 <div class="product-box">
@@ -133,14 +163,9 @@
                         </div>
                     </div>
     
-                    <!-- Bottom Buttons -->
+                    <!-- Wishlist Button -->
                     <div class="product-actions">
-                        <!-- Add to Cart Button -->
-                        <button class="add-to-cart" data-product-id="<%= product._id %>">Add to Cart</button>
-
-                        
-                        <!-- Add to Wishlist Button -->
-                        <form action="/add-to-wishlist" method="POST" class="wishlist-form">
+                        <form action="/user/wishlist/add" method="POST" class="wishlist-form">
                             <input type="hidden" name="productId" value="<%= product._id %>">
                             <button class="btn btn-outline-danger" type="submit">
                                 <i class="fas fa-heart"></i> Add to Wishlist
@@ -151,37 +176,12 @@
             <% } %>
         </div>
     </div>
-    <script>
-        document.querySelectorAll('.add-to-cart').forEach(button => {
-    button.addEventListener('click', async (event) => {
-        const productId = event.target.getAttribute('data-product-id');
-        
-        try {
-            const response = await fetch('/cart/add', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ productId }),
-            });
-            
-            if (response.ok) {
-                alert('Product added to cart!');
-            } else {
-                alert('Already added to cart!.');
-            }
-        } catch (error) {
-            console.error('Error:', error);
-        }
-    });
-});
 
-    </script>
     <!-- Bootstrap JS and dependencies -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
-    <%-include('partials/footer')%>
+    <%- include('partials/footer') %>
 </body>
 </html>

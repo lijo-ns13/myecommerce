@@ -30,4 +30,6 @@ const reviewSchema = new Schema({
     }
 });
 
-module.exports=mongoose.model('Reivew',reviewSchema);
+
+const Review=mongoose.model('Reivew',reviewSchema);
+module.exports=Review;

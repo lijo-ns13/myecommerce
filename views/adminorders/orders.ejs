@@ -1,0 +1,65 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Orders</title>
+  <!-- Add Bootstrap CSS for styling -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+  <div class="container mt-5">
+    <h2 class="mb-4">Order Management</h2>
+    
+    <!-- Orders Table -->
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Order ID</th>
+          <th>User ID</th>
+          <th>Products</th>
+          <th>Total Price</th>
+          <th>Status</th>
+          <th>Payment Method</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% orders.forEach((order, index) => { %>
+        <tr>
+          <td><%= index + 1 %></td>
+          <td><%= order._id %></td>
+          <td><%= order.userId %></td>
+          <td>
+            <ul>
+              <% order.products.forEach(product => { %>
+                <li>Product ID: <%= product.productId %> | Quantity: <%= product.quantity %></li>
+              <% }) %>
+            </ul>
+          </td>
+          <td>₹<%= order.totalPrice %></td>
+          <td><%= order.status %></td>
+          <td><%= order.paymentMethod %></td>
+          <td>
+            <!-- Edit Order Button -->
+            <a href="/admin/orders/<%= order._id %>/edit" class="btn btn-primary btn-sm">Edit</a>
+            <!-- Delete Order Button -->
+            <form action="/admin/orders/<%= order._id %>?_method=DELETE" method="POST" style="display:inline-block;">
+              <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this order?')">Delete</button>
+            </form>
+          </td>
+        </tr>
+        <% }) %>
+      </tbody>
+    </table>
+
+   
+
+  </div>
+
+  <!-- Bootstrap JS for interactive components -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

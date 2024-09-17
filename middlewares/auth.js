@@ -10,7 +10,8 @@ exports.jwtAuth=async(req,res,next)=>{
         console.log("No token provided"); 
         
         return res.status(401).render('protected/userprotected')
-        // res.redirect('/signin')
+        // return res.status(401).json({success:false,message:'token is not provided'})
+        // return res.redirect('/')
     }
 
     try {
@@ -33,12 +34,13 @@ exports.jwtAuth=async(req,res,next)=>{
 
 // middlewares/adminProtected.js
 exports.adminProtected = (req, res, next) => {
+    console.log('admin cheking',req.path)
+    
     // Ensure the user is logged in and has the admin role
     if (req.user && req.user.role === 'admin') {
-        next(); // User is an admin, proceed to the next middleware or route handler
+        next(); 
     } else {
-        // If the user is not an admin, respond with a 403 Forbidden status
-        // return res.status(403).json({ success: false, message: 'Access denied: Admin role required' });
+        
         return res.status(403).render('protected/adminprotected')
     }
 };
@@ -46,14 +48,14 @@ exports.adminProtected = (req, res, next) => {
 
 // middlewares/userProtected.js
 exports.userProtected = (req, res, next) => {
-    
+    console.log('user checking',req.path)
     // Ensure the user is logged in and has the user role
     if (req.user&& req.user.role === 'user') {
-        next(); // User is a regular user, proceed to the next middleware or route handler
+        next(); 
     } else {
-        // If the user is not a regular user, respond with a 403 Forbidden status
-        // return res.status(403).json({ success: false, message: 'Access denied: User role required' });
-        return res.status(403).render('protected/userprotected')
+        
+        return res.status(403).json({ success: false, message: 'Access denied: User role required ntrtr' });
+        // return res.status(403).render('protected/userprotected')
     }
 };
 

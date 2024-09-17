@@ -26,21 +26,22 @@ const productSchema=new Schema({
         required:true,
         minLength:[5,"minimum length is 8 required"]
     },
-    size:{
-        type:[Number],
-        required:true,
-        min:[1,'minimum 1 size is required']
-    },
-    stock:{
-        type:Number,
-        required:true,
-        min:[1,'minimum 1 stock is required']
-    },
+    sizes:[
+        {
+            size:{
+                type:Number,
+                required:true
+            },
+            stock:{
+                type:Number,
+                required:true
+            }
+        }
+    ],
     images: [{
         id: { type: String, required: true },
         secured_url: { type: String, required: true }
     }],
-    
     category:{
         type:Schema.Types.ObjectId,
         ref:'Category',

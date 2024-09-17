@@ -119,6 +119,12 @@
                                 <%= customer.isBlocked ? 'Unblock' : 'Block' %>
                             </button>
                         </form>
+                        <!-- <form action="/admin/customers/<%= customer.isBlocked ? 'unblock-user' : 'block-user' %>/<%= customer._id %>" method="post">
+                            <button type="submit" class="btn btn-<%= customer.isBlocked ? 'success' : 'danger' %> btn-custom">
+                                <%= customer.isBlocked ? 'Unblock' : 'Block' %>
+                            </button>
+                        </form> -->
+                        
                     </div>
                 </div>
             <% } %>

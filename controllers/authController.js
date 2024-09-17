@@ -42,7 +42,8 @@ const postSignin=async(req,res)=>{
         if(!result){
             return res.status(400).json({success:false,message:"Invalid email"});
         }
-        const user=await userModel.findOne({email}).select('+password');
+        const user=await userModel.findOne({email}).select('+password +isBlocked');
+      
         if(user.isBlocked){
             return res.status(400).json({success:false,message:'Your account temporary blocked'})
         }

@@ -8,7 +8,7 @@ router.use(jwtAuth,userProtected)
 router.get('/',async(req,res)=>{
     console.log(req.user._id)
     const userId=req.user._id;
-    const user=await User.findById(userId);
+    const user=await User.findById(userId).populate('address');
     res.render('profile/userprofile',{user:user})
   
 

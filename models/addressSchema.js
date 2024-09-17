@@ -1,5 +1,11 @@
 const mongoose=require('mongoose');
-const addressSchema = new mongoose.Schema({
+const User=require('./userSchema')
+const {Schema}=mongoose;
+const addressSchema = new Schema({
+    phoneNo:{
+        type:String,
+        requried:true
+    },
     street: {
         type: String,
         required: true
@@ -19,7 +25,12 @@ const addressSchema = new mongoose.Schema({
     country: {
         type: String,
         required: true
+    },
+    user:{
+        type: Schema.Types.ObjectId,
+        ref:'User'
     }
+
 },{
     timestamps: true
 });

@@ -12,7 +12,7 @@ router.use(jwtAuth, adminProtected);
 router.get('/', async(req, res) => {
     // res.send('Retrieve all customers');
     try{
-        const users=await userModel.find({role:'user'})
+        const users=await userModel.find({role:'user'}).select('+isBlocked')
         res.render('customers',{customers:users})
     }catch(error){
         res.status(400).json({success:false,message:error.message})
@@ -23,11 +23,14 @@ router.post('/block-user/:id',async(req,res)=>{
     try{
         const userId=req.params.id;
 
-        const user=await userModel.findByIdAndUpdate(userId,{isBlocked:true},{new:true})
+        const user = await userModel.findByIdAndUpdate(userId, { isBlocked: true }, { new: true }).select('+isBlocked').exec();
+        console.log(user.isBlocked)
+        
         if(!user){
             return res.status(404).json({success:false,message:'User not found'})
         }
-        res.json({success:true,message:'User Blocked Succssfully'});
+        // res.json({success:true,message:'User Blocked Succssfully'});
+        res.status(200).redirect('/admin/customers')
     }catch(error){
         res.status(400).json({success:false,message:error.message})
     }
@@ -36,11 +39,13 @@ router.post('/unblock-user/:id',async(req,res)=>{
     try{
         const userId=req.params.id;
         
-        const user=await userModel.findByIdAndUpdate(userId,{isBlocked:false},{new:true})
+        const user = await userModel.findByIdAndUpdate(userId, { isBlocked: false }, { new: true }).select('+isBlocked').exec();
+        console.log(user.isBlocked);
         if(!user){
             return res.status(404).json({success:false,message:'User not found'})
         }
-        res.json({success:true,message:'User Unblocked Succssfully'});
+        // res.json({success:true,message:'User Unblocked Succssfully'});
+        res.status(200).redirect('/admin/customers')
     }catch(error){
         res.status(400).json({success:false,message:error.message})
     }

@@ -68,8 +68,8 @@ const saveBase64Image = async (dataUrl, filename) => {
 };
 router.post('/add-product', upload.array('productImages', 5), async (req, res) => {
   try {
-    const { product, brand, description, price,stock, size, category, croppedImages } = req.body;
-    const sizes = size.split(',').map(Number);
+    const { product, brand, description, price,category, croppedImages } = req.body;
+    
 
     // Initialize images array
     let images = [];
@@ -100,41 +100,72 @@ router.post('/add-product', upload.array('productImages', 5), async (req, res) =
         });
       }
     }
-    if(!product || !brand || !description || !price  || !stock || !category || !croppedImages){
+    if(!product || !brand || !description || !price  || !category || !croppedImages){
       return res.status(400).json({ status:false,message: 'Please fill all fields' });
     }
-    const productRegex=/^[a-zA-Z0-9][a-zA-Z0-9 _-]{1,98}[a-zA-Z0-9]$/
+    const productRegex=/^[a-zA-Z0-9 _'-]{2,100}$/
+
     if(!productRegex.test(product)){
-      return res.status(400).json({ status:false,message: 'Product name should only contain letters, numbers'});
+      return res.status(400).json({ success:false,message: 'Product name should only contain letters, numbers'});
+    }
+    if(product.length<4){
+      return res.status(400).json({success:false,message:'Product name atleast 4 characters'})
     }
     const brandRegex=/^[a-zA-Z0-9][a-zA-Z0-9 &-]{1,48}[a-zA-Z0-9]$/
     if(!brandRegex.test(brand)){
-      return res.status(400).json({ status:false,message: 'Brand name should only contain letters'})
+      return res.status(400).json({ success:false,message: 'Brand name should only contain letters'})
+    }
+    if(brand.length<4){
+      return res.status(400).json({success:false,message:'Brand atleast have 4 characters'})
+    }
+    if(description.length<8){
+      return res.status(400).json({success:false,message:'Description atleat have 8 characters'})
     }
     if(Number(price)<0){
-      return res.status(400).json({ status:false,message: 'Price should be greater than zero'});
+      return res.status(400).json({ success:false,message: 'Price should be greater than zero'});
     }
-    if(Number(stock)<0){
-      return res.status(400).json({ status:false,message: 'stock should be greater than zero'});
+    const sizes = req.body.sizes.map(sizeObj => ({
+      size: Number(sizeObj.size),
+      stock: Number(sizeObj.stock),
+    }));
+    if(!sizes || sizes.length==0){
+      return res.status(400).json({success:false,message:'add atleast one size and stock'})
     }
+    
+      let errors = [];
+
+    // Validate sizes and stock
+    for (const size of sizes) {
+        if (size.size <= 0) {
+            errors.push('Size must be greater than 0');
+        }
+        if (size.stock < 0) {
+            errors.push('Stock must be 0 or greater');
+        }
+    }
+
+    if (errors.length > 0) {
+        return res.status(400).json({ success: false, message: errors.join(', ') });
+    }
+  
+
     // Create and save the product with images (only cropped images)
     const newProduct = new Product({
       product,
       brand,
       description,
       price: Number(price),
-      stock:Number(stock),
-      size: sizes,
+      sizes,
       category,
       images
     });
 
     await newProduct.save();
-    // res.status(200).json({ message: 'Product added successfully!' });
-    res.status(200).render('pro/addproductsuccess')
+    res.status(200).json({success:true, message: 'Product added successfully!' });
+    // res.status(200).render('pro/addproductsuccess')
   } catch (error) {
     console.error('Error adding product:', error);
-    res.status(500).json({ message: 'Failed to add product', error: error.message });
+    res.status(500).json({success:false, message: 'Failed to add product', error: error.message });
   }
 });
 
@@ -149,9 +180,10 @@ router.post('/unlist-product/:id',async(req,res)=>{
       {_id:productId},{isListed:false},{new:true}
     )
     if(!product){
-      return res.status(404).json({message:'Product not found'})
+      return res.status(404).json({success:false,message:'Product not found'})
     }
-    res.status(200).render('pro/unlistproductsuccess')
+    // res.status(200).render('pro/unlistproductsuccess')
+    res.status(200).json({success:true,message:'unlisted successfully'})
   }catch(error){
     res.status(400).json({success:false,message:error.message})
   }
@@ -163,9 +195,10 @@ router.post('/list-product/:id',async(req,res)=>{
       {_id:productId},{isListed:true},{new:true}
     )
     if(!product){
-      return res.status(404).json({message:'Product not found'})
+      return res.status(404).json({success:false,message:'Product not found'})
     }
-    res.status(200).render('pro/listproductsuccess')
+    // res.status(200).render('pro/listproductsuccess')
+    res.status(200).json({success:true,message:'listed successfully'})
   }catch(error){
     res.status(400).json({success:false,message:error.message})
   }
@@ -182,6 +215,34 @@ router.get('/edit/:id',async(req,res)=>{
     res.status(500).send('Server Error');
 }
 })
+router.post('/edit/:id', upload.single('newImages'), async (req, res) => {
+  try {
+      const productId = req.params.id;
+      const updateData = req.body;
+
+      // Convert size string to an array of numbers
+      if (updateData.size) {
+          updateData.size = updateData.size.split(',').map(size => parseFloat(size.trim()));
+      }
+
+      // If there's an image uploaded, handle the new image
+      if (req.file) {
+          const imageUrl = `/uploads/${req.file.filename}`;
+          updateData.images = [{ secured_url: imageUrl }];
+      }
+
+      // Update the product in the database
+      const updatedProduct = await Product.findByIdAndUpdate(productId, updateData, { new: true });
+      if (!updatedProduct) {
+          return res.status(404).json({success:false, message: 'Product not found' });
+      }
+
+      res.status(200).json({ success: true, message: 'Product updated successfully', product: updatedProduct });
+  } catch (error) {
+      res.status(400).json({ success: false, message: error.message });
+  }
+});
+
 // admin/products/edit/66d57f2a530693faed1f2e4c/
 router.post('/edit/:product-id',(req,res)=>{
   res.json('success')

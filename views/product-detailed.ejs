@@ -11,6 +11,7 @@
             padding-top: 20px;
         }
 
+
         .product-detail {
             margin-top: 20px;
         }
@@ -70,6 +71,24 @@
             font-size: 1rem;
             margin-top: 5px;
             color: #555;
+        }
+
+        /* Custom dropdown style */
+        .form-control.custom-select {
+            background-color: #f8f9fa;
+            border: 1px solid #ced4da;
+            border-radius: .25rem;
+            padding: .5rem 1rem;
+        }
+
+        /* Custom size button styles */
+        .size-buttons {
+            margin-top: 10px;
+        }
+
+        .size-buttons button {
+            margin: 5px;
+            font-size: 1rem;
         }
     </style>
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
@@ -132,11 +151,24 @@
                     <% } %>
                     (<%= product.rating %> / 5)
                 </div>
+                <div class="size-selection mt-3">
+                    <label for="sizeSelect">Select Size:</label>
+                    <% if (product.sizes.length > 0) { %>
+                        <div class="size-buttons">
+                            <% product.sizes.forEach(size => { %>
+                                <button type="button" class="btn btn-outline-primary size-button" data-size="<%= size.size %>"><%= size.size %></button>
+                            <% }) %>
+                        </div>
+                    <% } else { %>
+                        <p>No sizes available</p>
+                    <% } %>
+                </div>
                 <p class="product-description"><%= product.description %></p>
 
                 <!-- Add to Cart Button -->
-                <form action="/add-to-cart" method="POST">
+                <form id="addToCartForm">
                     <input type="hidden" name="productId" value="<%= product.id %>">
+                    <input type="hidden" name="size" id="selectedSize">
                     <button type="submit" class="btn btn-success btn-custom">Add to Cart</button>
                 </form>
 
@@ -184,31 +216,32 @@
                         <div class="card h-100">
                             <!-- Product Image -->
                             <a href="/product-detail/<%= product._id %>">
-                                <img id="zoom-image"  src="<%= product.images[0].secured_url %>" alt="Product Image" class="card-img-top">
+                                <img id="zoom-image" src="<%= product.images[0].secured_url %>" alt="Product Image" class="card-img-top">
                             </a>
                             <div class="card-body">
                                 <!-- Product Name -->
                                 <h5 class="card-title">
                                     <a href="/product-detail/<%= product._id %>" class="text-dark"><%= product.product %></a>
                                 </h5>
-
+                               
                                 <!-- Rating and Price -->
+
                                 <p class="card-text">
                                     <span class="text-warning">
                                         <%= product.rating %> <i class="fas fa-star"></i>
                                     </span>
                                     <span class="text-muted float-right">$<%= product.price %></span>
                                 </p>
+                                
                             </div>
 
                             <!-- Bottom Buttons -->
                             <div class="card-footer bg-transparent border-0">
-                                <form action="/add-to-cart" method="POST" class="cart-form mb-2">
-                                    <input type="hidden" name="productId" value="<%= product._id %>">
-                                    <button class="btn btn-success btn-block" type="submit" <% if (product.stock === 0) { %> disabled <% } %>>Add to Cart</button>
+                                <form action="/cart/add" method="POST">
+                                    <input type="hidden" name="productId" value="<%= product.id %>">
+                                    <button type="submit" class="btn btn-success btn-custom">Add to Cart</button>
                                 </form>
-
-                                <form action="/add-to-wishlist" method="POST" class="wishlist-form">
+                                <form action="/user/wishlist/add" method="POST" class="wishlist-form">
                                     <input type="hidden" name="productId" value="<%= product._id %>">
                                     <button class="btn btn-outline-danger btn-block" type="submit">
                                         <i class="fas fa-heart"></i> Add to Wishlist
@@ -225,34 +258,110 @@
     <%- include('partials/footer')%>
 
     <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <script>
       $(document).ready(function() {
-    // Initialize zoom for the first active image
-    $('#productCarousel .carousel-item.active img').elevateZoom({
-        zoomType: "lens",
-        lensShape: "round",
-        lensSize: 200,
-        easing: true
-    });
+        // Handle size button clicks
+        $('.size-button').on('click', function() {
+            $('.size-button').removeClass('active');
+            $(this).addClass('active');
+            $('#selectedSize').val($(this).data('size'));
+        });
 
-    // Reinitialize zoom when the carousel slides to a new image
-    $('#productCarousel').on('slid.bs.carousel', function() {
-        $('.zoomContainer').remove();  // Remove previous zoom container
-        // Get the new active image and apply zoom to it
+        // Initialize zoom for the first active image
         $('#productCarousel .carousel-item.active img').elevateZoom({
             zoomType: "lens",
             lensShape: "round",
             lensSize: 200,
             easing: true
         });
+
+        // Reinitialize zoom when the carousel slides to a new image
+        $('#productCarousel').on('slid.bs.carousel', function() {
+            $('.zoomContainer').remove();  // Remove previous zoom container
+            // Get the new active image and apply zoom to it
+            $('#productCarousel .carousel-item.active img').elevateZoom({
+                zoomType: "lens",
+                lensShape: "round",
+                lensSize: 200,
+                easing: true
+            });
+        });
     });
-});
-
-
     </script>
-    
-    
+    <script>
+        document.getElementById('addToCartForm').addEventListener('submit', handleAddToCart);
 
+async function handleAddToCart(event) {
+    event.preventDefault();
+    const url = "/cart/add";
+    const productId = document.querySelector('input[name="productId"]').value;
+    const size = document.querySelector('input[name="size"]').value;
+
+    const options = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ productId, size })
+    };
+
+    try {
+        const response = await fetch(url, options);
+        const result = await response.json();
+
+        if (response.ok) {
+            document.querySelector('input[name="productId"]').value = '';
+            document.querySelector('input[name="size"]').value = '';
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Added to Cart',
+                text: 'Product successfully added to cart!',
+                confirmButtonText: 'OK'
+            });
+            
+        } else if (response.status === 401) { // Unauthorized status
+            Swal.fire({
+                icon: 'warning',
+                title: 'Login Required',
+                text: 'You need to log in to add items to the cart.',
+                showCancelButton: true,
+                confirmButtonText: 'Login',
+                cancelButtonText: 'Continue Without Login'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = '/auth/signin'; // Redirect to login page
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    // Optionally handle continuing without login here
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Not Logged In',
+                        text: 'You can continue browsing, but your cart will not be saved.',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            });
+        } else {
+            Swal.fire({
+                icon: 'info',
+                title: 'Already in Cart Or Choose Size',
+                text: 'This product is already in your cart or you need to choose a size.',
+                confirmButtonText: 'OK'
+            });
+        }
+    } catch (error) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'An error occurred: ' + error.message,
+            confirmButtonText: 'OK'
+        });
+    }
+}
+
+</script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>

@@ -5,11 +5,11 @@ const JWT=require('jsonwebtoken');
 const bcrypt=require('bcrypt');
 const dotenv=require('dotenv').config();
 const cookieParser=require('cookie-parser');
-const {jwtAuth,adminProtected,userProtected}=require('../middlewares/auth');
+
 
 const router=express.Router();
 router.use(cookieParser())
-// router.use(jwtAuth,userProtected);
+
 
 
 

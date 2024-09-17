@@ -4,69 +4,190 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Sign-up form</title>
+  <title>Sign-up Form</title>
+  
+  <!-- FontAwesome for icons -->
   <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+  
+  <!-- Animate.css for animations -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.css" />
   
+  <!-- Google Fonts for better typography -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+  
+  <!-- Custom CSS -->
+  <style>
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background-color: #f0f2f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    
+    .container {
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      padding: 30px;
+      max-width: 400px;
+      width: 100%;
+    }
+
+    h1.brand {
+      text-align: center;
+      color: #333;
+      margin-bottom: 30px;
+    }
+
+    h1.brand span {
+      color: #007bff;
+      font-weight: 600;
+    }
+
+    .wrapper {
+      animation-duration: 1s;
+    }
+
+    .contact form {
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      font-size: 14px;
+      color: #555;
+      margin-bottom: 5px;
+    }
+
+    input[type="text"] {
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      margin-bottom: 20px;
+      transition: border 0.3s ease;
+    }
+
+    input[type="text"]:focus {
+      border-color: #007bff;
+      outline: none;
+    }
+
+    button {
+      padding: 10px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      font-size: 16px;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .full {
+      text-align: center;
+    }
+
+    #error {
+      color: red;
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+
+    #timer {
+      font-size: 14px;
+      text-align: center;
+      margin-bottom: 20px;
+      color: #555;
+    }
+
+  </style>
 </head>
 <body>
   <div class="container">
-    <h1 class="brand"><span>Welcome User </span> Sign-up</h1>
+    <h1 class="brand"><span>Welcome User</span> Sign-up</h1>
     <div class="wrapper animated bounceInLeft">
-     
       <div class="contact">
         <div id="error"></div>
-        <form id="otpForm" >
+        
+        <!-- Countdown Timer -->
+        <div id="timer">OTP expires in: <span id="countdown">60</span> seconds</div>
+        
+        <form id="otpForm">
           <p>
-            <label>Enter otp</label>
-            <input type="text" name="otp" required id="otp">
+            <label>Enter OTP</label>
+            <input type="text" name="otp" required id="otp" placeholder="Enter OTP">
           </p>
           
           <p class="full">
             <button type="submit">Submit</button>
           </p>
-
         </form>
         <br>
         <form method="POST" action="resend">
           <p class="full">
-            <button type="submit">resend otp</button>
+            <button type="submit" id="resendBtn" disabled>Resend OTP</button>
           </p>
-          
+        </form>
       </div>
     </div>
   </div>
+
   <script>
     document.getElementById('otpForm').addEventListener('submit', login);
-    
+
     async function login(event) {
-        event.preventDefault();
-        const url = "/auth/verify";
-        const otp=document.getElementById('otp').value;
+      event.preventDefault();
+      const url = "/auth/verify";
+      const otp = document.getElementById('otp').value;
 
-        const options = {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ otp })
-        };
+      const options = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ otp })
+      };
 
-        try {
-            const response = await fetch(url, options);
-            const result = await response.json();
-            console.log('result', result);
+      try {
+        const response = await fetch(url, options);
+        const result = await response.json();
+        console.log('result', result);
 
-            if (response.ok) {
-                document.getElementById('otp').value='';
-                window.location.href = '/auth/signin';
-            } else {
-                document.getElementById('error').innerText = result.message;
-            }
-        } catch (error) {
-            document.getElementById('error').innerText = 'An error occurred. Please try again.';
+        if (response.ok) {
+          document.getElementById('otp').value = '';
+          window.location.href = '/auth/signin';
+        } else {
+          document.getElementById('error').innerText = result.message;
         }
+      } catch (error) {
+        document.getElementById('error').innerText = 'An error occurred. Please try again.';
+      }
     }
-</script>
+
+    // Timer functionality
+    let timeLeft = 60;
+    const countdownElement = document.getElementById('countdown');
+    const resendBtn = document.getElementById('resendBtn');
+
+    const countdownTimer = setInterval(() => {
+      if (timeLeft <= 0) {
+        clearInterval(countdownTimer);
+        resendBtn.disabled = false;  // Enable the resend button after 60 seconds
+        countdownElement.innerText = "0";
+      } else {
+        timeLeft--;
+        countdownElement.innerText = timeLeft;
+      }
+    }, 1000);
+  </script>
 </body>
 </html>

@@ -4,7 +4,9 @@ const dotenv=require('dotenv').config()
 const JWT=require('jsonwebtoken');
 const bcrypt=require('bcrypt');
 const crypto=require('crypto');
-const Cart=require('./cartSchema')
+const Cart=require('./cartSchema');
+const Address=require('./addressSchema')
+const Wishlist=require('./wishlistSchema')
 // user
 const userSchema=new Schema({
     googleId:{
@@ -37,10 +39,17 @@ const userSchema=new Schema({
         default:'user'
     }
     ,
-    address: {
+    address: [{
         type: Schema.Types.ObjectId,
         ref: 'Address'
-    },
+    }],
+    wishlist:[
+        {
+            type:Schema.Types.ObjectId,
+            ref:'Wishlist',
+            default:[]
+        }
+    ],
     cart: {
         type: Schema.Types.ObjectId,
         ref: 'Cart',  
@@ -54,6 +63,7 @@ const userSchema=new Schema({
     },
     isBlocked:{
         type:Boolean,
+        select:false,
         default:false
     }
 },{
