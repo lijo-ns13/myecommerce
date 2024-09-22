@@ -23,11 +23,17 @@ passport.use(new GoogleStrategy({
 
         if (!user) {
             // Create a new user if not found
+            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        let referralCode = '';
+        for (let i = 0; i < 6; i++) {
+            referralCode += characters.charAt(Math.floor(Math.random() * characters.length));
+        }
             user = {
                 googleId: profile.id,
                 email: profile.emails[0].value,
                 name: profile.displayName,
-                role:'user'
+                role:'user',
+                referralCode:referralCode
             };
             await usersCollection.insertOne(user);
         }

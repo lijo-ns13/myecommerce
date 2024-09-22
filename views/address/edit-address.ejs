@@ -85,6 +85,7 @@
 
     <h1 class="text-center my-4">Address Edit Page</h1>
     <div class="container">
+        <div id="error"></div>
         <form id="updateForm">
             <input type="hidden" name="id" id="addressId" value="<%= address._id %>">
             <div class="form-group">
@@ -219,25 +220,13 @@
                         icon: 'success',
                         confirmButtonText: 'OK'
                     }).then(() => {
-                        window.location.href = '/user-profile';
+                        window.location.href = '/user/profile';
                     });
                 } else {
-                    // Show error alert
-                    Swal.fire({
-                        title: 'Error!',
-                        text: result.message || 'Could not update address.',
-                        icon: 'error',
-                        confirmButtonText: 'OK'
-                    });
+                    document.getElementById('error').innerText = result.message;
                 }
             } catch (error) {
-                // Show error alert
-                Swal.fire({
-                    title: 'Error!',
-                    text: error.message,
-                    icon: 'error',
-                    confirmButtonText: 'OK'
-                });
+                document.getElementById('error').innerText = 'An error occurred. Please try again.';
             }
         }
     </script>

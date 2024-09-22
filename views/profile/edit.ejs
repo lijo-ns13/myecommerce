@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Profile</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .profile-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 50px;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        .sidebar {
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            width: 250px;
+            margin-right: 20px; /* Space between sidebar and form */
+        }
+        #error {
+            margin-bottom: 20px;
+            color: red;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-light py-3">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">
+                <img src="/img/logo.png" alt="Logo" class="d-inline-block align-text-top" style="height: 40px;">
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/products">Products</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/about">About</a>
+                    </li>
+                </ul>
+                
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/auth/signin">
+                            <img src="/img/log-in.png" alt="Login" class="nav-icon" style="height: 24px;">
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/user/wishlist">
+                            <img src="/img/wishlist.png" alt="Wishlist" class="nav-icon" style="height: 24px;">
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/cart">
+                            <img src="/img/cart.png" alt="Cart" class="nav-icon" style="height: 24px;">
+                            <span class="badge badge-pill badge-danger">0</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/user/profile">
+                            <img src="/img/userprofile.jpg" alt="User Profile" class="nav-icon rounded-circle" style="height: 24px;">
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="profile-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <h4>Menu</h4>
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link" href="/user/profile">Profile</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/user/address">Addresses</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/user/profile/edit">Edit Profile</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/user/orders">Orders</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/user/profile/change-password">Change Password</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/auth/logout">Logout</a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Profile Form -->
+        <div class="container">
+            <h1 class="text-center">Edit Profile</h1>
+            <div id="error"></div>
+            <form id="editForm">
+                <div class="mb-3">
+                    <label for="name" class="form-label">Name</label>
+                    <input type="text" name="name" id="name" class="form-control" placeholder="Name" value="<%= user.name %>">
+                </div>
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" name="email" id="email" class="form-control" placeholder="Email" value="<%= user.email %>">
+                </div>
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.getElementById('editForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const url = "/user/profile/edit";
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+
+            const options = {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name, email })
+            };
+
+            try {
+                const response = await fetch(url, options);
+                const result = await response.json();
+
+                if (response.ok) {
+                    if (result.requiresOtp) {
+                        Swal.fire({
+                            title: 'Success!',
+                            text: 'OTP sent to your email. Please verify.',
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        }).then(() => {
+                            window.location.href = '/user/profile/verify-otp'; // Redirect to OTP verification page
+                        });
+                    } else {
+                        Swal.fire({
+                            title: 'Success!',
+                            text: 'Profile updated successfully.',
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        }).then(() => {
+                            window.location.href = '/user/profile'; // Redirect to profile page
+                        });
+                    }
+                } else {
+                    document.getElementById('error').innerText = result.message || 'An error occurred. Please try again.';
+                }
+            } catch (error) {
+                console.error('Fetch error:', error);
+                document.getElementById('error').innerText = 'An error occurred. Please try again.';
+            }
+        });
+    </script>
+</body>
+</html>
+
+

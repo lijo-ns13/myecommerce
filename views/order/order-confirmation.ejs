@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmation</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <h1 class="my-4">Order Confirmation</h1>
+        <div class="alert alert-success" role="alert">
+            <h4 class="alert-heading">Thank You for Your Purchase!</h4>
+            <p>Your order has been successfully placed. Here are your order details:</p>
+            <hr>
+            <p><strong>Order ID:</strong> <%= order._id %></p>
+            <p><strong>Total Price:</strong> $<%= order.totalPrice %></p>
+            <p><strong>Shipping Address:</strong> <%= order.shippingAddress.street %>, <%= order.shippingAddress.city %>, <%= order.shippingAddress.state %>, <%= order.shippingAddress.country %> - <%= order.shippingAddress.postalCode %></p>
+            <p><strong>Estimated Delivery Date:</strong> <%= order.deliveryDate ? order.deliveryDate.toDateString() : 'N/A' %></p>
+            <hr>
+            <p>You can view your <a href="/user/orders">order history</a> or <a href="/">continue shopping</a>.</p>
+        </div>
+    </div>
+</body>
+</html>

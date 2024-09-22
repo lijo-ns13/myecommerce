@@ -41,7 +41,7 @@ exports.adminProtected = (req, res, next) => {
         next(); 
     } else {
         
-        return res.status(403).render('protected/adminprotected')
+        return res.status(401).render('protected/adminprotected')
     }
 };
 

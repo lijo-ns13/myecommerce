@@ -45,9 +45,10 @@
         
         <!-- Back to Profile Button -->
         <div class="text-center mt-4">
-            <a href="/user-profile" class="btn btn-secondary">Back to Profile</a>
+            <a href="/user/profile" class="btn btn-secondary">Back to Profile</a>
         </div>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
     <script>
         document.getElementById('addressform').addEventListener('submit', addr);
         
@@ -82,8 +83,17 @@
                     document.getElementById('postalCode').value='';
                     document.getElementById('phoneNo').value = '';
                     document.getElementById('country').value = '';
-                    document.getElementById('error').value=''
-                    window.location.href = '/user-profile';
+                    document.getElementById('error').value='';
+
+                    // Show success alert
+                    Swal.fire({
+                        title: 'Success!',
+                        text: 'Address successfully updated.',
+                        icon: 'success',
+                        confirmButtonText: 'OK'
+                    }).then(() => {
+                        window.location.href = '/user/profile';
+                    });
                 } else {
                     document.getElementById('error').innerText = result.message;
                 }

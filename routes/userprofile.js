@@ -1,19 +1,40 @@
-const express=require('express');
-const router=express.Router();
-const User=require('../models/userSchema')
-const {jwtAuth,userProtected}=require('../middlewares/auth')
+const express = require('express');
+const router = express.Router();
+const User = require('../models/userSchema');
+const nodemailer = require('nodemailer');
+const bcrypt=require('bcrypt')
+// controller
+const userProfileController=require('../controllers/userprofileController')
+// Middleware
+const { jwtAuth, userProtected } = require('../middlewares/auth');
+const { postVerify } = require('../controllers/authController');
 
-router.use(jwtAuth,userProtected)
-
-router.get('/',async(req,res)=>{
-    console.log(req.user._id)
-    const userId=req.user._id;
-    const user=await User.findById(userId).populate('address');
-    res.render('profile/userprofile',{user:user})
-  
-
-})
+// Apply authentication middleware
+router.use(jwtAuth, userProtected);
+// auth: {
+//     user: 'lijons13@gmail.com',
+//     pass: 'cbyb zggu etpz yhsu'
+// }
+// Get user profile
+router.get('/', userProfileController.getProfile);
 
 
+// Handle profile update
 
-module.exports=router;
+
+router.get('/edit',userProfileController.getEditProfile);
+
+// Render OTP verification page
+router.get('/verify-otp', userProfileController.getVerifyOtp);
+// Handle profile update
+
+router.post('/edit', userProfileController.postEditProfile);
+// Handle OTP verification
+router.post('/verify-otp', userProfileController.postVerifyOtp );
+
+
+// passsword section 
+
+router.get('/change-password',userProfileController.getChangePassword)
+router.post('/change-password',userProfileController.postChangePassword)
+module.exports = router;

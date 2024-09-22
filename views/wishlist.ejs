@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Wishlist</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .wishlist-container {
+            margin: 20px auto;
+            max-width: 800px;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .product-item {
+            padding: 10px;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            align-items: center;
+        }
+        .product-item:last-child {
+            border-bottom: none;
+        }
+        .product-image {
+            max-width: 100px;
+            margin-right: 15px;
+            border-radius: 5px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+        .size-options {
+            margin: 10px 0;
+        }
+        .size-button {
+            display: inline-block;
+            padding: 8px 12px;
+            margin-right: 5px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .size-button.selected {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+        .remove-button {
+            margin-left: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="wishlist-container">
+        <h1 class="text-center">Your Wishlist</h1>
+        <% if (products.length === 0) { %>
+            <p class="text-center">Your wishlist is empty.</p>
+        <% } else { %>
+            <ul class="list-group">
+                <% products.forEach(product => { %>
+                    <li class="list-group-item product-item">
+                        <img src="<%= product.images[0].secured_url %>" alt="<%= product.name %>" class="product-image">
+                        <div class="flex-grow-1">
+                            <h5><%= product.name %></h5>
+                            <p>Price: $<%= product.price.toFixed(2) %></p>
+                            
+                        </div>
+                        <div class="size-selection mt-3">
+                            <label for="sizeSelect">Select Size:</label>
+                            <% if (product.sizes.length > 0) { %>
+                                <div class="size-buttons">
+                                    <% product.sizes.forEach(size => { %>
+                                        <button type="button" class="btn btn-outline-primary size-button" data-size="<%= size.size %>"><%= size.size %></button>
+                                    <% }) %>
+                                </div>
+                            <% } else { %>
+                                <p>No sizes available</p>
+                            <% } %>
+                        </div>
+                        <form id="addToCartForm">
+                            <input type="hidden" name="productId" value="<%= product.id %>">
+                            <input type="hidden" name="size" id="selectedSize">
+                            <button type="submit" class="btn btn-success btn-custom">Add to Cart</button>
+                        </form>
+                        
+                        <button class="btn btn-danger btn-sm remove-button" onclick="removeFromWishlist('<%= product._id %>')">Remove</button>
+                    </li>
+                <% }) %>
+            </ul>
+        <% } %>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // Initialize image zoom
+        $('img[data-zoom-image]').elevateZoom();
+
+        // Handle size selection
+        let selectedSize = null;
+        $('.size-button').on('click', function() {
+            selectedSize = $(this).data('size');
+            $('#selectedSize').val(selectedSize);
+            $('.size-button').removeClass('btn-primary').addClass('btn-outline-primary');
+            $(this).removeClass('btn-outline-primary').addClass('btn-primary');
+        });
+
+    // Add to cart logic
+// Add to cart logic
+$('#addToCartForm').on('submit', function(e) {
+    e.preventDefault();
+
+    // Check if a size is selected
+    if (!selectedSize) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Size Required',
+            text: 'Please select a size before adding the product to your cart.',
+            confirmButtonText: 'OK'
+        });
+        return;
+    }
+
+    // Fetch API to submit form data
+    fetch('/cart/add', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            productId: $('input[name="productId"]').val(),
+            size: selectedSize
+        })
+    })
+    .then(response => {
+        if (response.status === 401) { // Unauthorized
+            return response.text().then(text => {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Unauthorized',
+                    text: 'You need to log in to add items to the cart.',
+                    confirmButtonText: 'Login',
+                    onClose: () => {
+                        window.location.href = '/auth/signin'; // Redirect to login page
+                    }
+                });
+            });
+        } else if (response.ok) { // Check if the response is ok (status code in the range 200-299)
+            return response.json().then(data => {
+                // Ensure data is an object with the expected properties
+                if (data && typeof data === 'object') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Added to Cart',
+                        text: data.message || 'Item added to cart successfully.',
+                        confirmButtonText: 'OK'
+                    });
+                } else {
+                    throw new Error('Unexpected response format.');
+                }
+            });
+        } 
+        else if(response.status===403){
+            return response.json().then(data => {
+                // Ensure data is an object with the expected properties
+                if (data && typeof data === 'object') {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'limit',
+                        text: data.message || 'error occured.',
+                        confirmButtonText: 'OK'
+                    });
+                } else {
+                    throw new Error('Unexpected response format.');
+                }
+            });
+        }
+        else {
+            return response.text().then(text => {
+                throw new Error(text || 'Something went wrong');
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error adding to cart:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: error.message || 'There was a problem adding the product to your cart. Please try again later.',
+            confirmButtonText: 'OK'
+        });
+    });
+});
+
+    </script>
+    
+</body>
+</html>

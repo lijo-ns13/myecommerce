@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>edit coupon</title>
+</head>
+<body>
+    <h1>edit coupon</h1>
+    <form action="/admin/coupon/edit/<%=coupon._id%>?_method=PATCH" method="post">
+        
+        <input type="text" name="couponCode" id="couponCode" placeholder="couponCode" value="<%=coupon.couponCode%>">
+        <label for="discountType">Discount Type:</label>
+        <div>
+            <input type="radio" id="percentage" name="discountType" value="percentage" 
+            <%= coupon.discountType === 'percentage' ? 'checked' : '' %> required>
+            <label for="percentage">Percentage</label>
+          </div>
+          <div>
+            <input type="radio" id="fixed" name="discountType" value="fixed" 
+            <%= coupon.discountType === 'fixed' ? 'checked' : '' %> required>
+            <label for="fixed">Fixed</label>
+          </div>
+          
+
+        <input type="number" name="discountValue" id="discountValue" placeholder="discountValue" value="<%=coupon.discountValue%>">
+        <input type="date" name="expiryDate" id="expiryDate" placeholder="Expiry Date" value="<%= new Date(coupon.expiryDate).toISOString().slice(0, 10) %>">
+        <input type="number" name="minPurchaseAmount" id="minPurchaseAmount" placeholder="minPurchaseAmount" value="<%=coupon.minPurchaseAmount%>">
+        <input type="number" name="maxDiscount" id="maxDiscount" placeholder="maxDiscount" value="<%=coupon.maxDiscount%>">
+        <input type="number" name="usageLimit" id="usageLimit" placeholder="usageLimit" value="<%=coupon.usageLimit%>">
+        <button type="submit">edit </button>
+    </form>
+</body>
+</html>

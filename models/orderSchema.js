@@ -16,7 +16,11 @@ const orderSchema=new Schema({
                 required:true
             },
             quantity:Number,
-            price:Number
+            price:Number,
+            size:{
+                type:String,
+                required:true
+            }
         }
     ],
     totalPrice:{
@@ -53,18 +57,26 @@ const orderSchema=new Schema({
         type:Date,
         default:Date.now
     },
-    deliveryDate:{
-        type:Date
-    },
+    deliveryDate: { type: Date } ,
     status:{
         type:String,
-        enum:['pending','shipped','delivered',
-            'cancelled'
-        ],
+        enum:[ 'pending', 
+            'processing',
+            'shipped', 
+            'delivered', 
+            'cancelled',
+            'returned',
+            'refunded',
+            'out_of_stock',
+            'on_hold',
+            'failed'],
         default:'pending'
 
     },
-    paymentMethod:String
+    paymentMethod:{
+        type:String,
+        required:true
+    }
 },{
     timestamps:true
 })

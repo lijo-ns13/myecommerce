@@ -95,6 +95,7 @@
             }
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body>
@@ -146,7 +147,7 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/user-profile">
+                        <a class="nav-link" href="/user/profile">
                             <img src="/img/userprofile.jpg" alt="User Profile" class="nav-icon rounded-circle"
                                 style="height: 24px;">
                         </a>
@@ -163,14 +164,12 @@
             <h4>Menu</h4>
             <ul class="nav flex-column">
                 <li class="nav-item">
-                    <a class="nav-link" href="/user-profile">Profile</a>
+                    <a class="nav-link" href="/user/profile">Profile</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="/user/address">Addresses</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/user/address/add-address">New Address</a>
-                </li>
+                
                 <li class="nav-item">
                     <a class="nav-link" href="/user/orders">Orders</a>
                 </li>
@@ -182,6 +181,7 @@
 
         <div class="w-100">
             <h2 class="mb-4">Addresses</h2>
+            <a href="/user/address/add-address" class="btn btn-primary btn-add-address">Add New Address</a>
             <% if(user.address.length > 0) { %>
                 <% for(const address of user.address) { %>
                     <div class="card address-card">
@@ -191,10 +191,8 @@
                             <p>Phone: <%= address.phoneNo %></p>
                             <div class="address-actions">
                                 <a href="/user/address/edit-address/<%= address._id %>" class="btn btn-primary">Edit</a>
-                                <form action="/user/address/delete-address/<%= address._id %>" method="POST" class="d-inline">
-                                    <input type="hidden" name="_method" value="DELETE">
-                                    <button type="submit" class="btn btn-danger">Delete</button>
-                                </form>
+                                <button class="btn btn-danger" onclick="deleteAddress('<%= address._id %>')">Delete</button>
+
                             </div>
                         </div>
                     </div>
@@ -240,18 +238,71 @@
                     <h5>Follow Us</h5>
                     <ul class="list-unstyled footer-links">
                         <li><a href="#">Facebook</a></li>
-                        <li><a href="#">Instagram</a></li>
                         <li><a href="#">Twitter</a></li>
+                        <li><a href="#">Instagram</a></li>
+                        <li><a href="#">LinkedIn</a></li>
                     </ul>
                 </div>
             </div>
+            <div class="text-center mt-4">
+                &copy; <%= new Date().getFullYear() %> Your Company. All Rights Reserved.
+            </div>
         </div>
     </footer>
-
+    <script>
+        async function deleteAddress(addressId) {
+            // Show confirmation dialog
+            const result = await Swal.fire({
+                title: 'Are you sure?',
+                text: 'You won’t be able to revert this!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!'
+            });
+    
+            if (result.isConfirmed) {
+                try {
+                    const response = await fetch(`/user/address/delete-address/${addressId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    const data = await response.json();
+    
+                    if (response.ok) {
+                        Swal.fire(
+                            'Deleted!',
+                            'Your address has been deleted.',
+                            'success'
+                        ).then(() => {
+                            // Optionally, redirect or update the UI
+                            window.location.reload();
+                        });
+                    } else {
+                        Swal.fire(
+                            'Error!',
+                            data.message || 'Something went wrong!',
+                            'error'
+                        );
+                    }
+                } catch (error) {
+                    Swal.fire(
+                        'Error!',
+                        'An error occurred. Please try again later.',
+                        'error'
+                    );
+                }
+            }
+        }
+    </script>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 
 </html>
+
 

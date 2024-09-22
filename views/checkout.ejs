@@ -85,7 +85,7 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/user-profile">
+                        <a class="nav-link" href="/user/profile">
                             <img src="/img/userprofile.jpg" alt="User Profile" class="nav-icon rounded-circle" style="height: 24px;">
                         </a>
                     </li>
@@ -128,39 +128,76 @@
             </div>
         <% } %>
 
-        <!-- Shipping Address -->
-        <h4 class="mt-4">Shipping Address</h4>
-        <form id="checkoutForm" action="/checkout" method="POST">
-            <div class="form-group">
-                <label for="address">Select Address</label>
-                <select class="form-control" id="address" name="selectedAddress" required>
-                    <% user.address.forEach(address => { %>
-                        <option value="<%= address._id %>">
-                            <%= address.street %>, <%= address.city %>, <%= address.state %> - <%= address.postalCode %>, <%= address.country %>
-                        </option>
-                    <% }) %>
-                </select>
-                
-            </div>
-            <button type="button" class="btn btn-secondary btn-add-address"><a href="/user/address/add-address" style="color: inherit; text-decoration: none;">Add New Address</a></button>
+       <!-- Shipping Address -->
+<h4 class="mt-4">Shipping Address</h4>
+<form id="checkoutForm" action="/checkout" method="POST">
+    <h3>Select Shipping Address</h3>
+    <!-- Existing Addresses Radio Buttons -->
+    <% user.address.forEach((address, index) => { %>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="selectedAddress" id="address<%= index %>" value="<%= address._id %>" <%= index === 0 ? 'checked' : '' %>>
+            <label class="form-check-label" for="address<%= index %>">
+                <%= address.street %>, <%= address.city %>, <%= address.state %> - <%= address.postalCode %>, <%= address.country %>
+            </label>
+        </div>
+    <% }) %>
 
-            <!-- Payment Details -->
-            <h4 class="mt-4">Payment Details</h4>
-            <div class="form-group">
-                <label>Payment Method</label><br>
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" name="paymentMethod" id="cod" value="COD" checked>
-                    <label class="form-check-label" for="cod">Cash on Delivery</label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" name="paymentMethod" id="razorpay" value="Razorpay">
-                    <label class="form-check-label" for="razorpay">Razorpay</label>
-                </div>
-            </div>
-
-            <button type="submit" class="btn btn-primary">Place Order</button>
-        </form>
+    <!-- Add New Address Radio Button -->
+    <div class="form-check">
+        <input class="form-check-input" type="radio" name="selectedAddress" id="newAddress" value="new">
+        <label class="form-check-label" for="newAddress">
+            Add New Address
+        </label>
     </div>
+
+    <!-- New Address Form -->
+    <div id="newAddressForm" style="display:none;">
+        <div class="form-group mt-3">
+            <label for="street">Street</label>
+            <input type="text" class="form-control" id="newStreet" name="newStreet" placeholder="123 Main St">
+        </div>
+        <div class="form-group">
+            <label for="city">City</label>
+            <input type="text" class="form-control" id="newCity" name="newCity" placeholder="City">
+        </div>
+        <div class="form-group">
+            <label for="state">State</label>
+            <input type="text" class="form-control" id="newState" name="newState" placeholder="State">
+        </div>
+        <div class="form-group">
+            <label for="postalCode">Postal Code</label>
+            <input type="text" class="form-control" id="newPostalCode" name="newPostalCode" placeholder="Postal Code">
+        </div>
+        <div class="form-group">
+            <label for="country">Country</label>
+            <input type="text" class="form-control" id="newCountry" name="newCountry" placeholder="Country">
+        </div>
+        <div class="form-group">
+            <label for="phoneNo">Phone Number</label>
+            <input type="text" class="form-control" id="newPhoneNo" name="newPhoneNo" placeholder="Phone Number">
+        </div>
+        <!-- Confirm New Address Button -->
+        <button type="button" class="btn btn-success mt-3" id="confirmNewAddress">Confirm Address</button>
+    </div>
+
+    <!-- Payment Method Section -->
+    <h4 class="mt-4">Payment Method</h4>
+    <div class="form-group">
+        <label for="paymentMethod">Select Payment Method</label>
+        <select class="form-control" id="paymentMethod" name="paymentMethod">
+            <option value="cod">Cash on Delivery (COD)</option>
+            <option value="razorpay">Razorpay</option>
+            <!-- Add more payment options here if needed -->
+        </select>
+    </div>
+
+    <!-- Proceed to Checkout Button -->
+    <button type="submit" class="btn btn-primary mt-3" id="placeOrder" disabled>Place Order</button>
+</form>
+
+
+
+
 
     <footer class="bg-dark text-white mt-5">
         <div class="container py-4">
@@ -203,11 +240,54 @@
         </div>
     </footer>
 
-    <!-- Scripts -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <!-- Scripts -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const newAddressRadio = document.getElementById('newAddress');
+            const newAddressForm = document.getElementById('newAddressForm');
+            const placeOrderButton = document.getElementById('placeOrder');
+            const addressRadios = document.querySelectorAll('input[name="selectedAddress"]');
+        
+            addressRadios.forEach(radio => {
+                radio.addEventListener('change', function () {
+                    if (newAddressRadio.checked) {
+                        newAddressForm.style.display = 'block';
+                        placeOrderButton.disabled = true; // Disable until the new address is confirmed
+                    } else {
+                        newAddressForm.style.display = 'none';
+                        placeOrderButton.disabled = false;
+                    }
+                });
+            });
+        
+            // Confirm New Address button click handler
+            document.getElementById('confirmNewAddress').addEventListener('click', function () {
+                const newStreet = document.getElementById('newStreet').value;
+                const newCity = document.getElementById('newCity').value;
+                const newState = document.getElementById('newState').value;
+                const newPostalCode = document.getElementById('newPostalCode').value;
+                const newCountry = document.getElementById('newCountry').value;
+                const newPhoneNo = document.getElementById('newPhoneNo').value;
+        
+                const streetRegex = /^[a-zA-Z0-9\s.,'-]{2,100}$/;
+                const cityRegex = /^[a-zA-Z\s.'-]{2,50}$/;
+                const stateRegex = /^[a-zA-Z\s'-]{2,50}$/;
+                const postalCodeRegex = /^[a-zA-Z0-9\s-]{3,12}$/;
+                const countryRegex = /^[a-zA-Z\s'-]{2,50}$/;
+                const phoneNoRegex = /^\+?[1-9]\d{1,14}$|^[0-9]{10,15}$/;
+        
+                // Validate fields
+                if (!streetRegex.test(newStreet) || !cityRegex.test(newCity) || !stateRegex.test(newState) ||
+                    !postalCodeRegex.test(newPostalCode) || !countryRegex.test(newCountry) || !phoneNoRegex.test(newPhoneNo)) {
+                    document.getElementById('errorDiv').style.display = 'block';
+                    document.getElementById('errorDiv').innerText = 'Please provide valid address details.';
+                } else {
+                    document.getElementById('errorDiv').style.display = 'none';
+                    placeOrderButton.disabled = false; // Enable Place Order
+                }
+            });
+        });
+        </script>
+        
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>

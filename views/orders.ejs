@@ -4,26 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Orders</title>
-    <!-- Bootstrap CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <style>
-        .order-card {
-            margin-bottom: 20px;
+        .order-card { margin-bottom: 20px; }
+        .order-header { background-color: #f8f9fa; padding: 15px; border-bottom: 1px solid #dee2e6; }
+        .order-items { padding: 15px; }
+        .btn-cancel { margin-top: 10px; }
+        .sidebar { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 250px; 
+            height: 100%; 
+            background-color: #f8f9fa; 
+            padding: 20px; 
         }
-        .order-header {
-            background-color: #f8f9fa;
-            padding: 10px;
-            border-bottom: 1px solid #dee2e6;
-        }
-        .order-items {
-            padding: 10px;
-        }
-        .btn-cancel {
-            margin-top: 10px;
-        }
+        .content { margin-left: 270px; } /* Adjust margin to make space for sidebar */
     </style>
 </head>
 <body>
+    <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light py-3 w-100">
         <div class="container">
             <a class="navbar-brand" href="/">
@@ -70,7 +71,7 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/user-profile">
+                        <a class="nav-link" href="/user/profile">
                             <img src="/img/userprofile.jpg" alt="User Profile" class="nav-icon rounded-circle" style="height: 24px;">
                         </a>
                     </li>
@@ -79,79 +80,106 @@
         </div>
     </nav>
 
-    <div class="container mt-5">
-        <h2>My Orders</h2>
-
-        <% if (orders.length > 0) { %>
-            <% orders.forEach(order => { %>
-                <div class="card order-card">
-                    <div class="card-header order-header">
-                        <h5>Order ID: <%= order._id %></h5>
-                        <p>Status: <%= order.status %></p>
-                        <p>Total Price: $<%= order.totalPrice %></p>
-                        <p>Order Date: <%= new Date(order.orderDate).toLocaleDateString() %></p>
-                    </div>
-                    <div class="card-body order-items">
-                        <% order.products.forEach(product => { %>
-                            <div class="row mb-2">
-                                <div class="col-md-3">
-                                    <img src="<%= product.productId.images[0].secured_url %>" class="img-fluid" alt="<%= product.productId.product %>">
-                                </div>
-                                <div class="col-md-9">
-                                    <h5><%= product.productId.product %></h5>
-                                    <p>Quantity: <%= product.quantity %></p>
-                                    <p>Price per unit: $<%= product.productId.price %></p>
-                                    <p>Subtotal: $<%= product.quantity * product.productId.price %></p>
-                                </div>
-                            </div>
-                        <% }) %>
-                    </div>
-                    <% if (order.status === 'pending') { %>
-                        <div class="card-footer text-right">
-                            <form class="d-inline" method="POST" action="/user/orders/<%= order._id %>/cancel">
-                                <button type="submit" class="btn btn-danger btn-cancel">Cancel Order</button>
-                            </form>
-                        </div>
-                    <% } %>
-                </div>
-            <% }) %>
-        <% } else { %>
-            <div class="alert alert-info" role="alert">
-                You have no orders yet.
-            </div>
-        <% } %>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h4>Menu</h4>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link" href="/user/profile">Profile</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/user/address">Addresses</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/user/profile/edit">Edit Profile</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/user/orders">Orders</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/user/profile/change-password">Change Password</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/auth/logout">Logout</a>
+            </li>
+        </ul>
     </div>
 
-    <footer class="bg-dark text-white mt-5">
-        <div class="container py-4">
-            <div class="row">
-                <div class="col-md-4">
-                    <h5>About Us</h5>
-                    <p>We offer a wide range of high-quality products. Shop now and find what you need.</p>
+    <!-- Main Content -->
+    <div class="content">
+        <div class="container mt-5">
+            <h2>My Orders</h2>
+            <% orders.forEach(order => { %>
+            <div class="order-card">
+                <div class="order-header">
+                    <h5>Order #<%= order._id %> - <%= order.status %></h5>
+                    <p>Total: $<%= order.totalPrice %></p>
+                    <p>Order Date: <%= new Date(order.orderDate).toLocaleDateString() %></p>
+                    <p><strong>Shipping Address:</strong></p>
+                    <p>
+                        <%= order.shippingAddress.name %><br>
+                        <%= order.shippingAddress.street %>, <%= order.shippingAddress.city %><br>
+                        <%= order.shippingAddress.state %> - <%= order.shippingAddress.zip %><br>
+                        <%= order.shippingAddress.country %>
+                    </p>
                 </div>
-                <div class="col-md-2">
-                    <h5>Quick Links</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="/" class="text-white">Home</a></li>
-                        <li><a href="/products" class="text-white">Products</a></li>
-                        <li><a href="/contact" class="text-white">Contact</a></li>
-                    </ul>
+                
+                <div class="order-items">
+                    <% order.products.forEach(product => { %>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <img src="<%= product.productId.images[0]?.secured_url %>" class="img-fluid" alt="<%= product.productId.name %>">
+                        </div>
+                        <div class="col-md-9">
+                            <h5><%= product.productId.name %></h5>
+                            <p>Size: <%= product.size %></p>
+                            <p>Quantity: <%= product.quantity %></p>
+                            <p>Price per unit: $<%= product.productId.price %></p>
+                            <p>Subtotal: $<%= product.quantity * product.productId.price %></p>
+                        </div>
+                    </div>
+                    <% }) %>
                 </div>
-                <div class="col-md-4">
-                    <h5>Contact Us</h5>
-                    <p>123 Store Street, Shop City, SC 12345</p>
-                    <p>Email: support@store.com</p>
-                    <p>Phone: +123 456 7890</p>
+                <div class="order-footer">
+                    <% if (order.status === 'pending' || order.status==='processing') { %>
+                    <button class="btn btn-danger btn-cancel" onclick="confirmCancelOrder('<%= order._id %>')">Cancel Order</button>
+                    <% } %>
                 </div>
             </div>
+            <% }) %>
         </div>
-    </footer>
+    </div>
 
-    <!-- Scripts -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function confirmCancelOrder(orderId) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, cancel it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`/user/orders/${orderId}/cancel`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire('Cancelled!', 'Your order has been cancelled.', 'success')
+                            .then(() => location.reload());
+                        } else {
+                            Swal.fire('Error!', data.message, 'error');
+                        }
+                    })
+                    .catch(() => Swal.fire('Error!', 'An error occurred while cancelling the order.', 'error'));
+                }
+            });
+        }
+    </script>
 </body>
 </html>
-
-

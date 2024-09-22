@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    
+    <h1>coupon page</h1>
+    <a href="/admin/coupon/add-coupon"><button type="submit">add coupon</button></a>
+     <%if(coupons&&coupons.length>0){%>
+        <%for(const coupon of coupons){%>
+            <h1><%=coupon.couponCode%></h1>
+            <!-- <form action="/admin/coupon/edit/<%=coupon._id%>?_method=PATCH" method="POST">
+                <input type="hidden" name="_method" value="PATCH">
+                <button type="submit">edit</button>
+            </form> -->
+            <a href="/admin/coupon/edit/<%=coupon._id%>"><button type="submit">edit</button></a>
+        <%}%>
+    <%}else{%>
+        <h3>no coupons rightnow</h3>
+    <%}%>
+</body>
+</html>

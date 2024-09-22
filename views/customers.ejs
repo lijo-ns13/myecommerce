@@ -7,15 +7,19 @@
     <!-- Bootstrap CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
         .sidebar {
             height: 100vh;
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: 100;
             width: 250px;
             background-color: #212529;
             color: #fff;
+            position: fixed;
+            top: 0;
+            left: 0;
             overflow-y: auto;
             border-right: 1px solid #444;
             border-radius: 0 10px 10px 0;
@@ -34,15 +38,14 @@
             background-color: #007bff;
             color: #fff;
         }
-        .sidebar .nav-item {
-            margin-bottom: 1px;
-        }
-        .sidebar .nav-item:last-child {
-            margin-bottom: 0;
+        .sidebar .p-3 h4 {
+            font-size: 1.5rem;
+            font-weight: 500;
         }
         .main-content {
             margin-left: 250px;
             padding: 20px;
+            width: calc(100% - 250px);
         }
         .customer-card {
             margin-bottom: 1rem;
@@ -64,19 +67,19 @@
             }
             .main-content {
                 margin-left: 0;
+                width: 100%;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Sidebar -->
     <div class="sidebar">
         <div class="p-3">
             <h4>Dashboard</h4>
         </div>
         <ul class="nav flex-column p-3">
             <li class="nav-item">
-                <a class="nav-link active" href="/admin/dashboard">Dashboard</a>
+                <a class="nav-link" href="/admin/dashboard">Dashboard</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="/admin/products">Products</a>
@@ -85,16 +88,19 @@
                 <a class="nav-link" href="/admin/orders">Orders</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/admin/category">Category</a>
+                <a class="nav-link active" href="/admin/customers">Customers</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/admin/customers">Customers</a>
+                <a class="nav-link" href="/admin/category">Category</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="/admin/coupons">Coupons</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="/admin/banners">Banners</a>
+            </li>
+            <li class="nav-item"></li>
+                <a class="nav-link" href="/admin/inventory">Inventory</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="/admin/offers">Offers</a>
@@ -105,7 +111,6 @@
         </ul>
     </div>
 
-    <!-- Main Content -->
     <main class="main-content">
         <h1 class="my-4">Customers</h1>
         <div class="row">
@@ -119,12 +124,6 @@
                                 <%= customer.isBlocked ? 'Unblock' : 'Block' %>
                             </button>
                         </form>
-                        <!-- <form action="/admin/customers/<%= customer.isBlocked ? 'unblock-user' : 'block-user' %>/<%= customer._id %>" method="post">
-                            <button type="submit" class="btn btn-<%= customer.isBlocked ? 'success' : 'danger' %> btn-custom">
-                                <%= customer.isBlocked ? 'Unblock' : 'Block' %>
-                            </button>
-                        </form> -->
-                        
                     </div>
                 </div>
             <% } %>

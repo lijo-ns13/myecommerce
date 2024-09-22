@@ -17,7 +17,7 @@ const userSchema=new Schema({
         required:[true,'enter name'],
         trim:true,
         maxlength:[20,'name cannot exceed 20 characters'],
-        minlength:[6,'minimum 6 characters'],
+        minlength:[4,'minimum 4 characters'],
 
     },
     email:{
@@ -65,6 +65,26 @@ const userSchema=new Schema({
         type:Boolean,
         select:false,
         default:false
+    },
+    otp: {
+        type: String,
+        select: false  
+    },
+    otpExpires: {
+        type: Date,
+        select: false  
+    },
+    newName:{
+        type:String,
+        select:false
+    },
+    newEmail:{
+        type:String,
+        select:false
+    },
+    referralCode:{
+        type:String,
+        select:false
     }
 },{
     timestamps:true

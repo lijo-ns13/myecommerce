@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Add Coupon</h1>
+    <!-- couponCode,discountType,discountValue,expiryDate,minPurchaseAmount,maxDiscount,usageLimit -->
+    <form action="/admin/coupon/add-coupon" method="post">
+        <input type="text" name="couponCode" id="couponCode" placeholder="couponCode">
+        <label for="discountType">Discount Type:</label>
+        <div>
+          <input type="radio" id="percentage" name="discountType" value="percentage" required>
+          <label for="percentage">Percentage</label>
+        </div>
+        <div>
+          <input type="radio" id="fixed" name="discountType" value="fixed" required>
+          <label for="fixed">Fixed</label>
+        </div>
+
+        <input type="number" name="discountValue" id="discountValue" placeholder="discountValue">
+        <input type="date" name="expiryDate" id="expiryDate" placeholder="expiryDate">
+        <input type="number" name="minPurchaseAmount" id="minPurchaseAmount" placeholder="minPurchaseAmount">
+        <input type="number" name="maxDiscount" id="maxDiscount" placeholder="maxDiscount">
+        <input type="number" name="usageLimit" id="usageLimit" placeholder="usageLimit">
+        
+        <button type="submit">add coupon</button>
+    </form>
+</body>
+</html>

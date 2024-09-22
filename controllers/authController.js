@@ -75,14 +75,16 @@ const getSignup=(req,res)=>{
 }
 
 const postSignup=async (req, res) => {
-    // c67a4841d889255000971627c1c5a5cf8daa0d564d81bb41ce23460da0f038aa
-    // c67a4841d889255000971627c1c5a5cf8daa0d564d81bb41ce23460da0f038aa
+ 
     try {
         const { name, email, password, confirmPassword } = req.body;
         oremail = email;
 
         if (!name || !email || !password || !confirmPassword) {
             return res.status(400).json({ success: false, message: "Please fill in all fields" });
+        }
+        if(!name.length>=4){
+            return res.status(400).json({success:false,message:"atleast 4 characters required for name"})
         }
         if (password !== confirmPassword) {
             return res.status(400).json({ success: false, message: "Passwords do not match" });
@@ -94,7 +96,7 @@ const postSignup=async (req, res) => {
 
         const validUsername = /^[A-Za-z\s'-]{2,50}$/;
         if (!validUsername.test(name)) {
-            return res.status(400).json({ success: false, message: "Invalid username" });
+            return res.status(400).json({ success: false, message: "Invalid name" });
         }
 
         const existingUser = await userModel.findOne({ email });
@@ -102,7 +104,14 @@ const postSignup=async (req, res) => {
             return res.status(400).json({ success: false, message: "Email already exists" });
         }
         // res.status(200).json({success:true})
-        temperaluserData = { name, email, password };
+        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        let referralCode = '';
+        for (let i = 0; i < 6; i++) {
+            referralCode += characters.charAt(Math.floor(Math.random() * characters.length));
+        }
+        console.log(referralCode);
+
+        temperaluserData = { name, email, password,referralCode };
         otp = Math.floor(1000 + Math.random() * 9000);
         console.log(otp)
         otpExpirationTime = Date.now() + 1 * 60 * 1000;

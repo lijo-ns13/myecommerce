@@ -3,141 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Update Product</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" />
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f8f9fa;
-        }
-        .container {
-            margin-top: 20px;
-        }
-        .img-thumbnail {
-            max-width: 150px;
-            margin-bottom: 10px;
-        }
-        .existing-images {
-            display: flex;
-            flex-wrap: wrap;
-        }
-        .existing-images img {
-            margin-right: 10px;
-            margin-bottom: 10px;
-        }
-    </style>
+    <title>Edit Product</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" rel="stylesheet">
 </head>
 <body>
-    <div class="container">
-        <h1 class="my-4">Update Product</h1>
-        <form id="updateProductForm" action="/admin/products/edit/<%= product._id %>" method="POST" enctype="multipart/form-data">
-            <div class="form-row">
-                <div class="form-group col-md-6">
-                    <label for="product">Product Name</label>
-                    <input type="text" class="form-control" id="product" name="product" required value="<%= product.product %>">
-                </div>
-                <div class="form-group col-md-6">
-                    <label for="brand">Brand</label>
-                    <input type="text" class="form-control" id="brand" name="brand" value="<%= product.brand %>">
-                </div>
+
+    <div class="container mt-5">
+        <h2>Edit Product</h2>
+
+        <form id="editProductForm" action="/admin/edit-product/<%= product._id %>" method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="product">Product Name</label>
+                <input type="text" class="form-control" id="product" name="product" value="<%= product.product %>" required>
+            </div>
+            <div class="form-group">
+                <label for="brand">Brand</label>
+                <input type="text" class="form-control" id="brand" name="brand" value="<%= product.brand %>" required>
             </div>
             <div class="form-group">
                 <label for="description">Description</label>
-                <textarea class="form-control" id="description" name="description" rows="3"><%= product.description %></textarea>
-            </div>
-            <div class="form-row">
-                <div class="form-group col-md-6">
-                    <label for="price">Price</label>
-                    <input type="number" class="form-control" id="price" name="price" required value="<%= product.price %>">
-                </div>
-                <div class="form-group col-md-6">
-                    <label for="stock">Stock</label>
-                    <input type="number" class="form-control" id="stock" name="stock" required value="<%= product.stock %>">
-                </div>
+                <textarea class="form-control" id="description" name="description" rows="3" required><%= product.description %></textarea>
             </div>
             <div class="form-group">
-                <label for="size">Size</label>
-                <input type="text" class="form-control" id="size" name="size" value="<%= product.size %>" placeholder="Enter sizes separated by commas">
+                <label for="price">Price</label>
+                <input type="number" class="form-control" id="price" name="price" value="<%= product.price %>" required>
             </div>
             <div class="form-group">
                 <label for="category">Category</label>
-                <select class="form-control" id="category" name="category" required>
-                    <% categories.forEach(function(category) { %>
-                        <option value="<%= category._id %>" <%= category._id === product.category ? 'selected' : '' %>><%= category.name %></option>
-                    <% }) %>
-                </select>
+                <input type="text" class="form-control" id="category" name="category" value="<%= product.category %>" required>
             </div>
-
-            <!-- Upload new images -->
             <div class="form-group">
-                <label for="productImages">Upload New Images</label>
-                <input type="file" class="form-control-file" id="productImages" name="newImages" accept="image/*">
-                <small class="form-text text-muted">You can upload an image. Image will be cropped before upload.</small>
+                <label for="sizes">Sizes and Stock</label>
+                <div id="sizes">
+                    <% product.sizes.forEach(function(size, index) { %>
+                        <div class="form-row align-items-center mb-2">
+                            <div class="col">
+                                <input type="number" class="form-control" name="sizes[<%= index %>][size]" value="<%= size.size %>" placeholder="Size" required>
+                            </div>
+                            <div class="col">
+                                <input type="number" class="form-control" name="sizes[<%= index %>][stock]" value="<%= size.stock %>" placeholder="Stock" required>
+                            </div>
+                        </div>
+                    <% }); %>
+                </div>
+                <button type="button" id="addSizeBtn" class="btn btn-secondary mt-2">Add Size</button>
             </div>
-
-            <!-- Existing Images Section -->
             <div class="form-group">
                 <label>Existing Images</label>
                 <div class="existing-images">
-                    <% product.images.forEach((image, index) => { %>
-                        <div class="image-wrapper">
-                            <img src="<%= image.secured_url %>" alt="Product Image" class="img-thumbnail">
+                    <% product.images.forEach(function(image) { %>
+                        <div class="image-box">
+                            <img src="<%= image.secured_url %>" alt="Product Image" width="100">
+                            <input type="hidden" name="existingImages" value='<%= JSON.stringify(product.images) %>'>
                         </div>
-                    <% }) %>
+                    <% }); %>
                 </div>
             </div>
-
+            <div class="form-group">
+                <label for="newImages">Upload New Images</label>
+                <input type="file" class="form-control-file" id="newImages" name="newImages" accept="image/*" multiple>
+            </div>
+            <div class="form-group">
+                <label for="croppedImages">Upload Cropped Images (Base64)</label>
+                <textarea class="form-control" id="croppedImages" name="croppedImages" rows="5" placeholder="Paste base64 data here..."></textarea>
+            </div>
             <button type="submit" class="btn btn-primary">Update Product</button>
         </form>
     </div>
 
-    <!-- Script dependencies -->
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
-
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
     <script>
-        let cropper;
-        
-        document.getElementById('productImages').addEventListener('change', function(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    // Create a hidden canvas to handle image cropping
-                    const img = document.createElement('img');
-                    img.src = e.target.result;
-                    document.body.appendChild(img);
-                    cropper = new Cropper(img, {
-                        aspectRatio: 1,
-                        viewMode: 1,
-                        ready() {
-                            const canvas = cropper.getCroppedCanvas();
-                            canvas.toBlob(function(blob) {
-                                // Append cropped image blob to FormData
-                                const formData = new FormData();
-                                formData.append('croppedImage', blob, file.name);
-                                $.ajax({
-                                    url: '/upload-cropped-image', // The route to handle image upload
-                                    method: 'POST',
-                                    data: formData,
-                                    processData: false,
-                                    contentType: false,
-                                    success: function(response) {
-                                        console.log('Image uploaded successfully');
-                                    },
-                                    error: function(err) {
-                                        console.error('Error uploading image', err);
-                                    }
-                                });
-                            });
-                        }
-                    });
-                };
-                reader.readAsDataURL(file);
-            }
+        $(document).ready(function() {
+            $('#addSizeBtn').on('click', function() {
+                $('#sizes').append(`
+                    <div class="form-row align-items-center mb-2">
+                        <div class="col">
+                            <input type="number" class="form-control" name="sizes[][size]" placeholder="Size" required>
+                        </div>
+                        <div class="col">
+                            <input type="number" class="form-control" name="sizes[][stock]" placeholder="Stock" required>
+                        </div>
+                    </div>
+                `);
+            });
         });
     </script>
 </body>
