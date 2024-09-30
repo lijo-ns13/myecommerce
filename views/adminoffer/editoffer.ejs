@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Offer</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script>
+        function toggleSelections() {
+            const offerType = document.getElementById('offerType').value;
+            const productSelection = document.getElementById('productSelectionDiv');
+            const categorySelection = document.getElementById('categorySelectionDiv');
+
+            if (offerType === 'product') {
+                productSelection.style.display = 'block';
+                categorySelection.style.display = 'none';
+            } else if (offerType === 'category') {
+                productSelection.style.display = 'none';
+                categorySelection.style.display = 'block';
+            } else {
+                productSelection.style.display = 'none';
+                categorySelection.style.display = 'none';
+            }
+        }
+
+        window.onload = toggleSelections; // Call on page load to set the correct visibility
+    </script>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Edit Offer</h1>
+        <form action="/admin/offers/edit-offer/<%= offer._id %>" method="POST">
+            <div class="form-group">
+                <label for="offerName">Offer Name</label>
+                <input type="text" class="form-control" id="offerName" name="offerName" value="<%= offer.offerName %>" required>
+            </div>
+
+            <div class="form-group">
+                <label for="offerType">Offer Type</label>
+                <select class="form-control" id="offerType" name="offerType" onchange="toggleSelections()" required>
+                    <option value="product" <%= offer.offerType === 'product' ? 'selected' : '' %>>Product</option>
+                    <option value="category" <%= offer.offerType === 'category' ? 'selected' : '' %>>Category</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="discountType">Discount Type</label>
+                <select class="form-control" id="discountType" name="discountType" required>
+                    <option value="percentage" <%= offer.discountType === 'percentage' ? 'selected' : '' %>>Percentage</option>
+                    <option value="fixed" <%= offer.discountType === 'fixed' ? 'selected' : '' %>>Fixed</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="discountValue">Discount Value</label>
+                <input type="number" class="form-control" id="discountValue" name="discountValue" value="<%= offer.discountValue %>" min="0" required>
+            </div>
+
+            <div class="form-group">
+                <label for="startDate">Start Date</label>
+                <input type="date" class="form-control" id="startDate" name="startDate" value="<%= offer.startDate.toISOString().split('T')[0] %>" required>
+            </div>
+
+            <div class="form-group">
+                <label for="endDate">End Date</label>
+                <input type="date" class="form-control" id="endDate" name="endDate" value="<%= offer.endDate.toISOString().split('T')[0] %>" required>
+            </div>
+
+            <div class="form-group">
+                <label for="offerStatus">Offer Status</label>
+                <select class="form-control" id="offerStatus" name="offerStatus" required>
+                    <option value="active" <%= offer.offerStatus === 'active' ? 'selected' : '' %>>Active</option>
+                    <option value="inactive" <%= offer.offerStatus === 'inactive' ? 'selected' : '' %>>Inactive</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="offerDescription">Offer Description</label>
+                <textarea class="form-control" id="offerDescription" name="offerDescription" rows="3" required><%= offer.offerDescription %></textarea>
+            </div>
+
+            <div id="productSelectionDiv" style="display: none;">
+                <div class="form-group">
+                    <label for="productSelection">Select Products</label>
+                    <select multiple class="form-control" id="productSelection" name="productSelection[]">
+                        <% products.forEach(product => { %>
+                            <option value="<%= product._id %>" <%= offer.productIds.includes(product._id.toString()) ? 'selected' : '' %>><%= product.name %></option>
+                        <% }) %>
+                    </select>
+                </div>
+            </div>
+
+            <div id="categorySelectionDiv" style="display: none;">
+                <div class="form-group">
+                    <label for="categorySelection">Select Categories</label>
+                    <select multiple class="form-control" id="categorySelection" name="categorySelection[]">
+                        <% categories.forEach(category => { %>
+                            <option value="<%= category._id %>" <%= offer.categoryIds.includes(category._id.toString()) ? 'selected' : '' %>><%= category.name %></option>
+                        <% }) %>
+                    </select>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Update Offer</button>
+            <a href="/offers" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

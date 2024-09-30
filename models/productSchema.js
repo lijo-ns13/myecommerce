@@ -21,6 +21,10 @@ const productSchema=new Schema({
         type:Number,
         required:true
     },
+    finalPrice:{
+        type:Number,
+        
+    },
     description:{
         type:String,
         required:true,
@@ -56,11 +60,23 @@ const productSchema=new Schema({
     isListed:{
         type:Boolean,
         default:true
+    },
+    inWishlist:{
+        type:Boolean,
+        default:false
+    },
+    offerPrice:{
+        type:Number,       
+    },
+    offerApplied:{
+        type:Boolean,
+        default:false
     }
 },{
     timestamps:true
 })
 
+  
 const Product=mongoose.model('Product',productSchema)
 module.exports=Product;
 

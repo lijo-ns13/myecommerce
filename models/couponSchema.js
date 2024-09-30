@@ -19,7 +19,11 @@ const couponSchema=new Schema({
         min:0,
         default:0
     },
-    expiryDate:{
+    startDate:{
+        type:Date,
+        required:true
+    },
+    endDate:{
         type:Date,
         required:true
     },
@@ -42,7 +46,11 @@ const couponSchema=new Schema({
         required:true,
         default:false,
 
-    }
+    },
+    usedUsers: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'  // Reference to the User model
+    }]
 },{
     timestamps:true
 })

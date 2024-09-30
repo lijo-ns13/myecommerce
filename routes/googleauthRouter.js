@@ -12,7 +12,7 @@ router.get('/auth/google', passport.authenticate('google', { scope: ['profile', 
 router.get('/auth/google/callback', passport.authenticate('google', { session: false }), (req, res) => {
   // Generate a JWT token after successful authentication
   const token = jwt.sign({ id: req.user.id }, process.env.JWT_SECRET, {
-    expiresIn: '1h',
+    expiresIn: '24h',
   });
 
   // Send the token to the client (e.g., in a cookie or as JSON)

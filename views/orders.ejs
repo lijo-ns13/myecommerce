@@ -7,6 +7,52 @@
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <style>
+          .order-card {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .order-header h5 {
+            font-weight: bold;
+        }
+        .order-header {
+            background-color: #f9f9f9;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 10px;
+        }
+        .order-items .row {
+            margin-bottom: 10px;
+        }
+        .order-footer {
+            margin-top: 20px;
+            text-align: right;
+        }
+        .order-footer .btn-cancel {
+            background-color: #dc3545;
+            color: white;
+        }
+        .order-status {
+            padding: 5px 10px;
+            border-radius: 5px;
+            color: white;
+        }
+        .order-status.pending {
+            background-color: #f0ad4e;
+        }
+        .order-status.processing {
+            background-color: #5bc0de;
+        }
+        .order-status.delivered {
+            background-color: #5cb85c;
+        }
+        @media (max-width: 768px) {
+            .order-items .col-md-3 {
+                margin-bottom: 10px;
+            }
+        }
         .order-card { margin-bottom: 20px; }
         .order-header { background-color: #f8f9fa; padding: 15px; border-bottom: 1px solid #dee2e6; }
         .order-items { padding: 15px; }
@@ -22,6 +68,8 @@
         }
         .content { margin-left: 270px; } /* Adjust margin to make space for sidebar */
     </style>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
 </head>
 <body>
     <!-- Navbar -->
@@ -67,7 +115,7 @@
                     <li class="nav-item">
                         <a class="nav-link" href="/cart">
                             <img src="/img/cart.png" alt="Cart" class="nav-icon" style="height: 24px;">
-                            <span class="badge badge-pill badge-danger">0</span>
+                            <span class="badge badge-pill badge-danger"></span>
                         </a>
                     </li>
                     <li class="nav-item">
@@ -104,15 +152,31 @@
             </li>
         </ul>
     </div>
+<!-- 
+     -->
+<!-- Orders List -->
+<div class="content">
+    <div class="container mt-5">
+        <h2 class="my-4">My Orders</h2>
 
-    <!-- Main Content -->
-    <div class="content">
-        <div class="container mt-5">
-            <h2>My Orders</h2>
-            <% orders.forEach(order => { %>
+        <% orders.forEach(order => { %>
             <div class="order-card">
                 <div class="order-header">
-                    <h5>Order #<%= order._id %> - <%= order.status %></h5>
+                    <h5>Order #<%= order._id %> - 
+                        <span class="order-status <%= order.status %>">
+                            <%= order.status.charAt(0).toUpperCase() + order.status.slice(1) %>
+                        </span>
+                    </h5>
+                    <p>Payment Method: 
+                        <% if (order.paymentDetails.paymentMethod === 'razorpay') { %>
+                            Paid via Razorpay
+                        <% } else { %>
+                            Cash on Delivery
+                        <% } %>
+                    </p>
+                    <% if (order.paymentDetails.paymentMethod === 'razorpay') { %>
+                        <p>Transaction ID: <%= order.paymentDetails.transactionId %></p>
+                    <% } %>
                     <p>Total: $<%= order.totalPrice %></p>
                     <p>Order Date: <%= new Date(order.orderDate).toLocaleDateString() %></p>
                     <p><strong>Shipping Address:</strong></p>
@@ -123,32 +187,58 @@
                         <%= order.shippingAddress.country %>
                     </p>
                 </div>
-                
+
                 <div class="order-items">
                     <% order.products.forEach(product => { %>
                     <div class="row">
                         <div class="col-md-3">
-                            <img src="<%= product.productId.images[0]?.secured_url %>" class="img-fluid" alt="<%= product.productId.name %>">
+                            <img src="<%= product.productId.images[0]?.secured_url %>" class="img-fluid img-thumbnail" alt="<%= product.productId.name %>">
                         </div>
                         <div class="col-md-9">
                             <h5><%= product.productId.name %></h5>
                             <p>Size: <%= product.size %></p>
                             <p>Quantity: <%= product.quantity %></p>
-                            <p>Price per unit: $<%= product.productId.price %></p>
-                            <p>Subtotal: $<%= product.quantity * product.productId.price %></p>
+                            <p>Price per unit: $<%= product.productId.finalPrice %></p>
+                            <p><strong>Subtotal: $<%= product.quantity * product.productId.finalPrice %></p>
                         </div>
                     </div>
                     <% }) %>
                 </div>
+
                 <div class="order-footer">
-                    <% if (order.status === 'pending' || order.status==='processing') { %>
+                    <% if (order.status === 'pending' || order.status === 'processing') { %>
                     <button class="btn btn-danger btn-cancel" onclick="confirmCancelOrder('<%= order._id %>')">Cancel Order</button>
                     <% } %>
                 </div>
             </div>
-            <% }) %>
-        </div>
+        <% }) %>
+
+
+        <!-- Pagination Controls -->
+        <nav aria-label="Page navigation example" class="mt-4">
+            <ul class="pagination justify-content-center">
+                <!-- Previous button -->
+                <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
+                    <a class="page-link" href="?page=<%= currentPage - 1 %>" tabindex="-1">Previous</a>
+                </li>
+        
+                <!-- Page numbers -->
+                <% for (let i = 1; i <= totalPages; i++) { %>
+                    <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                        <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+                    </li>
+                <% } %>
+        
+                <!-- Next button -->
+                <li class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
+                    <a class="page-link" href="?page=<%= currentPage + 1 %>">Next</a>
+                </li>
+            </ul>
+        </nav>
+        
     </div>
+</div>
+   
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>

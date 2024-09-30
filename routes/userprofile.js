@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/userSchema');
+const Wallet=require('../models/walletSchema')
 const nodemailer = require('nodemailer');
 const bcrypt=require('bcrypt')
 // controller
@@ -37,4 +38,22 @@ router.post('/verify-otp', userProfileController.postVerifyOtp );
 
 router.get('/change-password',userProfileController.getChangePassword)
 router.post('/change-password',userProfileController.postChangePassword)
+
+
+// wallet
+router.get('/wallet',async(req,res)=>{
+    try {
+        const wallet=await Wallet.findOne({userId:req.user._id})
+        if(!wallet){
+            const newWallet=await Wallet.create({userId:req.user._id})
+            return res.render('profile/wallet',{wallet:newWallet})
+        }
+        res.render('profile/wallet',{wallet:wallet})
+    } catch (error) {
+        
+    }
+})
+
+
+
 module.exports = router;

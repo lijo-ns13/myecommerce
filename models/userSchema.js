@@ -50,6 +50,10 @@ const userSchema=new Schema({
             default:[]
         }
     ],
+    orders: [{
+        type: Schema.Types.ObjectId,
+        ref: 'Order'  // Reference to the Order model
+    }],
     cart: {
         type: Schema.Types.ObjectId,
         ref: 'Cart',  

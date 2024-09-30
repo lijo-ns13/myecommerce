@@ -8,85 +8,89 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" rel="stylesheet">
 </head>
 <body>
-
     <div class="container mt-5">
         <h2>Edit Product</h2>
 
-        <form id="editProductForm" action="/admin/edit-product/<%= product._id %>" method="POST" enctype="multipart/form-data">
+        <form id="editProductForm" action="/admin/products/edit/<%= product._id %>" method="POST" enctype="multipart/form-data">
             <div class="form-group">
                 <label for="product">Product Name</label>
                 <input type="text" class="form-control" id="product" name="product" value="<%= product.product %>" required>
             </div>
+
             <div class="form-group">
                 <label for="brand">Brand</label>
                 <input type="text" class="form-control" id="brand" name="brand" value="<%= product.brand %>" required>
             </div>
+
             <div class="form-group">
                 <label for="description">Description</label>
                 <textarea class="form-control" id="description" name="description" rows="3" required><%= product.description %></textarea>
             </div>
+
             <div class="form-group">
                 <label for="price">Price</label>
                 <input type="number" class="form-control" id="price" name="price" value="<%= product.price %>" required>
             </div>
+
+            <!-- Category Selection -->
             <div class="form-group">
                 <label for="category">Category</label>
-                <input type="text" class="form-control" id="category" name="category" value="<%= product.category %>" required>
+                <select class="form-control" id="category" name="category" required>
+                    <% categories.forEach(category => { %>
+                        <option value="<%= category._id %>" <%= category._id.equals(product.category) ? 'selected' : '' %>>
+                            <%= category.name %>
+                        </option>
+                    <% }) %>
+                </select>
             </div>
+
+            <!-- Existing Sizes -->
             <div class="form-group">
-                <label for="sizes">Sizes and Stock</label>
-                <div id="sizes">
+                <label for="sizes">Sizes (Stock)</label>
+                <div id="sizes-container">
                     <% product.sizes.forEach(function(size, index) { %>
-                        <div class="form-row align-items-center mb-2">
-                            <div class="col">
-                                <input type="number" class="form-control" name="sizes[<%= index %>][size]" value="<%= size.size %>" placeholder="Size" required>
-                            </div>
-                            <div class="col">
-                                <input type="number" class="form-control" name="sizes[<%= index %>][stock]" value="<%= size.stock %>" placeholder="Stock" required>
-                            </div>
+                        <div class="size-row">
+                            <label>Size:</label>
+                            <input type="number" name="sizes[<%= index %>][size]" value="<%= size.size %>" placeholder="Size" required>
+                            
+                            <label>Stock:</label>
+                            <input type="number" name="sizes[<%= index %>][stock]" value="<%= size.stock %>" placeholder="Stock" required>
                         </div>
-                    <% }); %>
-                </div>
-                <button type="button" id="addSizeBtn" class="btn btn-secondary mt-2">Add Size</button>
-            </div>
-            <div class="form-group">
-                <label>Existing Images</label>
-                <div class="existing-images">
-                    <% product.images.forEach(function(image) { %>
-                        <div class="image-box">
-                            <img src="<%= image.secured_url %>" alt="Product Image" width="100">
-                            <input type="hidden" name="existingImages" value='<%= JSON.stringify(product.images) %>'>
-                        </div>
-                    <% }); %>
+                    <% }) %>
                 </div>
             </div>
+
+            <!-- Image Uploads -->
             <div class="form-group">
-                <label for="newImages">Upload New Images</label>
-                <input type="file" class="form-control-file" id="newImages" name="newImages" accept="image/*" multiple>
+                <label for="images">Upload New Images</label>
+                <input type="file" class="form-control-file" id="images" name="images" multiple>
             </div>
+
+            <!-- Existing Images (with remove option) -->
             <div class="form-group">
-                <label for="croppedImages">Upload Cropped Images (Base64)</label>
-                <textarea class="form-control" id="croppedImages" name="croppedImages" rows="5" placeholder="Paste base64 data here..."></textarea>
+                <label for="existingImages">Existing Images</label>
+                <div class="row">
+                    <% product.images.forEach(image => { %>
+                        <div class="col-md-3 mb-3">
+                            <img src="<%= image.secured_url %>" alt="Product Image" class="img-thumbnail">
+                            <input type="hidden" name="existingImages[]" value='<%= JSON.stringify(image) %>'>
+                            <button type="button" class="btn btn-danger btn-sm mt-2 remove-image-btn">Remove</button>
+                        </div>
+                    <% }) %>
+                </div>
             </div>
+
             <button type="submit" class="btn btn-primary">Update Product</button>
         </form>
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
     <script>
-        $(document).ready(function() {
-            $('#addSizeBtn').on('click', function() {
-                $('#sizes').append(`
-                    <div class="form-row align-items-center mb-2">
-                        <div class="col">
-                            <input type="number" class="form-control" name="sizes[][size]" placeholder="Size" required>
-                        </div>
-                        <div class="col">
-                            <input type="number" class="form-control" name="sizes[][stock]" placeholder="Stock" required>
-                        </div>
-                    </div>
-                `);
+        // JavaScript for handling image cropping and removal of images
+        document.querySelectorAll('.remove-image-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const imgContainer = btn.closest('.col-md-3');
+                imgContainer.remove();
             });
         });
     </script>

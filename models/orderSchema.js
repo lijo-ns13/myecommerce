@@ -73,9 +73,31 @@ const orderSchema=new Schema({
         default:'pending'
 
     },
-    paymentMethod:{
-        type:String,
-        required:true
+    // paymentMethod:{
+    //     type:String,
+    //     required:true
+    // },
+    paymentDetails: {
+        paymentMethod: {
+            type: String,
+            required: true
+        },
+        transactionId: {
+            type: String,
+            required: true
+        }
+    },
+
+    isDiscount:{
+        type:Boolean,
+        default:false
+    },
+    discount:{
+        type:Number
+    },
+    originalPrice:{
+        type:Number,
+        
     }
 },{
     timestamps:true

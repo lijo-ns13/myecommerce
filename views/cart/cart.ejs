@@ -95,7 +95,7 @@
                     <li class="nav-item">
                         <a class="nav-link" href="/cart">
                             <img src="/img/cart.png" alt="Cart" class="nav-icon" style="height: 24px;">
-                            <span class="badge badge-pill badge-danger">0</span>
+                            <span class="badge badge-pill badge-danger"></span>
                         </a>
                     </li>
                     <li class="nav-item">
@@ -121,7 +121,7 @@
                             </div>
                             <div class="col-5">
                                 <h5><%= product.productId.product %></h5>
-                                <p>Price: $<%= product.productId.price %></p>
+                                <p>Price: $<%= product.productId.finalPrice %></p>
                                 <p>Size: <%= product.size %></p>
                                 <div class="quantity-controls">
                                     <form class="quantity-form" data-action="decrease" data-product-id="<%= product.productId._id %>" data-size="<%= product.size %>" method="post" style="display: inline;">
@@ -132,7 +132,7 @@
                                         <button type="submit" class="btn btn-secondary">+</button>
                                     </form>
                                 </div>
-                                <p>Subtotal: $<%= product.productId.price * product.quantity %></p>
+                                <p>Subtotal: $<%= product.productId.finalPrice * product.quantity %></p>
                             </div>
                             <div class="col-4 text-right">
                                 <form action="/cart/delete/<%= product._id %>" method="post">
@@ -146,7 +146,7 @@
             </div>
 
             <div class="text-right cart-total">
-                Total Price: $<%= cart.totalPrice %>
+                Total Price: $<%= cart.finalTotalPrice %>
             </div>
             <div class="text-right">
                 <a href="/checkout" class="btn btn-primary">Proceed to Checkout</a>

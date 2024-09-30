@@ -2,22 +2,45 @@ const express = require('express');
 const router = express.Router();
 const Order = require('../models/orderSchema');
 const Product = require('../models/productSchema');
+const Wallet=require('../models/walletSchema');
 
-
-const getOrders=async (req, res) => {
+const getOrders = async (req, res) => {
     try {
-        const orders = await Order.find({ userId: req.user._id }).populate('products.productId');
-        res.render('orders', { orders }); // Render orders on the page
+        const userId = req.user._id; // Get the logged-in user
+        const page = parseInt(req.query.page) || 1; // Current page, default is 1
+        const limit = 5; // Number of orders per page
+        const skip = (page - 1) * limit; // Calculate how many orders to skip
+
+        // Fetch total number of orders
+        const totalOrders = await Order.countDocuments({ userId });
+
+        // Fetch orders for the current page
+        const orders = await Order.find({ userId })
+            .populate('products.productId')
+            .sort({ orderDate: -1 }) // Order by date, newest first
+            .skip(skip)
+            .limit(limit);
+
+        const totalPages = Math.ceil(totalOrders / limit);
+
+        // Pass data to the EJS template
+        res.render('orders', {
+            orders,
+            currentPage: page,
+            totalPages
+        });
     } catch (err) {
         console.error(err);
         res.status(500).send('Server Error');
     }
-}
+};
+
 const postOrderCancel = async (req, res) => { 
     try {
         const { orderId } = req.params;
         const order = await Order.findById(orderId);
-
+        const wallet=await Wallet.findOne({userId:req.user._id})
+        
         // Check if order exists
         if (!order) {
             return res.status(404).json({ success: false, message: 'Order not found' });
@@ -61,7 +84,34 @@ const postOrderCancel = async (req, res) => {
                 updatedProducts.push({ productId: product._id, size: item.size, newStock: product.sizes[sizeIndex]?.stock });
             }
         }
+        const transaction = {
+            amount: order.totalPrice,
+            type: 'credit',
+            description: 'Amount from order canceled',
+            date: new Date()
+        };
+        console.log('trnas',transaction)
+        console.log('orderpaymethod',order.paymentDetails.paymentMethod)
+        if (order.paymentDetails.paymentMethod === 'razorpay') {
 
+            if (wallet) {
+                // Add transaction and update balance if wallet exists
+                wallet.balance += order.totalPrice;
+                wallet.transactions.push(transaction);
+                await wallet.save();
+            } else {
+                // Create a new wallet if one doesn't exist
+                const newWallet = new Wallet({
+                    userId: req.user._id,
+                    balance: order.totalPrice,
+                    transactions: [transaction]  // Ensure this is an array of objects
+                });
+                await newWallet.save();
+            }
+            return res.status(200).json({ success: true, message: 'Order cancelled successfully and amount credited to wallet' });
+        }
+        
+        
         res.status(200).json({ success: true, message: 'Order successfully cancelled', updatedProducts });
     } catch (error) {
         console.error('Error during cancellation:', error);

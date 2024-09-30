@@ -159,25 +159,37 @@
                                         <% } %>
                                     </td>
                                     <td>
-                                        <a href="/admin/products/edit/<%=pro._id%>">
+                                        <a href="/admin/products/edit/<%= pro._id %>">
                                             <button type="submit" class="btn btn-warning">Edit</button>
                                         </a>
                                         <form action="/admin/products/<%= pro.isListed ? 'unlist-product' : 'list-product' %>/<%= pro._id %>" method="post" class="d-inline-block" id="form-<%= pro._id %>">
                                             <button type="submit" class="btn <%= pro.isListed ? 'btn-warning' : 'btn-success' %> px-4 py-2">
-                                              <i class="fas <%= pro.isListed ? 'fa-times-circle' : 'fa-check-circle' %> me-2"></i>
-                                              <%= pro.isListed ? 'Unlist' : 'List' %>
+                                                <i class="fas <%= pro.isListed ? 'fa-times-circle' : 'fa-check-circle' %> me-2"></i>
+                                                <%= pro.isListed ? 'Unlist' : 'List' %>
                                             </button>
-                                          </form>
+                                        </form>
                                     </td>
                                 </tr>
                             <% } %>
                         </tbody>
                     </table>
                 </div>
+        
+                <!-- Pagination controls -->
+                <nav aria-label="Page navigation">
+                    <ul class="pagination justify-content-center">
+                        <% for (let i = 1; i <= totalPages; i++) { %>
+                            <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                                <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+                            </li>
+                        <% } %>
+                    </ul>
+                </nav>
             <% } else { %>
                 <h1>No products available</h1>
             <% } %>
         </div>
+        
     </div>
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>

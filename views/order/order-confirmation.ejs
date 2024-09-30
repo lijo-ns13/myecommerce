@@ -6,21 +6,48 @@
     <title>Order Confirmation</title>
     <!-- Bootstrap CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <style>
+        .order-summary {
+            margin-top: 20px;
+        }
+        .payment-method {
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <h1 class="my-4">Order Confirmation</h1>
-        <div class="alert alert-success" role="alert">
+        <h1 class="my-4 text-center">Order Confirmation</h1>
+        <div class="alert alert-success text-center" role="alert">
             <h4 class="alert-heading">Thank You for Your Purchase!</h4>
             <p>Your order has been successfully placed. Here are your order details:</p>
-            <hr>
-            <p><strong>Order ID:</strong> <%= order._id %></p>
-            <p><strong>Total Price:</strong> $<%= order.totalPrice %></p>
-            <p><strong>Shipping Address:</strong> <%= order.shippingAddress.street %>, <%= order.shippingAddress.city %>, <%= order.shippingAddress.state %>, <%= order.shippingAddress.country %> - <%= order.shippingAddress.postalCode %></p>
-            <p><strong>Estimated Delivery Date:</strong> <%= order.deliveryDate ? order.deliveryDate.toDateString() : 'N/A' %></p>
-            <hr>
-            <p>You can view your <a href="/user/orders">order history</a> or <a href="/">continue shopping</a>.</p>
+        </div>
+
+        <div class="card order-summary">
+            <div class="card-body">
+                <h5 class="card-title">Order Details</h5>
+                <p><strong>Order ID:</strong> <%= order._id %></p>
+                <p><strong>Total Price:</strong> $<%= order.totalPrice %></p>
+                <p class="payment-method">
+                    <strong>Payment Method:</strong> 
+                    <i class="<%= order.paymentDetails.paymentMethod === 'razorpay' ? 'fab fa-cc-visa' : 'fas fa-money-bill-wave' %>"></i>
+                    <%= order.paymentDetails.paymentMethod === 'razorpay' ? 'Paid through Razorpay' : 'Cash on Delivery' %>
+                </p>
+                <p><strong>Shipping Address:</strong> <%= order.shippingAddress.street %>, <%= order.shippingAddress.city %>, <%= order.shippingAddress.state %>, <%= order.shippingAddress.country %> - <%= order.shippingAddress.postalCode %></p>
+                <p><strong>Estimated Delivery Date:</strong> <%= order.deliveryDate ? order.deliveryDate.toDateString() : 'N/A' %></p>
+            </div>
+        </div>
+
+        <div class="text-center my-4">
+            <p>You can view your <a href="/user/orders" class="btn btn-primary">order history</a> or <a href="/" class="btn btn-secondary">continue shopping</a>.</p>
         </div>
     </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
+

@@ -7,6 +7,7 @@ const methodOverride = require('method-override');
 const passport = require('passport');
 require('./passport'); 
 
+const Razorpay=require('razorpay')
 
 const bodyParser=require('body-parser');
 // const noCache=require('nocache')
@@ -31,7 +32,7 @@ const addressRouter=require('./routes/addressRouter')
 const wishlistRouter=require('./routes/wishlistRouter')
 const checkoutRouter=require('./routes/checkoutRouter')
 const orderRouter=require('./routes/orderRouter')
-
+const allRouter=require('./routes/all')
 
 const app=express();
 app.use(noCache)
@@ -69,6 +70,21 @@ app.get('/auth/google/callback', passport.authenticate('google', { session: fals
 });
 
 
+// app.post('/verify-payment', async (req, res) => {
+//     const { paymentId, orderId, signature } = req.body;
+
+//     const expectedSignature = crypto.createHmac('sha256', '0oJyfx0TqcxmRsgNKTq9o05M')
+//         .update(orderId + '|' + paymentId)
+//         .digest('hex');
+
+//     if (expectedSignature === signature) {
+//         // Payment is verified
+//         res.json({ success: true });
+//     } else {
+//         // Payment verification failed
+//         res.json({ success: false });
+//     }
+// });
 
 
 
@@ -86,8 +102,34 @@ app.use('/admin',adminRouter);
 
 
 
+const razorpay = new Razorpay({
+    key_id: 'rzp_test_HcIqECgcTGh7Na',
+    key_secret: '0oJyfx0TqcxmRsgNKTq9o05M',
+});
 
-
+// Create order API
+app.post('/api/create-order', async (req, res) => {
+    const amount = 339600; // Example amount, replace with your actual amount
+    const options = {
+        amount: amount, // Amount in smallest currency unit
+        currency: "INR",
+        receipt: "receipt#1" // Unique receipt ID for the order
+    };
+    
+    try {
+        const order = await razorpay.orders.create(options);
+        res.json({
+            success: true,
+            orderId: order.id,
+            amount: order.amount,
+            currency: order.currency,
+            key: 'rzp_test_HcIqECgcTGh7Na' ,
+            message:'checking'// Replace with your Razorpay Key
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error creating Razorpay order' });
+    }
+});
 
 app.use('/cart',cartRouter)
 app.use('/user/profile',userprofileRouter);
@@ -95,7 +137,7 @@ app.use('/user/address',addressRouter)
 app.use('/user/wishlist',wishlistRouter)
 app.use('/checkout',checkoutRouter)
 app.use('/user/orders',orderRouter)
-
+app.use('/',allRouter)
 
 // 404 Handler for undefined routes
 // app.use((req, res, next) => {

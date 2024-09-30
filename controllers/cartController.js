@@ -8,13 +8,15 @@ const getCart=async(req,res)=>{
     try{
    
         let cart=await Cart.findOne({userId:req.user._id}).populate('products.productId');
-        
+        let cartOne=await Cart.find({})
+    console.log('cart',cartOne)
+    const cartLength = cartOne.length > 0 && cartOne[0].products ? cartOne[0].products.length : 0;
         if (!cart) {
             cart = { products: [] };
         }
         console.log('cart',cart)
         
-        res.render('cart/cart',{cart})
+        res.render('cart/cart',{cart,cartLength:cartLength})
     }catch(error){
         res.status(500).send({message:error.message})
     }
@@ -23,7 +25,7 @@ const postAddCart= async (req, res) => {
     try {
         const { productId, size } = req.body;
         const maxQuantity = 5; // Maximum quantity allowed per product
-
+        console.log('productId',productId,'size',size)
         if (!req.user || req.user.role !== 'user') {
             return res.status(401).json({ success: false, message: 'Unauthorized' });
         }

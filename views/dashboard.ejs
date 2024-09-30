@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
             background-color: #000;
@@ -39,12 +40,6 @@
             background-color: #007bff;
             color: #fff;
         }
-        .sidebar .nav-item {
-            margin-bottom: 1px;
-        }
-        .sidebar .nav-item:last-child {
-            margin-bottom: 0;
-        }
         .content {
             margin-left: 250px;
             padding: 20px;
@@ -52,16 +47,32 @@
         .content h2 {
             color: #fff;
         }
-        .sidebar .p-3 h4 {
-            font-size: 1.5rem;
-            font-weight: 500;
+        .chart-container {
+            width: 100%;
+            max-width: 800px; /* Increase size for better visibility */
+            margin: 20px auto; /* Center the charts */
+        }
+        .card {
+            background-color: #343a40; /* Dark background for cards */
+            color: #fff; /* White text color */
+            border: none; /* Remove borders for a cleaner look */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); /* Add subtle shadow for depth */
+        }
+        .card-title {
+            font-weight: bold; /* Make titles bold */
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            padding: 10px;
+            color: #ddd;
         }
     </style>
 </head>
 <body>
     <div class="sidebar">
         <div class="p-3">
-            <h4>Dashboard</h4>
+            <h4>Admin Dashboard</h4>
         </div>
         <ul class="nav flex-column p-3">
             <li class="nav-item">
@@ -82,7 +93,7 @@
             <li class="nav-item">
                 <a class="nav-link" href="/admin/coupons">Coupons</a>
             </li>
-            <li class="nav-item"></li>
+            <li class="nav-item">
                 <a class="nav-link" href="/admin/inventory">Inventory</a>
             </li>
             <li class="nav-item">
@@ -99,12 +110,193 @@
 
     <div class="content">
         <div class="container">
-            <h2>Dashboard</h2>
+            <h2 class="mt-3">Dashboard Overview</h2>
             <p>Welcome to your dashboard! Use the sidebar to navigate through different sections.</p>
-            <!-- Add your dashboard content here -->
+            
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Total Success Orders</h5>
+                            <h3 class="card-text"><%= ordersCount %></h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Total Revenue</h5>
+                            <h3 class="card-text"><%= totalRevenue %></h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Total Discount</h5>
+                            <h3 class="card-text"><%= totalDiscount %></h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Total Users</h5>
+                            <h3 class="card-text"><%= customersCount %></h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h3 class="mt-5">Order Status Overview</h3>
+            <div class="chart-container">
+                <canvas id="ordersChart" width="400" height="200"></canvas>
+            </div>
+            
+            
         </div>
     </div>
+    <div class="content">
+        <div class="container">
+            <h2>Dashboard</h2>
+            <p>Welcome to your dashboard! Use the sidebar to navigate through different sections.</p>
+    
+            <!-- Sales Report Section -->
+            <h3 class="mt-5">Sales Report</h3>
+            <div class="form-group">
+                <label for="reportType">Select Report Type:</label>
+                <select id="reportType" class="form-select" aria-label="Select Report Type">
+                    <option value="daily">Daily</option>
+                    <option value="weekly">Weekly</option>
+                    <option value="monthly">Monthly</option>
+                    <option value="yearly">Yearly</option>
+                    <option value="custom">Custom Date Range</option>
+                </select>
+            </div>
+            <div id="customDateInputs" class="d-none">
+                <label for="startDate">Start Date:</label>
+                <input type="date" id="startDate" class="form-control">
+                <label for="endDate">End Date:</label>
+                <input type="date" id="endDate" class="form-control">
+            </div>
+            <button id="generateReport" class="btn btn-primary mt-3">Generate Report</button>
+            <button id="downloadPdf" class="btn btn-secondary mt-3 d-none">Download PDF</button>
+            
+            <div id="salesReport" class="mt-3"></div>
+        </div>
+    </div>
+    <script>
+        document.getElementById('reportType').addEventListener('change', function() {
+    const reportType = this.value;
+    const customDateInputs = document.getElementById('customDateInputs');
+    
+    // Show custom date inputs only for the custom option
+    if (reportType === 'custom') {
+        customDateInputs.classList.remove('d-none');
+    } else {
+        customDateInputs.classList.add('d-none');
+    }
+});
 
+document.getElementById('generateReport').addEventListener('click', function() {
+    const reportType = document.getElementById('reportType').value;
+    const salesReportDiv = document.getElementById('salesReport');
+    let startDate = null;
+    let endDate = null;
+
+    if (reportType === 'custom') {
+        startDate = document.getElementById('startDate').value;
+        endDate = document.getElementById('endDate').value;
+    }
+
+    // Fetch the sales data based on the report type
+    fetch(`/admin/sales/report?type=${reportType}&startDate=${startDate}&endDate=${endDate}`)
+        .then(response => response.json())
+        .then(data => {
+            // Display the sales report
+            salesReportDiv.innerHTML = generateSalesReportHtml(data);
+
+            // Show the download PDF button
+            document.getElementById('downloadPdf').classList.remove('d-none');
+        })
+        .catch(error => console.error('Error fetching report:', error));
+});
+
+// Generate HTML for the sales report
+function generateSalesReportHtml(data) {
+    let html = '<table class="table table-dark mt-3"><thead><tr><th>Date</th><th>Total Sales</th></tr></thead><tbody>';
+    data.forEach(sale => {
+        html += `<tr><td>${sale.date}</td><td>${sale.totalSales}</td></tr>`;
+    });
+    html += '</tbody></table>';
+    return html;
+}
+
+// Add event listener for downloading PDF
+document.getElementById('downloadPdf').addEventListener('click', function() {
+    const reportType = document.getElementById('reportType').value;
+    const startDate = reportType === 'custom' ? document.getElementById('startDate').value : null;
+    const endDate = reportType === 'custom' ? document.getElementById('endDate').value : null;
+
+    // Make a request to generate the PDF
+    window.open(`/admin/sales/report/pdf?type=${reportType}&startDate=${startDate}&endDate=${endDate}`, '_blank');
+});
+
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Function to create a doughnut chart
+        function createDoughnutChart(ctx, chartData) {
+            const config = {
+                type: 'doughnut',
+                data: chartData,
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(tooltipItem) {
+                                    return tooltipItem.label + ': ' + tooltipItem.raw; // Show the count in the tooltip
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+            return new Chart(ctx, config);
+        }
+
+        // Fetch order statistics
+        fetch('/admin/orders/stats') // Ensure the correct endpoint
+            .then(response => response.json())
+            .then(data => {
+                const labels = Object.keys(data.statusCounts);
+                const chartData = Object.values(data.statusCounts);
+
+                // Prepare order data for the orders chart
+                const ordersChartData = {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Orders Status',
+                        data: chartData,
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.5)',
+                            'rgba(54, 162, 235, 0.5)',
+                            'rgba(255, 206, 86, 0.5)',
+                            'rgba(75, 192, 192, 0.5)',
+                            'rgba(153, 102, 255, 0.5)'
+                        ],
+                    }]
+                };
+
+                // Create the orders chart
+                createDoughnutChart(document.getElementById('ordersChart'), ordersChartData);
+            })
+            .catch(error => console.error('Error fetching data:', error)); // Error handling
+
+    </script>
 </body>
 </html>

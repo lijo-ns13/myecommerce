@@ -7,17 +7,28 @@ const sharp = require('sharp');
 const methodOverride=require('method-override')
 const Product = require('../models/productSchema'); // Adjust the path to your Product model
 const Category=require('../models/categorySchema')
+const User=require('../models/userSchema')
 const userModel=require('../models/userSchema')
 const Order=require('../models/orderSchema')
 const {jwtAuth,adminProtected,userProtected}=require('../middlewares/auth');
 
 const uploadsDir = path.join(__dirname, '../uploads');
 
-const getProduct=async(req,res)=>{
-    const products=await Product.find({});
-    
-    res.render('pro/products',{products:products})
-}
+const getProduct = async (req, res) => {
+  const page = parseInt(req.query.page) || 1; // Get the current page from query params, default to 1
+  const limit = 10; // Number of products per page
+  const skip = (page - 1) * limit; // Calculate the number of products to skip
+
+  const products = await Product.find({}).skip(skip).limit(limit);
+  const totalProducts = await Product.countDocuments({}); // Get total product count
+  const totalPages = Math.ceil(totalProducts / limit); // Calculate total pages
+
+  res.render('pro/products', {
+      products: products,
+      currentPage: page,
+      totalPages: totalPages
+  });
+};
 const getViewProduct=async(req,res)=>{
     const products=await Product.find({});
     // res.json(products)
@@ -214,12 +225,12 @@ const getProductEdit=async(req,res)=>{
   const patchProductEdit = async (req, res) => {
     try {
         const productId = req.params.id;
-        const { product, brand, description, price, category, existingImages, croppedImages, sizes } = req.body;
+        const { product, brand, description, price, category, existingImages, croppedImages } = req.body;
 
         // Initialize images array
         let images = [];
 
-        // Handle existing images
+        // Handle existing images (if they exist in the request)
         if (existingImages) {
             try {
                 images = JSON.parse(existingImages);
@@ -228,42 +239,67 @@ const getProductEdit=async(req,res)=>{
             }
         }
 
-        // Handle new images upload
-        if (req.files) {
+        // Handle new images upload from Multer
+        if (req.files && req.files.length > 0) {
             const newImages = req.files.map(file => ({
                 id: file.filename,
                 secured_url: `/uploads/${file.filename}`,
             }));
-            images = [...images, ...newImages]; 
+            images = [...images, ...newImages]; // Combine existing and new images
         }
 
-        // Handle cropped images
+        // Handle cropped images if provided (in base64 format)
         if (croppedImages) {
-            const croppedImagesArray = JSON.parse(croppedImages);
-            for (const imgData of croppedImagesArray) {
-                const filename = generateUniqueFilename();
-                const filePath = await saveBase64Image(imgData, filename);
-                const fileExtension = path.extname(filePath).slice(1);
-                images.push({
-                    id: filename,
-                    secured_url: `/uploads/${filename}.${fileExtension}`,
-                });
+            try {
+                const croppedImagesArray = JSON.parse(croppedImages);
+                for (const imgData of croppedImagesArray) {
+                    const filename = generateUniqueFilename(); // Assuming this function generates a unique name for the file
+                    const filePath = await saveBase64Image(imgData, filename);
+                    const fileExtension = path.extname(filePath).slice(1); // Get the file extension
+                    images.push({
+                        id: filename,
+                        secured_url: `/uploads/${filename}.${fileExtension}`,
+                    });
+                }
+            } catch (error) {
+                return res.status(400).json({ success: false, message: 'Invalid format for cropped images' });
             }
         }
 
-        // Validate sizes
-        if (sizes) {
-            sizes = JSON.parse(sizes);
-            sizes.forEach(size => {
-                if (size.size <= 0 || size.stock < 0) {
-                    return res.status(400).json({ success: false, message: 'Sizes must be greater than 0 and stock must be 0 or greater' });
-                }
-            });
-        } else {
-            return res.status(400).json({ success: false, message: 'Sizes are required' });
-        }
+        // Ensure that sizes are provided and valid
+        // Ensure that sizes is a valid array before parsing
+let sizes = req.body.sizes;
+if (!sizes) {
+    return res.status(400).json({ success: false, message: 'Sizes are required' });
+}
 
-        // Update the product in the database
+// Log the incoming sizes data
+console.log('Received sizes:', sizes);
+
+try {
+    // Check if sizes is already an array
+    if (typeof sizes === 'string') {
+        sizes = JSON.parse(sizes); // Parse if it's a string
+    }
+
+    // Validate sizes if it’s an array
+    if (!Array.isArray(sizes) || sizes.length === 0) {
+        return res.status(400).json({ success: false, message: 'Sizes must be an array of valid objects' });
+    }
+
+    // Validate each size object
+    sizes.forEach(size => {
+        if (!size.size || !size.stock || size.size <= 0 || size.stock < 0) {
+            return res.status(400).json({ success: false, message: 'Invalid sizes data. Size must be greater than 0 and stock cannot be negative.' });
+        }
+    });
+} catch (error) {
+    console.error('Sizes parsing error:', error);
+    return res.status(400).json({ success: false, message: 'Invalid sizes format' });
+}
+
+
+        // Update product with new values
         const updatedProduct = await Product.findByIdAndUpdate(
             productId,
             {
@@ -271,13 +307,14 @@ const getProductEdit=async(req,res)=>{
                 brand,
                 description,
                 price: Number(price),
-                sizes,
+                sizes, // Update sizes
                 category,
-                images,
+                images, // Update images
             },
-            { new: true }
+            { new: true } // Return the updated product
         );
 
+        // Check if the update was successful
         if (!updatedProduct) {
             return res.status(404).json({ success: false, message: 'Product not found' });
         }
@@ -390,23 +427,33 @@ const postAddCategory=async(req,res)=>{
 
 // orders/********************** */
 
-const getOrders=async (req, res) => {
-    try {
-        const orders = await Order.find({})
-            .populate({
-                path: 'userId', // Populate userId field
-                select: 'name' // Select the name field
-            })
-            .populate({
-                path: 'products.productId', // Populate productId field within products
-                select: 'product' // Select the name field
-            });
-  
-        res.render('adminorders/orders', { orders });
-    } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
-    }
+const getOrders = async (req, res) => {
+  try {
+      const page = parseInt(req.query.page) || 1; // Current page number
+      const limit = parseInt(req.query.limit) || 10; // Number of orders per page
+      const skip = (page - 1) * limit; // Calculate skip value
+
+      const totalOrders = await Order.countDocuments(); // Total number of orders
+      const totalPages = Math.ceil(totalOrders / limit); // Total number of pages
+
+      const orders = await Order.find({})
+          .skip(skip) // Skip the orders based on the current page
+          .limit(limit) // Limit the number of orders returned
+          .populate({
+              path: 'userId',
+              select: 'name'
+          })
+          .populate({
+              path: 'products.productId',
+              select: 'product'
+          });
+
+      res.render('adminorders/orders', { orders, currentPage: page, totalPages });
+  } catch (error) {
+      res.status(500).json({ success: false, message: error.message });
   }
+};
+
 const getEditOrder=async (req, res) => {
     try {
         const { orderId } = req.params;

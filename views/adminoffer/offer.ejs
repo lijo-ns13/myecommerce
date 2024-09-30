@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offers Page</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .offer-card {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            background-color: #ffffff;
+            transition: box-shadow 0.3s;
+        }
+        .offer-card:hover {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .sidebar {
+            background-color: #343a40;
+            height: 100vh;
+            padding: 20px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 250px;
+        }
+        .sidebar h2 {
+            color: #ffffff;
+            margin-bottom: 30px;
+        }
+        .sidebar a {
+            color: #ffffff;
+            padding: 10px;
+            display: block;
+            text-decoration: none;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            transition: background-color 0.2s;
+        }
+        .sidebar a:hover {
+            background-color: #495057;
+        }
+        .content {
+            margin-left: 270px; /* Space for sidebar */
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar">
+    <h2>Admin Menu</h2>
+    <a href="/admin/dashboard">Dashboard</a>
+    <a href="/admin/products">Products</a>
+    <a href="/admin/categories">Categories</a>
+    <a href="/admin/offers">Offers</a>
+    <a href="/admin/users">Users</a>
+    <a href="/admin/orders">Orders</a>
+    <!-- <a href="/admin/settings">Settings</a> -->
+</div>
+
+<!-- Main Content Area -->
+<div class="content">
+    <h1 class="mt-4">Offers Page</h1>
+    <a href="/admin/offers/add-offer" class="btn btn-primary mb-3">Add Offer</a>
+    
+    <% if (offers && offers.length > 0) { %>
+        <% for (const offer of offers) { %>
+            <div class="offer-card">
+                <h5><%= offer.offerName %></h5>
+                <a href="/admin/offers/edit-offer/<%= offer._id %>" class="btn btn-warning">Edit</a>
+                <form action="/admin/offers/delete-offer/<%= offer._id %>?_method=DELETE" method="POST" class="d-inline-block">
+                    <input type="hidden" name="_method" value="DELETE">
+                    <button type="submit" class="btn btn-danger delete-offer" data-offer-name="<%= offer.offerName %>">Delete</button>
+                </form>
+            </div>
+        <% } %>
+    <% } else { %>
+        <p>No offers available.</p>
+    <% } %>
+</div>
+
+<script>
+    // Handle delete button clicks
+    $('.delete-offer').on('click', function(event) {
+        event.preventDefault(); // Prevent the default form submission
+        const offerName = $(this).data('offer-name');
+        const form = $(this).closest('form');
+
+        // Show confirmation alert
+        Swal.fire({
+            title: 'Are you sure?',
+            text: `You are about to delete the offer "${offerName}". This action cannot be undone.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.submit(); // Submit the form if confirmed
+            }
+        });
+    });
+</script>
+
+</body>
+</html>

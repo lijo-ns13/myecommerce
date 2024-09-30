@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wallet Page</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            padding: 20px;
+        }
+
+        .wallet-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .wallet-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #eaeaea;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .wallet-balance {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .wallet-balance span {
+            color: #28a745;
+        }
+
+        .wallet-history {
+            margin-top: 20px;
+        }
+
+        .wallet-history h2 {
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+            color: #555;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eaeaea;
+        }
+
+        th {
+            background-color: #f7f7f7;
+        }
+
+        td.credit {
+            color: #28a745;
+        }
+
+        td.debit {
+            color: #dc3545;
+        }
+
+        .no-transactions {
+            text-align: center;
+            color: #888;
+            padding: 20px 0;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="wallet-container">
+        <div class="wallet-header">
+            <div class="wallet-balance">
+                Wallet Balance: <span>$<%= wallet.balance.toFixed(2) %></span>
+            </div>
+            
+        </div>
+
+        <div class="wallet-history">
+            <h2>Transaction History</h2>
+
+            <% if (wallet.transactions && wallet.transactions.length > 0) { %>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Description</th>
+                        <th>Type</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% wallet.transactions.forEach(transaction => { %>
+                    <tr>
+                        <td><%= new Date(transaction.date).toLocaleDateString() %></td>
+                        <td><%= transaction.description || 'No description' %></td>
+                        <td class="<%= transaction.type === 'credit' ? 'credit' : 'debit' %>">
+                            <%= transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1) %>
+                        </td>
+                        <td class="<%= transaction.type === 'credit' ? 'credit' : 'debit' %>">
+                            $<%= transaction.amount.toFixed(2) %>
+                        </td>
+                    </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+            <% } else { %>
+            <div class="no-transactions">
+                No transactions found.
+            </div>
+            <% } %>
+        </div>
+    </div>
+
+</body>
+</html>
