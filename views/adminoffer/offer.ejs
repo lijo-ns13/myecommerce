@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,109 +8,304 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
     <style>
         body {
-            background-color: #f8f9fa;
+            background-color: #f0f2f5;
+            font-family: 'Arial', sans-serif;
         }
-        .offer-card {
-            margin-bottom: 20px;
-            padding: 15px;
-            border: 1px solid #ced4da;
-            border-radius: 5px;
-            background-color: #ffffff;
-            transition: box-shadow 0.3s;
-        }
-        .offer-card:hover {
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
+
         .sidebar {
-            background-color: #343a40;
             height: 100vh;
-            padding: 20px;
             position: fixed;
             top: 0;
             left: 0;
+            z-index: 100;
             width: 250px;
+            background-color: #343a40;
+            color: #fff;
+            overflow-y: auto;
+            transition: all 0.3s;
         }
-        .sidebar h2 {
-            color: #ffffff;
-            margin-bottom: 30px;
-        }
-        .sidebar a {
-            color: #ffffff;
-            padding: 10px;
-            display: block;
-            text-decoration: none;
-            margin-bottom: 10px;
+        .sidebar .nav-link {
+            color: #adb5bd;
+            transition: all 0.3s;
             border-radius: 5px;
-            transition: background-color 0.2s;
+            margin: 5px 0;
         }
-        .sidebar a:hover {
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            color: #fff;
             background-color: #495057;
         }
-        .content {
-            margin-left: 270px; /* Space for sidebar */
+        .sidebar .nav-link.active {
+            background-color: #007bff;
+        }
+        .main-content {
+            margin-left: 250px;
             padding: 20px;
+            width: calc(100% - 250px);
+        }
+
+        .btn-custom {
+            margin: 0.2rem;
+        }
+
+        .no-offers {
+            font-size: 18px;
+            color: #777;
+        }
+
+        .table-container {
+            background-color: #fff;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+
+        .table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+        }
+
+        .table td, .table th {
+            vertical-align: middle;
+        }
+
+        .badge {
+            font-size: 0.8em;
+            margin: 2px;
+        }
+
+        .search-box {
+            max-width: 300px;
+            margin-bottom: 20px;
+        }
+
+        .pagination {
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .status-toggle {
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                position: static;
+                height: auto;
+            }
+
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
         }
     </style>
 </head>
+
 <body>
 
-<!-- Sidebar -->
-<div class="sidebar">
-    <h2>Admin Menu</h2>
-    <a href="/admin/dashboard">Dashboard</a>
-    <a href="/admin/products">Products</a>
-    <a href="/admin/categories">Categories</a>
-    <a href="/admin/offers">Offers</a>
-    <a href="/admin/users">Users</a>
-    <a href="/admin/orders">Orders</a>
-    <!-- <a href="/admin/settings">Settings</a> -->
-</div>
+    <div class="sidebar p-3">
+        <h4 class="mb-4 text-center">Dashboard</h4>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link " href="/admin/dashboard"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link " href="/admin/products"><i class="fas fa-box me-2"></i>Products</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/admin/orders"><i class="fas fa-shopping-cart me-2"></i>Orders</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/admin/category"><i class="fas fa-tags me-2"></i>Category</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/admin/customers"><i class="fas fa-users me-2"></i>Customers</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/admin/coupons"><i class="fas fa-ticket-alt me-2"></i>Coupons</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/admin/banners"><i class="fas fa-image me-2"></i>Banners</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" href="/admin/offers"><i class="fas fa-gift me-2"></i>Offers</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/admin/inventory"><i class="fas fa-warehouse me-2"></i>Inventory</a>
+            </li>
+            <li class="nav-item mt-auto">
+                <a class="nav-link text-danger" href="/auth/logout"><i class="fas fa-sign-out-alt me-2"></i>Logout</a>
+            </li>
+        </ul>
+    </div>
 
-<!-- Main Content Area -->
-<div class="content">
-    <h1 class="mt-4">Offers Page</h1>
-    <a href="/admin/offers/add-offer" class="btn btn-primary mb-3">Add Offer</a>
-    
-    <% if (offers && offers.length > 0) { %>
-        <% for (const offer of offers) { %>
-            <div class="offer-card">
-                <h5><%= offer.offerName %></h5>
-                <a href="/admin/offers/edit-offer/<%= offer._id %>" class="btn btn-warning">Edit</a>
-                <form action="/admin/offers/delete-offer/<%= offer._id %>?_method=DELETE" method="POST" class="d-inline-block">
-                    <input type="hidden" name="_method" value="DELETE">
-                    <button type="submit" class="btn btn-danger delete-offer" data-offer-name="<%= offer.offerName %>">Delete</button>
-                </form>
-            </div>
-        <% } %>
-    <% } else { %>
-        <p>No offers available.</p>
-    <% } %>
-</div>
+    <!-- Main Content Area -->
+    <div class="main-content">
+        <h1 class="mb-4">Manage Offers</h1>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <a href="/admin/offers/add-offer" class="btn btn-primary"><i class="fas fa-plus"></i> Add New Offer</a>
+           
+        </div>
+
+        <div class="table-container">
+            <table class="table table-hover" id="offersTable">
+                <thead>
+                    <tr>
+                        <th>Offer Name <i class="fas fa-sort"></i></th>
+                        <th>Description</th>
+                        <th>Type <i class="fas fa-sort"></i></th>
+                        <th>Discount (%) <i class="fas fa-sort"></i></th>
+                        <th>Status</th>
+                        <th>Categories</th>
+                        <th>Products</th>
+                        <th>Date Range <i class="fas fa-sort"></i></th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (offers && offers.length > 0) { %>
+                        <% for (const offer of offers) { %>
+                            <tr>
+                                <td><%= offer.offerName %></td>
+                                <td><%= offer.offerDescription %></td>
+                                <td><%= offer.offerType %></td>
+                                <td><%= offer.discountValue %></td>
+                                <td>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input status-toggle" type="checkbox" id="status-<%= offer._id %>" <%= offer.offerStatus === 'active' ? 'checked' : '' %>>
+                                        <label class="form-check-label" for="status-<%= offer._id %>"><%= offer.offerStatus %></label>
+                                    </div>
+                                </td>
+                                <td>
+                                    <% for (const category of offer.categoryIds) { %>
+                                        <span class="badge bg-secondary"><%= category.name %></span>
+                                    <% } %>
+                                </td>
+                                <td>
+                                    <% for (const productId of offer.productIds) { %>
+                                        <% const product = products.find(p => p._id.toString() === productId.toString()); %>
+                                        <% if (product) { %>
+                                            <span class="badge bg-info"><%= product._id %></span>
+                                        <% } %>
+                                    <% } %>
+                                </td>
+                                <td>
+                                    <%= new Date(offer.startDate).toLocaleDateString('en-IN') %> - 
+                                    <%= new Date(offer.endDate).toLocaleDateString('en-IN') %>
+                                </td>
+                                <td>
+                                    <a href="/admin/offers/edit-offer/<%= offer._id %>" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></a>
+                                    <button class="btn btn-danger btn-sm delete-offer" data-offer-id="<%= offer._id %>" data-offer-name="<%= offer.offerName %>">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        <% } %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="9" class="text-center no-offers">No offers available at the moment.</td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+                <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
+                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                <li class="page-item"><a class="page-link" href="#">Next</a></li>
+            </ul>
+        </nav>
+    </div>
 
 <script>
-    // Handle delete button clicks
-    $('.delete-offer').on('click', function(event) {
-        event.preventDefault(); // Prevent the default form submission
-        const offerName = $(this).data('offer-name');
-        const form = $(this).closest('form');
+$(document).ready(function() {
+  
 
-        // Show confirmation alert
-        Swal.fire({
-            title: 'Are you sure?',
-            text: `You are about to delete the offer "${offerName}". This action cannot be undone.`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Yes, delete it!'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                form.submit(); // Submit the form if confirmed
-            }
-        });
+    // Sorting functionality
+    $('th').click(function(){
+        var table = $(this).parents('table').eq(0);
+        var rows = table.find('tr:gt(0)').toArray().sort(comparer($(this).index()));
+        this.asc = !this.asc;
+        if (!this.asc){rows = rows.reverse();}
+        for (var i = 0; i < rows.length; i++){table.append(rows[i]);}
     });
+
+    function comparer(index) {
+        return function(a, b) {
+            var valA = getCellValue(a, index), valB = getCellValue(b, index);
+            return $.isNumeric(valA) && $.isNumeric(valB) ? valA - valB : valA.localeCompare(valB);
+        };
+    }
+
+    function getCellValue(row, index){ return $(row).children('td').eq(index).text(); }
+
+    // Status toggle
+    $('.status-toggle').change(function() {
+        var offerId = $(this).attr('id').split('-')[1];
+        var newStatus = $(this).prop('checked') ? 'active' : 'inactive';
+        
+        // Here you would typically send an AJAX request to update the status
+        console.log('Updating offer ' + offerId + ' status to ' + newStatus);
+        
+        // Update the label
+        $(this).next('label').text(newStatus);
+    });
+
+    // Delete offer
+    // Delete offer
+$('.delete-offer').click(function() {
+    var offerId = $(this).data('offer-id');
+    var offerName = $(this).data('offer-name');
+    
+    Swal.fire({
+        title: 'Are you sure?',
+        text: `You are about to delete the offer "${offerName}". This action cannot be undone.`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: `/admin/offers/delete-offer/${offerId}`, // Change to your delete route
+                type: 'DELETE',
+                success: function(response) {
+                    // On success, remove the row from the table
+                    $(this).closest('tr').remove();
+                    Swal.fire(
+                        'Deleted!',
+                        'The offer has been deleted.',
+                        'success'
+                    );
+                }.bind(this), // Bind 'this' to the function to refer to the button element
+                error: function(xhr) {
+                    // Handle error
+                    Swal.fire(
+                        'Error!',
+                        'There was an error deleting the offer.',
+                        'error'
+                    );
+                }
+            });
+        }
+    });
+});
+
+});
 </script>
 
 </body>

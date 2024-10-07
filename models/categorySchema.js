@@ -9,15 +9,20 @@ const categorySchema = new Schema({
         trim: true
     },
     description: String,
-    isDeleted:{
+    // isDeleted:{
+    //     type:Boolean,
+    //     default:false
+    // },
+    // deletedAt:{
+    //     type:Date,
+    //     default:null,
+    //     select:false
+    // },
+    isBlocked:{
         type:Boolean,
         default:false
-    },
-    deletedAt:{
-        type:Date,
-        default:null,
-        select:false
-    },
+        
+    }
     
 });
 

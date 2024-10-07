@@ -9,7 +9,8 @@ exports.jwtAuth=async(req,res,next)=>{
     if (!token) {
         console.log("No token provided"); 
         
-        return res.status(401).render('protected/userprotected')
+        // return res.status(401).render('protected/userprotected')
+        return next();
         // return res.status(401).json({success:false,message:'token is not provided'})
         // return res.redirect('/')
     }
@@ -25,6 +26,7 @@ exports.jwtAuth=async(req,res,next)=>{
         console.log("Token verification error:", e); 
         return res.status(400).json({
             success: false,
+            ok:'noted',
             message: e.message
         });
         // res.redirect('/signin')
@@ -54,8 +56,8 @@ exports.userProtected = (req, res, next) => {
         next(); 
     } else {
         
-        return res.status(403).json({ success: false, message: 'Access denied: User role required ntrtr' });
-        // return res.status(403).render('protected/userprotected')
+        // return res.status(403).json({ success: false, message: 'Access denied: User role required ntrtr' });
+        return res.status(403).render('protected/userprotected')
     }
 };
 

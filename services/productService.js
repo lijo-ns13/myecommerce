@@ -15,7 +15,7 @@ async function getProductsWithOffers() {
 
     const productsWithOffers=products.map(product=>{
         let applicableOffer=activeOffers.find(offer=>
-            offer.productIds.includes(product._id) ||
+            
             offer.categoryIds.includes(product.category._id)
         )
     
@@ -24,9 +24,6 @@ async function getProductsWithOffers() {
         let discountValue=0;
         if(applicableOffer.discountType==='percentage'){
             discountValue=applicableOffer.discountValue/100*product.price;
-        }else if(applicableOffer.discountType==='fixed'){
-            discountValue=applicableOffer.discountValue;
-
         }
 
         const finalPrice=product.price-discountValue;

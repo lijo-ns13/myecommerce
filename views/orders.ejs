@@ -6,82 +6,271 @@
     <title>My Orders</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <style>
-          .order-card {
-            border: 1px solid #ddd;
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7fa;
+            display: flex;
+            min-height: 100vh;
         }
-        .order-header h5 {
-            font-weight: bold;
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #e74c3c;
+            --accent-color: #f39c12;
+            --background-color: #f4f4f4;
+            --text-color: #333;
         }
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1030;
+            background-color: rgba(255, 255, 255, 0.9) !important;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar-brand img {
+            max-height: 40px;
+        }
+
+        .nav-link {
+            color: var(--text-color);
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--primary-color) !important;
+        }
+
+        .nav-icon {
+            height: 24px;
+            width: auto;
+        }
+
+        .sidebar {
+            width: 250px;
+            background: #2c3e50;
+            padding: 2rem 0;
+            color: #ecf0f1;
+            position: fixed;
+            top: 76px; /* Adjusted to account for navbar height */
+            left: 0;
+            bottom: 0;
+            overflow-y: auto;
+        }
+
+        .sidebar h4 {
+            padding: 0 1.5rem;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+
+        .sidebar .nav-link {
+            color: #bdc3c7;
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            background: #34495e;
+            color: #fff;
+        }
+
+        .sidebar .nav-link i {
+            margin-right: 10px;
+            font-size: 1.1rem;
+        }
+
+        .content {
+            flex-grow: 1;
+            margin-left: 250px;
+            padding: 90px 20px 20px; /* Adjusted top padding to account for navbar */
+            background-color: #f8f9fa;
+        }
+
+        .order-card {
+            background-color: #ffffff;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .order-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+
         .order-header {
-            background-color: #f9f9f9;
-            padding: 10px;
-            border-bottom: 1px solid #eee;
-            margin-bottom: 10px;
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: #ffffff;
+            padding: 20px;
+            position: relative;
         }
-        .order-items .row {
+
+        .order-header h5 {
+            font-weight: 700;
             margin-bottom: 10px;
+            font-size: 1.2rem;
         }
+
+        .order-status {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .order-status.pending { background-color: #f39c12; }
+        .order-status.processing { background-color: #3498db; }
+        .order-status.delivered { background-color: #2ecc71; }
+
+        .order-info {
+            display: flex;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .order-info p {
+            margin: 0 20px 5px 0;
+            font-size: 0.9rem;
+        }
+
+        .order-items {
+            padding: 20px;
+        }
+
+        .order-item {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .order-item:hover {
+            background-color: #e9ecef;
+        }
+
+        .order-item img {
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            max-width: 100%;
+            height: auto;
+        }
+
+        .order-item:hover img {
+            transform: scale(1.05);
+        }
+
+        .order-item h5 {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        .order-item p {
+            margin-bottom: 5px;
+            color: #34495e;
+        }
+
         .order-footer {
-            margin-top: 20px;
+            background-color: #f8f9fa;
+            padding: 15px;
             text-align: right;
         }
-        .order-footer .btn-cancel {
-            background-color: #dc3545;
-            color: white;
+
+        .btn-cancel {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            border: none;
+            padding: 8px 20px;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            color: #ffffff;
         }
-        .order-status {
-            padding: 5px 10px;
-            border-radius: 5px;
-            color: white;
+
+        .btn-cancel:hover {
+            background: linear-gradient(45deg, #c0392b, #e74c3c);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3);
         }
-        .order-status.pending {
-            background-color: #f0ad4e;
+
+        .pagination .page-link {
+            color: #3498db;
+            border-radius: 50%;
+            margin: 0 5px;
+            width: 40px;
+            height: 40px;
+            line-height: 40px;
+            text-align: center;
+            padding: 0;
         }
-        .order-status.processing {
-            background-color: #5bc0de;
+
+        .pagination .page-item.active .page-link {
+            background-color: #3498db;
+            border-color: #3498db;
         }
-        .order-status.delivered {
-            background-color: #5cb85c;
+
+        .pagination .page-item:first-child .page-link,
+        .pagination .page-item:last-child .page-link {
+            border-radius: 50%;
         }
+
         @media (max-width: 768px) {
-            .order-items .col-md-3 {
-                margin-bottom: 10px;
+            .sidebar {
+                width: 100%;
+                position: static;
+                height: auto;
+            }
+
+            .content {
+                margin-left: 0;
+                padding-top: 20px;
+            }
+
+            .order-status {
+                position: static;
+                display: inline-block;
+                margin-top: 10px;
+            }
+
+            .order-info {
+                flex-direction: column;
+            }
+
+            .order-item .row {
+                flex-direction: column;
+            }
+
+            .order-item .col-md-3 {
+                margin-bottom: 15px;
             }
         }
-        .order-card { margin-bottom: 20px; }
-        .order-header { background-color: #f8f9fa; padding: 15px; border-bottom: 1px solid #dee2e6; }
-        .order-items { padding: 15px; }
-        .btn-cancel { margin-top: 10px; }
-        .sidebar { 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            width: 250px; 
-            height: 100%; 
-            background-color: #f8f9fa; 
-            padding: 20px; 
-        }
-        .content { margin-left: 270px; } /* Adjust margin to make space for sidebar */
     </style>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-
 </head>
 <body>
-    <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light py-3 w-100">
-        <div class="container">
+        <div class="container-fluid">
             <a class="navbar-brand" href="/">
                 <img src="/img/logo.png" alt="Logo" class="d-inline-block align-text-top" style="height: 40px;">
             </a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ml-auto">
                     <li class="nav-item">
@@ -94,13 +283,6 @@
                         <a class="nav-link" href="/about">About</a>
                     </li>
                 </ul>
-
-                <!-- Search Bar -->
-                <form class="form-inline mx-lg-4 my-2 my-lg-0">
-                    <input class="form-control mr-sm-2" type="search" placeholder="Search for products..." aria-label="Search">
-                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-                </form>
-                
                 <ul class="navbar-nav">
                     <li class="nav-item">
                         <a class="nav-link" href="/auth/signin">
@@ -127,118 +309,115 @@
             </div>
         </div>
     </nav>
-
     <!-- Sidebar -->
     <div class="sidebar">
         <h4>Menu</h4>
         <ul class="nav flex-column">
             <li class="nav-item">
-                <a class="nav-link" href="/user/profile">Profile</a>
+                <a class="nav-link active" href="/user/profile"><i class="fas fa-user"></i> Profile</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/user/address">Addresses</a>
+                <a class="nav-link" href="/user/address"><i class="fas fa-map-marker-alt"></i> Addresses</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/user/profile/edit">Edit Profile</a>
+                <a class="nav-link" href="/user/profile/edit"><i class="fas fa-edit"></i> Edit Profile</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/user/orders">Orders</a>
+                <a class="nav-link" href="/user/orders"><i class="fas fa-box"></i> Orders</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/user/profile/change-password">Change Password</a>
+                <a class="nav-link" href="/user/profile/change-password"><i class="fas fa-key"></i> Change Password</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/auth/logout">Logout</a>
+                <a class="nav-link" href="/user/profile/wallet"><i class="fas fa-wallet"></i> Wallet</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/auth/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
             </li>
         </ul>
     </div>
-<!-- 
-     -->
-<!-- Orders List -->
-<div class="content">
-    <div class="container mt-5">
-        <h2 class="my-4">My Orders</h2>
 
-        <% orders.forEach(order => { %>
-            <div class="order-card">
-                <div class="order-header">
-                    <h5>Order #<%= order._id %> - 
+    <div class="content">
+        <div class="container-fluid">
+            <h2 class="mb-4">My Orders</h2>
+
+            <% orders.forEach(order => { %>
+                <div class="order-card">
+                    <div class="order-header">
+                        <h5>Order #<%= order._id %></h5>
                         <span class="order-status <%= order.status %>">
                             <%= order.status.charAt(0).toUpperCase() + order.status.slice(1) %>
                         </span>
-                    </h5>
-                    <p>Payment Method: 
-                        <% if (order.paymentDetails.paymentMethod === 'razorpay') { %>
-                            Paid via Razorpay
-                        <% } else { %>
-                            Cash on Delivery
-                        <% } %>
-                    </p>
-                    <% if (order.paymentDetails.paymentMethod === 'razorpay') { %>
-                        <p>Transaction ID: <%= order.paymentDetails.transactionId %></p>
-                    <% } %>
-                    <p>Total: $<%= order.totalPrice %></p>
-                    <p>Order Date: <%= new Date(order.orderDate).toLocaleDateString() %></p>
-                    <p><strong>Shipping Address:</strong></p>
-                    <p>
-                        <%= order.shippingAddress.name %><br>
-                        <%= order.shippingAddress.street %>, <%= order.shippingAddress.city %><br>
-                        <%= order.shippingAddress.state %> - <%= order.shippingAddress.zip %><br>
-                        <%= order.shippingAddress.country %>
-                    </p>
-                </div>
-
-                <div class="order-items">
-                    <% order.products.forEach(product => { %>
-                    <div class="row">
-                        <div class="col-md-3">
-                            <img src="<%= product.productId.images[0]?.secured_url %>" class="img-fluid img-thumbnail" alt="<%= product.productId.name %>">
-                        </div>
-                        <div class="col-md-9">
-                            <h5><%= product.productId.name %></h5>
-                            <p>Size: <%= product.size %></p>
-                            <p>Quantity: <%= product.quantity %></p>
-                            <p>Price per unit: $<%= product.productId.finalPrice %></p>
-                            <p><strong>Subtotal: $<%= product.quantity * product.productId.finalPrice %></p>
+                        <div class="order-info">
+                            <p><i class="fas fa-calendar-alt mr-2"></i> <%= new Date(order.orderDate).toLocaleDateString() %></p>
+                            <p><i class="fas fa-money-bill-wave mr-2"></i> Total: $<%= order.totalPrice.toFixed(2) %></p>
+                            <p>
+                                <i class="fas fa-credit-card mr-2"></i> 
+                                <%= order.paymentDetails.paymentMethod === 'razorpay' ? 'Paid via Razorpay' : 'Cash on Delivery' %>
+                            </p>
+                            <% if (order.paymentDetails.paymentMethod === 'razorpay') { %>
+                                <p><i class="fas fa-receipt mr-2"></i> Transaction ID: <%= order.paymentDetails.transactionId %></p>
+                            <% } %>
                         </div>
                     </div>
-                    <% }) %>
+                    <div class="order-items">
+                        <h6 class="mb-3"><i class="fas fa-shipping-fast mr-2"></i> Shipping Address:</h6>
+                        <p class="mb-3">
+                            <%= order.shippingAddress.name %><br>
+                            <%= order.shippingAddress.street %>, <%= order.shippingAddress.city %><br>
+                            <%= order.shippingAddress.state %> - <%= order.shippingAddress.zip %><br>
+                            <%= order.shippingAddress.country %>
+                        </p>
+                        <h6 class="mt-4 mb-3">Order Items:</h6>
+                        <% order.orderedProducts.forEach(productDetail => { %>
+                            <div class="order-item">
+                                <div class="row align-items-center">
+                                    <div class="col-md-3 col-sm-4 mb-3 mb-md-0">
+                                        <img src="<%= productDetail.productImage %>" alt="<%= productDetail.productName %>" class="img-fluid">
+                                    </div>
+                                    <div class="col-md-9 col-sm-8">
+                                        <h5 class="mb-3"><%= productDetail.productName %></h5>
+                                        <div class="row">
+                                            <div class="col-sm-6 mb-2 mb-sm-0">
+                                                <p><i class="fas fa-ruler mr-2"></i> Size: <%= productDetail.productSize %></p>
+                                                <p><i class="fas fa-cubes mr-2"></i> Quantity: <%= productDetail.productQuantity %></p>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <p><i class="fas fa-tag mr-2"></i> Price per unit: $<%= productDetail.productPrice.toFixed(2) %></p>
+                                                <p><strong><i class="fas fa-calculator mr-2"></i> Subtotal: $<%= (productDetail.productPrice * productDetail.productQuantity).toFixed(2) %></strong></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        <% }) %>
+                    </div>
+                    <div class="order-footer">
+                        <% if (order.status === 'pending' || order.status === 'processing') { %>
+                        <button class="btn btn-cancel" onclick="confirmCancelOrder('<%= order._id %>')"><i class="fas fa-times mr-2"></i> Cancel Order</button>
+                        <% } %>
+                    </div>
                 </div>
+            <% }) %>
 
-                <div class="order-footer">
-                    <% if (order.status === 'pending' || order.status === 'processing') { %>
-                    <button class="btn btn-danger btn-cancel" onclick="confirmCancelOrder('<%= order._id %>')">Cancel Order</button>
-                    <% } %>
-                </div>
-            </div>
-        <% }) %>
-
-
-        <!-- Pagination Controls -->
-        <nav aria-label="Page navigation example" class="mt-4">
-            <ul class="pagination justify-content-center">
-                <!-- Previous button -->
-                <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
-                    <a class="page-link" href="?page=<%= currentPage - 1 %>" tabindex="-1">Previous</a>
-                </li>
-        
-                <!-- Page numbers -->
-                <% for (let i = 1; i <= totalPages; i++) { %>
-                    <li class="page-item <%= currentPage === i ? 'active' : '' %>">
-                        <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+            <!-- Pagination Controls -->
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
+                        <a class="page-link" href="?page=<%= currentPage - 1 %>" tabindex="-1"><i class="fas fa-chevron-left"></i></a>
                     </li>
-                <% } %>
-        
-                <!-- Next button -->
-                <li class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
-                    <a class="page-link" href="?page=<%= currentPage + 1 %>">Next</a>
-                </li>
-            </ul>
-        </nav>
-        
+                    <% for (let i = 1; i <= totalPages; i++) { %>
+                        <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                            <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+                        </li>
+                    <% } %>
+                    <li class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
+                        <a class="page-link" href="?page=<%= currentPage + 1 %>"><i class="fas fa-chevron-right"></i></a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
     </div>
-</div>
-   
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
@@ -248,7 +427,7 @@
                 text: "You won't be able to revert this!",
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#3085d6',
+                confirmButtonColor: '#3085db',
                 cancelButtonColor: '#d33',
                 confirmButtonText: 'Yes, cancel it!'
             }).then((result) => {

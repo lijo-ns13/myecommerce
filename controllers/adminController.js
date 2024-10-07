@@ -19,7 +19,7 @@ const getProduct = async (req, res) => {
   const limit = 10; // Number of products per page
   const skip = (page - 1) * limit; // Calculate the number of products to skip
 
-  const products = await Product.find({}).skip(skip).limit(limit);
+  const products = await Product.find({}).populate('category').skip(skip).limit(limit);
   const totalProducts = await Product.countDocuments({}); // Get total product count
   const totalPages = Math.ceil(totalProducts / limit); // Calculate total pages
 
@@ -165,6 +165,7 @@ const postAddProduct=async (req, res) => {
         brand,
         description,
         price: Number(price),
+        finalPrice:price,
         sizes,
         category,
         images
@@ -224,107 +225,127 @@ const getProductEdit=async(req,res)=>{
   }
   const patchProductEdit = async (req, res) => {
     try {
-        const productId = req.params.id;
-        const { product, brand, description, price, category, existingImages, croppedImages } = req.body;
-
-        // Initialize images array
-        let images = [];
-
-        // Handle existing images (if they exist in the request)
-        if (existingImages) {
-            try {
-                images = JSON.parse(existingImages);
-            } catch (error) {
-                return res.status(400).json({ success: false, message: 'Invalid format for existing images' });
-            }
+      const { product, brand, description, price, category, croppedImages } = req.body;
+  
+      // Ensure you have the product ID in the request (for example, via req.params)
+      const productId = req.params.id; // Adjust this based on how you're sending the ID
+  
+      // Check if the product exists
+      const existingProduct = await Product.findById(productId);
+      if (!existingProduct) {
+        return res.status(404).json({ success: false, message: 'Product not found' });
+      }
+  
+      // Initialize images array with existing images
+      let images = [...existingProduct.images]; // Start with existing images
+  
+      // Process cropped images only
+      if (croppedImages) {
+        const croppedImagesArray = JSON.parse(croppedImages);
+  
+        for (const imgData of croppedImagesArray) {
+          const filename = generateUniqueFilename();
+          const filePath = await saveBase64Image(imgData, filename);
+          const fileExtension = path.extname(filePath).slice(1);
+          
+          // Add the cropped image to the images array
+          images.push({
+            id: filename,
+            secured_url: `/uploads/${filename}.${fileExtension}`,
+          });
         }
+      }
+  
+      // Validation checks for required fields
+      if (!product || !brand || !description || !price || !category) {
+        return res.status(400).json({ success: false, message: 'Please fill all fields' });
+      }
+      const productRegex=/^[a-zA-Z0-9 _'-]{2,100}$/
+  
+      if(!productRegex.test(product)){
+        return res.status(400).json({ success:false,message: 'Product name should only contain letters, numbers'});
+      }
+      if(product.length<4){
+        return res.status(400).json({success:false,message:'Product name atleast 4 characters'})
+      }
+      const brandRegex=/^[a-zA-Z0-9][a-zA-Z0-9 &-]{1,48}[a-zA-Z0-9]$/
+      if(!brandRegex.test(brand)){
+        return res.status(400).json({ success:false,message: 'Brand name should only contain letters'})
+      }
+      if(brand.length<4){
+        return res.status(400).json({success:false,message:'Brand atleast have 4 characters'})
+      }
+      if(description.length<8){
+        return res.status(400).json({success:false,message:'Description atleat have 8 characters'})
+      }
+      if(Number(price)<0){
+        return res.status(400).json({ success:false,message: 'Price should be greater than zero'});
+      }
+      // Validate sizes from the request body
+      const sizes = req.body.sizes; // Ensure sizes is correctly assigned
 
-        // Handle new images upload from Multer
-        if (req.files && req.files.length > 0) {
-            const newImages = req.files.map(file => ({
-                id: file.filename,
-                secured_url: `/uploads/${file.filename}`,
-            }));
-            images = [...images, ...newImages]; // Combine existing and new images
+      if (!Array.isArray(sizes)) {
+        return res.status(400).json({ success: false, message: 'Sizes must be an array.' });
+      }
+      
+      // Filter out any invalid or empty size entries, if necessary
+      const filteredSizes = sizes.filter(sizeObj => sizeObj.size && sizeObj.stock);
+      
+      // If all sizes have been removed, send an error
+      if (filteredSizes.length === 0) {
+        return res.status(400).json({ success: false, message: 'Add at least one size and stock' });
+      }
+      
+      const sizesArray = filteredSizes.map(sizeObj => {
+        const size = Number(sizeObj.size);
+        const stock = Number(sizeObj.stock);
+        
+        if (isNaN(size) || isNaN(stock)) {
+          throw new Error('Size and stock must be valid numbers.');
         }
-
-        // Handle cropped images if provided (in base64 format)
-        if (croppedImages) {
-            try {
-                const croppedImagesArray = JSON.parse(croppedImages);
-                for (const imgData of croppedImagesArray) {
-                    const filename = generateUniqueFilename(); // Assuming this function generates a unique name for the file
-                    const filePath = await saveBase64Image(imgData, filename);
-                    const fileExtension = path.extname(filePath).slice(1); // Get the file extension
-                    images.push({
-                        id: filename,
-                        secured_url: `/uploads/${filename}.${fileExtension}`,
-                    });
-                }
-            } catch (error) {
-                return res.status(400).json({ success: false, message: 'Invalid format for cropped images' });
-            }
+        
+        return { size, stock };
+      });
+      
+      let errors = [];
+      
+      // Validate sizes and stock
+      for (const size of sizesArray) {
+        if (size.size <= 0) {
+          errors.push('Size must be greater than 0');
         }
-
-        // Ensure that sizes are provided and valid
-        // Ensure that sizes is a valid array before parsing
-let sizes = req.body.sizes;
-if (!sizes) {
-    return res.status(400).json({ success: false, message: 'Sizes are required' });
-}
-
-// Log the incoming sizes data
-console.log('Received sizes:', sizes);
-
-try {
-    // Check if sizes is already an array
-    if (typeof sizes === 'string') {
-        sizes = JSON.parse(sizes); // Parse if it's a string
-    }
-
-    // Validate sizes if it’s an array
-    if (!Array.isArray(sizes) || sizes.length === 0) {
-        return res.status(400).json({ success: false, message: 'Sizes must be an array of valid objects' });
-    }
-
-    // Validate each size object
-    sizes.forEach(size => {
-        if (!size.size || !size.stock || size.size <= 0 || size.stock < 0) {
-            return res.status(400).json({ success: false, message: 'Invalid sizes data. Size must be greater than 0 and stock cannot be negative.' });
+        if (size.stock < 0) {
+          errors.push('Stock must be 0 or greater');
         }
-    });
-} catch (error) {
-    console.error('Sizes parsing error:', error);
-    return res.status(400).json({ success: false, message: 'Invalid sizes format' });
-}
+      }
+      
+      if (errors.length > 0) {
+        return res.status(400).json({ success: false, message: errors.join(', ') });
+      }
+      
 
-
-        // Update product with new values
-        const updatedProduct = await Product.findByIdAndUpdate(
-            productId,
-            {
-                product,
-                brand,
-                description,
-                price: Number(price),
-                sizes, // Update sizes
-                category,
-                images, // Update images
-            },
-            { new: true } // Return the updated product
-        );
-
-        // Check if the update was successful
-        if (!updatedProduct) {
-            return res.status(404).json({ success: false, message: 'Product not found' });
-        }
-
-        res.status(200).json({ success: true, message: 'Product updated successfully', product: updatedProduct });
+      // Update the existing product
+      existingProduct.product = product;
+      existingProduct.brand = brand;
+      existingProduct.description = description;
+      existingProduct.price = Number(price);
+      existingProduct.sizes = sizesArray;
+      existingProduct.finalPrice = Number(price);
+      existingProduct.category = category;
+      existingProduct.images = images; // Keep existing images and add new cropped images
+  
+      // Save the updated product
+      await existingProduct.save();
+  
+      res.status(200).json({ success: true, message: 'Product updated successfully!' });
     } catch (error) {
-        console.error('Error updating product:', error);
-        res.status(500).json({ success: false, message: 'Failed to update product', error: error.message });
+      console.error('Error updating product:', error);
+      res.status(500).json({ success: false, message: 'Failed to update product', error: error.message });
     }
-};
+  };
+  
+
+
 
 //   customer section *********************************************************
 
@@ -389,19 +410,57 @@ const patchCategoryUpdate=async(req,res)=>{
     }
     res.status(200).json({success:true,message:'Category updated successfully',category:category})
 }
-const deleteCategoryDelete=async(req,res)=>{
-    try{
-        const categoryId=req.params.id;
-    const category=await Category.findByIdAndDelete(categoryId);
-    if(!category){
-        return res.status(404).render('category/error',{success:false,message:'category not found'})
-    }
-    // res.status(200).render('category/success',{success:true,message:'successfully deleted'})
-    res.status(200).json({success:true,message:'Deleted Successfully'})
-    }catch (error) {
-      console.error('Error:', error); // Log the full error
-      res.status(500).json({ success: false, message: error.message });
+// const deleteCategoryDelete=async(req,res)=>{
+//     try{
+//         const categoryId=req.params.id;
+//     const category=await Category.findByIdAndDelete(categoryId);
+//     if(!category){
+//         return res.status(404).render('category/error',{success:false,message:'category not found'})
+//     }
+//     // res.status(200).render('category/success',{success:true,message:'successfully deleted'})
+//     res.status(200).json({success:true,message:'Deleted Successfully'})
+//     }catch (error) {
+//       console.error('Error:', error); // Log the full error
+//       res.status(500).json({ success: false, message: error.message });
+//   }
+// }
+const postCategoryBlock=async(req,res)=>{
+  try {
+      const categoryId=req.params.id;
+      const category=await Category.findById({_id:categoryId});
+      if(!category){
+        return res.status(400).json({success:false,message:"Category not found"})
+      }
+      const upCategory=await Category.findByIdAndUpdate(categoryId,{isBlocked:true},{new:true});
+      if(!upCategory){
+        return res.status(400).json({success:false,message:'not updating and not find categoryId'})
+      }
+      res.status(200).json({success:true,message:'Category is Blocked'})
+      // res.status(200).redirect('/admin/category')
+
+  } catch (error) {
+    console.log('Error from category Block',error.message);
+    res.status(400).json({success:false,message:error.message})
   }
+}
+const postCategoryUnblock=async(req,res)=>{
+  try {
+    const categoryId=req.params.id;
+      const category=await Category.findById({_id:categoryId});
+      if(!category){
+        return res.status(400).json({success:false,message:"Category not found"})
+      }
+      const upCategory=await Category.findByIdAndUpdate(categoryId,{isBlocked:false},{new:true});
+      if(!upCategory){
+        return res.status(400).json({success:false,message:'not updating and not find categoryId'})
+      }
+      res.status(200).json({success:true,message:'Category is Unblocked'})
+      // res.status(200).redirect('/admin/category')
+  } catch (error) {
+    console.log('Error from category Block',error.message);
+    res.status(400).json({success:false,message:error.message})
+  }
+
 }
 const getAddCategory=(req,res)=>{
     res.render('add-category')
@@ -498,14 +557,44 @@ const getEditOrder=async (req, res) => {
 
         // Update the order status
         order.status = status;
+        // If the order status is now 'delivered', push userId to the product's purchasedByUserIds field
+        if (status === 'delivered') {
+          const userId=order.userId;
+          for (const item of order.products) {
+              const product = await Product.findById(item.productId);
+              if (product) {
+                  // Add userId to the purchasedByUserIds array if not already present
+                  if (!product.purchasedByUserIds.includes(userId)) {
+                      product.purchasedByUserIds.push(userId);
+                      await product.save();
+                  }
+              }
+          }
+      }
         await order.save();
 
-        res.redirect('/admin/orders'); // Redirect back to orders page
+        res.status(200).redirect(`/admin/orders/${orderId}`); // Redirect back to orders page
     } catch (error) {
         console.error('Error updating order:', error); // Log the error for debugging
         res.status(500).json({ success: false, message: error.message });
     }
 };
+
+const getOrderDetailedPage=async(req,res)=>{
+  try {
+    const orderId=req.params.orderId;
+    const order=await Order.findById(orderId).populate('products.productId')
+    console.log(order,orderId)
+    if(!order){
+      return res.status(400).json({success:false,message:'Order not found'})
+    }
+
+    res.render('adminorders/orderDetailedPage',{order:order})
+  } catch (error) {
+    console.log('error order detailed page',error.message);
+    res.status(400).json({success:false,message:error.message})
+  }
+}
 
 // inventory****************************************
 
@@ -565,12 +654,15 @@ module.exports={
     getCategory,
     getCategoryUpdate,
     patchCategoryUpdate,
-    deleteCategoryDelete,
+    // deleteCategoryDelete,
+    postCategoryBlock,
+    postCategoryUnblock,
     getAddCategory,
     postAddCategory,
     getOrders,
     getEditOrder,
     postEditOrder,
+    getOrderDetailedPage,
     getInventory,
     postInventoryUpdate
 

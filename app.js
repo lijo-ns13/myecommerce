@@ -15,6 +15,7 @@ const noCache=require('./middlewares/noCache')
 const session = require('express-session');
 
 
+
 const googleauthRouter=require('./routes/googleauthRouter')
 
 
@@ -33,6 +34,7 @@ const wishlistRouter=require('./routes/wishlistRouter')
 const checkoutRouter=require('./routes/checkoutRouter')
 const orderRouter=require('./routes/orderRouter')
 const allRouter=require('./routes/all')
+const reviewRouter=require('./routes/reviewRouter')
 
 const app=express();
 app.use(noCache)
@@ -138,7 +140,7 @@ app.use('/user/wishlist',wishlistRouter)
 app.use('/checkout',checkoutRouter)
 app.use('/user/orders',orderRouter)
 app.use('/',allRouter)
-
+app.use('/reviews',reviewRouter)
 // 404 Handler for undefined routes
 // app.use((req, res, next) => {
 //     res.status(404).render('404'); // Render the 404 EJS page

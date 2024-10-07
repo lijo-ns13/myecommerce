@@ -76,6 +76,16 @@ const patchEditAddress=async(req,res)=>{
         const userId=req.user._id;
         const {street,phoneNo,city,state,postalCode,country}=req.body;
         console.log('ar',req.body)
+        const address=await Address.findById(addressId);
+        console.log('address.user',address.user,'userId',userId,typeof(address.user),typeof(userId))
+        console.log(address.user.toString()===userId.toString())
+        if(address.user.toString()!==userId.toString()){
+            return res.status(403).json({success:false,message:'You are not authorized for edit someone address'})
+        }
+        if(!address){
+            return res.status(400).json({success:false,message:error.message})
+        }
+
         if(!street || !phoneNo || !city || !state || !postalCode || !country){
             return res.status(400).json({success:false,message:'Please fill every fields'})
         }
@@ -83,10 +93,8 @@ const patchEditAddress=async(req,res)=>{
         if(!phoneRegex.test(phoneNo)){
             return res.status(400).json({success:false,message:'Invalid phone number'})
         }
-        const address=await Address.findById(addressId);
-        if(!address){
-            return res.status(400).json({success:false,message:error.message})
-        }
+        
+        
         await Address.findByIdAndUpdate(addressId,req.body,{new:true})
         res.status(200).json({success:true,message:'successfuly updated address'})
     }catch(error){

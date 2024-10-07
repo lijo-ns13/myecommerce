@@ -57,20 +57,27 @@ const productSchema=new Schema({
             ref:'Review'
         }
     ],
+    inWishlistUsers:[
+        {
+            type:Schema.Types.ObjectId,
+            ref:'User'
+        }
+    ],
     isListed:{
         type:Boolean,
         default:true
     },
-    inWishlist:{
-        type:Boolean,
-        default:false
-    },
-    offerPrice:{
-        type:Number,       
-    },
+    offers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Offer' }] ,
+    // offerPrice:{
+    //     type:Number,       
+    // },
     offerApplied:{
         type:Boolean,
         default:false
+    },
+    purchasedByUserIds:{
+        type:Array,
+        default:[]
     }
 },{
     timestamps:true

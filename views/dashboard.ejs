@@ -6,6 +6,8 @@
     <title>Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <style>
         body {
             background-color: #000;
@@ -13,6 +15,9 @@
             margin: 0;
             padding: 0;
         }
+        .bg-white {
+        background-color: white; /* White background for the report box */
+    }
         .sidebar {
             height: 100vh;
             position: fixed;
@@ -70,43 +75,42 @@
     </style>
 </head>
 <body>
-    <div class="sidebar">
-        <div class="p-3">
-            <h4>Admin Dashboard</h4>
-        </div>
-        <ul class="nav flex-column p-3">
+    <div class="sidebar p-3">
+        <h4 class="mb-4 text-center">Dashboard</h4>
+        <ul class="nav flex-column">
             <li class="nav-item">
-                <a class="nav-link active" href="/admin/dashboard">Dashboard</a>
+                <a class="nav-link active" href="/admin/dashboard"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/admin/products">Products</a>
+                <a class="nav-link " href="/admin/products"><i class="fas fa-box me-2"></i>Products</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/admin/orders">Orders</a>
+                <a class="nav-link" href="/admin/orders"><i class="fas fa-shopping-cart me-2"></i>Orders</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/admin/category">Category</a>
+                <a class="nav-link" href="/admin/category"><i class="fas fa-tags me-2"></i>Category</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/admin/customers">Customers</a>
+                <a class="nav-link" href="/admin/customers"><i class="fas fa-users me-2"></i>Customers</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/admin/coupons">Coupons</a>
+                <a class="nav-link" href="/admin/coupons"><i class="fas fa-ticket-alt me-2"></i>Coupons</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/admin/inventory">Inventory</a>
+                <a class="nav-link" href="/admin/banners"><i class="fas fa-image me-2"></i>Banners</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/admin/banners">Banners</a>
+                <a class="nav-link" href="/admin/offers"><i class="fas fa-gift me-2"></i>Offers</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/admin/offers">Offers</a>
+                <a class="nav-link" href="/admin/inventory"><i class="fas fa-warehouse me-2"></i>Inventory</a>
             </li>
             <li class="nav-item mt-auto">
-                <a class="nav-link text-danger" href="/auth/logout">Logout</a>
+                <a class="nav-link text-danger" href="/auth/logout"><i class="fas fa-sign-out-alt me-2"></i>Logout</a>
             </li>
         </ul>
     </div>
+
 
     <div class="content">
         <div class="container">
@@ -213,24 +217,99 @@ document.getElementById('generateReport').addEventListener('click', function() {
     fetch(`/admin/sales/report?type=${reportType}&startDate=${startDate}&endDate=${endDate}`)
         .then(response => response.json())
         .then(data => {
+            
             // Display the sales report
             salesReportDiv.innerHTML = generateSalesReportHtml(data);
 
             // Show the download PDF button
             document.getElementById('downloadPdf').classList.remove('d-none');
+            console.log('dataaaaaaaaaaaaaaaaaaaa',data)
         })
         .catch(error => console.error('Error fetching report:', error));
 });
 
-// Generate HTML for the sales report
 function generateSalesReportHtml(data) {
-    let html = '<table class="table table-dark mt-3"><thead><tr><th>Date</th><th>Total Sales</th></tr></thead><tbody>';
+    // Start with a container for the report
+    let html = `
+        <div class="container mt-5">
+            <h1 class="text-center">Sales Report</h1>
+            <h4 class="text-center">Generated on: ${new Date().toLocaleDateString()}</h4>
+            <hr>
+            <div class="bg-white p-4 rounded shadow">
+                <h3>Summary</h3>
+                <table class="table table-dark table-striped mt-3">
+                    <thead>
+                        <tr>
+                            <th>Total Sales</th>
+                            <th>Total Discount</th>
+                            <th>Total Orders</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+    `;
+    
+    // Loop through sales data to create summary rows
     data.forEach(sale => {
-        html += `<tr><td>${sale.date}</td><td>${sale.totalSales}</td></tr>`;
+        html += `
+            <tr>
+                <td>${sale.totalSales.toFixed(2)}</td>
+                <td>${sale.totalDiscount.toFixed(2)}</td>
+                <td>${sale.orderCount}</td>
+            </tr>
+        `;
     });
-    html += '</tbody></table>';
-    return html;
+    
+    html += `
+                    </tbody>
+                </table>
+    `; // Close the summary table
+    
+    // Now add details for each order
+    data.forEach(sale => {
+        // Add a section for each day's orders
+        html += `
+            <h4>Details for ${sale._id}</h4>
+            <table class="table table-light table-striped mt-3">
+                
+                <thead>
+                    <tr>
+                        <th>Order Id</th>
+                        <th>Price</th>
+                        <th>Discount</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+        
+        // Loop through orders for each sale and create detail rows
+        for (const order of sale.orders) {
+            html += `
+                <tr>
+                    <td>${order.orderId}</td>
+                    <td>${order.totalPrice.toFixed(2)}</td>
+                    <td>${order.discount.toFixed(2)}</td>
+                    <td>${order.status}</td>
+                </tr>
+            `;
+        }
+        
+        html += `
+                </tbody>
+            </table>
+            <hr>
+        `; // Close the order details table and add a horizontal line for separation
+    });
+
+    html += `
+           
+        </div> <!-- Close the white box -->
+        </div> <!-- Close the container -->
+    `; // Close the container
+
+    return html; // Return the complete HTML string
 }
+
 
 // Add event listener for downloading PDF
 document.getElementById('downloadPdf').addEventListener('click', function() {

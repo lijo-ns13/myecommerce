@@ -87,6 +87,30 @@ const orderSchema=new Schema({
             required: true
         }
     },
+    orderedProducts: [
+        {
+            productName: {
+                type: String,
+                required: true  // Consider adding required validation
+            },
+            productPrice: {
+                type: Number,
+                required: true  // Consider adding required validation
+            },
+            productQuantity: {
+                type: Number,
+                required: true  // Consider adding required validation
+            },
+            productSize: {
+                type: Number,  // Changed to String to accommodate different size formats
+                required: true  // Consider adding required validation
+            },
+            productImage:{
+                type:String,
+                required:true
+            }
+        }
+    ],
 
     isDiscount:{
         type:Boolean,

@@ -7,7 +7,10 @@ const Cart = require('../models/cartSchema');
 const Product = require('../models/productSchema');
 const Order = require('../models/orderSchema');
 const Address = require('../models/addressSchema');
-const Coupon=require('../models/couponSchema')
+const Coupon=require('../models/couponSchema');
+const Category=require('../models/categorySchema')
+
+
 const getCheckout = async (req, res) => {
     try {
         const userId = req.user._id; // Assuming user is authenticated and user ID is available from the session or JWT
@@ -60,16 +63,25 @@ const postCheckout = async (req, res) => {
         for (const product of cart.products) {
             const { productId, size, quantity } = product;
             const productDetails = await Product.findOne({ _id: productId, 'sizes.size': size });
+            const categoryId=productDetails.category;
+            const checkCategory=await Category.findById(categoryId);
+            let cart=await Cart.findOne({userId:req.user._id}).populate('products.productId');
+            if(checkCategory.isBlocked){
+                return res.status(200).json({success:false,message:'category is blocked'})
+                // return res.status(400).render('cart/cart',{error:'category is blocked',cart})
+            }
 
             if (!productDetails) {
-                // return res.status(400).json({ success: false, message: `Product not found for ID: ${productId}` });
-                return res.status(400).redirect('/cart')
+                return res.status(400).json({ success: false, message: `Product not found for ID: ${productId}` });
+                // return res.status(400).redirect('/cart')
+                
             }
 
             const sizeDetails = productDetails.sizes.find(s => s.size === size);
             if (!sizeDetails || sizeDetails.stock < quantity) {
-                // return res.status(400).json({ success: false, message: `Insufficient stock for product ${productDetails.name} in size ${size}. Available stock: ${sizeDetails ? sizeDetails.stock : 0}` });
-                return res.status(400).redirect('/cart')
+                return res.status(400).json({ success: false, message: `Insufficient stock for product ${productDetails.name} in size ${size}. Available stock: ${sizeDetails ? sizeDetails.stock : 0}` });
+                // return res.status(400).redirect('/cart')
+               
             }
         }
 
@@ -128,6 +140,28 @@ const postCheckout = async (req, res) => {
             const randomNum = Math.floor(Math.random() * 1000000); // Generate a random number
             return `COD-${timestamp}-${randomNum}`; // Format transaction ID
         }
+        const orderedProducts = [];
+
+            for (const product of cart.products) {
+                const { productId, size, quantity } = product;
+
+                // Fetch product details from the database
+                const productDetails = await Product.findOne({ _id: productId });
+
+                if (!productDetails) {
+                    // If product is not found, handle the error
+                    return res.status(400).redirect('/cart');
+                }
+            
+                // Push relevant details to orderedProducts array
+                orderedProducts.push({
+                    productName: productDetails.product,  // Assuming product has a 'name' field
+                    productPrice: productDetails.finalPrice,  // Assuming product has a 'price' field
+                    productQuantity: quantity,           // Quantity from the cart
+                    productSize: size,                    // Size from the cart
+                    productImage:productDetails.images[0].secured_url
+                });
+            }
         if (paymentMethod === 'razorpay') {
             payDetails.paymentMethod = paymentMethod;
         
@@ -141,7 +175,9 @@ const postCheckout = async (req, res) => {
             payDetails.transactionId = order.id;
         
             console.log('Creating Razorpay order with total amount:', cart.finalPrice );
-        
+            // ***************
+            
+            console.log('orderedProducts',orderedProducts)
             const newOnlineOrder=new Order({
                 userId:req.user._id,
                 totalPrice:cart.finalPrice,
@@ -152,14 +188,27 @@ const postCheckout = async (req, res) => {
                 originalPrice:cart.totalPrice,
                 products:cart.products,
                 isDiscount:cart.totalPrice !== cart.finalPrice,
-                discount:cart.totalPrice - cart.finalPrice
+                discount:cart.totalPrice - cart.finalPrice,
+                orderedProducts:orderedProducts
             })
             await newOnlineOrder.save();
+             // Update stock for products
+        for (const product of cart.products) {
+            const { productId, size, quantity } = product;
+            await Product.findOneAndUpdate(
+                { _id: productId, 'sizes.size': size },
+                { $inc: { 'sizes.$.stock': -quantity } }
+            );
+        }
             await Cart.findByIdAndDelete(cart._id)
             // return res.status(200).json({
             //     success:true,
             //     message:'Order created successfully from razy'
             // })
+            
+
+       
+
             return res.redirect(`/checkout/order-confirmation/${newOnlineOrder._id}`);
             
             // return res.json({
@@ -185,7 +234,8 @@ const postCheckout = async (req, res) => {
             originalPrice:cart.totalPrice,
             deliveryDate: calculateDeliveryDate(),
             isDiscount:cart.totalPrice !== cart.finalPrice,
-            discount:cart.totalPrice - cart.finalPrice
+            discount:cart.totalPrice - cart.finalPrice,
+            orderedProducts:orderedProducts
         });
 
         await newOrder.save();

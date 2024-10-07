@@ -13,7 +13,7 @@ const Order = require('../models/orderSchema');
 const Address = require('../models/addressSchema');
 const Coupon=require('../models/couponSchema')
 const checkoutController=require('../controllers/checkoutController')
-
+const Category=require('../models/categorySchema')
 router.use(jwtAuth, userProtected);
 
 router.get('/', checkoutController.getCheckout);
@@ -24,6 +24,39 @@ router.post('/', checkoutController.postCheckout);
 const razorpayInstance = new razorpay({
     key_id: 'rzp_test_HcIqECgcTGh7Na',
     key_secret: '0oJyfx0TqcxmRsgNKTq9o05M',
+});
+router.post('/checkcatpro', async (req, res) => {
+    try {
+        const cart = await Cart.findOne({ userId: req.user._id }).populate('products.productId');
+        if (!cart || cart.products.length === 0) {
+            return res.status(400).json({ success: false, message: 'Your cart is empty' });
+        }
+        
+        for (const product of cart.products) {
+            const { productId, size, quantity } = product;
+            const productDetails = await Product.findOne({ _id: productId, 'sizes.size': size });
+            const categoryId = productDetails.category;
+            const checkCategory = await Category.findById(categoryId);
+
+            if (checkCategory.isBlocked) {
+                return res.status(400).json({ success: false, message: `We're sorry, but you can't purchase "${productDetails.product}". This category is currently blocked.` });
+            }
+
+            if (!productDetails) {
+                return res.status(400).json({ success: false, message: `Unfortunately, we couldn't find a product with the ID: ${productId}. Please check and try again.` });
+            }
+
+            const sizeDetails = productDetails.sizes.find(s => s.size === size);
+            if (!sizeDetails || sizeDetails.stock < quantity) {
+                return res.status(400).json({ success: false, message: `Oops! It looks like there isn’t enough stock for "${productDetails.product}" in size "${size}". Available stock: ${sizeDetails ? sizeDetails.stock : 0}. Please adjust your quantity.` });
+            }
+        }
+
+        res.status(200).json({ success: true, message: 'All products are available' });
+    } catch (error) {
+        console.error('Error checking category and product availability:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
 });
 
 // Route to handle payment success
@@ -123,13 +156,9 @@ if (coupon.usedUsers.includes(req.user._id)) {
         if (coupon.discountType === 'percentage') {
             discountPercentage = coupon.discountValue;
             discount = (coupon.discountValue / 100) * totalPrice;
-        } else {
-            discount = coupon.discountValue;
-            discountPercentage = (discount / totalPrice) * 100;  // Convert fixed discount to percentage for display
         }
 
-        // Ensure discount does not exceed the maximum allowed discount
-        discount = Math.min(discount, coupon.maxDiscount);
+        
 
         // Apply the discount to the total price
         const finalPrice = totalPrice - discount;
@@ -190,6 +219,8 @@ router.post('/coupon-delete', async (req, res) => {
             } else {
                 return res.status(404).json({ message: 'Coupon not found.' });
             }
+            
+            await Coupon.updateOne({ _id: coupon._id }, { $inc: { usageLimit: 1 } });
             // Respond with success
             res.status(200).json({ message: 'Coupon deleted and final price updated.' });
         } else {

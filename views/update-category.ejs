@@ -46,18 +46,42 @@
     </style>
 </head>
 <body>
-    <!-- Sidebar -->
-    <div class="sidebar">
-        <a href="/admin/dashboard">Dashboard</a>
-        <a href="/admin/category">Categories</a>
-        <a href="/admin/products">Products</a>
-        <a href="/admin/orders">Orders</a>
-        <a href="/admin/customers">Customers</a>
-        <a href="/admin/coupons">Coupons</a>
-        <a href="/admin/banners">Banners</a>
-        <a href="/admin/offers">Offers</a>
-        <a href="/admin/logout">Logout</a>
+    <div class="sidebar p-3">
+        <h4 class="mb-4 text-center">Dashboard</h4>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link" href="/admin/dashboard"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" href="/admin/products"><i class="fas fa-box me-2"></i>Products</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/admin/orders"><i class="fas fa-shopping-cart me-2"></i>Orders</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/admin/category"><i class="fas fa-tags me-2"></i>Category</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/admin/customers"><i class="fas fa-users me-2"></i>Customers</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/admin/coupons"><i class="fas fa-ticket-alt me-2"></i>Coupons</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/admin/banners"><i class="fas fa-image me-2"></i>Banners</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/admin/offers"><i class="fas fa-gift me-2"></i>Offers</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/admin/inventory"><i class="fas fa-warehouse me-2"></i>Inventory</a>
+            </li>
+            <li class="nav-item mt-auto">
+                <a class="nav-link text-danger" href="/auth/logout"><i class="fas fa-sign-out-alt me-2"></i>Logout</a>
+            </li>
+        </ul>
     </div>
+
 
     <!-- Page Content -->
     <div class="content">

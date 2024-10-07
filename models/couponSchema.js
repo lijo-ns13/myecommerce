@@ -10,7 +10,7 @@ const couponSchema=new Schema({
     discountType:{
         type:String,
         required:true,
-        enum:['percentage','fixed'],
+        enum:['percentage'],
         default:'percentage'
     },
     discountValue:{
@@ -31,10 +31,6 @@ const couponSchema=new Schema({
         type:Number,
         required:true,
 
-    },
-    maxDiscount:{
-        type:Number,
-        required:true
     },
     usageLimit:{
         type:Number,

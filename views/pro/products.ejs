@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Products</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <title>Products Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <style>
         body {
-            /* background-color: #000; */
-            color: #fff;
-            margin: 0;
-            padding: 0;
+            background-color: #f8f9fa;
+            color: #343a40;
         }
         .sidebar {
             height: 100vh;
@@ -19,164 +18,181 @@
             left: 0;
             z-index: 100;
             width: 250px;
-            background-color: #212529;
+            background-color: #343a40;
             color: #fff;
             overflow-y: auto;
-            border-right: 1px solid #444;
-            border-radius: 0 10px 10px 0;
-            box-shadow: 2px 0 5px rgba(0,0,0,0.5);
+            transition: all 0.3s;
         }
         .sidebar .nav-link {
-            color: #ddd;
-            transition: background-color 0.3s, color 0.3s;
-            padding: 10px 20px;
+            color: #adb5bd;
+            transition: all 0.3s;
+            border-radius: 5px;
+            margin: 5px 0;
         }
-        .sidebar .nav-link:hover {
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
             color: #fff;
             background-color: #495057;
         }
         .sidebar .nav-link.active {
             background-color: #007bff;
-            color: #fff;
-        }
-        .sidebar .nav-item {
-            margin-bottom: 1px;
-        }
-        .sidebar .nav-item:last-child {
-            margin-bottom: 0;
         }
         .content {
             margin-left: 250px;
             padding: 20px;
+            transition: all 0.3s;
         }
-        .content h2 {
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        }
+        .btn-custom {
+            border-radius: 20px;
+            padding: 8px 20px;
+            transition: all 0.3s;
+        }
+        .btn-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .table {
+            background-color: #fff;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+        .table th {
+            background-color: #007bff;
             color: #fff;
         }
-        .sidebar .p-3 h4 {
-            font-size: 1.5rem;
-            font-weight: 500;
+        .pagination .page-link {
+            border-radius: 20px;
+            margin: 0 3px;
         }
     </style>
 </head>
 <body>
-    <div class="sidebar">
-        <div class="p-3">
-            <h4>Dashboard</h4>
-        </div>
-        <ul class="nav flex-column p-3">
+    <div class="sidebar p-3">
+        <h4 class="mb-4 text-center">Dashboard</h4>
+        <ul class="nav flex-column">
             <li class="nav-item">
-                <a class="nav-link" href="/admin/dashboard">Dashboard</a>
+                <a class="nav-link" href="/admin/dashboard"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link active" href="/admin/products">Products</a>
+                <a class="nav-link active" href="/admin/products"><i class="fas fa-box me-2"></i>Products</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/admin/orders">Orders</a>
+                <a class="nav-link" href="/admin/orders"><i class="fas fa-shopping-cart me-2"></i>Orders</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/admin/category">Category</a>
+                <a class="nav-link" href="/admin/category"><i class="fas fa-tags me-2"></i>Category</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/admin/customers">Customers</a>
+                <a class="nav-link" href="/admin/customers"><i class="fas fa-users me-2"></i>Customers</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/admin/coupons">Coupons</a>
+                <a class="nav-link" href="/admin/coupons"><i class="fas fa-ticket-alt me-2"></i>Coupons</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/admin/banners">Banners</a>
+                <a class="nav-link" href="/admin/banners"><i class="fas fa-image me-2"></i>Banners</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/admin/offers">Offers</a>
+                <a class="nav-link" href="/admin/offers"><i class="fas fa-gift me-2"></i>Offers</a>
             </li>
-            <li class="nav-item"></li>
-                <a class="nav-link" href="/admin/inventory">Inventory</a>
+            <li class="nav-item">
+                <a class="nav-link" href="/admin/inventory"><i class="fas fa-warehouse me-2"></i>Inventory</a>
             </li>
             <li class="nav-item mt-auto">
-                <a class="nav-link text-danger" href="/auth/logout">Logout</a>
+                <a class="nav-link text-danger" href="/auth/logout"><i class="fas fa-sign-out-alt me-2"></i>Logout</a>
             </li>
         </ul>
     </div>
 
     <div class="content">
-        
-        <!-- <form action="/admin/products/add-product" method="POST">
-            <input type="hidden" name="_method" value="PATCH">
-            <button type="submit">add product</button>
-        </form> -->
-        <a href="/admin/products/add-product">
-            <button>add product</button>
-        </a>
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="mb-0">Products</h2>
+                <a href="/admin/products/add-product" class="btn btn-primary btn-custom">
+                    <i class="fas fa-plus me-2"></i>Add Product
+                </a>
+            </div>
 
-        <div class="container mt-5">
-            <h2 class="mb-4">Products</h2>
             <% if (products.length > 0) { %>
-                <div class="table-responsive">
-                    <table class="table table-bordered">
-                        <thead>
-                            <tr>
-                                <th>Product Name</th>
-                                <th>Brand</th>
-                                <th>Price</th>
-                                <th>Category</th>
-                                <th>Sizes</th>
-                                <th>Stock</th>
-                                <th>Images</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <% for (const pro of products) { %>
-                                <tr>
-                                    <td><%= pro.product %></td>
-                                    <td><%= pro.brand %></td>
-                                    <td>$<%= pro.price %></td>
-                                    <td><%= pro.category %></td>
-                                    <td>
-                                        <% if (pro.sizes.length > 0) { %>
-                                            <ul>
-                                                <% for (const size of pro.sizes) { %>
-                                                    <li><%= size.size %></li>
+                <div class="card">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Product Name</th>
+                                        <th>Brand</th>
+                                        <th>Price</th>
+                                        <th>Category</th>
+                                        <th>Sizes</th>
+                                        <th>Stock</th>
+                                        <th>Images</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% for (const pro of products) { %>
+                                        <tr>
+                                            <td><%= pro.product %></td>
+                                            <td><%= pro.brand %></td>
+                                            <td>$<%= pro.price %></td>
+                                            <td><%= pro.category.name %></td>
+                                            <td>
+                                                <% if (pro.sizes.length > 0) { %>
+                                                    <ul class="list-unstyled mb-0">
+                                                        <% for (const size of pro.sizes) { %>
+                                                            <li><%= size.size %></li>
+                                                        <% } %>
+                                                    </ul>
+                                                <% } else { %>
+                                                    <span class="text-muted">No sizes</span>
                                                 <% } %>
-                                            </ul>
-                                        <% } else { %>
-                                            No sizes available
-                                        <% } %>
-                                    </td>
-                                    <td>
-                                        <% if (pro.sizes.length > 0) { %>
-                                            <ul>
-                                                <% for (const size of pro.sizes) { %>
-                                                    <li><%= size.stock %></li>
+                                            </td>
+                                            <td>
+                                                <% if (pro.sizes.length > 0) { %>
+                                                    <ul class="list-unstyled mb-0">
+                                                        <% for (const size of pro.sizes) { %>
+                                                            <li><%= size.stock %></li>
+                                                        <% } %>
+                                                    </ul>
+                                                <% } else { %>
+                                                    <span class="text-muted">No stock</span>
                                                 <% } %>
-                                            </ul>
-                                        <% } else { %>
-                                            No stock information
-                                        <% } %>
-                                    </td>
-                                    <td>
-                                        <% for (const img of pro.images) { %>
-                                            <img src="<%= img.secured_url %>" alt="Product Image" class="img-thumbnail">
-                                        <% } %>
-                                    </td>
-                                    <td>
-                                        <a href="/admin/products/edit/<%= pro._id %>">
-                                            <button type="submit" class="btn btn-warning">Edit</button>
-                                        </a>
-                                        <form action="/admin/products/<%= pro.isListed ? 'unlist-product' : 'list-product' %>/<%= pro._id %>" method="post" class="d-inline-block" id="form-<%= pro._id %>">
-                                            <button type="submit" class="btn <%= pro.isListed ? 'btn-warning' : 'btn-success' %> px-4 py-2">
-                                                <i class="fas <%= pro.isListed ? 'fa-times-circle' : 'fa-check-circle' %> me-2"></i>
-                                                <%= pro.isListed ? 'Unlist' : 'List' %>
-                                            </button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            <% } %>
-                        </tbody>
-                    </table>
+                                            </td>
+                                            <td>
+                                                <img src="<%=pro.images[0].secured_url%>" alt="Product Image" class="img-thumbnail" style="max-width: 100px;">
+                                            </td>
+                                            <td>
+                                                <div class="btn-group" role="group">
+                                                    <a href="/admin/products/edit/<%= pro._id %>" class="btn btn-warning btn-sm btn-custom">
+                                                        <i class="fas fa-edit"></i> Edit
+                                                    </a>
+                                                    <form action="/admin/products/<%= pro.isListed ? 'unlist-product' : 'list-product' %>/<%= pro._id %>" method="post" class="d-inline-block" id="form-<%= pro._id %>">
+                                                        <button type="submit" class="btn <%= pro.isListed ? 'btn-danger' : 'btn-success' %> btn-sm btn-custom ms-2">
+                                                            <i class="fas <%= pro.isListed ? 'fa-times-circle' : 'fa-check-circle' %> me-1"></i>
+                                                            <%= pro.isListed ? 'Unlist' : 'List' %>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <% } %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
-        
+
                 <!-- Pagination controls -->
-                <nav aria-label="Page navigation">
+                <nav aria-label="Page navigation" class="mt-4">
                     <ul class="pagination justify-content-center">
                         <% for (let i = 1; i <= totalPages; i++) { %>
                             <li class="page-item <%= i === currentPage ? 'active' : '' %>">
@@ -186,16 +202,15 @@
                     </ul>
                 </nav>
             <% } else { %>
-                <h1>No products available</h1>
+                <div class="alert alert-info" role="alert">
+                    <i class="fas fa-info-circle me-2"></i> No products available
+                </div>
             <% } %>
         </div>
-        
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- SweetAlert library -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
         document.querySelectorAll('form[id^="form-"]').forEach(form => {
@@ -206,28 +221,23 @@
             const url = form.action;
             const formData = new FormData(form);
       
-            const options = {
-              method: 'POST',
-              body: formData
-            };
-      
             try {
-              const response = await fetch(url, options);
+              const response = await fetch(url, {
+                method: 'POST',
+                body: formData
+              });
               const result = await response.json();
-              console.log('result', result);
       
               if (response.ok) {
-                // Handle success
                 Swal.fire({
                   icon: 'success',
                   title: 'Success!',
                   text: result.message || 'Operation successful.',
                   confirmButtonText: 'OK'
                 }).then(() => {
-                  window.location.reload(); // Reload the page to reflect changes
+                  window.location.reload();
                 });
               } else {
-                // Handle error
                 Swal.fire({
                   icon: 'error',
                   title: 'Oops...',
@@ -245,7 +255,6 @@
             }
           });
         });
-      </script>
-      
+    </script>
 </body>
 </html>

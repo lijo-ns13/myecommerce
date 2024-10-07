@@ -14,7 +14,7 @@ const Offer=require('../models/offerSchema')
 const User=require('../models/userSchema')
 const {jwtAuth,adminProtected,userProtected}=require('../middlewares/auth');
 const adminController=require('../controllers/adminController')
-
+const Cart=require('../models/cartSchema')
 const router=express.Router();
 
 router.use(express.urlencoded({ extended: true })); // To parse form data
@@ -113,10 +113,23 @@ router.get('/sales/report', async (req, res) => {
 });
 const pdf = require('html-pdf');
 
-// Route to generate PDF sales report
 router.get('/sales/report/pdf', async (req, res) => {
   const { type, startDate, endDate } = req.query;
-  
+
+  // Validate that startDate and endDate are present for custom reports
+  if (type === 'custom' && (!startDate || !endDate)) {
+      return res.status(400).json({ message: 'Start date and end date are required for custom reports' });
+  }
+
+  // Validate and convert the dates for custom report
+  let start = type === 'custom' ? new Date(startDate) : null;
+  let end = type === 'custom' ? new Date(endDate) : null;
+
+  // Check if the dates are valid for custom report
+  if (type === 'custom' && (isNaN(start.getTime()) || isNaN(end.getTime()))) {
+      return res.status(400).json({ message: 'Invalid start date or end date' });
+  }
+
   try {
       let salesData;
       switch (type) {
@@ -133,13 +146,38 @@ router.get('/sales/report/pdf', async (req, res) => {
               salesData = await SalesReport.getYearlySales();
               break;
           case 'custom':
-              salesData = await SalesReport.getCustomSales(startDate, endDate);
+              salesData = await SalesReport.getCustomSales(start, end);
               break;
           default:
               return res.status(400).json({ message: 'Invalid report type' });
       }
 
-      const html = await generatePdfHtml(salesData); // Await for PDF HTML
+      // Fetch orders based on report type
+      let orders;
+      if (type === 'custom') {
+          orders = await Order.find({
+              orderDate: {
+                  $gte: start,
+                  $lte: end
+              }
+          });
+      } else {
+          // For daily, weekly, monthly, yearly, fetch orders accordingly
+          const dateKey = type === 'daily' ? 'day'
+                        : type === 'weekly' ? 'week'
+                        : type === 'monthly' ? 'month'
+                        : 'year'; // Assuming you have a function to get start and end date for the type
+
+          const dateRange = getDateRange(type); // Implement this function to get start and end dates based on type
+          orders = await Order.find({
+              orderDate: {
+                  $gte: dateRange.start,
+                  $lte: dateRange.end
+              }
+          });
+      }
+
+      const html = await generatePdfHtml(salesData, orders); // Pass orders instead of startDate, endDate
       const options = { format: 'A4' };
 
       pdf.create(html, options).toBuffer((err, buffer) => {
@@ -153,21 +191,44 @@ router.get('/sales/report/pdf', async (req, res) => {
       res.status(500).json({ message: 'Server error' });
   }
 });
+function getDateRange(type) {
+  const now = new Date();
+  let start, end;
 
-// Function to generate HTML for PDF
-async function generatePdfHtml(salesData) {
+  switch (type) {
+      case 'daily':
+          start = new Date(now.setHours(0, 0, 0, 0)); // Start of today
+          end = new Date(now.setHours(23, 59, 59, 999)); // End of today
+          break;
+      case 'weekly':
+          const dayOfWeek = now.getUTCDay(); // Sunday - Saturday : 0 - 6
+          start = new Date(now);
+          start.setUTCDate(now.getUTCDate() - dayOfWeek); // Set to last Sunday
+          start.setUTCHours(0, 0, 0, 0); // Start of the week
+
+          end = new Date(start);
+          end.setUTCDate(start.getUTCDate() + 6); // End of the week
+          end.setUTCHours(23, 59, 59, 999); // End of the last day of the week
+          break;
+      case 'monthly':
+          start = new Date(now.getFullYear(), now.getMonth(), 1); // Start of the month
+          end = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999); // End of the month
+          break;
+      case 'yearly':
+          start = new Date(now.getFullYear(), 0, 1); // Start of the year
+          end = new Date(now.getFullYear(), 11, 31, 23, 59, 59, 999); // End of the year
+          break;
+      default:
+          throw new Error('Invalid report type');
+  }
+
+  return { start, end };
+}
+
+async function generatePdfHtml(salesData, orders) {
   let totalSales = salesData.reduce((total, sale) => total + sale.totalSales, 0).toFixed(2);
   let totalDiscount = salesData.reduce((total, sale) => total + sale.totalDiscount, 0).toFixed(2);
   let totalOrders = salesData.reduce((total, sale) => total + sale.orderCount, 0);
-
-  // Calculate completed and not completed orders
-  let completedOrders = 0;
-  let notCompletedOrders = 0;
-
-  salesData.forEach(sale => {
-    completedOrders += sale.completedCount || 0; // Assuming you have completedCount in your sales data
-    notCompletedOrders += sale.orderCount - (sale.completedCount || 0); // Total orders minus completed orders
-  });
 
   let html = `
   <html>
@@ -231,7 +292,6 @@ async function generatePdfHtml(salesData) {
         <strong>Total Revenue:</strong> ${totalSales}<br>
         <strong>Total Discount:</strong> ${totalDiscount}<br>
         <strong>Total Success Orders:</strong> ${totalOrders}<br>
-        
       </div>
 
       <h2>Overall Statistics</h2>
@@ -242,19 +302,17 @@ async function generatePdfHtml(salesData) {
             <th>Total Sales</th>
             <th>Total Discount</th>
             <th>Success Order Count</th>
-            
           </tr>
         </thead>
         <tbody>`;
-        
+
   salesData.forEach(sale => {
       html += `<tr>
                   <td>${sale._id}</td>
                   <td>${sale.totalSales.toFixed(2)}</td>
                   <td>${sale.totalDiscount.toFixed(2)}</td>
                   <td>${sale.orderCount}</td>
-                  
-                </tr>`;
+              </tr>`;
   });
 
   html += `</tbody>
@@ -277,11 +335,10 @@ async function generatePdfHtml(salesData) {
   // Fetch all users to get their names
   const users = await User.find({}); // Assuming User is your User model
   const userMap = users.reduce((map, user) => {
-    map[user._id] = user.name; // Create a map of userId to userName
-    return map;
+      map[user._id] = user.name; // Create a map of userId to userName
+      return map;
   }, {});
 
-  const orders = await Order.find({}); // Fetch all orders for individual order details
   orders.forEach(order => {
       const userName = userMap[order.userId] || "Unknown User"; // Get user name or set to "Unknown User"
       html += `<tr>
@@ -290,9 +347,10 @@ async function generatePdfHtml(salesData) {
                   <td>${order.totalPrice.toFixed(2)}</td>
                   <td>${order.discount ? order.discount.toFixed(2) : 0}</td>
                   <td>${new Date(order.orderDate).toLocaleDateString()}</td>
-                  <td>${order.status}</td> <!-- Include order status here -->
-                </tr>`;
+                  <td>${order.status}</td>
+              </tr>`;
   });
+
   html += `</tbody>
       </table>
 
@@ -304,9 +362,6 @@ async function generatePdfHtml(salesData) {
 
   return html;
 }
-
-
-
 
 
 
@@ -357,9 +412,26 @@ router.post('/products/unlist-product/:id',adminController.postUnlist)
 router.post('/products/list-product/:id',adminController.postList)
 
 router.get('/products/edit/:id',adminController.getProductEdit)
-router.post('/products/edit/:id', upload.array('newImages', 5), adminController.patchProductEdit);
+router.patch('/products/edit-product/:id', upload.array('productImages', 5), adminController.patchProductEdit);
 
+// delete image
+router.delete('/delete-image/:productId/:imageId', async (req, res) => {
+  const productId = req.params.productId;
+  const imageId = req.params.imageId;
 
+  try {
+      // Remove the image with the specified ID from the specified product's images array
+      await Product.updateOne(
+          { _id: productId },
+          { $pull: { images: { id: imageId } } } // Remove the image by its ID
+      );
+
+      res.status(200).send({ message: 'Image deleted successfully' });
+  } catch (error) {
+      console.error(error);
+      res.status(500).send({ message: 'Error deleting image' });
+  }
+});
 // admin/products/edit/66d57f2a530693faed1f2e4c/
 // router.post('/products/edit/:product-id',(req,res)=>{
 //   res.json('success')
@@ -381,17 +453,20 @@ router.get('/category',adminController.getCategory)
 router.get('/category/update/:id',adminController.getCategoryUpdate)
 
 router.patch('/category/update/:id',adminController.patchCategoryUpdate)
-router.delete('/category/delete/:id',adminController.deleteCategoryDelete)
+// router.delete('/category/delete/:id',adminController.deleteCategoryDelete)
 router.get('/category/add-category',adminController.getAddCategory)
 router.post('/category/add-category',adminController.postAddCategory)
+
+router.post('/category/block/:id',adminController.postCategoryBlock)
+router.post('/category/unblock/:id',adminController.postCategoryUnblock)
 
 // ORDER ****************************************
 
 router.get('/orders', adminController.getOrders);
 
 router.get('/orders/:orderId/edit', adminController.getEditOrder);
-router.post('/orders/:orderId', adminController.postEditOrder);
-
+router.post('/orders/:orderId/edit', adminController.postEditOrder);
+router.get('/orders/:orderId',adminController.getOrderDetailedPage)
 // Inventory and stock management
 router.get('/inventory', adminController.getInventory);
 
@@ -418,12 +493,9 @@ router.get('/coupon/edit/:id', async (req, res) => {
     res.status(400).json({ success: false, message: error.message });
   }
 });
-
-// /admin/coupon/edit/<%=coupon._id%>
 router.patch('/coupon/edit/:id', async (req, res) => {
   try {
     const couponId = req.params.id;
-    
     const { 
       couponCode, 
       discountType, 
@@ -431,57 +503,44 @@ router.patch('/coupon/edit/:id', async (req, res) => {
       startDate, 
       endDate, 
       minPurchaseAmount, 
-      maxDiscount, 
       usageLimit 
     } = req.body;
-    console.log('edit',req.body)
 
     // Validate required fields
-    if (!couponCode || !discountType || !discountValue || !startDate || !endDate || !minPurchaseAmount || !maxDiscount || !usageLimit) {
+    if (!couponCode || !discountType || !discountValue || !startDate || !endDate || !minPurchaseAmount || !usageLimit) {
       return res.status(400).json({ success: false, message: 'Please fill all fields' });
     }
 
     // Validate coupon code format
     const couponCodeRegex = /^[A-Z0-9]{6,12}(-[A-Z0-9]{6,12})?$/;
     if (!couponCodeRegex.test(couponCode)) {
-      return res.status(400).json({ success: false, message: 'Invalid coupon code only capital and number' });
+      return res.status(400).json({ success: false, message: 'Invalid coupon code. Only uppercase letters and numbers allowed.' });
     }
 
     // Check for existing coupon code excluding the current one
-    const couponOne = await Coupon.findOne({ couponCode, _id: { $ne: couponId } });
-    if (couponOne) {
+    const existingCoupon = await Coupon.findOne({ couponCode, _id: { $ne: couponId } });
+    if (existingCoupon) {
       return res.status(400).json({ success: false, message: 'Coupon code already exists' });
     }
 
-    // Validate discount value
+    // Validate numeric values
     if (isNaN(discountValue) || discountValue < 0) {
       return res.status(400).json({ success: false, message: 'Discount value must be a valid number and cannot be negative' });
     }
-
-    // Validate minimum purchase amount
-    if (minPurchaseAmount < 400) {
+    if (discountValue > 60) {
+      return res.status(400).json({ success: false, message: 'Discount percentage must be less than 60' });
+    }
+    if (isNaN(minPurchaseAmount) || minPurchaseAmount < 400) {
       return res.status(400).json({ success: false, message: 'Minimum purchase amount cannot be less than 400' });
     }
-
-    // Validate discount value based on discount type
-    if (discountType === 'percentage') {
-      if (discountValue <= 0 || discountValue > 80) {
-        return res.status(400).json({ success: false, message: 'Percentage discount value should be between 1 and 80' });
-      }
-    } else if (discountType === 'fixed') {
-      if (discountValue <= 0 || discountValue > maxDiscount) {
-        return res.status(400).json({ success: false, message: 'Fixed discount value cannot exceed max discount' });
-      }
-    }
-
-    // Validate global max discount
-    if (maxDiscount > 10000) {
-      return res.status(400).json({ success: false, message: 'Maximum discount cannot be greater than 10000' });
-    }
-
-    // Validate usage limit
     if (usageLimit < 0) {
-      return res.status(400).json({ success: false, message: 'The limit should be greater than zero' });
+      return res.status(400).json({ success: false, message: 'Usage limit should be greater than zero' });
+    }
+
+    // Validate discount type (only percentage allowed)
+    const validDiscountTypes = ['percentage'];
+    if (!validDiscountTypes.includes(discountType)) {
+      return res.status(400).json({ success: false, message: 'Invalid discount type. Only "percentage" is allowed.' });
     }
 
     // Parse and validate start and end dates
@@ -491,26 +550,36 @@ router.patch('/coupon/edit/:id', async (req, res) => {
     if (isNaN(parsedStartDate.getTime()) || isNaN(parsedEndDate.getTime())) {
       return res.status(400).json({ success: false, message: 'Invalid date format' });
     }
-    
+
+    // Ensure that endDate is in the future
+    const now = new Date();
+    if (parsedEndDate <= now) {
+      return res.status(400).json({ success: false, message: 'End date must be in the future' });
+    }
+
+    // Ensure that endDate is after startDate
     if (parsedEndDate <= parsedStartDate) {
       return res.status(400).json({ success: false, message: 'End date must be after start date' });
     }
-    
-    // Validate discount type
-    const validDiscountTypes = ['percentage', 'fixed'];
-    if (!validDiscountTypes.includes(discountType)) {
-      return res.status(400).json({ success: false, message: 'Invalid discount type' });
-    }
 
     // Update the coupon
-    const coupon = await Coupon.findByIdAndUpdate(couponId, req.body, { new: true });
-    
+    const updatedCoupon = await Coupon.findByIdAndUpdate(couponId, {
+      couponCode,
+      discountType,
+      discountValue,
+      startDate: parsedStartDate,
+      endDate: parsedEndDate,
+      minPurchaseAmount,
+      usageLimit
+    }, { new: true });
+
     // Respond with success message
-    res.status(200).json({ success: true, message: 'Coupon updated successfully', coupon });
+    res.status(200).json({ success: true, message: 'Coupon updated successfully', coupon: updatedCoupon });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
   }
 });
+
 
 router.get('/coupon/add-coupon',async(req,res)=>{
   try {
@@ -522,9 +591,9 @@ router.get('/coupon/add-coupon',async(req,res)=>{
 router.post('/coupon/add-coupon',async(req,res)=>{
   try {
     
-    const {couponCode,discountType,discountValue,startDate,endDate,minPurchaseAmount,maxDiscount,usageLimit}=req.body;
+    const {couponCode,discountType,discountValue,startDate,endDate,minPurchaseAmount,usageLimit}=req.body;
     console.log('reqy',req.body)
-    if(!couponCode || !discountType || !discountValue ||!startDate || !endDate || !minPurchaseAmount || !maxDiscount || !usageLimit){
+    if(!couponCode || !discountType || !discountValue ||!startDate || !endDate || !minPurchaseAmount|| !usageLimit){
       return res.status(400).json({success:false,message:'Please fill all fieldss'})
     }
     const couponCodeRegex=/^[A-Z0-9]{6,12}(-[A-Z0-9]{6,12})?$/;
@@ -538,28 +607,11 @@ router.post('/coupon/add-coupon',async(req,res)=>{
     if (isNaN(discountValue) || discountValue < 0) {
       return res.status(400).json({ success: false, message: 'Discount value must be a valid number and cannot be negative' });
     }
-    
-    if(minPurchaseAmount<400){
+    if(discountValue>60){
+      return res.status(400).json({success:false,message:'Discount Percentage Must be less than 60'})
+    }
+    if(isNaN(minPurchaseAmount) || minPurchaseAmount<400){
       return res.status(400).json({success:false,message:'Minimum purchase amount cannot be less than 400'})
-    }
-    if(discountType==='percentage' && discountValue>80){
-      return res.status(400).json({success:false,message:'discountvalue in percentage in not greterthan 80'})
-    }
-    // Check for discount type and validate based on it
-    if (discountType === 'percentage') {
-      if (discountValue <= 0 || discountValue > 80) {
-        return res.status(400).json({ success: false, message: 'Percentage discount value should be between 1 and 80' });
-      }
-      
-    } else if (discountType === 'fixed') {
-      if (discountValue <= 0 || discountValue > maxDiscount) {
-        return res.status(400).json({ success: false, message: 'Fixed discount value cannot exceed max discount' });
-      }
-    }
-    
-    // Global max discount check for both types
-    if (maxDiscount > 10000) {
-      return res.status(400).json({ success: false, message: 'Maximum discount cannot be greater than 10000' });
     }
 
     
@@ -584,7 +636,7 @@ if (parsedEndDate <= now) {
 if (parsedEndDate < parsedStartDate) {
   return res.status(400).json({ success: false, message: 'End date must be after start date' });
 }
-    const validDiscountTypes = ['percentage', 'fixed'];
+    const validDiscountTypes = ['percentage'];
     if (!validDiscountTypes.includes(discountType)) {
       return res.status(400).json({ success: false, message: 'Invalid discount type' });
     }
@@ -597,7 +649,6 @@ if (parsedEndDate < parsedStartDate) {
       startDate:parsedStartDate,
       endDate:parsedEndDate,
       minPurchaseAmount:minPurchaseAmount,
-      maxDiscount:maxDiscount,
       usageLimit:usageLimit,
 
     })
@@ -637,26 +688,25 @@ router.delete('/coupon/delete/:id', async (req, res) => {
 // offer*******************************************************************
 router.get('/offers', async (req, res) => {
   try {
-    const offers = await Offer.find({});
+    const offers = await Offer.find({}).populate('categoryIds');
     // if (!offers || offers.length === 0) {
     //   return res.status(400).json({ success: false, message: 'Offers not found' });
     // }
-    res.render('adminoffer/offer', { offers });
+    const products=await Product.find()
+    res.render('adminoffer/offer', { offers ,products});
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 });
-
 router.get('/offers/add-offer', async (req, res) => {
   try {
-    const products = await Product.find({});
     const categories = await Category.find({});
-    res.render('adminoffer/addoffer', { products, categories });
+    const products = await Product.find({}); // Fetch all products as well
+    res.render('adminoffer/addoffer', { categories, products }); // Pass products to the template
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 });
-
 router.post('/offers/add-offer', async (req, res) => {
   try {
     const {
@@ -672,29 +722,48 @@ router.post('/offers/add-offer', async (req, res) => {
       categorySelection = []
     } = req.body;
 
-    // Validate input fields
-    if (!offerName || !offerType || !discountType || !discountValue || !startDate || !endDate || !offerStatus || !offerDescription) {
-      return res.status(400).json({ success: false, message: 'Please fill all the fields' });
+    console.log(req.body, 'req.body');
+
+    // Validation checks
+    if (!offerName) {
+      return res.status(400).json({ success: false, message: "OfferName is required" });
     }
+    if (!offerType) {
+      return res.status(400).json({ success: false, message: "OfferType is required" });
+    }
+    if (!discountType) {
+      return res.status(400).json({ success: false, message: "DiscountType is required" });
+    }
+    if (!discountValue) {
+      return res.status(400).json({ success: false, message: "DiscountValue is required" });
+    }
+    if (!startDate || !endDate) {
+      return res.status(400).json({ success: false, message: "Start and End Date are required" });
+    }
+    if (!offerStatus) {
+      return res.status(400).json({ success: false, message: "OfferStatus is required" });
+    }
+    if (!offerDescription) {
+      return res.status(400).json({ success: false, message: "OfferDescription is required" });
+    }
+
     const regex = /^[A-Z0-9]+$/;
-    if(!regex.test(offerName)){
-      return res.status(400).json({success:false,message:'Only capital and numbers'})
+    if (!regex.test(offerName)) {
+      return res.status(400).json({ success: false, message: 'Only capital letters and numbers are allowed' });
     }
+
     // Check if the offer type is valid
-    const validOfferTypes = ['product', 'category'];
+    const validOfferTypes = ['category', 'product'];
     if (!validOfferTypes.includes(offerType)) {
       return res.status(400).json({ success: false, message: 'Invalid offer type' });
     }
 
-    // Check if the discount type is valid
-    const validDiscountTypes = ['percentage', 'fixed'];
-    if (!validDiscountTypes.includes(discountType)) {
-      return res.status(400).json({ success: false, message: 'Invalid discount type' });
+    // Validate discount value
+    if (discountValue >= 60) {
+      return res.status(400).json({ success: false, message: 'Discount Value must be less than 60' });
     }
-
-    // Validate discountValue
     if (discountValue <= 0) {
-      return res.status(400).json({ success: false, message: 'Discount value must be greater than zero' });
+      return res.status(400).json({ success: false, message: "Discount Value must be greater than 0" });
     }
 
     // Validate startDate and endDate
@@ -703,30 +772,44 @@ router.post('/offers/add-offer', async (req, res) => {
     if (start >= end) {
       return res.status(400).json({ success: false, message: 'End date must be after start date' });
     }
+    if (isNaN(start) || isNaN(end)) {
+      return res.status(400).json({ success: false, message: 'Invalid date format' });
+    }
 
-    // Validate offerStatus
     const validStatuses = ['active', 'inactive'];
     if (!validStatuses.includes(offerStatus)) {
       return res.status(400).json({ success: false, message: 'Invalid offer status' });
     }
 
-    // Validate product selection if offerType is 'product'
-    if (offerType === 'product' && productSelection.length === 0) {
+    const existingOffers = await Offer.find({ offerName: offerName });
+    if (existingOffers.length > 0) {
+      return res.status(400).json({ success: false, message: 'An offer with this name already exists.' });
+    }
+
+    // Ensure that categorySelection and productSelection are arrays
+    const categoryIds = Array.isArray(categorySelection) ? categorySelection : (categorySelection ? [categorySelection] : []);
+    const productIds = Array.isArray(productSelection) ? productSelection : (productSelection ? [productSelection] : []);
+
+    // Validate category or product selection
+    if (offerType === 'category' && categoryIds.length === 0) {
+      return res.status(400).json({ success: false, message: 'Please select at least one category' });
+    }
+    if (offerType === 'product' && productIds.length === 0) {
       return res.status(400).json({ success: false, message: 'Please select at least one product' });
     }
 
-    // Validate category selection if offerType is 'category'
-    if (offerType === 'category' && categorySelection.length === 0) {
-      return res.status(400).json({ success: false, message: 'Please select at least one category' });
+    // Check for overlapping offers if offerType is 'category'
+    const overlappingOffers = await Offer.find({
+      offerType: offerType,
+      startDate: { $lt: endDate },
+      endDate: { $gt: startDate },
+      ...(offerType === 'category' ? { categoryIds: { $in: categoryIds } } : { productIds: { $in: productIds } }),
+      offerStatus: 'active'
+    });
+    if (overlappingOffers.length > 0) {
+      return res.status(400).json({ success: false, message: 'An overlapping offer already exists for the selected category or product during this date range.' });
     }
 
-    const existingOffers = await Offer.find({
-      offerName: offerName // Adjusted to check exact match
-  });
-  
-  if (existingOffers.length > 0) {
-      return res.status(400).json({ success: false, message: 'An offer with this name already exists.' });
-  }
     // Create new offer
     const offer = new Offer({
       offerName,
@@ -737,193 +820,249 @@ router.post('/offers/add-offer', async (req, res) => {
       endDate: end,
       offerStatus,
       offerDescription,
-      productIds: productSelection,
-      categoryIds: categorySelection
+      ...(offerType === 'category' ? { categoryIds: categoryIds } : { productIds: productIds })
     });
 
-    // Function to calculate the final price based on the discount type
-    const calculateFinalPrice = (productPrice, discountType, discountValue) => {
-      return discountType === 'percentage'
-        ? productPrice - (productPrice * (discountValue / 100))
-        : productPrice - discountValue;
-    };
-
-    // Check if the new offer provides a better price
-    const applyBestOffer = async (product, discountType, discountValue) => {
-      const newFinalPrice = calculateFinalPrice(product.price, discountType, discountValue);
-      if (product.finalPrice === undefined || newFinalPrice < product.finalPrice) {
-        product.finalPrice = Math.max(newFinalPrice, 0);
-        product.offerApplied = true;
-        await product.save();
-      }
-    };
-
-    // Update products from productSelection (if offerType is 'product')
-    if (offerType === 'product') {
-      const productsWithOffers = await Product.find({ _id: { $in: productSelection } });
-      for (const product of productsWithOffers) {
-        await applyBestOffer(product, discountType, discountValue);
-      }
-    }
-
-    // Update products in categorySelection (if offerType is 'category')
-    if (offerType === 'category') {
-      const productsInCategories = await Product.find({ category: { $in: categorySelection } });
-      for (const product of productsInCategories) {
-        await applyBestOffer(product, discountType, discountValue);
-      }
+    // Handle applying the offer to products based on the selection
+    if (offerType === 'category' && categoryIds.length > 0) {
+      // Fetch products that belong to the selected categories
+      const products = await Product.find({ category: { $in: categoryIds } });
+      await applyOfferToProducts(products, offer, discountValue, discountType);
+    } else if (offerType === 'product' && productIds.length > 0) {
+      // Fetch selected products
+      const products = await Product.find({ _id: { $in: productIds } });
+      await applyOfferToProducts(products, offer, discountValue, discountType);
     }
 
     // Save the offer
     await offer.save();
     res.status(200).json({ success: true, message: 'Offer created successfully' });
-
   } catch (error) {
-    console.error(error); // Log the error for debugging
-    res.status(500).json({ success: false, message: error.message });
+    console.log('add offer error', error.message);
+    res.status(400).json({ success: false, message: error.message });
   }
 });
 
+// Function to apply offer to products
+async function applyOfferToProducts(products, offer, discountValue, discountType) {
+  await Promise.all(products.map(async (product) => {
+    const discountAmount = discountType === 'percentage' ? (product.price * discountValue / 100) : discountValue;
+    const newPrice = product.price - discountAmount;
+    if (newPrice < product.finalPrice) {
+      product.finalPrice = Math.floor(newPrice);
+    }
+    product.offerApplied = true;
+    product.offers.push(offer._id); // Add the offer ID to the product's offers array
+    await product.save(); // Save the updated product
 
+    // Update cart final price if necessary
+    const cartItems = await Cart.find({ 'products.productId': product._id });
+    for (const cart of cartItems) {
+      let totalPrice = 0;
+      let finalTotalPrice = 0;
+      for (const item of cart.products) {
+        if (item.productId.equals(product._id)) {
+          totalPrice += product.price * item.quantity;
+          finalTotalPrice += (product.finalPrice) * item.quantity;
+        }
+      }
+      // Update the cart prices
+      await Cart.updateOne(
+        { _id: cart._id },
+        { $set: { finalTotalPrice, finalPrice: finalTotalPrice } }
+      );
+    }
+  }));
+}
+
+// GET route to render the edit offer form
 router.get('/offers/edit-offer/:id', async (req, res) => {
   try {
       const offerId = req.params.id;
-      const offer = await Offer.findById(offerId); // Get the offer
+      const offer = await Offer.findById(offerId); // Fetch the specific offer
+      console.log('Fetched offer:', offer);
 
       if (!offer) {
-          return res.status(404).json({ success: false, message: 'Offer not found' });
+          // return res.status(404).render('errorPage', { message: 'Offer not found' }); // Render an error page
+          return res.status(404).json({success:false,message:'offer not found'})
       }
 
       // Fetch all products and categories to populate the select options
-      const products = await Product.find(); // Adjust this line if your product fetching logic is different
-      const categories = await Category.find(); // Fetch categories if needed
+      const categories = await Category.find();
+      const products = await Product.find();
+      console.log('Categories:', categories);
+      console.log('Products:', products);
 
       res.render('adminoffer/editoffer', {
           offer,
-          products,    // Pass products to the template
-          categories   // Pass categories if needed
+          categories,  // Pass categories to the template
+          products     // Pass products to the template
       });
   } catch (error) {
+      console.error('Error fetching offer for editing:', error.message);
       res.status(500).json({ success: false, message: error.message });
   }
 });
 
-// Route to handle the offer update
-// Route to handle the offer update
+// POST route to handle form submission for editing an offer
 router.post('/offers/edit-offer/:id', async (req, res) => {
-  try {
-      const offerId = req.params.id;
-      const {
-          offerName,
-          offerType,
-          discountType,
-          discountValue,
-          startDate,
-          endDate,
-          offerStatus,
-          offerDescription,
-          productSelection = [],
-          categorySelection = []
-      } = req.body;
+  const offerId = req.params.id;
 
-      // Fetch the existing offer
+  // Destructure the incoming request body
+  const {
+      offerName,
+      offerType,
+      discountType,
+      discountValue,
+      startDate,
+      endDate,
+      offerStatus,
+      offerDescription,
+      categorySelection = [],
+      productSelection = []
+  } = req.body;
+
+  try {
+      // Input validation
+      if (!offerName || !offerType || !discountType || !discountValue || !startDate || !endDate || !offerStatus || !offerDescription) {
+          return res.status(400).json({ success: false, message: "All fields are required." });
+      }
+
+      // Offer Name validation
+      const regex = /^[A-Z0-9]+$/;
+      if (!regex.test(offerName)) {
+          return res.status(400).json({ success: false, message: 'Only capital letters and numbers are allowed for Offer Name.' });
+      }
+
+      // Discount Value validation
+      if (discountValue >= 60 || discountValue <= 0) {
+          return res.status(400).json({ success: false, message: 'Discount Value must be between 1 and 59.' });
+      }
+
+      // Date validation
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      if (isNaN(start) || isNaN(end) || start >= end) {
+          return res.status(400).json({ success: false, message: 'Invalid date range: Start date must be before End date.' });
+      }
+
+      // Find existing offer
       const existingOffer = await Offer.findById(offerId);
       if (!existingOffer) {
           return res.status(404).json({ success: false, message: 'Offer not found' });
       }
 
-      // Update offer fields
+      // Update offer details
       existingOffer.offerName = offerName;
-      existingOffer.offerType = offerType;
+      existingOffer.offerType = offerType; // Changed to match previous naming
       existingOffer.discountType = discountType;
       existingOffer.discountValue = discountValue;
-      existingOffer.startDate = new Date(startDate);
-      existingOffer.endDate = new Date(endDate);
+      existingOffer.startDate = start;
+      existingOffer.endDate = end;
       existingOffer.offerStatus = offerStatus;
       existingOffer.offerDescription = offerDescription;
 
-      // Update productIds or categoryIds based on the selected offer type
-      if (offerType === 'product') {
-          existingOffer.productIds = productSelection;
-          existingOffer.categoryIds = []; // Clear categories if the offer is a product
-      } else if (offerType === 'category') {
-          existingOffer.categoryIds = categorySelection;
-          existingOffer.productIds = []; // Clear products if the offer is a category
+      // Set selections based on offer type
+      if (offerType === 'category') {
+          existingOffer.categoryIds = categorySelection; // Only categories
+          existingOffer.productIds = []; // Clear product selection
+      } else if (offerType === 'product') {
+          existingOffer.productIds = productSelection; // Only products
+          existingOffer.categoryIds = []; // Clear category selection
       }
 
+      // Save the updated offer
       await existingOffer.save();
 
-      // Additional logic to update products if needed...
+      // Apply the offer to products if it's a category-based offer
+      if (offerType === 'category') {
+          const productsToUpdate = await Product.find({ category: { $in: categorySelection } });
+          await applyOfferToProducts(productsToUpdate, existingOffer, discountValue, discountType);
+      }
 
-      res.redirect('/offers'); // Redirect to the offers page after the update
+      // Optionally, apply the offer to products if it's a product-based offer
+      if (offerType === 'product') {
+          const productsToUpdate = await Product.find({ _id: { $in: productSelection } });
+          await applyOfferToProducts(productsToUpdate, existingOffer, discountValue, discountType);
+      }
 
+      // Redirect or respond with success
+      res.status(200).redirect('/admin/offers'); // Redirecting to offers list after successful edit
   } catch (error) {
+      console.error('Error updating offer:', error.message);
       res.status(500).json({ success: false, message: error.message });
   }
 });
 
+
 router.delete('/offers/delete-offer/:offerId', async (req, res) => {
+  const offerId = req.params.offerId;
+
   try {
-    const { offerId } = req.params;
+      // Step 1: Find the offer by ID
+      const offer = await Offer.findById(offerId);
+      if (!offer) {
+          return res.status(404).json({ success: false, message: 'Offer not found' });
+      }
 
-    // Find the offer by ID
-    const offer = await Offer.findById(offerId);
-    if (!offer) {
-      return res.status(404).json({ success: false, message: 'Offer not found' });
-    }
+      // Step 2: Find products associated with the offer
+      const products = await Product.find({ offers: offerId });
+      console.log('Products associated with the offer before deletion:', products);
 
-    // Reset finalPrice and offerApplied for products associated with this offer
-    const productIds = offer.offerType === 'product' ? offer.productIds : null;
-    const categoryIds = offer.offerType === 'category' ? offer.categoryIds : null;
-
-    // Check for any other active offers on the products
-    const activeOffers = await Offer.find({
-      _id: { $ne: offerId }, // Exclude the current offer
-      status: 'active', // Assuming there is a 'status' field to check if the offer is active
-      ...(productIds ? { productIds: { $in: productIds } } : { categoryIds: { $in: categoryIds } })
-    });
-
-    const hasActiveOffers = activeOffers.length > 0;
-
-    // Update products associated with this offer
-    if (productIds) {
+      // Step 3: Remove the offer from the products
       await Product.updateMany(
-        { _id: { $in: productIds } },
-        [
-          {
-            $set: {
-              finalPrice: hasActiveOffers ? { $ifNull: [{ $arrayElemAt: [activeOffers.offerPrice, 0] }, "$price"] } : "$price",
-              offerApplied: hasActiveOffers // Set to true if there are active offers, false otherwise
-            }
-          }
-        ]
+          { offers: offerId },
+          { $pull: { offers: offerId } } // Remove the offerId from the offers array
       );
-    } else if (categoryIds) {
-      await Product.updateMany(
-        { category: { $in: categoryIds } },
-        [
-          {
-            $set: {
-              finalPrice: hasActiveOffers ? { $ifNull: [{ $arrayElemAt: [activeOffers.offerPrice, 0] }, "$price"] } : "$price",
-              offerApplied: hasActiveOffers // Set to true if there are active offers, false otherwise
+
+      // Step 4: Reset finalPrice and offerApplied for each product
+      for (const product of products) {
+          await Product.updateOne(
+              { _id: product._id },
+              {
+                  $set: {
+                      finalPrice: product.price, // Reset finalPrice to the original price
+                      offerApplied: false         // Reset offerApplied to false
+                  }
+              }
+          );
+      }
+
+    
+    // Step 5: Update cart final prices if necessary
+    const productIds = products.map(product => product._id);
+    const cartItems = await Cart.find({ 'products.productId': { $in: productIds } });
+
+    for (const cart of cartItems) {
+        let totalPrice = 0;
+        let finalTotalPrice = 0;
+        for (const item of cart.products) {
+            const updatedProduct = products.find(p => {
+              console.log('p.id',typeof(p._id),typeof(item.productId))
+              return p._id.equals(item.productId)});
+              console.log('updateproduct',updatedProduct)
+            if (updatedProduct) {
+                const quantity = item.quantity;
+                totalPrice += updatedProduct.price * quantity; // Original price
+                finalTotalPrice += updatedProduct.price * quantity; // Updated final price
             }
-          }
-        ]
-      );
+        }
+        // Update the cart prices
+        console.log('Updating cart ID:', cart._id, 'Total Price:', totalPrice, 'Final Total Price:', finalTotalPrice);
+        await Cart.updateOne(
+            { _id: cart._id },
+            { $set: { finalTotalPrice, finalPrice: totalPrice } }
+        );
     }
+      // Step 6: Delete the offer
+      await Offer.findByIdAndDelete(offerId);
 
-    // Delete the offer
-    await Offer.findByIdAndDelete(offerId);
-    // res.status(200).json({ success: true, message: 'Offer deleted successfully and products updated' });
-    res.status(200).redirect('/admin/offers')
-
+      return res.status(200).json({ success: true, message: 'Offer deleted successfully' });
   } catch (error) {
-    console.error('Error deleting offer:', error);
-    res.status(500).json({ success: false, message: 'An error occurred while deleting the offer.' });
+      console.error('Error deleting offer:', error);
+      return res.status(500).json({ success: false, message: 'An error occurred while deleting the offer.' });
   }
 });
-
-
 
 
 module.exports=router;

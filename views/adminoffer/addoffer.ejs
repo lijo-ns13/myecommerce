@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Offer</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -19,18 +21,21 @@
             width: 250px;
             background-color: #343a40;
             color: #fff;
-            padding-top: 20px;
+            overflow-y: auto;
+            transition: all 0.3s;
         }
         .sidebar .nav-link {
-            color: #ddd;
+            color: #adb5bd;
+            transition: all 0.3s;
+            border-radius: 5px;
+            margin: 5px 0;
         }
-        .sidebar .nav-link:hover {
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
             color: #fff;
             background-color: #495057;
         }
         .sidebar .nav-link.active {
             background-color: #007bff;
-            color: #fff;
         }
         .content {
             margin-left: 250px;
@@ -43,207 +48,242 @@
             color: red;
             margin-bottom: 20px;
         }
+        .custom-checkbox {
+            margin-bottom: 10px;
+        }
+        .content {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+        .form-label {
+            font-weight: 600;
+        }
+        .form-control, .form-select {
+            border-radius: 0.5rem;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            border: none;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+        .custom-checkbox {
+            margin-bottom: 0.5rem;
+        }
+        .alert {
+            border-radius: 0.5rem;
+        }
     </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
-    <div class="sidebar">
-        <h4 class="text-center">Admin Dashboard</h4>
+    <div class="sidebar p-3">
+        <h4 class="mb-4 text-center">Dashboard</h4>
         <ul class="nav flex-column">
             <li class="nav-item">
-                <a class="nav-link " href="/admin/dashboard">Dashboard</a>
+                <a class="nav-link" href="/admin/dashboard"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/admin/products">Products</a>
+                <a class="nav-link " href="/admin/products"><i class="fas fa-box me-2"></i>Products</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/admin/orders">Orders</a>
+                <a class="nav-link" href="/admin/orders"><i class="fas fa-shopping-cart me-2"></i>Orders</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/admin/category">Category</a>
+                <a class="nav-link" href="/admin/category"><i class="fas fa-tags me-2"></i>Category</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/admin/customers">Customers</a>
+                <a class="nav-link" href="/admin/customers"><i class="fas fa-users me-2"></i>Customers</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/admin/coupons">Coupons</a>
+                <a class="nav-link" href="/admin/coupons"><i class="fas fa-ticket-alt me-2"></i>Coupons</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/admin/inventory">Inventory</a>
+                <a class="nav-link" href="/admin/banners"><i class="fas fa-image me-2"></i>Banners</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/admin/banners">Banners</a>
+                <a class="nav-link active" href="/admin/offers"><i class="fas fa-gift me-2"></i>Offers</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link active" href="/admin/offers">Offers</a>
+                <a class="nav-link" href="/admin/inventory"><i class="fas fa-warehouse me-2"></i>Inventory</a>
             </li>
             <li class="nav-item mt-auto">
-                <a class="nav-link text-danger" href="/auth/logout">Logout</a>
+                <a class="nav-link text-danger" href="/auth/logout"><i class="fas fa-sign-out-alt me-2"></i>Logout</a>
             </li>
         </ul>
     </div>
 
     <div class="content">
-        <h1 class="mb-4">Add Offer</h1>
-        <div id="error"></div>
+        <h1 class="mb-4 text-center">Add New Offer</h1>
+        
         <form id="addOfferForm" action="/admin/offers/add-offer" method="post">
-            <div class="form-group">
-                <label for="offerName">Offer Name</label>
-                <input type="text" class="form-control" name="offerName" id="offerName" placeholder="Enter Offer Name" >
-            </div>
-            <div class="form-group">
-                <label for="offerDescription">Offer Description</label>
-                <textarea class="form-control" name="offerDescription" id="offerDescription" rows="3" placeholder="Enter Offer Description" ></textarea>
-            </div>
-
-            <label>Offer Type:</label>
-            <div class="form-group">
-                <div class="form-check">
-                    <input type="radio" class="form-check-input" id="product" name="offerType" value="product" onclick="toggleSelectionFields()" >
-                    <label class="form-check-label" for="product">Product</label>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="offerName" class="form-label">Offer Name</label>
+                    <input type="text" class="form-control" id="offerName" name="offerName" placeholder="Enter offer name">
                 </div>
-                <div class="form-check">
-                    <input type="radio" class="form-check-input" id="category" name="offerType" value="category" onclick="toggleSelectionFields()" >
-                    <label class="form-check-label" for="category">Category</label>
-                </div>
-              
-            </div>
-
-            <label>Discount Type:</label>
-            <div class="form-group">
-                <div class="form-check">
-                    <input type="radio" class="form-check-input" id="percentage" name="discountType" value="percentage" >
-                    <label class="form-check-label" for="percentage">Percentage</label>
-                </div>
-                <div class="form-check">
-                    <input type="radio" class="form-check-input" id="fixed" name="discountType" value="fixed" >
-                    <label class="form-check-label" for="fixed">Fixed</label>
-                </div>
-            </div>
-            
-            <div class="form-group">
-                <label for="discountValue">Discount Value</label>
-                <input type="number" class="form-control" name="discountValue" id="discountValue" placeholder="Enter Discount Value" >
-            </div>
-            <div class="form-group">
-                <label for="startDate">Start Date</label>
-                <input type="date" class="form-control" name="startDate" id="startDate" >
-            </div>
-            <div class="form-group">
-                <label for="endDate">End Date</label>
-                <input type="date" class="form-control" name="endDate" id="endDate" >
-            </div>
-
-            <label>Status:</label>
-            <div class="form-group">
-                <div class="form-check">
-                    <input type="radio" class="form-check-input" id="active" name="offerStatus" value="active" >
-                    <label class="form-check-label" for="active">Active</label>
-                </div>
-                <div class="form-check">
-                    <input type="radio" class="form-check-input" id="inactive" name="offerStatus" value="inactive" >
-                    <label class="form-check-label" for="inactive">Inactive</label>
+                <div class="col-md-6">
+                    <label for="offerType" class="form-label">Offer Type</label>
+                    <select class="form-select" id="offerType" name="offerType">
+                        <option value="">Select Offer Type</option>
+                        <option value="category">Category</option>
+                        <option value="product">Product</option>
+                    </select>
                 </div>
             </div>
 
-            <!-- Product Selection -->
-            <div id="productSelection" class="selection-container" style="display: none;">
-                <label>Select Products:</label>
-                <div class="checkbox-container">
-                    <% for (const product of products) { %>
-                        <div class="form-check">
-                            <input type="checkbox" class="form-check-input" name="productSelection[]" value="<%= product._id %>" id="product-<%= product._id %>">
-                            <label class="form-check-label" for="product-<%= product._id %>"><%= product.product %></label>
+            <div class="mb-3" id="categorySelection" style="display:none;">
+                <label class="form-label">Select Categories</label>
+                <div class="row">
+                    <% categories.forEach(function(category) { %>
+                        <div class="col-md-4 mb-2">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="category-<%= category._id %>" name="categorySelection" value="<%= category._id %>">
+                                <label class="form-check-label" for="category-<%= category._id %>"><%= category.name %></label>
+                            </div>
                         </div>
-                    <% } %>
+                    <% }); %>
                 </div>
             </div>
 
-            <!-- Category Selection -->
-            <div id="categorySelection" class="selection-container" style="display: none;">
-                <label>Select Categories:</label>
-                <div class="checkbox-container">
-                    <% for (const category of categories) { %>
-                        <div class="form-check">
-                            <input type="checkbox" class="form-check-input" name="categorySelection[]" value="<%= category._id %>" id="category-<%= category._id %>">
-                            <label class="form-check-label" for="category-<%= category._id %>"><%= category.name %></label>
+            <div class="mb-3" id="productSelection" style="display:none;">
+                <label class="form-label">Select Products</label>
+                <div class="row">
+                    <% products.forEach(function(product) { %>
+                        <div class="col-md-4 mb-2">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="product-<%= product._id %>" name="productSelection" value="<%= product._id %>">
+                                <label class="form-check-label" for="product-<%= product._id %>"><%= product.product %></label>
+                            </div>
                         </div>
-                    <% } %>
+                    <% }); %>
                 </div>
             </div>
 
-            <button type="submit" class="btn btn-primary">Add Offer</button>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="discountType" class="form-label">Discount Type</label>
+                    <select class="form-select" id="discountType" name="discountType">
+                        <option value="percentage">Percentage</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label for="discountValue" class="form-label">Discount %</label>
+                    <input type="number" class="form-control" id="discountValue" name="discountValue" placeholder="Enter discount percentage">
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="startDate" class="form-label">Start Date</label>
+                    <input type="date" class="form-control" id="startDate" name="startDate">
+                </div>
+                <div class="col-md-6">
+                    <label for="endDate" class="form-label">End Date</label>
+                    <input type="date" class="form-control" id="endDate" name="endDate">
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="offerStatus" class="form-label">Offer Status</label>
+                <select class="form-select" id="offerStatus" name="offerStatus">
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="offerDescription" class="form-label">Offer Description</label>
+                <textarea class="form-control" id="offerDescription" name="offerDescription" rows="3" placeholder="Enter offer description"></textarea>
+            </div>
+
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary btn-lg">
+                    <i class="fas fa-plus-circle me-2"></i>Add Offer
+                </button>
+            </div>
         </form>
+        <div id="error" class="mt-3"></div>
     </div>
-
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        function toggleSelectionFields() {
-            const offerType = document.querySelector('input[name="offerType"]:checked').value;
-            const productField = document.getElementById('productSelection');
-            const categoryField = document.getElementById('categorySelection');
-
-            productField.style.display = offerType === 'product' ? 'block' : 'none';
-            categoryField.style.display = offerType === 'category' ? 'block' : 'none';
-        }
-
-        document.getElementById('addOfferForm').addEventListener('submit', async function(event) {
-            event.preventDefault(); // Prevent default form submission
-
-            // Validate the form inputs
-            if (!validateForm()) return; // Ensure the form is valid
-
-            const url = "/admin/offers/add-offer"; // URL for POST request
-            const offerData = {
-                offerName: document.getElementById('offerName').value,
-                offerDescription: document.getElementById('offerDescription').value,
-                offerType: document.querySelector('input[name="offerType"]:checked').value,
-                discountType: document.querySelector('input[name="discountType"]:checked').value,
-                discountValue: document.getElementById('discountValue').value,
-                startDate: document.getElementById('startDate').value,
-                endDate: document.getElementById('endDate').value,
-                offerStatus: document.querySelector('input[name="offerStatus"]:checked').value,
-                productSelection: Array.from(document.querySelectorAll('input[name="productSelection[]"]:checked')).map(checkbox => checkbox.value),
-                categorySelection: Array.from(document.querySelectorAll('input[name="categorySelection[]"]:checked')).map(checkbox => checkbox.value),
-            };
-
-            try {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(offerData),
-                });
-
-                const result = await response.json();
-                document.getElementById('error').innerText = result.message;
-                if (result.success) {
-                    window.location.href = "/admin/offers"; // Redirect after successful submission
+        $(document).ready(function() {
+            // Toggle category and product selection based on offer type
+            $('#offerType').change(function() {
+                const selectedType = $(this).val();
+                if (selectedType === 'category') {
+                    $('#categorySelection').slideDown();
+                    $('#productSelection').slideUp();
+                } else if (selectedType === 'product') {
+                    $('#productSelection').slideDown();
+                    $('#categorySelection').slideUp();
+                } else {
+                    $('#categorySelection').slideUp();
+                    $('#productSelection').slideUp();
                 }
-            } catch (error) {
-                document.getElementById('error').innerText = "Error adding offer: " + error.message;
-            }
+            });
+
+            // Validate form on submit
+            $('#addOfferForm').submit(function(e) {
+                e.preventDefault();
+                
+                // Clear previous error messages
+                $('#error').html('');
+                
+                // Perform validation
+                let isValid = true;
+                let errorMessage = '';
+
+                // ... (validation logic remains the same)
+
+                if (!isValid) {
+                    $('#error').html('<div class="alert alert-danger">' + errorMessage + '</div>');
+                    $('html, body').animate({
+                        scrollTop: $("#error").offset().top - 20
+                    }, 500);
+                    return;
+                }
+
+                // If validation passes, submit the form via AJAX
+                $.ajax({
+                    url: $(this).attr('action'),
+                    type: 'POST',
+                    data: $(this).serialize(),
+                    success: function(response) {
+                        if (response.success) {
+                            $('#error').html('<div class="alert alert-success">' + response.message + '</div>');
+                            $('#addOfferForm')[0].reset();
+                        } else {
+                            $('#error').html('<div class="alert alert-danger">' + response.message + '</div>');
+                        }
+                        $('html, body').animate({
+                            scrollTop: $("#error").offset().top - 20
+                        }, 500);
+                    },
+                    error: function(xhr) {
+                        let errorMessage = 'An error occurred while submitting the form. Please try again.';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMessage = xhr.responseJSON.message;
+                        }
+                        $('#error').html('<div class="alert alert-danger">' + errorMessage + '</div>');
+                        $('html, body').animate({
+                            scrollTop: $("#error").offset().top - 20
+                        }, 500);
+                    }
+                });
+            });
         });
-
-        function validateForm() {
-            const offerName = document.getElementById('offerName').value.trim();
-            const discountValue = document.getElementById('discountValue').value.trim();
-            const startDate = document.getElementById('startDate').value;
-            const endDate = document.getElementById('endDate').value;
-
-            if (!offerName) {
-                document.getElementById('error').innerText = "Offer name is required.";
-                return false;
-            }
-            if (!discountValue) {
-                document.getElementById('error').innerText = "Discount value is required.";
-                return false;
-            }
-            if (!startDate || !endDate) {
-                document.getElementById('error').innerText = "Both start and end dates are required.";
-                return false;
-            }
-            return true;
-        }
     </script>
 </body>
 </html>

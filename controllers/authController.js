@@ -54,7 +54,7 @@ const postSignin=async(req,res)=>{
         const token=JWT.sign({_id:user._id,email:user.email,role:user.role},process.env.JWT_SECRET,{expiresIn:'24h'})
         user.password=undefined;
         const cookieOptions={
-            maxAge:24*60*60*1000,
+            maxAge:24 * 60 * 60 * 1000,
             httpOnly:true
         };
         console.log("logged in")

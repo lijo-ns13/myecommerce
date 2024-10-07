@@ -12,7 +12,7 @@ const offerSchema=new Schema({
     offerType:{
         type:String,
         required:true,
-        enum:['product','category'],
+        enum:['category','product'],
 
     },
 
@@ -23,7 +23,7 @@ const offerSchema=new Schema({
     },
     discountType:{
         type:String,
-        enum:['percentage','fixed'],
+        enum:['percentage'],
         required:true,
 
     },
@@ -46,15 +46,6 @@ const offerSchema=new Schema({
         type:String,
         enum:['active','inactive']
     },
-    productIds:[
-        {
-            type:Schema.Types.ObjectId,
-            ref:'Product',
-            required:function(){
-                return this.offerType==='product'
-            }
-        }
-    ],
     categoryIds:[
         {
             type:Schema.Types.ObjectId,
@@ -64,7 +55,16 @@ const offerSchema=new Schema({
             },
 
         }
-    ] 
+    ],
+    productIds: [
+        {
+            type: Schema.Types.ObjectId,
+            ref: 'Product',
+            required: function() {
+                return this.offerType === 'product';
+            },
+        }
+    ]
 })
 const offerModel=mongoose.model('Offer',offerSchema);
 module.exports=offerModel;

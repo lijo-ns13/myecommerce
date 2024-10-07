@@ -126,56 +126,23 @@
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light py-3 w-100">
-        <div class="container">
-            <a class="navbar-brand" href="/">
-                <img src="/img/logo.png" alt="Logo" class="d-inline-block align-text-top" style="height: 40px;">
-            </a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ml-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/products">Products</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/about">About</a>
-                    </li>
-                </ul>
-                <!-- Search Bar -->
-                <!-- <form class="form-inline mx-lg-4 my-2 my-lg-0">
-                    <input class="form-control mr-sm-2" type="search" placeholder="Search for products..." aria-label="Search">
-                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-                </form> -->
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/auth/signin">
-                            <img src="/img/log-in.png" alt="Login" class="nav-icon" style="height: 24px;">
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/user/wishlist">
-                            <img src="/img/wishlist.png" alt="Wishlist" class="nav-icon" style="height: 24px;">
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/cart">
-                            <img src="/img/cart.png" alt="Cart" class="nav-icon" style="height: 24px;">
-                            <span class="badge badge-pill badge-danger"></span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/user/profile">
-                            <img src="/img/userprofile.jpg" alt="User Profile" class="nav-icon rounded-circle" style="height: 24px;">
-                        </a>
-                    </li>
-                </ul>
-            </div>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="/"><img src="img/logo.png" alt="Logo" height="40"></a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="/products">Products</a></li>
+                <li class="nav-item"><a class="nav-link" href="/about">About</a></li>
+            </ul>
+            <ul class="navbar-nav">
+                <li class="nav-item"><a class="nav-link" href="/auth/signin"><img src="img/log-in.png" alt="Login" height="30"></a></li>
+                <li class="nav-item"><a class="nav-link" href="/cart"><img src="img/cart.png" alt="Cart" height="30"></a></li>
+                <li class="nav-item"><a class="nav-link" href="/user/wishlist"><img src="img/wishlist.png" alt="Wishlist" height="30"></a></li>
+                <li class="nav-item"><a class="nav-link" href="/user/profile"><img src="img/userprofile.jpg" alt="User Profile" height="30"></a></li>
+            </ul>
         </div>
     </nav>
 
@@ -196,41 +163,42 @@
     <button id="removeCoupon" class="btn btn-danger mt-2" style="display:none;">Remove Coupon</button>
 </div>
 
-        <!-- Cart Items -->
-        <h4>Cart Items</h4>
-        <% if (cart && cart.products && cart.products.length > 0) { %>
-            <div class="row">
-                <% for (const product of cart.products) { %>
-                    <div class="col-12 cart-item">
-                        <div class="row">
-                            <div class="col-3 text-center">
-                                <img src="<%= product.productId.images[0].secured_url %>" class="cart-img" alt="<%= product.productId.product %>">
-                            </div>
-                            <div class="col-5">
-                                <h5><%= product.productId.product %></h5>
-                                <p>Price: $<%= product.productId.finalPrice %></p>
-                                <p>Quantity: <%= product.quantity %></p>
-                                <p>Subtotal: $<%= (product.productId.finalPrice * product.quantity).toFixed(2) %></p>
-                            </div>
-                        </div>
-                    </div>
-                <% } %>
-            </div>
-
-            <div class="text-right total-price">
-                Total Price: $<%= cart.finalPrice.toFixed(2) %>
-            </div>
-        <% } else { %>
-            <div class="text-center">
-                <h3>Your cart is empty</h3>
-                <a href="/products" class="btn btn-primary">Continue Shopping</a>
-            </div>
-        <% } %>
+       			
+			 <!-- Cart Items -->
+             <h4>Cart Items</h4>
+             <% if (cart && cart.products && cart.products.length > 0) { %>
+                 <div class="row">
+                     <% for (const product of cart.products) { %>
+                         <div class="col-12 cart-item">
+                             <div class="row">
+                                 <div class="col-3 text-center">
+                                     <img src="<%= product.productId.images[0].secured_url %>" class="cart-img" alt="<%= product.productId.product %>">
+                                 </div>
+                                 <div class="col-5">
+                                     <h5><%= product.productId.product %></h5>
+                                     <p>Price: $<%= product.productId.finalPrice %></p>
+                                     <p>Quantity: <%= product.quantity %></p>
+                                     <p>Subtotal: $<%= (product.productId.finalPrice * product.quantity).toFixed(2) %></p>
+                                 </div>
+                             </div>
+                         </div>
+                     <% } %>
+                 </div>
+     
+                 <div class="text-right total-price">
+                     Total Price: $<%= cart.finalPrice.toFixed(2) %>
+                 </div>
+             <% } else { %>
+                 <div class="text-center">
+                     <h3>Your cart is empty</h3>
+                     <a href="/products" class="btn btn-primary">Continue Shopping</a>
+                 </div>
+             <% } %>
 
         <!-- Shipping Address -->
         <h4 class="mt-4">Shipping Address</h4>
         <form id="checkoutForm" action="/checkout" method="POST">
-            <h3>Select Shipping Address</h3>
+            
             
             <% user.address.forEach((address, index) => { %>
                 <div class="form-check">
@@ -279,15 +247,16 @@
             </div>
 
             <!-- Payment Method Section -->
-            <h4 class="mt-4">Payment Method</h4>
+        <div class="payment-method">
+            <h4><i class="fas fa-credit-card"></i> Payment Method</h4>
             <div class="form-group">
-                <label for="paymentMethod">Select Payment Method</label>
-                <select class="form-control" id="paymentMethod" name="paymentMethod">
+                <select class="form-select" id="paymentMethod" name="paymentMethod">
                     <option value="cod">Cash on Delivery (COD)</option>
                     <option value="razorpay">Razorpay</option>
                 </select>
             </div>
-
+        </div>
+<!-- dasfasf -->
             <!-- Proceed to Checkout Button -->
             <button type="submit" class="btn btn-primary mt-3" id="placeOrder" disabled>Place Order</button>
         </form>
@@ -300,6 +269,8 @@
     </footer>
 
     <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
@@ -476,42 +447,75 @@
                 $('#placeOrder').prop('disabled', false);
             });
     
-            // Handle form submission
             $('#checkoutForm').on('submit', function (e) {
-                e.preventDefault();
-                
-                const paymentMethod = $('#paymentMethod').val();
-                if (paymentMethod === 'razorpay') {
-                    const finalPrice=<%=cart.finalPrice%>
-                    // Initiate Razorpay payment
-                    const options = {
-                        key: 'rzp_test_HcIqECgcTGh7Na',
-                        amount: finalPrice*100, // amount in smallest currency unit
-                        currency: "INR",
-                        name: "Your E-Commerce Site",
-                        description: "Order Payment",
-                        handler: function (response) {
-                            // Handle payment success here
-                            alert("Payment Successful! Transaction ID: " + response.razorpay_payment_id);
-                            $('#checkoutForm').off('submit').submit(); // Submit form after successful payment
-                        },
-                        prefill: {
-                            name: "Customer Name",
-                            email: "customer@example.com",
-                            phone_number: "9999999999"
-                        },
-                        theme: {
-                            color: "#F37254"
-                        }
-                    };
-                    const razorpay = new Razorpay(options);
-                    razorpay.open();
-                } else {
-                    // Handle Cash on Delivery
-                    
-                    this.submit();
+            e.preventDefault(); // Prevent default form submission
+            
+            const paymentMethod = $('#paymentMethod').val();
+
+            // Function to check cart validity using Fetch API
+            function checkCartValidity() {
+                return fetch('/checkout/checkcatpro', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({}) // If you need to send any data, include it here
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        return true; // Valid cart
+                    } else {
+                        // alert(data.message); // Show error message
+                        swal.fire({
+                            icon:'warning',
+                            title:'Oops!',
+                            text:data.message
+                        })
+                        return false; // Invalid cart
+                    }
+                })
+                .catch(() => {
+                    alert("Error checking cart. Please try again.");
+                    return false; // Handle error
+                });
+            }
+
+            // Validate cart before proceeding
+            checkCartValidity().then(isValid => {
+                if (isValid) {
+                    if (paymentMethod === 'razorpay') {
+                        const finalPrice = <%= cart.finalPrice %>; // Ensure this value is properly passed from your server-side
+                        // Initiate Razorpay payment
+                        const options = {
+                            key: 'rzp_test_HcIqECgcTGh7Na',
+                            amount: finalPrice * 100, // amount in smallest currency unit
+                            currency: "INR",
+                            name: "Your E-Commerce Site",
+                            description: "Order Payment",
+                            handler: function (response) {
+                                // Handle payment success here
+                                // alert("Payment Successful! Transaction ID: " + response.razorpay_payment_id);
+                                $('#checkoutForm').off('submit').submit(); // Submit form after successful payment
+                            },
+                            prefill: {
+                                name: "Customer Name",
+                                email: "customer@example.com",
+                                phone_number: "9999999999"
+                            },
+                            theme: {
+                                color: "#F37254"
+                            }
+                        };
+                        const razorpay = new Razorpay(options);
+                        razorpay.open();
+                    } else {
+                        // Handle Cash on Delivery
+                        this.submit(); // Submit form directly for COD
+                    }
                 }
             });
+        });
         });
     </script>
  

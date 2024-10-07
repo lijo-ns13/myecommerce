@@ -43,16 +43,13 @@ const userSchema=new Schema({
         type: Schema.Types.ObjectId,
         ref: 'Address'
     }],
-    wishlist:[
-        {
-            type:Schema.Types.ObjectId,
-            ref:'Wishlist',
-            default:[]
-        }
-    ],
+    wishlist: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Product', 
+    }],
     orders: [{
         type: Schema.Types.ObjectId,
-        ref: 'Order'  // Reference to the Order model
+        ref: 'Order'  
     }],
     cart: {
         type: Schema.Types.ObjectId,
@@ -108,7 +105,7 @@ userSchema.methods.getForgotPasswordToken = function() {
         .update(forgotToken)
         .digest('hex');
 
-    this.forgotPasswordExpiry = Date.now() + 20 * 60 * 1000; // Token expires in 20 minutes
+    this.forgotPasswordExpiry = Date.now() + 20 * 60 * 1000; 
     return forgotToken;
 };
 

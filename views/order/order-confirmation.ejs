@@ -8,39 +8,159 @@
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
     <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Arial', sans-serif;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 800px;
+            margin-top: 50px;
+        }
+        .order-confirmation {
+            background-color: #ffffff;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            padding: 30px;
+            margin-bottom: 30px;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: slideIn 0.8s ease forwards;
+        }
         .order-summary {
             margin-top: 20px;
         }
         .payment-method {
             font-weight: bold;
         }
+        .confirmation-icon {
+            font-size: 5rem;
+            color: #28a745;
+            margin-bottom: 20px;
+            opacity: 0;
+            transform: scale(0.5);
+            animation: popIn 0.8s 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
+        }
+        .order-details {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            opacity: 0;
+            animation: fadeIn 0.8s 0.8s ease forwards;
+        }
+        .btn-custom {
+            transition: all 0.3s ease;
+            margin: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-custom:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .btn-custom::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%);
+            transform-origin: 50% 50%;
+        }
+        .btn-custom:hover::after {
+            animation: ripple 1s ease-out;
+        }
+        .animate-in {
+            opacity: 0;
+            animation: fadeInUp 0.5s ease forwards;
+        }
+        .detail-item {
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+        @keyframes slideIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        @keyframes popIn {
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        @keyframes ripple {
+            0% {
+                transform: scale(0, 0);
+                opacity: 1;
+            }
+            20% {
+                transform: scale(25, 25);
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+                transform: scale(40, 40);
+            }
+        }
+        @keyframes slideInFromRight {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1 class="my-4 text-center">Order Confirmation</h1>
-        <div class="alert alert-success text-center" role="alert">
-            <h4 class="alert-heading">Thank You for Your Purchase!</h4>
-            <p>Your order has been successfully placed. Here are your order details:</p>
-        </div>
+        <div class="order-confirmation">
+            <div class="text-center">
+                <i class="fas fa-check-circle confirmation-icon"></i>
+                <h1 class="mb-4">Order Confirmation</h1>
+                <div class="alert alert-success" role="alert">
+                    <h4 class="alert-heading">Thank You for Your Purchase!</h4>
+                    <p>Your order has been successfully placed. Here are your order details:</p>
+                </div>
+            </div>
 
-        <div class="card order-summary">
-            <div class="card-body">
+            <div class="order-details">
                 <h5 class="card-title">Order Details</h5>
-                <p><strong>Order ID:</strong> <%= order._id %></p>
-                <p><strong>Total Price:</strong> $<%= order.totalPrice %></p>
-                <p class="payment-method">
+                <p class="detail-item"><strong>Order ID:</strong> <span id="orderId"><%= order._id %></span></p>
+                <p class="detail-item"><strong>Total Price:</strong> $<span id="totalPrice"><%= order.totalPrice %></span></p>
+                <p class="detail-item payment-method">
                     <strong>Payment Method:</strong> 
                     <i class="<%= order.paymentDetails.paymentMethod === 'razorpay' ? 'fab fa-cc-visa' : 'fas fa-money-bill-wave' %>"></i>
-                    <%= order.paymentDetails.paymentMethod === 'razorpay' ? 'Paid through Razorpay' : 'Cash on Delivery' %>
+                    <span id="paymentMethod"><%= order.paymentDetails.paymentMethod === 'razorpay' ? 'Paid through Razorpay' : 'Cash on Delivery' %></span>
                 </p>
-                <p><strong>Shipping Address:</strong> <%= order.shippingAddress.street %>, <%= order.shippingAddress.city %>, <%= order.shippingAddress.state %>, <%= order.shippingAddress.country %> - <%= order.shippingAddress.postalCode %></p>
-                <p><strong>Estimated Delivery Date:</strong> <%= order.deliveryDate ? order.deliveryDate.toDateString() : 'N/A' %></p>
+                <p class="detail-item"><strong>Shipping Address:</strong> <span id="shippingAddress"><%= order.shippingAddress.street %>, <%= order.shippingAddress.city %>, <%= order.shippingAddress.state %>, <%= order.shippingAddress.country %> - <%= order.shippingAddress.postalCode %></span></p>
+                <p class="detail-item"><strong>Estimated Delivery Date:</strong> <span id="deliveryDate"><%= order.deliveryDate ? order.deliveryDate.toDateString() : 'N/A' %></span></p>
             </div>
-        </div>
 
-        <div class="text-center my-4">
-            <p>You can view your <a href="/user/orders" class="btn btn-primary">order history</a> or <a href="/" class="btn btn-secondary">continue shopping</a>.</p>
+            <div class="text-center my-4 animate-in" style="animation-delay: 1.2s;">
+                <a href="/user/orders" class="btn btn-primary btn-custom">View Order History</a>
+                <a href="/" class="btn btn-secondary btn-custom">Continue Shopping</a>
+            </div>
         </div>
     </div>
 
@@ -48,6 +168,47 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            // Animate order details
+            const detailItems = document.querySelectorAll('.detail-item');
+            detailItems.forEach((item, index) => {
+                item.style.animation = `slideInFromRight 0.5s ease forwards ${0.8 + (index * 0.1)}s`;
+            });
+
+            // Add confetti effect
+            function createConfetti() {
+                const confetti = document.createElement('div');
+                confetti.style.position = 'fixed';
+                confetti.style.width = '10px';
+                confetti.style.height = '10px';
+                confetti.style.backgroundColor = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff'][Math.floor(Math.random() * 5)];
+                confetti.style.left = Math.random() * window.innerWidth + 'px';
+                confetti.style.top = '-10px';
+                confetti.style.borderRadius = '50%';
+                confetti.style.opacity = Math.random();
+                confetti.style.transform = `scale(${Math.random()})`;
+                document.body.appendChild(confetti);
+
+                let angle = 0;
+                const animateConfetti = () => {
+                    if (parseFloat(confetti.style.top) > window.innerHeight) {
+                        confetti.remove();
+                        return;
+                    }
+                    confetti.style.top = (parseFloat(confetti.style.top) + 2) + 'px';
+                    confetti.style.left = (parseFloat(confetti.style.left) + Math.sin(angle) * 2) + 'px';
+                    angle += 0.1;
+                    requestAnimationFrame(animateConfetti);
+                };
+                animateConfetti();
+            }
+
+            // Create confetti
+            for (let i = 0; i < 50; i++) {
+                setTimeout(createConfetti, i * 100);
+            }
+        });
+    </script>
 </body>
 </html>
-

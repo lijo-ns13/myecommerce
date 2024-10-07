@@ -4,93 +4,213 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Your Wishlist</title>
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        body {
-            background-color: #f8f9fa;
-            font-family: 'Poppins', sans-serif;
-        }
-        .navbar {
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
+		:root {
+    --primary-color: #3498db;
+    --secondary-color: #e74c3c;
+    --accent-color: #f39c12;
+    --background-color: #f4f4f4;
+    --text-color: #333;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+}
+
+.navbar {
+    background-color: rgba(255, 255, 255, 0.9) !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand img {
+    max-height: 50px;
+}
+
+.navbar-nav {
+    display: flex; /* Use flexbox for alignment */
+    align-items: center; /* Center items vertically */
+    list-style: none; /* Remove default list styles */
+    padding: 0; /* Remove default padding */
+    margin: 0; /* Remove default margin */
+}
+
+.nav-item {
+    margin: 0 10px; /* Set uniform horizontal spacing */
+}
+
+.nav-link {
+    display: flex; /* Use flexbox for proper alignment */
+    align-items: center; /* Center items vertically */
+    text-decoration: none; /* Remove underline from links */
+    color: #333; /* Set a default text color */
+    font-size: 18px; /* Set a uniform font size */
+    font-weight: 600; /* Set font weight */
+    transition: color 0.3s ease; /* Transition for hover effect */
+}
+
+.nav-link:hover {
+    color: var(--primary-color) !important; /* Hover color */
+}
+
+.nav-link i {
+    font-size: 24px; /* Set a uniform icon size */
+    margin-right: 5px; /* Space between icon and text */
+}
+
+.rounded-circle {
+    width: 30px; /* Set a fixed width for the user profile image */
+    height: 30px; /* Set a fixed height for the user profile image */
+}
+
+
         .wishlist-container {
-            margin: 30px auto;
+            margin: 50px auto;
             max-width: 1000px;
-            padding: 30px;
+            padding: 40px;
             background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+            border-radius: 15px;
+            box-shadow: 0 4px 25px rgba(0, 0, 0, 0.1);
             transition: box-shadow 0.3s ease-in-out;
         }
+
         .wishlist-container:hover {
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 6px 30px rgba(0, 0, 0, 0.15);
         }
+
         h1 {
             font-weight: 600;
-            color: #333;
+            color: var(--primary-color);
             text-align: center;
             margin-bottom: 40px;
+            font-size: 2.5rem;
         }
+
         .product-item {
-            padding: 20px;
+            padding: 25px;
             border-bottom: 1px solid #e9ecef;
             display: flex;
             align-items: center;
-            transition: transform 0.3s;
+            transition: transform 0.3s, box-shadow 0.3s;
+            border-radius: 10px;
+            margin-bottom: 20px;
         }
+
         .product-item:hover {
             transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
         }
+
         .product-item:last-child {
             border-bottom: none;
         }
+
         .product-image {
-            max-width: 120px;
-            margin-right: 20px;
-            border-radius: 8px;
-            box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
+            max-width: 150px;
+            margin-right: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
             transition: transform 0.3s ease-in-out;
         }
+
         .product-image:hover {
             transform: scale(1.05);
         }
+
+        .product-details {
+            flex-grow: 1;
+        }
+
+        .product-name {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .product-price {
+            font-size: 1.2rem;
+            font-weight: 500;
+            color: var(--secondary-color);
+            margin-bottom: 15px;
+        }
+
         .size-selection {
             margin-top: 15px;
         }
+
         .size-button {
             padding: 8px 15px;
             margin-right: 10px;
             font-size: 14px;
-            border-radius: 8px;
-            transition: background-color 0.3s, color 0.3s;
+            border-radius: 20px;
+            transition: all 0.3s;
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            background-color: transparent;
         }
-        .size-button:hover {
-            background-color: #007bff;
+
+        .size-button:hover, .size-button.active {
+            background-color: var(--primary-color);
             color: white;
         }
+
         .btn-custom {
             padding: 10px 20px;
             font-weight: 600;
-            transition: background-color 0.3s, box-shadow 0.3s;
+            transition: all 0.3s;
+            border-radius: 25px;
         }
+
         .btn-custom:hover {
-            background-color: #28a745;
-            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
+
         .remove-button {
             margin-left: 15px;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
         }
+
         .remove-button:hover {
-            background-color: #dc3545;
+            background-color: var(--secondary-color);
             color: white;
+            transform: rotate(90deg);
+        }
+
+        @media (max-width: 768px) {
+            .product-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .product-image {
+                margin-right: 0;
+                margin-bottom: 20px;
+                max-width: 100%;
+            }
+
+            .btn-custom, .remove-button {
+                margin-top: 15px;
+            }
         }
     </style>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light py-3 w-100">
-        <div class="container">
+        <div class="container-fluid">
             <a class="navbar-brand" href="/">
                 <img src="/img/logo.png" alt="Logo" class="d-inline-block align-text-top" style="height: 40px;">
             </a>
@@ -144,31 +264,31 @@
             <ul class="list-group">
                 <% products.forEach(product => { %>
                     <li class="list-group-item product-item">
-                        <img src="<%= product.images[0].secured_url %>" alt="<%= product.name %>" class="product-image">
-                        <div class="flex-grow-1">
-                            <h5><%= product.name %></h5>
-                            <p>Price: $<%= product.price.toFixed(2) %></p>
+                        <img src="<%= product.images[0].secured_url %>" alt="<%= product.product %>" class="product-image">
+                        <div class="product-details">
+                            <h5 class="product-name"><%= product.product %></h5>
+                            <p class="product-price">$<%= product.finalPrice.toFixed(2) %></p>
+                            <div class="size-selection">
+                                <label for="sizeSelect">Select Size:</label>
+                                <% if (product.sizes.length > 0) { %>
+                                    <div class="size-buttons">
+                                        <% product.sizes.forEach(size => { %>
+                                            <button type="button" class="btn size-button" data-size="<%= size.size %>"><%= size.size %></button>
+                                        <% }) %>
+                                    </div>
+                                <% } else { %>
+                                    <p>No sizes available</p>
+                                <% } %>
+                            </div>
+                            <form class="addToCartForm" action="/cart/add" method="POST">
+                                <input type="hidden" name="productId" value="<%= product._id %>">
+                                <input type="hidden" name="size" class="selectedSize">
+                                <button type="submit" class="btn btn-success btn-custom mt-3">Add to Cart</button>
+                            </form>
                         </div>
-                        <div class="size-selection">
-                            <label for="sizeSelect">Select Size:</label>
-                            <% if (product.sizes.length > 0) { %>
-                                <div class="size-buttons">
-                                    <% product.sizes.forEach(size => { %>
-                                        <button type="button" class="btn btn-outline-primary size-button" data-size="<%= size.size %>"><%= size.size %></button>
-                                    <% }) %>
-                                </div>
-                            <% } else { %>
-                                <p>No sizes available</p>
-                            <% } %>
-                        </div>
-                        <form class="addToCartForm" action="/cart/add" method="POST">
-                            <input type="hidden" name="productId" value="<%= product._id %>">
-                            <input type="hidden" name="size" class="selectedSize">
-                            <button type="submit" class="btn btn-success btn-custom">Add to Cart</button>
-                        </form>
                         <form action="/user/wishlist/remove/<%= product._id %>" method="post">
-                            <button class="btn btn-danger btn-sm remove-button" type="submit" >
-                                Remove
+                            <button class="btn btn-danger btn-sm remove-button" type="submit">
+                                <i class="fas fa-times"></i>
                             </button>
                         </form>
                     </li>
@@ -176,7 +296,6 @@
             </ul>
         <% } %>
     </div>
-
 
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

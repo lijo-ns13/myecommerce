@@ -1,7 +1,8 @@
-const mongoose=require('mongoose');
-const {Schema}=mongoose;
-const Product=require('./productSchema');
-const User=require('./userSchema');
+const mongoose = require('mongoose');
+const { Schema } = mongoose;
+const Product = require('./productSchema');
+const User = require('./userSchema');
+
 const reviewSchema = new Schema({
     product: {
         type: Schema.Types.ObjectId,
@@ -22,14 +23,17 @@ const reviewSchema = new Schema({
     comment: {
         type: String,
         required: true,
-        minLength: [10, "Minimum length is 10 characters"]
+        minlength: [10, "Minimum length is 10 characters"]
     },
     date: {
         type: Date,
         default: Date.now
+    },
+    isDeleted: {                       // Optional: For soft delete functionality
+        type: Boolean,
+        default: false
     }
 });
 
-
-const Review=mongoose.model('Reivew',reviewSchema);
-module.exports=Review;
+const Review = mongoose.model('Review', reviewSchema); // Fixed typo here
+module.exports = Review;

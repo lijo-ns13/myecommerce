@@ -3,54 +3,136 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Product Page</title>
+    <title>Stunning Product Page</title>
     <!-- Bootstrap CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <!-- FontAwesome for icons -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <!-- Custom Styles -->
     <style>
-        .navbar {
-            margin-bottom: 20px;
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2ecc71;
+            --background-color: #f9f9f9;
+            --text-color: #333;
+            --accent-color: #e74c3c;
         }
-        .navbar-brand img {
-            height: 40px;
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
         }
-        .nav-link img {
-            height: 20px;
-            margin-right: 8px;
+        /* nab */
+        :root {
+    --primary-color: #3498db;
+    --secondary-color: #e74c3c;
+    --accent-color: #f39c12;
+    --background-color: #f4f4f4;
+    --text-color: #333;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+}
+
+.navbar {
+    background-color: rgba(255, 255, 255, 0.9) !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand img {
+    max-height: 50px;
+}
+
+.navbar-nav {
+    display: flex; /* Use flexbox for alignment */
+    align-items: center; /* Center items vertically */
+    list-style: none; /* Remove default list styles */
+    padding: 0; /* Remove default padding */
+    margin: 0; /* Remove default margin */
+}
+
+.nav-item {
+    margin: 0 10px; /* Set uniform horizontal spacing */
+}
+
+.nav-link {
+    display: flex; /* Use flexbox for proper alignment */
+    align-items: center; /* Center items vertically */
+    text-decoration: none; /* Remove underline from links */
+    color: #333; /* Set a default text color */
+    font-size: 18px; /* Set a uniform font size */
+    font-weight: 600; /* Set font weight */
+    transition: color 0.3s ease; /* Transition for hover effect */
+}
+
+.nav-link:hover {
+    color: var(--primary-color) !important; /* Hover color */
+}
+
+.nav-link i {
+    font-size: 24px; /* Set a uniform icon size */
+    margin-right: 5px; /* Space between icon and text */
+}
+
+.rounded-circle {
+    width: 30px; /* Set a fixed width for the user profile image */
+    height: 30px; /* Set a fixed height for the user profile image */
+}
+
+        .filter-section {
+            background-color: #ffffff;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 40px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
+
+        .custom-select {
+            border-radius: 30px;
+            border: 1px solid #e0e0e0;
+            padding: 12px 20px;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5z' fill='%23333'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+        }
+
         .product-grid {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 40px;
+            padding: 20px;
         }
+
         .product-box {
-            text-decoration: none; /* Remove underline from links */
-            color: inherit; /* Inherit text color */
-            border: 1px solid #dee2e6;
-            border-radius: 8px;
-            padding: 15px;
-            margin: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background-color: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: all 0.4s ease;
+            text-decoration: none;
+            color: inherit;
             display: flex;
             flex-direction: column;
-            align-items: stretch;
-            width: 100%;
-            max-width: 300px;
-            position: relative;
-            overflow: hidden;
-            transition: transform 0.3s, box-shadow 0.3s;
         }
+
         .product-box:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            transform: translateY(-15px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
         }
+
         .product-images {
             position: relative;
-            height: 200px;
+            height: 300px;
             overflow: hidden;
         }
+
         .product-images img {
             width: 100%;
             height: 100%;
@@ -59,87 +141,193 @@
             top: 0;
             left: 0;
             opacity: 0;
-            transition: opacity 0.5s ease-in-out;
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
         }
+
         .product-images img.active {
             opacity: 1;
+            transform: scale(1.05);
         }
+
+        .product-content {
+            padding: 25px;
+        }
+
         .product-title {
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             font-weight: 600;
-            margin-bottom: 10px;
-            text-align: center;
-            color: #333;
-        }
-        .product-details {
             margin-bottom: 15px;
-            text-align: center;
+            color: var(--text-color);
         }
+
+        .product-details {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .price-container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
         .original-price {
             text-decoration: line-through;
-            color: #6c757d;
-            margin-right: 10px;
+            color: #999;
+            font-size: 0.9rem;
         }
+
         .final-price {
-            font-size: 1.5rem;
-            color: #ff5252;
+            font-size: 1.6rem;
+            color: var(--accent-color);
             font-weight: bold;
-            margin-right: 10px;
         }
-        .btn-love {
-            color: #6c757d;
-            position: absolute;
-            top: 10px;
-            right: 10px;
-        }
-        .btn-love.liked {
-            color: red;
-        }
-        .btn-view-more {
-            margin-top: 10px;
-        }
-        .badge {
-            display: block;
-            margin-top: 10px;
-        }
-        .stock-quantity {
+
+        .discount-percentage {
+            background-color: var(--accent-color);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
             margin-top: 5px;
-            color: #28a745; /* Green for in-stock items */
         }
-        .btn-wishlist {
+
+        .stock-status {
+            font-size: 0.9rem;
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 20px;
+        }
+
+        .in-stock {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .out-of-stock {
+            background-color: var(--accent-color);
+            color: white;
+        }
+
+        .text-danger {
+            color: var(--accent-color);
+        }
+
+        .text-muted {
+            color: #95a5a6;
+        }
+
+        @media (max-width: 768px) {
+            .product-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                gap: 30px;
+            }
+        }
+        .filter-section {
+    background-color: #ffffff;
+    border-radius: 15px;
+    padding: 15px; /* Reduce padding for compactness */
+    margin-bottom: 40px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.input-group {
+    flex: 1; /* Makes the search input take available space */
+}
+
+.custom-select {
+    border-radius: 20px; /* Adjusted for a softer appearance */
+    border: 1px solid #e0e0e0;
+    padding: 10px; /* Reduce padding for a more compact feel */
+}
+
+.btn-primary {
+    flex-shrink: 0; /* Prevents button from shrinking */
+    padding: 10px 15px; /* Adjusted padding for a better look */
+}
+
+@media (max-width: 576px) {
+    .filter-section form {
+        flex-direction: column; /* Stacks inputs vertically on small screens */
+    }
+}
+
+/* wishlist */
+/* in wishlist */
+.product-box {
+    position: relative;
+}
+.wishlist-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
     background: none;
     border: none;
     cursor: pointer;
-    font-size: 18px;
+    padding: 8px;
+    transition: all 0.3s ease;
+    z-index: 10;
+    background-color: rgba(255, 255, 255, 0.7);
+    border-radius: 50%;
 }
 
-.btn-wishlist.added {
-    color: red; /* Change to your preferred color */
+.wishlist-button .heart-icon {
+    font-size: 24px;
+    color: #ccc;
+    transition: all 0.3s ease;
 }
 
-.wishlist-feedback {
-    margin-top: 5px;
-    font-size: 14px;
-    color: green; /* Color for success message */
-    opacity: 1;
-    transition: opacity 0.3s ease;
+.wishlist-button:hover .heart-icon {
+    transform: scale(1.1);
 }
 
-        .btn-outline-danger {
-            font-size: 0.9rem;
-            padding: 8px 12px;
-            border-radius: 4px;
-            color: #ff5252;
-            border-color: #ff5252;
-        }
-        .btn-outline-danger:hover {
-            background-color: #ff5252;
-            color: #fff;
-        }
+.wishlist-button.in-wishlist .heart-icon {
+    color: #e74c3c; /* Red color for items in wishlist */
+}
+
+.wishlist-button:hover {
+    background-color: rgba(255, 255, 255, 0.9);
+}
+
+/* Loading state */
+.wishlist-button.loading .heart-icon {
+    animation: pulse 1s infinite;
+}
+
+/* Success state */
+.wishlist-button.success .heart-icon {
+    animation: success-pulse 0.5s;
+}
+
+/* Error state */
+.wishlist-button.error .heart-icon {
+    animation: error-shake 0.5s;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+@keyframes success-pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.3); color: #2ecc71; }
+    100% { transform: scale(1); }
+}
+
+@keyframes error-shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
     </style>
 </head>
 <body>
-    <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light py-3 w-100">
         <div class="container-fluid">
             <a class="navbar-brand" href="/">
@@ -148,7 +336,6 @@
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ml-auto">
                     <li class="nav-item">
@@ -161,17 +348,6 @@
                         <a class="nav-link" href="/about">About</a>
                     </li>
                 </ul>
-    
-            
-                <!-- Search Bar -->
-                <form class="form-inline mx-lg-4 my-2 my-lg-0" method="GET" action="/products">
-                    <input class="form-control mr-sm-2" type="search" name="query" placeholder="Search for products..." aria-label="Search" value="<%= searchQuery %>">
-                    <input type="hidden" name="category" value="<%= selectedCategory %>">
-                    <input type="hidden" name="sort" value="<%= selectedSort %>">
-                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-                </form>
-
-                
                 <ul class="navbar-nav">
                     <li class="nav-item">
                         <a class="nav-link" href="/auth/signin">
@@ -179,7 +355,7 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/wishlist">
+                        <a class="nav-link" href="/user/wishlist">
                             <img src="/img/wishlist.png" alt="Wishlist" class="nav-icon" style="height: 24px;">
                         </a>
                     </li>
@@ -198,158 +374,142 @@
             </div>
         </div>
     </nav>
-
-<!-- Page Content -->
-<div class="container">
-    
-
-    <!-- Filters and Sorting Options -->
-    <form class="form-inline mb-4" method="GET" action="/products">
-        <div class="form-group mx-sm-3 mb-2">
-            <label for="category" class="sr-only">Category</label>
-            <select id="category" name="category" class="form-control mr-sm-2">
-                <option value="">All Categories</option>
-                <% categories.forEach(category => { %>
-                    <option value="<%= category._id %>"><%= category.name %></option>
-                <% }); %>
-            </select>
+    <div class="container mt-4">
+        <div class="container mt-4">
+            <div class="filter-section mt-3">
+                <form method="GET" action="/products" class="d-flex flex-column flex-md-row align-items-center">
+                    <div class="input-group mb-2 flex-grow-1 me-md-2">
+                        <input class="form-control" type="search" name="query" placeholder="Search for products..." aria-label="Search" value="<%= searchQuery %>">
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-primary" type="submit">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+        
+                    <div class="form-group mb-2 flex-grow-1 me-md-2">
+                        <select id="category" name="category" class="custom-select">
+                            <option value="">All Categories</option>
+                            <% categories.forEach(category => { %>
+                                <option value="<%= category._id %>" <%= selectedCategory === category._id ? 'selected' : '' %>><%= category.name %></option>
+                            <% }); %>
+                        </select>
+                    </div>
+        
+                    <div class="form-group mb-2 flex-grow-1 me-md-2">
+                        <select id="sort" name="sort" class="custom-select">
+                            <option value="">Sort By</option>
+                            <option value="price_low_high" <%= selectedSort === 'price_low_high' ? 'selected' : '' %>>Price: Low to High</option>
+                            <option value="price_high_low" <%= selectedSort === 'price_high_low' ? 'selected' : '' %>>Price: High to Low</option>
+                            <option value="new_arrivals" <%= selectedSort === 'new_arrivals' ? 'selected' : '' %>>New Arrivals</option>
+                            <option value="a_z" <%= selectedSort === 'a_z' ? 'selected' : '' %>>A - Z</option>
+                            <option value="z_a" <%= selectedSort === 'z_a' ? 'selected' : '' %>>Z - A</option>
+                        </select>
+                    </div>
+        
+                    <button type="submit" class="btn btn-primary mb-2 mb-md-0">Apply Filters</button>
+                </form>
+            </div>
         </div>
-        <div class="form-group mx-sm-3 mb-2">
-            <label for="sort" class="sr-only">Sort By</label>
-            <select id="sort" name="sort" class="form-control">
-                <!-- <option value="popularity">Popularity</option> -->
-                <option value="price_low_high">Price: Low to High</option>
-                <option value="price_high_low">Price: High to Low</option>
-                <!-- <option value="rating">Average Ratings</option> -->
-                <!-- <option value="featured">Featured</option> -->
-                <option value="new_arrivals">New Arrivals</option>
-                <option value="a_z">A - Z</option>
-                <option value="z_a">Z - A</option>
-            </select>
-        </div>
-        <button type="submit" class="btn btn-primary mb-2">Apply</button>
-    </form>
+        
 
-    <div class="container">
         <div class="product-grid">
             <% for (const product of products) { %>
-                <a href="/product-detail/<%= product._id %>" class="product-box">
-                    <div class="product-images" onmouseover="startSlideshow(this)" onmouseout="stopSlideshow(this)">
-                        <% for (const image of product.images) { %>
-                            <img src="<%= image.secured_url %>" alt="Product Image" class="<%= image === product.images[0] ? 'active' : '' %>">
-                        <% } %>
-                    </div>
-                    <div class="product-title mt-2">
-                        <%= product.product %>
-                    </div>
-                    <div class="product-details text-center mt-2">
-                        <p class="rating">
-                            <% for (let i = 0; i < 5; i++) { %>
-                                <i class="fas fa-star <%= i < product.rating ? 'text-warning' : 'text-muted' %>"></i>
+                <div class="product-box">
+                    <a href="/product-detail/<%= product._id %>">
+                        <div class="product-images" onmouseover="startSlideshow(this)" onmouseout="stopSlideshow(this)">
+                            <% for (const image of product.images) { %>
+                                <img src="<%= image.secured_url %>" alt="Product Image" class="<%= image === product.images[0] ? 'active' : '' %>">
                             <% } %>
-                        </p>
-                        <% if (product.offerApplied) { %>
-                            <p>
-                                <span class="original-price">$<%= product.price.toFixed(2) %></span>
-                                <span class="final-price">$<%= product.finalPrice.toFixed(2) %></span>
-                                <span class="discount-percentage" style="color: red; font-weight: bold;">
-                                    <% 
-                                        const discountPercentage = ((product.price - product.finalPrice) / product.price) * 100; 
+                        </div>
+                    </a>
+                    <div class="product-content">
+                        <h3 class="product-title"><%= product.product %></h3>
+                        <div class="product-details">
+                            <div class="price-container">
+                                <% if (product.offerApplied) { %>
+                                    <span class="original-price">$<%= product.price.toFixed(2) %></span>
+                                    <span class="final-price">$<%= product.finalPrice.toFixed(2) %></span>
+                                    <%
+                                        const discountPercentage = ((product.price - product.finalPrice) / product.price) * 100;
                                     %>
-                                    <%= discountPercentage.toFixed(0) %>% off
-                                </span>
-                            </p>
-                        <% } else { %>
-                            <p class="final-price">$<%= product.price.toFixed(2) %></p>
-                        <% } %>
-                        <span class="badge <%= product.sizes.some(size => size.stock > 0) ? 'badge-success' : 'badge-danger' %>">
-                            <%= product.sizes.some(size => size.stock > 0) ? 'In Stock' : 'Out of Stock' %>
-                        </span>
-                    </div>
-                    <form action="/user/wishlist/<%= product.inWishlist ? 'remove' : 'add' %>/<%= product._id %>" method="POST" class="wishlist-form" onsubmit="event.preventDefault(); handleWishlistToggle('<%= product._id %>', this)">
-                        <button class="btn btn-love" type="submit" style="border: none; background: transparent;">
-                            <i class="fas fa-heart <%= product.inWishlist ? 'text-danger' : 'text-muted' %>" id="wishlist-icon-<%= product._id %>"></i>
+                                    <span class="discount-percentage"><%= discountPercentage.toFixed(0) %>% off</span>
+                                <% } else { %>
+                                    <span class="final-price">$<%= product.price.toFixed(2) %></span>
+                                <% } %>
+                            </div>
+                            <span class="stock-status <%= product.sizes.some(size => size.stock > 0) ? 'in-stock' : 'out-of-stock' %>">
+                                <%= product.sizes.some(size => size.stock > 0) ? 'In Stock' : 'Out of Stock' %>
+                            </span>
+                            <button 
+                            class="wishlist-button <%= wishlist.some(item => item._id.toString() === product._id.toString()) ? 'in-wishlist' : 'not-in-wishlist' %>" 
+                            onclick="toggleWishlist('<%= product._id %>', this)"
+                            data-product-id="<%= product._id %>"
+                            data-in-wishlist="<%= wishlist.some(item => item._id.toString() === product._id.toString()) %>"
+                            aria-label="Add to wishlist">
+                            <i class="heart-icon fas fa-heart"></i>
                         </button>
-                    </form>
-                    
-                    
-                    
-                </a>
+                        </div>
+                    </div>
+                </div>
             <% } %>
         </div>
     </div>
 
     <!-- Bootstrap JS and dependencies -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     
-    <%- include('partials/footer') %>
     <script>
-         // Image slideshow logic
-         function startSlideshow(element) {
-            const images = element.getElementsByTagName('img');
-            let index = 0;
-            const interval = setInterval(() => {
-                images[index].classList.remove('active');
-                index = (index + 1) % images.length;
-                images[index].classList.add('active');
-            }, 2000);
-            element.dataset.interval = interval; // Store interval ID
+        function startSlideshow(element) {
+            element.slideshowInterval = setInterval(() => {
+                const images = element.querySelectorAll('img');
+                const activeImage = element.querySelector('img.active');
+                const nextImage = activeImage.nextElementSibling || images[0];
+                activeImage.classList.remove('active');
+                nextImage.classList.add('active');
+            }, 1000);
         }
 
         function stopSlideshow(element) {
-            clearInterval(element.dataset.interval);
-            const images = element.getElementsByTagName('img');
-            for (let img of images) {
-                img.classList.remove('active'); // Hide all images
-            }
-            images[0].classList.add('active'); // Show the first image
-        }
-        async function handleWishlistToggle(productId, form) {
-        const currentIcon = document.getElementById(`wishlist-icon-${productId}`);
-        const isAdding = currentIcon.classList.contains('text-muted');
-
-        try {
-            const response = await fetch(`/user/wishlist/${isAdding ? 'add' : 'remove'}/${productId}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
+            clearInterval(element.slideshowInterval);
+            const images = element.querySelectorAll('img');
+            images.forEach((img, index) => {
+                img.classList.toggle('active', index === 0);
             });
-
-            const data = await response.json();
-
-            // Update heart color based on wishlist status
-            if (data.success) {
-                if (isAdding) {
-                    currentIcon.classList.remove('text-muted');
-                    currentIcon.classList.add('text-danger');
-                } else {
-                    currentIcon.classList.remove('text-danger');
-                    currentIcon.classList.add('text-muted');
-                }
-            }
-
-            // Display feedback
-            const feedbackElement = form.querySelector('.wishlist-feedback');
-            feedbackElement.style.display = 'block';
-            feedbackElement.textContent = data.message;
-
-            // Fade out feedback after 2 seconds
-            setTimeout(() => {
-                feedbackElement.style.opacity = '0';
-                setTimeout(() => {
-                    feedbackElement.style.display = 'none';
-                }, 300);
-            }, 2000);
-
-        } catch (error) {
-            console.error('Error toggling wishlist:', error);
-            // alert('There was an error toggling the wishlist.');
         }
-    }
-
     </script>
+    <script>
+        async function toggleWishlist(productId, button) {
+            try {
+                const isInWishlist = button.classList.contains('in-wishlist');
+                const url = isInWishlist ? `/user/wishlist/remove/${productId}` : `/user/wishlist/add/${productId}`;
+    
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'cookiestoken': `${localStorage.getItem('token')}`
+                    }
+                });
+    
+                const data = await response.json();
+    
+                if (data.success) {
+                    button.classList.toggle('in-wishlist', !isInWishlist);
+                    button.classList.toggle('not-in-wishlist', isInWishlist);
+                    button.setAttribute('data-in-wishlist', !isInWishlist);
+                    console.log(data.message || 'Successfully toggled wishlist!');
+                } else {
+                    // alert(data.message || 'An error occurred.');
+                }
+            } catch (error) {
+                console.error('Error toggling wishlist:', error);
+                // alert('Failed to toggle wishlist. Please try again later.');
+            }
+        }
+    </script>
+    
 </body>
 </html>
