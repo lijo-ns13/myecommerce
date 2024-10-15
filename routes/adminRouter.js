@@ -16,13 +16,25 @@ const {jwtAuth,adminProtected,userProtected}=require('../middlewares/auth');
 const adminController=require('../controllers/adminController')
 const Cart=require('../models/cartSchema')
 const router=express.Router();
-
+const Banner=require('../models/bannerSchema')
 router.use(express.urlencoded({ extended: true })); // To parse form data
 router.use(methodOverride('_method')); 
 
 const uploadsDir = path.join(__dirname, '../uploads');
 
 router.use(jwtAuth,adminProtected)
+
+
+
+
+
+
+
+
+
+
+
+
 
 router.get('/orders/stats', async (req, res) => {
   try {
@@ -50,7 +62,107 @@ router.get('/dashboard', async (req, res) => {
     const customers=await User.find({})
     
     
+    // for top product,category,brand
+    const productcountbybrandcount = await Product.aggregate([
+      {
+        $group: {
+          _id: '$brand',
+          count: { $sum: 1 }
+        },
+      },
+      {
+        $sort: {
+          count: -1
+        }
+      },
+      {
+        $limit: 10
+      }
+    ]);
+    console.log('Product Count by Brand:', productcountbybrandcount);
+  
+    const topSellingProducts = await Product.aggregate([
+     
+      {
+        $sort: {
+          orderCount:-1
+        }
+      },
+      {
+        $limit: 10
+      },
+      {
+        $project: {
+          _id: 1,
+          product: 1,
+          brand: 1,
+          category: 1,
+          orderCount: 1 
+        }
+      }
+    ]);
+    console.log('Product Count by Purchased:', topSellingProducts);
+    const topSellingCategories = await Product.aggregate([
+      {
+        $group: {
+          _id: '$category',
+          totalSales: { $sum: '$orderCount' } // Correctly reference with $
+        }
+      },
+      {
+        $sort: {
+          totalSales: -1
+        }
+      },
+      {
+        $limit: 10
+      },
+      {
+        $lookup: {
+          from: 'categories', // Ensure this is lowercase
+          localField: '_id',
+          foreignField: '_id',
+          as: 'categoryData'
+        }
+      },
+      {
+        $unwind: '$categoryData' // Correctly reference here
+      },
+      {
+        $project: {
+          _id: 1,
+          category: '$categoryData.name', // Correctly reference the unwound field
+          totalSales: 1
+        }
+      }
+    ]);
     
+  console.log('top selling categories',topSellingCategories)
+  const topSellingBrands=await Product.aggregate([
+    {
+      $group:{
+        _id:'$brand',
+        totalSales:{$sum:'$orderCount'}
+      }
+    },
+    {
+      $sort:{
+        totalSales:-1
+      }
+    },
+    {
+      $limit:10
+    },
+    {
+      $project:{
+        brand:1,
+        totalSales:1
+      }
+    }
+  ])  
+
+
+
     const ordersCount=orders.filter(order=>order.status==='delivered').length; 
     console.log('Orders Count:', ordersCount);
     
@@ -68,7 +180,10 @@ router.get('/dashboard', async (req, res) => {
       ordersCount,
       totalDiscount,
       totalRevenue,
-      customersCount
+      customersCount,
+      topSellingCategories,
+      topSellingProducts,
+      topSellingBrands
     });
   } catch (error) {
     console.error('Error fetching orders:', error); // Log the error for debugging
@@ -1061,6 +1176,62 @@ router.delete('/offers/delete-offer/:offerId', async (req, res) => {
   } catch (error) {
       console.error('Error deleting offer:', error);
       return res.status(500).json({ success: false, message: 'An error occurred while deleting the offer.' });
+  }
+});
+
+
+// banner section
+// Get banners
+router.get('/banners', async (req, res) => {
+  try {
+      const banners = await Banner.find({});
+      res.render('admin/banner', { banners });
+  } catch (error) {
+      console.log('Error fetching banners:', error.message);
+      res.status(500).send('Server Error');
+  }
+});
+
+// Add banner
+router.post('/add-banner', upload.single('image'), async (req, res) => {
+  try {
+      const { bannerName, description } = req.body;
+      const image = req.file;
+
+      if (!image) {
+          return res.status(400).json({ success: false, message: 'Image is required' });
+      }
+
+      const banner = new Banner({
+        bannerName,
+        description,
+        image: path.join('uploads', image.filename).replace(/\\/g, '/'), // Normalize path
+    });
+    
+
+      await banner.save();
+      res.status(200).json({ success: true, message: 'Banner created successfully' });
+  } catch (error) {
+      console.log('Error on adding banner', error.message);
+      res.status(400).json({ success: false, message: error.message });
+  }
+});
+
+// Delete banner
+router.post('/banners/delete/:bannerId', async (req, res) => {
+  try {
+      const bannerId = req.params.bannerId;
+      const banner = await Banner.findById(bannerId);
+      
+      if (!banner) {
+          return res.status(404).json({ success: false, message: 'Banner not found' });
+      }
+
+      await Banner.findByIdAndDelete(bannerId);
+      res.status(200).json({ success: true, message: 'Banner deleted successfully' });
+  } catch (error) {
+      console.log('Error on deleting banner', error.message);
+      res.status(400).json({ success: false, message: error.message });
   }
 });
 

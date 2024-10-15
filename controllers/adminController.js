@@ -9,9 +9,14 @@ const Product = require('../models/productSchema'); // Adjust the path to your P
 const Category=require('../models/categorySchema')
 const User=require('../models/userSchema')
 const userModel=require('../models/userSchema')
-const Order=require('../models/orderSchema')
+const Order=require('../models/orderSchema');
+const Wallet=require('../models/walletSchema')
+
 const {jwtAuth,adminProtected,userProtected}=require('../middlewares/auth');
 
+const dotenv=require('dotenv').config()
+
+const nodemailer = require('nodemailer');
 const uploadsDir = path.join(__dirname, '../uploads');
 
 const getProduct = async (req, res) => {
@@ -530,8 +535,9 @@ const getEditOrder=async (req, res) => {
   const postEditOrder = async (req, res) => {
     try {
         const { orderId } = req.params;
-        const { status } = req.body; // Assuming status is sent in the request body
-
+        const { status } = req.body; 
+        
+           
         const order = await Order.findById(orderId).populate('products.productId'); // Populate product details
 
         if (!order) {
@@ -572,7 +578,84 @@ const getEditOrder=async (req, res) => {
           }
       }
         await order.save();
-
+      if(order.status==='returned'){
+        const userId=order.userId;
+        for(const item of order.products){
+          const product=await Product.findById(item.productId);
+          if (product) {
+            const sizeIndex = product.sizes.findIndex(size => size.size.toString() === item.size.toString());
+            if (sizeIndex !== -1) {
+                product.sizes[sizeIndex].stock += item.quantity; // Rebuild stock
+            } else {
+                return res.status(400).json({ success: false, message: `Size ${item.size} not found for product` });
+            }
+            await product.save();
+          }
+        }
+      }
+      await order.save();
+      // Create a transporter
+      const transporter = nodemailer.createTransport({
+        service: 'gmail', // Use your email service
+        auth: {
+            user: 'lijons13@gmail.com', // Your email
+            pass: process.env.nodemailerPass,   // Your email password or an app-specific password
+        },
+      });
+      // Send mail function
+      const sendEmail = async (to, subject, text) => {
+        const mailOptions = {
+            from: 'lijons12gmail.com', // Sender address
+            to: to,                       // List of recipients
+            subject: subject,             // Subject line
+            text: text,                   // Plain text body
+        };
+      
+        try {
+            const info = await transporter.sendMail(mailOptions);
+            console.log('Email sent:', info.response);
+        } catch (error) {
+            console.error('Error sending email:', error);
+        }
+      };
+      if(order.status==='returned'){
+        const userId=order.userId;
+        const user=await User.findById(userId);
+        if(!user){
+          return res.status(404).json({success:false,message:'user not found'})
+        }
+        const email=user.email;
+        const subject='Your order returned successfully and payment credit to your wallet in future days';
+        sendEmail(email, 'Order returnd Successfully', subject);
+      }
+      if (order.status === 'refunded') {
+        const userId = order.userId;
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+        
+        const walletId = user.walletId;
+        const wallet = await Wallet.findById(walletId);
+        if (!wallet) {
+            return res.status(404).json({ success: false, message: 'Wallet not found' });
+        }
+    
+        // Assuming `order.amount` is the amount to be refunded
+        const refundAmount = order.amount;
+    
+        // Update the wallet balance
+        wallet.balance += refundAmount; // Adjust this based on your wallet schema
+        await wallet.save();
+    
+        // Send an email notification
+        const email = user.email; // Assuming the user's email is stored in the user object
+        await sendEmail(email, 'Amount Refunded Successfully', `The refunded amount of $${refundAmount} has been credited to your wallet. Enjoy!`);
+    
+        return res.status(200).json({ success: true, message: 'Refund processed successfully' });
+    }
+    
+      
         res.status(200).redirect(`/admin/orders/${orderId}`); // Redirect back to orders page
     } catch (error) {
         console.error('Error updating order:', error); // Log the error for debugging

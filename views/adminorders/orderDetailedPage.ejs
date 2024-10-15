@@ -325,9 +325,12 @@
                             <option value="processing" <%= order.status === 'processing' ? 'selected' : '' %>>Processing</option>
                             <option value="shipped" <%= order.status === 'shipped' ? 'selected' : '' %>>Shipped</option>
                             <option value="delivered" <%= order.status === 'delivered' ? 'selected' : '' %>>Delivered</option>
-                            <option value="cancelled" <%= order.status === 'cancelled' ? 'selected' : '' %>>Cancelled</option>
+                            <option value="pending_return" <%= order.status === 'pending_return' ? 'selected' : '' %>>Return Pending</option>
+                            <option value="processing_return" <%= order.status === 'processing_return' ? 'selected' : '' %>>Return Processing</option>
+                            <option value="initiated_return" <%= order.status === 'initiated_return' ? 'selected' : '' %>>Return Initiated</option>
                             <option value="returned" <%= order.status === 'returned' ? 'selected' : '' %>>Returned</option>
                             <option value="refunded" <%= order.status === 'refunded' ? 'selected' : '' %>>Refunded</option>
+                            <option value="cancelled" <%= order.status === 'cancelled' ? 'selected' : '' %>>Cancelled</option>
                             <option value="out_of_stock" <%= order.status === 'out_of_stock' ? 'selected' : '' %>>Out of Stock</option>
                             <option value="on_hold" <%= order.status === 'on_hold' ? 'selected' : '' %>>On Hold</option>
                             <option value="failed" <%= order.status === 'failed' ? 'selected' : '' %>>Failed</option>
@@ -337,7 +340,7 @@
                     <a href="/admin/orders" class="btn btn-secondary">Cancel</a>
                 </form>
             </div>
-        </div>
+            
     
         <!-- Order Details -->
         <div class="card shadow-lg">

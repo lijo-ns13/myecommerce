@@ -3,31 +3,19 @@ const router = express.Router();
 const Order = require('../models/orderSchema');
 const Product = require('../models/productSchema');
 const Wallet=require('../models/walletSchema');
-
+const User=require('../models/userSchema')
 const getOrders = async (req, res) => {
     try {
-        const userId = req.user._id; // Get the logged-in user
-        const page = parseInt(req.query.page) || 1; // Current page, default is 1
-        const limit = 5; // Number of orders per page
-        const skip = (page - 1) * limit; // Calculate how many orders to skip
+        const userId = req.user._id; 
+        const orders=await Order.find({userId:userId});
+        if(!orders){
+            return res.status(404).json({success:false,message:"order not found"})
+        }
 
-        // Fetch total number of orders
-        const totalOrders = await Order.countDocuments({ userId });
-
-        // Fetch orders for the current page
-        const orders = await Order.find({ userId })
-            .populate('products.productId')
-            .sort({ orderDate: -1 }) // Order by date, newest first
-            .skip(skip)
-            .limit(limit);
-
-        const totalPages = Math.ceil(totalOrders / limit);
 
         // Pass data to the EJS template
         res.render('orders', {
-            orders,
-            currentPage: page,
-            totalPages
+            orders
         });
     } catch (err) {
         console.error(err);
@@ -93,12 +81,16 @@ const postOrderCancel = async (req, res) => {
         console.log('trnas',transaction)
         console.log('orderpaymethod',order.paymentDetails.paymentMethod)
         if (order.paymentDetails.paymentMethod === 'razorpay') {
-
+            const user=await User.findById(req.user._id)
+            if(!user){
+                return res.status(404).json({success:false,message:'user not found'})
+            }
             if (wallet) {
                 // Add transaction and update balance if wallet exists
                 wallet.balance += order.totalPrice;
                 wallet.transactions.push(transaction);
                 await wallet.save();
+                
             } else {
                 // Create a new wallet if one doesn't exist
                 const newWallet = new Wallet({
@@ -107,6 +99,8 @@ const postOrderCancel = async (req, res) => {
                     transactions: [transaction]  // Ensure this is an array of objects
                 });
                 await newWallet.save();
+                user.walletId=newWallet._id;
+                await user.save()
             }
             return res.status(200).json({ success: true, message: 'Order cancelled successfully and amount credited to wallet' });
         }

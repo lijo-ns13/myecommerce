@@ -78,6 +78,15 @@ const productSchema=new Schema({
     purchasedByUserIds:{
         type:Array,
         default:[]
+    },
+    reviewAddedUserIds:{
+        type:Array,
+        default:[]
+    },
+    orderCount:{
+        type:Number,
+        default:0,
+        
     }
 },{
     timestamps:true

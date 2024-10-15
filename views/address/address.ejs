@@ -1,262 +1,328 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Profile</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <style>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>User Addresses</title>
+        <link rel="stylesheet"
+            href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+        <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
         .profile-container {
             max-width: 1200px;
-            margin: 50px auto;
-            padding: 20px;
-            background-color: #f9f9f9;
-            border-radius: 8px;
+            margin: 2rem auto;
+            background: #f7f8fc;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             display: flex;
-            gap: 20px;
-        }
-
-        .profile-header {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-
-        .profile-card {
-            background-color: white;
-            padding: 20px;
-            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-            margin-bottom: 30px;
-        }
-
-        .address-card {
-            background-color: white;
-            padding: 20px;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-            margin-bottom: 20px;
+            overflow: hidden;
         }
 
         .sidebar {
-            background-color: white;
-            padding: 20px;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
             width: 250px;
+            background: #2c3e50;
+            padding: 2rem 0;
+            color: #ecf0f1;
         }
 
-        .btn-add-address {
-            margin-top: 20px;
-            display: block;
-            width: 100%;
-            text-align: center;
+        .sidebar h4 {
+            padding: 0 1.5rem;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+            font-size: 1.2rem;
         }
 
-        .address-section-title {
+        .sidebar .nav-link {
+            color: #bdc3c7;
+            padding: 0.75rem 1.5rem;
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            transition: all 0.3s ease;
         }
 
-        .address-actions {
-            display: flex;
-            justify-content: space-between;
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            background: #34495e;
+            color: #fff;
         }
 
-        .address-card h5 {
-            margin-bottom: 10px;
+        .sidebar .nav-link i {
+            margin-right: 10px;
+            font-size: 1.1rem;
         }
 
-        /* Hover effects */
-        .btn:hover {
-            transform: scale(1.05);
-            transition: all 0.2s ease-in-out;
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+        }
+
+        .address-card {
+            background: #fff;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 1.5rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: #3498db;
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: #2980b9;
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+            color: #fff;
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
         }
 
         .navbar {
-            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            background-color: rgba(255, 255, 255, 0.9) !important;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
 
-        .footer-links a {
-            color: #d1d1d1;
-            text-decoration: none;
+        .navbar-brand img {
+            max-height: 50px;
         }
 
-        .footer-links a:hover {
-            text-decoration: underline;
+        .nav-link {
+            display: flex;
+            align-items: center;
+            color: #333;
+            font-size: 18px;
+            font-weight: 600;
+            transition: color 0.3s ease;
         }
 
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
-            .profile-container {
-                flex-direction: column;
-            }
+        .nav-link:hover {
+            color: #3498db;
         }
-        /* style for sidebar */
-        
-.sidebar {
-    width: 250px;
-    background: #2c3e50;
-    padding: 2rem 0;
-    color: #ecf0f1;
-}
 
-.sidebar h4 {
-    padding: 0 1.5rem;
-    margin-bottom: 1.5rem;
-    font-weight: 600;
-    font-size: 1.2rem;
-}
-
-.sidebar .nav-link {
-    color: #bdc3c7;
-    padding: 0.75rem 1.5rem;
-    display: flex;
-    align-items: center;
-    transition: all 0.3s ease;
-}
-
-.sidebar .nav-link:hover, .sidebar .nav-link.active {
-    background: #34495e;
-    color: #fff;
-}
-
-.sidebar .nav-link i {
-    margin-right: 10px;
-    font-size: 1.1rem;
-}
-
+        .nav-link img {
+            margin-right: 5px;
+        }
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-</head>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    </head>
 
-<body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="/"><img src="/img/logo.png" alt="Logo" height="40"></a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav mr-auto">
-                <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
-                <li class="nav-item"><a class="nav-link" href="/products">Products</a></li>
-                <li class="nav-item"><a class="nav-link" href="/about">About</a></li>
-            </ul>
-            <ul class="navbar-nav">
-                <li class="nav-item"><a class="nav-link" href="/auth/signin"><img src="/img/log-in.png" alt="Login" height="30"></a></li>
-                <li class="nav-item"><a class="nav-link" href="/cart"><img src="/img/cart.png" alt="Cart" height="30"></a></li>
-                <li class="nav-item"><a class="nav-link" href="/user/wishlist"><img src="/img/wishlist.png" alt="Wishlist" height="30"></a></li>
-                <li class="nav-item"><a class="nav-link" href="/user/profile"><img src="/img/userprofile.jpg" alt="User Profile" height="30"></a></li>
-            </ul>
-        </div>
-    </nav>
+    <body>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light py-3 w-100">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="/">
+                    <img src="/img/logo.png" alt="Logo"
+                        class="d-inline-block align-text-top"
+                        style="height: 40px;">
+                </a>
+                <button class="navbar-toggler" type="button"
+                    data-toggle="collapse" data-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false"
+                    aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ml-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/products">Products</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/about">About</a>
+                        </li>
+                    </ul>
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/auth/signin">
+                                <img src="/img/log-in.png" alt="Login"
+                                    style="height: 24px;">
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/user/wishlist">
+                                <img src="/img/wishlist.png" alt="Wishlist"
+                                    style="height: 24px;">
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/cart">
+                                <img src="/img/cart.png" alt="Cart"
+                                    style="height: 24px;">
+                                <span
+                                    class="badge badge-pill badge-danger"></span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/user/profile">
+                                <img src="/img/userprofile.jpg"
+                                    alt="User Profile" class="rounded-circle"
+                                    style="height: 24px;">
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
 
-    <!-- Profile Section -->
-    <div class="container profile-container">
-        <div class="sidebar">
-            <h4>Menu</h4>
-            <ul class="nav flex-column">
-                <li class="nav-item">
-                    <a class="nav-link " href="/user/profile"><i class="fas fa-user"></i> Profile</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link active" href="/user/address"><i class="fas fa-map-marker-alt"></i> Addresses</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/user/profile/edit"><i class="fas fa-edit"></i> Edit Profile</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/user/orders"><i class="fas fa-box"></i> Orders</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/user/profile/change-password"><i class="fas fa-key"></i> Change Password</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/user/profile/wallet"><i class="fas fa-wallet"></i> Wallet</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/auth/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
-                </li>
-            </ul>
-        </div>
-        <div class="w-100">
-            <h2 class="mb-4">Addresses</h2>
-            <a href="/user/address/add-address" class="btn btn-primary btn-add-address">Add New Address</a>
-            <% if(user.address.length > 0) { %>
+        <div class="profile-container">
+            <div class="sidebar">
+                <h4>Menu</h4>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/user/profile"><i
+                                class="fas fa-user"></i> Profile</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/user/address"><i
+                                class="fas fa-map-marker-alt"></i> Addresses</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/user/profile/edit"><i
+                                class="fas fa-edit"></i> Edit Profile</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/user/orders"><i
+                                class="fas fa-box"></i> Orders</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link"
+                            href="/user/profile/change-password"><i
+                                class="fas fa-key"></i> Change Password</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/user/profile/wallet"><i
+                                class="fas fa-wallet"></i> Wallet</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/auth/logout"><i
+                                class="fas fa-sign-out-alt"></i> Logout</a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="main-content">
+                <h2 class="mb-4">My Addresses</h2>
+                <a href="/user/address/add-address"
+                    class="btn btn-primary mb-4">Add New Address</a>
+
+                <% if(user.address.length > 0) { %>
                 <% for(const address of user.address) { %>
-                    <div class="card address-card">
-                        <div class="card-body">
-                            <h5><%= address.street %>, <%= address.city %></h5>
-                            <p><%= address.state %>, <%= address.postalCode %></p>
-                            <p>Phone: <%= address.phoneNo %></p>
-                            <div class="address-actions">
-                                <a href="/user/address/edit-address/<%= address._id %>" class="btn btn-primary">Edit</a>
-                                <button class="btn btn-danger" onclick="deleteAddress('<%= address._id %>')">Delete</button>
+                <div class="address-card">
+                    <h5><%= address.street %>, <%= address.city %></h5>
+                    <p><%= address.state %>, <%= address.postalCode %></p>
+                    <p>Phone: <%= address.phoneNo %></p>
+                    <div class="d-flex justify-content-between mt-3">
+                        <a href="/user/address/edit-address/<%= address._id %>"
+                            class="btn btn-primary">Edit</a>
+                        <button class="btn btn-danger"
+                            onclick="deleteAddress('<%= address._id %>')">Delete</button>
+                    </div>
+                </div>
+                <% } %>
+                <% } else { %>
+                <p>No addresses added yet.</p>
+                <% } %>
+            </div>
+        </div>
 
-                            </div>
+        <footer class="bg-dark text-white mt-5">
+            <div class="container py-4">
+                <div class="row">
+                    <!-- About Section -->
+                    <div class="col-md-4">
+                        <h5>About Us</h5>
+                        <p>At our shoe e-commerce store, we provide the best
+                            quality footwear for every occasion. Explore our
+                            collection to find the perfect pair of shoes for
+                            you.</p>
+                    </div>
+
+                    <!-- Quick Links -->
+                    <div class="col-md-2">
+                        <h5>Quick Links</h5>
+                        <ul class="list-unstyled">
+                            <li><a href="/" class="text-white">Home</a></li>
+                            <li><a href="/products"
+                                    class="text-white">Products</a></li>
+                            <li><a href="/about"
+                                    class="text-white">About</a></li>
+                            <li><a href="/contact"
+                                    class="text-white">Contact</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Support -->
+                    <div class="col-md-2">
+                        <h5>Support</h5>
+                        <ul class="list-unstyled">
+                            <li><a href="/faq" class="text-white">FAQ</a></li>
+                            <li><a href="/returns"
+                                    class="text-white">Returns</a></li>
+                            <li><a href="/shipping"
+                                    class="text-white">Shipping</a></li>
+                            <li><a href="/privacy-policy"
+                                    class="text-white">Privacy Policy</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Follow Us -->
+                    <div class="col-md-4">
+                        <h5>Follow Us</h5>
+                        <div class="d-flex">
+                            <a href="https://facebook.com"
+                                class="text-white mr-3"><img
+                                    src="img/facebook-icon.png" alt="Facebook"
+                                    style="width: 24px;"></a>
+                            <a href="https://twitter.com"
+                                class="text-white mr-3"><img
+                                    src="img/twitter-icon.png" alt="Twitter"
+                                    style="width: 24px;"></a>
+                            <a href="https://instagram.com"
+                                class="text-white mr-3"><img
+                                    src="img/instagram-icon.png" alt="Instagram"
+                                    style="width: 24px;"></a>
+                            <a href="https://linkedin.com"
+                                class="text-white"><img
+                                    src="img/linkedin-icon.png" alt="LinkedIn"
+                                    style="width: 24px;"></a>
                         </div>
                     </div>
-                <% } %>
-            <% } else { %>
-                <p>No addresses added yet.</p>
-            <% } %>
-        </div>
-    </div>
-
-    <footer class="bg-dark text-white mt-5">
-        <div class="container py-4">
-            <div class="row">
-                <!-- About Section -->
-                <div class="col-md-4">
-                    <h5>About Us</h5>
-                    <p>We provide the best quality footwear for every occasion. Explore our collection to find the perfect pair of shoes for you.</p>
                 </div>
-
-                <!-- Quick Links -->
-                <div class="col-md-2">
-                    <h5>Quick Links</h5>
-                    <ul class="list-unstyled footer-links">
-                        <li><a href="/">Home</a></li>
-                        <li><a href="/products">Products</a></li>
-                        <li><a href="/about">About</a></li>
-                        <li><a href="/contact">Contact</a></li>
-                    </ul>
-                </div>
-
-                <!-- Support -->
-                <div class="col-md-2">
-                    <h5>Support</h5>
-                    <ul class="list-unstyled footer-links">
-                        <li><a href="/faq">FAQ</a></li>
-                        <li><a href="/return-policy">Return Policy</a></li>
-                        <li><a href="/shipping-info">Shipping Info</a></li>
-                    </ul>
-                </div>
-
-                <!-- Follow Us -->
-                <div class="col-md-2">
-                    <h5>Follow Us</h5>
-                    <ul class="list-unstyled footer-links">
-                        <li><a href="#">Facebook</a></li>
-                        <li><a href="#">Twitter</a></li>
-                        <li><a href="#">Instagram</a></li>
-                        <li><a href="#">LinkedIn</a></li>
-                    </ul>
+                <div class="row mt-4">
+                    <div class="col text-center">
+                        <p>&copy; 2024 YourCompanyName. All Rights Reserved.</p>
+                    </div>
                 </div>
             </div>
-            <div class="text-center mt-4">
-                &copy; <%= new Date().getFullYear() %> Your Company. All Rights Reserved.
-            </div>
-        </div>
-    </footer>
-    <script>
+        </footer>
+
+        <script>
         async function deleteAddress(addressId) {
-            // Show confirmation dialog
             const result = await Swal.fire({
                 title: 'Are you sure?',
-                text: 'You won’t be able to revert this!',
+                text: "You won't be able to revert this!",
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',
@@ -280,7 +346,6 @@
                             'Your address has been deleted.',
                             'success'
                         ).then(() => {
-                            // Optionally, redirect or update the UI
                             window.location.reload();
                         });
                     } else {
@@ -300,11 +365,11 @@
             }
         }
     </script>
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-</body>
+        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+        <script
+            src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+        <script
+            src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    </body>
 
 </html>
-
-

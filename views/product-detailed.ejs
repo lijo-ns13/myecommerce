@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-
+<!-- noted -->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -146,87 +146,158 @@
 }
 
 /* reviews */
-.reviews-section {
-    margin-top: 20px; /* Adjust spacing to fit your layout */
-    background-color: #f7f7f7; /* Light background for contrast */
-    padding: 15px; /* Padding for spacing */
-    border-radius: 8px; /* Rounded corners */
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-}
-
-.review-title {
-    font-weight: bold;
-    font-size: 1.5rem; /* Slightly smaller title */
-    margin-bottom: 15px;
-    color: #333; /* Dark color for title */
-}
-
-.review {
-    padding: 10px;
-    background-color: #fff; /* White background for reviews */
-    border-radius: 4px; /* Rounded corners */
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Light shadow */
-    transition: transform 0.2s; /* Smooth transition */
-    margin-bottom: 10px; /* Space between reviews */
-}
-
-.review:hover {
-    transform: translateY(-2px); /* Subtle hover effect */
-}
-
-.review-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.review-user {
-    display: flex;
-    align-items: center;
-}
-
-.user-avatar {
-    width: 35px; /* Avatar size */
-    height: 35px;
-    border-radius: 50%; /* Circular avatar */
-    overflow: hidden; /* Ensure it doesn't overflow */
-    margin-right: 10px; /* Space between avatar and name */
-}
-
-.user-avatar img {
-    width: 100%; /* Full width for image */
-    height: auto; /* Maintain aspect ratio */
-}
-
-.user-name {
-    font-weight: bold;
-    color: #007bff; /* Highlight user name */
-}
-
-.product-rating {
-    font-size: 1.2em; /* Increase star size */
-    color: #FFD700; /* Gold color for stars */
-}
-
-.review-content {
-    font-size: 0.95rem; /* Smaller font size for content */
-    margin-top: 5px; /* Slightly smaller top margin */
-    color: #555; /* Dark gray text */
-    line-height: 1.4; /* Improve readability */
-}
-
-.review-date {
-    display: block;
-    margin-top: 5px;
-    font-size: 0.85em; /* Smaller font size for date */
-    color: #888; /* Light gray for date */
-}
-
-.no-reviews {
-    text-align: center;
-    color: #999; /* Light gray for no reviews message */
-    font-style: italic; /* Italic style for emphasis */
-}
+.reviews-container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .section-title {
+            font-size: 2.5rem;
+            color: #2c3e50;
+            margin-bottom: 2rem;
+            text-align: center;
+            font-weight: 700;
+        }
+        .rating-summary {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .rating-number {
+            font-size: 4rem;
+            font-weight: bold;
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+        .star-rating {
+            font-size: 1.5rem;
+            color: #ffd700;
+        }
+        .review-count {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        .rating-bars {
+            background-color: #f1f3f5;
+            padding: 1.5rem;
+            border-radius: 10px;
+        }
+        .rating-bar {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+        .bar-label {
+            flex: 0 0 50px;
+            font-weight: bold;
+        }
+        .progress {
+            flex-grow: 1;
+            height: 12px;
+            background-color: #e9ecef;
+            border-radius: 6px;
+            overflow: hidden;
+            margin: 0 1rem;
+        }
+        .progress-bar {
+            height: 100%;
+            background-color: #ffd700;
+            transition: width 0.3s ease;
+        }
+        .bar-value {
+            flex: 0 0 40px;
+            text-align: right;
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+        .review-item {
+            background-color: #ffffff;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .review-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 1rem;
+            object-fit: cover;
+        }
+        .user-name {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        .review-date {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+        .review-content {
+            line-height: 1.6;
+        }
+        .btn-review {
+            display: inline-block;
+            background-color: #007bff;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background-color 0.2s ease;
+            margin-top: 1rem;
+        }
+        .btn-review:hover {
+            background-color: #0056b3;
+        }
+        .btn-delete, .btn-edit {
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            margin-right: 0.5rem;
+            transition: opacity 0.2s ease;
+        }
+        .btn-delete {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+        }
+        .btn-edit {
+            background-color: #ffc107;
+            color: #212529;
+            text-decoration: none;
+        }
+        .btn-delete:hover, .btn-edit:hover {
+            opacity: 0.8;
+        }
+        .no-reviews {
+            text-align: center;
+            padding: 3rem;
+            background-color: #e9ecef;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            color: #6c757d;
+        }
 /* 
  */
  .thumbnail-images img {
@@ -577,6 +648,60 @@
                 gap: 30px;
             }
         }
+        /* reivew */
+        #ratings-reviews {
+    background-color: #f8f9fa;
+}
+
+.product-rating .fas.fa-star,
+.product-rating .far.fa-star {
+    color: #ffc107;
+}
+
+.star-rating {
+    display: inline-flex;
+    flex-direction: row-reverse;
+    font-size: 1.5em;
+    justify-content: space-around;
+    padding: 0 .2em;
+    text-align: center;
+    width: 5em;
+}
+
+.star-rating input {
+    display: none;
+}
+
+.star-rating label {
+    color: #ccc;
+    cursor: pointer;
+}
+
+.star-rating :checked ~ label {
+    color: #f90;
+}
+
+.star-rating label:hover,
+.star-rating label:hover ~ label {
+    color: #fc0;
+}
+
+.review-item {
+    transition: transform 0.3s ease-in-out;
+}
+
+.review-item:hover {
+    transform: translateY(-5px);
+}
+
+#addReviewBtn {
+    transition: all 0.3s ease;
+}
+
+#addReviewBtn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
     </style>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/elevatezoom/3.0.8/jquery.elevatezoom.min.js"></script>
@@ -735,6 +860,84 @@
 
 
 </div>
+<div class="reviews-container">
+    <h2 class="section-title">Customer Feedback</h2>
+    
+    <div class="row">
+        <div class="col-md-4">
+            <div class="rating-summary">
+                <div class="rating-number">4.0</div>
+                <div class="star-rating">
+                    <% for (let i = 1; i <= 5; i++) { %>
+                        <% if (i <= Math.round(product.rating)) { %>
+                            <i class="fas fa-star"></i>
+                        <% } else { %>
+                            <i class="far fa-star"></i>
+                        <% } %>
+                    <% } %>
+                </div>
+                <div class="review-count"><%= product.reviews.length %> reviews</div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="rating-bars">
+                <% for (let i = 5; i >= 1; i--) { %>
+                    <div class="rating-bar">
+                        <div class="bar-label"><%= i %> <i class="fas fa-star" style="color: #ffd700;"></i></div>
+                        <div class="progress">
+                            <% const percentage = (product.reviews.filter(review => review.rating === i).length / product.reviews.length) * 100 %>
+                            <div class="progress-bar" style="width: <%= percentage %>%"></div>
+                        </div>
+                        <div class="bar-value"><%= Math.round(percentage) %>%</div>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+
+    <a href="/user/review/add/<%=product._id%>" class="btn-review">Write a Review</a>
+   
+    <div id="reviewsList" class="mt-5">
+        <% if (product.reviews.length > 0) { %>
+            <% product.reviews.forEach(review => { %>
+                <div class="review-item">
+                    <div class="review-header">
+                        <div class="user-info">
+                            <img src="https://i.pravatar.cc/150?u=<%= review.user._id %>" alt="User Avatar" class="user-avatar">
+                            <div>
+                                <div class="user-name"><%= review.user.name %></div>
+                                <div class="star-rating">
+                                    <% for (let i = 5; i >= 1; i--) { %>  <!-- Start from 5 and go to 1 -->
+                                        <% if (i <= review.rating) { %>
+                                            <i class="fas fa-star"></i>  <!-- Filled star -->
+                                        <% } else { %>
+                                            <i class="far fa-star"></i>   <!-- Empty star -->
+                                        <% } %>
+                                    <% } %>
+                                </div>
+                                
+                            </div>
+                        </div>
+                        <div class="review-date">
+                            <%= new Date(review.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %>
+                        </div>
+                    </div>
+                    <p class="review-content"><%= review.comment %></p>
+
+                    <% if (review.user._id.toString() === currentUserId.toString()) { %>
+                        <button class="btn-delete" onclick="deleteReview('<%= review._id %>', '<%= product._id %>')">Delete</button>
+                        <a href="/user/review/edit/<%= review._id %>" class="btn-edit">Edit</a>
+                    <% } %>
+                </div>
+            <% }) %>
+        <% } else { %>
+            <div class="no-reviews">
+                <i class="fas fa-comment-alt fa-3x mb-3"></i>
+                <p>No reviews yet. Be the first to share your thoughts!</p>
+            </div>
+        <% } %>
+    </div>
+</div>
    <!-- Related Products Section -->
 <section class="related-products-section py-5 bg-light">
     <div class="container">
@@ -751,6 +954,7 @@
                     </a>
                     <div class="product-content">
                         <h3 class="product-title"><%= product.product %></h3>
+                        
                         <div class="product-details">
                             <div class="price-container">
                                 <% if (product.offerApplied) { %>
@@ -775,6 +979,12 @@
     </div>
     </div>
 </section>
+
+<% if (productOne && Array.isArray(productOne.purchasedByUserIds) && productOne.purchasedByUserIds.includes(user)) { %>
+    <h1>Can review</h1>
+<% } else { %>
+    <h1>No add review</h1>
+<% } %>
 
 
     <%- include('partials/footer') %>
@@ -1068,6 +1278,70 @@ document.addEventListener('DOMContentLoaded', function() {
         initZoom();
     });
 </script>
+<script>
+    function deleteReview(reviewId, productId) {
+        // Use SweetAlert2 for confirmation
+        Swal.fire({
+            title: 'Are you sure?',
+            text: 'Do you really want to delete this review?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'No, keep it'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Proceed with deletion if confirmed
+                fetch(`/user/review/delete/${reviewId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ productId }) // Send the productId in the request body if needed
+                })
+                .then(response => {
+                    // Check if the response is ok
+                    if (response.ok) {
+                        return response.json(); // If response is OK, parse JSON
+                    } else {
+                        throw new Error('Failed to delete review'); // Throw an error if not OK
+                    }
+                })
+                .then(data => {
+                    // Check if your response contains the expected data
+                    if (data.message) {
+                        Swal.fire(
+                            'Deleted!',
+                            'Your review has been deleted.',
+                            'success'
+                        );
+                        location.reload();
+                        // Check if the element exists before trying to remove it
+                        const reviewElement = document.getElementById(`review-${reviewId}`);
+                        if (reviewElement) {
+                            reviewElement.remove(); // Remove the review element
+                        } else {
+                            console.warn(`Element with ID review-${reviewId} not found.`);
+                        }
+                    } else {
+                        throw new Error('Unexpected response format'); // Handle unexpected format
+                    }
+                })
+                .catch(error => {
+                    console.error('There was a problem with the delete operation:', error);
+                    Swal.fire(
+                        'Error!',
+                        error.message || 'There was an error deleting the review.',
+                        'error'
+                    );
+                });
+            }
+        });
+    }
+    </script>
+    
+    
 </body>
 
 </html>

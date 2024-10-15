@@ -86,6 +86,10 @@ const userSchema=new Schema({
     referralCode:{
         type:String,
         select:false
+    },
+    walletId:{
+        type:Schema.Types.ObjectId,
+        ref:'Wallet'
     }
 },{
     timestamps:true

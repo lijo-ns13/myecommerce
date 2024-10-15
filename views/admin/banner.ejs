@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Banner Management</title>
+        <link rel="stylesheet" href="/path/to/your/styles.css">
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    </head>
+    <body>
+        <h1>Banner Management</h1>
+        <h2>Banners</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Banner Name</th>
+                    <th>Description</th>
+                    <th>Image</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% if (banners.length > 0) { %>
+                <% banners.forEach(banner => { %>
+                <tr>
+                    <td><%= banner.bannerName %></td>
+                    <td><%= banner.description %></td>
+                    <td><img src="<%= banner.image %>"
+                            alt="<%= banner.bannerName %>"
+                            style="width: 100px; height: auto;"></td>
+                    <td>
+                        <form action="/admin/banners/delete/<%= banner._id %>"
+                            method="post">
+                            <button type="submit">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                <% }); %>
+                <% } else { %>
+                <tr>
+                    <td colspan="4">No banners found.</td>
+                </tr>
+                <% } %>
+            </tbody>
+        </table>
+
+        <h2>Add New Banner</h2>
+        <form id="addBannerForm" method="POST" enctype="multipart/form-data">
+            <div>
+                <label for="bannerName">Banner Name:</label>
+                <input type="text" id="bannerName" name="bannerName" required>
+            </div>
+            <div>
+                <label for="description">Description:</label>
+                <textarea id="description" name="description"
+                    required></textarea>
+            </div>
+            <div>
+                <label for="image">Image:</label>
+                <input type="file" id="inputImage" name="image" accept="image/*"
+                    required>
+                <img id="imagePreview"
+                    style="display:none; max-width: 100%; margin-top: 10px;">
+                <canvas id="canvas" style="display:none;"></canvas>
+            </div>
+            <div>
+                <button type="submit">Add Banner</button>
+            </div>
+        </form>
+
+        <link rel="stylesheet"
+            href="https://unpkg.com/cropperjs/dist/cropper.css">
+        <script src="https://unpkg.com/cropperjs"></script>
+        <script>
+        let cropper;
+        const imagePreview = document.getElementById('imagePreview');
+        const inputImage = document.getElementById('inputImage');
+        const canvas = document.getElementById('canvas');
+
+        inputImage.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    imagePreview.src = e.target.result;
+                    imagePreview.style.display = 'block';
+
+                    if (cropper) {
+                        cropper.destroy();
+                    }
+
+                    cropper = new Cropper(imagePreview, {
+                        aspectRatio: 16 / 9,
+                        viewMode: 1,
+                    });
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        document.getElementById('addBannerForm').addEventListener('submit', (event) => {
+            event.preventDefault();
+            if (cropper) {
+                canvas.width = 800;
+                canvas.height = 450;
+                const croppedCanvas = cropper.getCroppedCanvas({ width: 800, height: 450 });
+                croppedCanvas.toBlob((blob) => {
+                    const formData = new FormData();
+                    formData.append('bannerName', document.getElementById('bannerName').value);
+                    formData.append('description', document.getElementById('description').value);
+                    formData.append('image', blob, 'cropped-image.png');
+
+                    fetch('/admin/add-banner', {
+                        method: 'POST',
+                        body: formData,
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            window.location.reload();
+                        } else {
+                            console.error('Error uploading banner');
+                        }
+                    })
+                    .catch(err => console.error(err));
+                });
+            }
+        });
+    </script>
+    </body>
+</html>

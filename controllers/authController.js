@@ -18,9 +18,9 @@ let transporter = nodemailer.createTransport({
     secure: true, // true for 465, false for 587
     service: 'Gmail',
     auth: {
-        user: 'lijons13@gmail.com', // your Gmail address
-        pass: 'cbyb zggu etpz yhsu'  // your generated app password
-    }
+        user: 'lijons13@gmail.com', // Your email
+        pass: process.env.nodemailerPass,   // Your email password or an app-specific password
+    },
 });
 let otp;
 let otpExpirationTime;

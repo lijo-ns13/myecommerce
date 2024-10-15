@@ -64,14 +64,21 @@ const orderSchema=new Schema({
             'processing',
             'shipped', 
             'delivered', 
-            'cancelled',
+            'pending_return',
+            'processing_return',
+            'initiated_return',
             'returned',
             'refunded',
+            'cancelled',
+            'payment_failed',
             'out_of_stock',
             'on_hold',
             'failed'],
         default:'pending'
 
+    },
+    returnReason:{
+        type:String
     },
     // paymentMethod:{
     //     type:String,
@@ -106,6 +113,10 @@ const orderSchema=new Schema({
                 required: true  // Consider adding required validation
             },
             productImage:{
+                type:String,
+                required:true
+            },
+            productId:{
                 type:String,
                 required:true
             }

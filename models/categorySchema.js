@@ -22,6 +22,10 @@ const categorySchema = new Schema({
         type:Boolean,
         default:false
         
+    },
+    orderCount:{
+        type:Number,
+        default:0
     }
     
 });

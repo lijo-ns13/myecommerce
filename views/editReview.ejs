@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Edit Review</title>
+        <link
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+            rel="stylesheet">
+        <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+        textarea {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            resize: vertical;
+            min-height: 100px;
+        }
+        .star-rating {
+            display: flex;
+            flex-direction: row-reverse;
+            justify-content: flex-end;
+        }
+        .star-rating input {
+            display: none;
+        }
+        .star-rating label {
+            cursor: pointer;
+            font-size: 2rem;
+            color: #ddd;
+            transition: color 0.2s ease-in-out;
+        }
+        .star-rating label:hover,
+        .star-rating label:hover ~ label,
+        .star-rating input:checked ~ label {
+            color: #ffc107;
+        }
+        .submit-btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 0.75rem;
+            font-size: 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+            margin-top: 1rem;
+        }
+        .submit-btn:hover {
+            background-color: #2980b9;
+        }
+        .back-btn {
+            background-color: #95a5a6;
+            color: white;
+            border: none;
+            padding: 0.75rem;
+            font-size: 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 1rem;
+        }
+        .back-btn:hover {
+            background-color: #7f8c8d;
+        }
+        .error-message {
+            background-color: #e74c3c;
+            color: white;
+            padding: 1rem;
+            border-radius: 4px;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+    </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>Edit Your Review</h1>
+            <div id="error"></div>
+            <form action="/user/review/edit/<%= review._id %>" method="POST"
+                id="editForm">
+                <input type="hidden" name="productId"
+                    value="<%= review.product %>">
+
+                <label for="rating">Your Rating:</label>
+                <div class="star-rating">
+                    <input type="radio" id="star5" name="rating" value="5"
+                        required <%=review.rating === 5 ? 'checked' : '' %>>
+                    <label for="star5" title="5 stars"><i
+                            class="fas fa-star"></i></label>
+                    <input type="radio" id="star4" name="rating" value="4"
+                        required <%=review.rating === 4 ? 'checked' : '' %>>
+                    <label for="star4" title="4 stars"><i
+                            class="fas fa-star"></i></label>
+                    <input type="radio" id="star3" name="rating" value="3"
+                        required <%=review.rating === 3 ? 'checked' : '' %>>
+                    <label for="star3" title="3 stars"><i
+                            class="fas fa-star"></i></label>
+                    <input type="radio" id="star2" name="rating" value="2"
+                        required <%=review.rating === 2 ? 'checked' : '' %>>
+                    <label for="star2" title="2 stars"><i
+                            class="fas fa-star"></i></label>
+                    <input type="radio" id="star1" name="rating" value="1"
+                        required <%=review.rating === 1 ? 'checked' : '' %>>
+                    <label for="star1" title="1 star"><i
+                            class="fas fa-star"></i></label>
+                </div>
+
+                <label for="comment">Your Review:</label>
+                <textarea name="comment" id="comment" rows="4" required
+                    placeholder="Share your thoughts about the product..."><%= review.comment %></textarea>
+
+                <button type="submit" class="submit-btn">Update Review</button>
+            </form>
+            <a href="/products/<%= review.product %>" class="back-btn">Back to
+                Product</a>
+        </div>
+
+        <!-- Include SweetAlert2 -->
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
+        document.getElementById('editForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const form = event.target;
+            const productId = form.productId.value;
+            const rating = form.rating.value;
+            const comment = document.getElementById('comment').value;
+
+            const url = `/user/review/edit/${form.action.split('/').pop()}`; // Extract review ID from action URL
+
+            const options = {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ productId, rating, comment })
+            };
+
+            try {
+                const response = await fetch(url, options);
+                const result = await response.json();
+
+                if (response.ok) {
+                    // Show success message with SweetAlert2
+                    Swal.fire({
+                        title: 'Success!',
+                        text: 'Review updated successfully!',
+                        icon: 'success',
+                        confirmButtonText: 'Ok'
+                    }).then(() => {
+                        window.location.href = `/product-detail/${productId}`; // Redirect to the product detail page
+                    });
+                } else {
+                    document.getElementById('error').innerText = result.message || 'Failed to update review.';
+                }
+            } catch (error) {
+                document.getElementById('error').innerText = 'An error occurred. Please try again.';
+            }
+        });
+    </script>
+    </body>
+</html>

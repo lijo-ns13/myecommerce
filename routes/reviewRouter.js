@@ -9,45 +9,136 @@ const { jwtAuth, userProtected } = require('../middlewares/auth');
 // Apply JWT and user protection middleware
 router.use(jwtAuth, userProtected);
 
-// Create a new review
-router.post('/', async (req, res) => {
+router.get('/add/:productId',async(req,res)=>{
+    
     try {
-        const { rating, comment, productId } = req.body;
-        const userId = req.user ? req.user._id : null;
-
-        console.log('Incoming Data:', { rating, comment, productId, userId });
-
-        // Validate input
-        if (!userId) {
-            return res.status(401).json({ success: false, message: 'Unauthorized: Please log in to leave a review.' });
+        const userId=req.user._id;
+        const productId=req.params.productId;
+        const product=await Product.findById(productId);
+        if(product.purchasedByUserIds.includes(userId)){
+            // you can add review 
+            return res.status(200).render('addreview',{isAccess:true,product})
+        }else{
+            // you cant review this product because you dont purchase this prdouct
+            return res.status(200).render('addreview',{isAccess:false,product})
         }
-        if (!rating || !comment || !productId) {
-            return res.status(400).json({ success: false, message: 'Rating, comment, and product ID are required.' });
+    } catch (error) {
+        console.log('error in add review page showing ',error.message);
+        res.status(400).json({success:false,message:error.message})
+    }
+})
+router.post('/add/:productId', async (req, res) => {
+    try {
+        const productId = req.params.productId;
+        const userId = req.user._id;
+        const { rating, comment } = req.body;
+
+       
+        if(!rating){
+            return res.status(400).json({success:false,message:'Rating is required'})
+        }
+        if(!comment){
+            return res.status(400).json({success:false,message:'comment is required'})
+        }
+        if (comment.length < 10 || comment.length > 500) {
+            return res.status(400).json({ success: false, message: 'Comment length must be between 10 and 500 characters.' });
         }
 
-        // Create new review object
+        // Check if product exists
+        const product = await Product.findById(productId);
+        if (!product) {
+            return res.status(404).json({ success: false, message: 'Product not found.' });
+        }
+
+        // Check if user has already reviewed the product
+        if (product.reviewAddedUserIds.includes(userId)) {
+            return res.status(400).json({ success: false, message: 'You have already added a review for this product.' });
+        }
+
+        // Create new review
         const newReview = new Review({
-            product: productId,
             user: userId,
-            rating,
-            comment,
-            createdAt: new Date()
+            product: product._id,
+            comment: comment,
+            rating: rating,
+            date: new Date()
         });
 
-        // Save review to the database
-        const review = await newReview.save();
+        // Save review and update product
+        await newReview.save();
+        product.reviewAddedUserIds.push(userId);
+        product.reviews.push(newReview._id);
+        await product.save();
 
-        console.log('Review Created:', review);
-
-        // Optionally, update the product with the new review
-        await Products.findByIdAndUpdate(productId, { $push: { reviews: review._id } });
-
-        // Return the created review
-        res.status(201).json({ success: true, review });
+        return res.status(200).json({ success: true, message: 'Review added successfully.' });
     } catch (error) {
-        console.log('Error on review adding:', error.message);
+        console.error('Error in add review:', error.message);
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+router.get('/edit/:reviewId', async (req, res) => {
+    try {
+        const reviewId = req.params.reviewId;
+        const review = await Review.findById(reviewId).populate('user', 'name');
+
+        if (!review) {
+            return res.status(404).json({ success: false, message: 'Review not found' });
+        }
+
+        // Render the edit form with the review data
+        res.render('editReview', { review });
+    } catch (error) {
+        console.error('Error fetching review for edit:', error.message);
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+router.post('/edit/:reviewId', async (req, res) => {
+    try {
+        const userId = req.user._id; // Get the current user's ID
+        const reviewId = req.params.reviewId; // Get the review ID from the URL
+        const { rating, comment, productId } = req.body; // Destructure the body for easier access
+
+        // Find the review and update it
+        const updatedReview = await Review.findByIdAndUpdate(reviewId, { rating, comment }, { new: true });
+
+        if (!updatedReview) {
+            return res.status(404).json({ success: false, message: 'Review not found' });
+        }
+
+        return res.status(200).json({ success: true, message: 'Review updated successfully' });
+    } catch (error) {
+        console.error('Error updating review:', error.message);
         res.status(400).json({ success: false, message: error.message });
     }
 });
+
+router.delete('/delete/:reviewId', async (req, res) => {
+    try {
+        const userId=req.user._id;
+        const reviewId = req.params.reviewId;
+        const productId = req.body.productId; // Get the productId from the request body
+
+        // Optionally, check if the user is authorized to delete this review
+
+        // Find and delete the review
+        const review = await Review.findByIdAndDelete(reviewId);
+        
+        // Check if review was found
+        if (!review) {
+            return res.status(404).json({ message: 'Review not found' });
+        }
+
+        // Optionally, remove the review from the product's data
+        await Product.findByIdAndUpdate(productId, { $pull: { reviews: reviewId } });
+        await Product.findByIdAndUpdate(productId,{$pull:{reviewAddedUserIds:userId}})
+        res.status(200).json({ message: 'Review deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting review:', error);
+        res.status(500).json({ message: 'Error deleting review' });
+    }
+});
+
 
 module.exports = router;

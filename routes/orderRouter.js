@@ -4,14 +4,215 @@ const Order = require('../models/orderSchema');
 const Product = require('../models/productSchema');
 const { jwtAuth, userProtected } = require('../middlewares/auth');
 const orderController=require('../controllers/orderController');
-
+const PDFDocument = require('pdfkit');
+const path=require('path')
 // Apply JWT authentication and protect the routes
 router.use(jwtAuth, userProtected);
 
 // Route to get the list of orders for a user
 router.get('/',orderController.getOrders);
+// /user/orders/<%= order._id %>
+router.get('/:orderId',async(req,res)=>{
+    const orderId = req.params.orderId;
+    const order = await Order.findById(orderId);
+    if (!order) {
+        return res.status(400).json({ success: false, message: 'Order not found' });
+    }
+
+    // Format the delivery date
+    const deliveryDate = new Date(order.deliveryDate).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' });
+
+    // Pass the formatted delivery date to the template
+    res.render('orderDetailed', { order, deliveryDate });
+})
 
 // Route to cancel an order
 router.post('/:orderId/cancel', orderController.postOrderCancel);
+
+// /user/orders/return/<%=order._id%>
+
+router.get('/return/:orderId',async(req,res)=>{
+    try {
+        const orderId=req.params.orderId;
+        const order=await Order.findById(orderId);
+        if(!order){
+            return res.status(404).json({success:false,message:'order not found'})
+        }
+        res.status(200).render('return',{order})
+    } catch (error) {
+        console.log('error in get return',error.message);
+        res.status(400).json({success:false,message:error.message})
+    }
+})
+router.post('/return/:orderId',async(req,res)=>{
+    try {
+        const orderId=req.params.orderId;
+        const {reason}=req.body;
+        const order=await Order.findById(orderId);
+        if(!reason){
+            return res.status(400).json({success:false,message:'please provide a reason'})
+        }
+        if(!orderId){
+            return res.status(400).json({success:false,message:'order id is required'})
+        }
+        if(!order){
+            return res.status(400).json({success:false,message:'order not found'})
+        }
+        order.status='pending_return';
+        order.returnReason=reason;
+        await order.save();
+        res.status(200).json({success:false,message:'order return process started'})
+
+    } catch (error) {
+        console.log('error in post return',error.message);
+        res.status(400).json({success:false,message:error.message})
+    }
+})
+
+
+
+const generateInvoice = (order) => {
+    return new Promise((resolve, reject) => {
+        const doc = new PDFDocument({ margin: 50 });
+        let buffers = [];
+
+        doc.on('data', buffers.push.bind(buffers));
+        doc.on('end', () => resolve(Buffer.concat(buffers)));
+
+        // Helper functions
+        const drawLine = (startX, startY, endX, endY, color = '#000000') => {
+            doc.strokeColor(color).moveTo(startX, startY).lineTo(endX, endY).stroke();
+        };
+
+        // Text truncation function
+        const truncateText = (text, width) => {
+            let truncated = text;
+            while (doc.widthOfString(truncated) > width) {
+                truncated = truncated.slice(0, -1);
+            }
+            return truncated.length < text.length ? truncated.trim() + '...' : truncated;
+        };
+
+        // Set the path for the logo image
+        const logoPath = path.join(__dirname, '../public', 'img', 'logo.png');
+
+        // Colors
+        const primaryColor = '#4a86e8';
+        const textColor = '#333333';
+
+        // Header
+        doc.image(logoPath, 50, 45, { width: 60 })
+           .fillColor(primaryColor)
+           .fontSize(28)
+           .text('STRIDNEST', 120, 65)
+           .fontSize(10)
+           .text('123 Business Road, Business City, 12345', 120, 95)
+           .text('Phone: 8921580213', 120, 110)
+           .text('Email: info@stridnest.com', 120, 125);
+
+        // Invoice number (moved to the right side)
+        doc.fontSize(12)
+           .text(`Invoice Number: INV-${order._id}`, 350, 65, { align: 'right' });
+
+        drawLine(50, 140, doc.page.width - 50, 140, primaryColor);
+
+        // Invoice title
+        doc.fillColor(textColor)
+           .fontSize(24)
+           .text('INVOICE', 50, 160);
+
+        // Customer and order information
+        doc.fillColor(textColor)
+           .fontSize(12)
+           .text('Bill To:', 50, 200)
+           .fontSize(10)
+           .text(`${order.shippingAddress.name}`, 50, 215)
+           .text(`${order.shippingAddress.street}`, 50, 230)
+           .text(`${order.shippingAddress.city}, ${order.shippingAddress.state}, ${order.shippingAddress.postalCode}`, 50, 245)
+           .text(`${order.shippingAddress.country}`, 50, 260)
+           .text(`Phone: ${order.shippingAddress.phoneNo}`, 50, 275);
+
+        doc.fontSize(10)
+           .text('Order Date:', 300, 200)
+           .text('Due Date:', 300, 215)
+           .text('Customer ID:', 300, 230);
+
+        doc.fontSize(10)
+           .text(`${new Date(order.orderDate).toLocaleDateString()}`, 400, 200)
+           .text(`${new Date(order.shippingAddress.deliveryDate).toLocaleDateString()}`, 400, 215)
+           .text(`${order.userId}`, 400, 230);
+
+        // Invoice table
+        const invoiceTop = 290;
+        drawLine(50, invoiceTop, doc.page.width - 50, invoiceTop, primaryColor);
+        doc.fillColor(primaryColor)
+           .fontSize(12)
+           .text('Item', 60, invoiceTop + 10)
+           .text('Quantity', 250, invoiceTop + 10)
+           .text('Unit Price (INR)', 350, invoiceTop + 10)
+           .text(`Amount (INR)`, 450, invoiceTop + 10);
+        drawLine(50, invoiceTop + 30, doc.page.width - 50, invoiceTop + 30, primaryColor);
+
+        let position = invoiceTop + 40;
+        doc.fillColor(textColor).fontSize(10);
+        order.orderedProducts.forEach((item, index) => {
+            const truncatedName = truncateText(item.productName, 180); // Adjust width as needed
+            doc.text(truncatedName, 60, position)
+               .text(item.productQuantity.toString(), 250, position)
+               .text(item.productPrice.toFixed(2), 350, position)
+               .text((item.productQuantity * item.productPrice).toFixed(2), 450, position);
+            position += 20;
+            drawLine(50, position, doc.page.width - 50, position, '#e0e0e0');
+            position += 5;
+        });
+
+        // Total
+        doc.fontSize(12)
+           .text('Total Amount:', 350, position + 10)
+           .fillColor(primaryColor)
+           .fontSize(14)
+           .text(`${order.totalPrice.toFixed(2)}`, 450, position + 10);
+
+        // Footer
+        const footerTop = doc.page.height - 50;
+        drawLine(50, footerTop, doc.page.width - 50, footerTop, primaryColor);
+        doc.fillColor(primaryColor)
+           .fontSize(10)
+           .text('Thank you for your business!', 50, footerTop + 10, { align: 'center', width: 500 })
+           .text('For any inquiries, please contact us at support@stridnest.com', 50, footerTop + 25, { align: 'center', width: 500 });
+
+        doc.end();
+    });
+};
+// dowload invoice
+router.get('/download-invoice/:orderId', async (req, res) => {
+    try {
+        const orderId = req.params.orderId;
+        const userId = req.user._id; // Ensure you have user authentication middleware
+        const order = await Order.findById(orderId);
+
+        if (!order) {
+            return res.status(404).json({ success: false, message: 'Order not found' });
+        }
+
+        // Optionally check if the user owns the order
+        if (order.userId.toString() !== userId.toString()) {
+            return res.status(403).json({ success: false, message: 'Unauthorized to access this invoice' });
+        }
+
+        // Generate the invoice here
+        const invoiceBuffer = await generateInvoice(order);
+
+        // Set the headers to prompt a file download
+        res.setHeader('Content-Disposition', 'attachment; filename="invoice.pdf"');
+        res.setHeader('Content-Type', 'application/pdf');
+
+        // Send the invoice buffer as a response
+        res.send(invoiceBuffer);
+    } catch (error) {
+        console.error('Error on downloading invoice:', error);
+        res.status(400).json({ success: false, message: error.message });
+    }
+});
 
 module.exports = router;

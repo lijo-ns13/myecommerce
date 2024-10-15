@@ -5,7 +5,7 @@ const razorpay = require('razorpay');
 const crypto = require('crypto');
 
 const { jwtAuth, userProtected } = require('../middlewares/auth');
-
+const dotenv=require('dotenv').config()
 const User = require('../models/userSchema');
 const Cart = require('../models/cartSchema');
 const Product = require('../models/productSchema');
@@ -14,6 +14,8 @@ const Address = require('../models/addressSchema');
 const Coupon=require('../models/couponSchema')
 const checkoutController=require('../controllers/checkoutController')
 const Category=require('../models/categorySchema')
+const Wallet=require('../models/walletSchema')
+
 router.use(jwtAuth, userProtected);
 
 router.get('/', checkoutController.getCheckout);
@@ -22,16 +24,25 @@ router.post('/', checkoutController.postCheckout);
 
 // Razorpay instance initialization (put your Razorpay keys here)
 const razorpayInstance = new razorpay({
-    key_id: 'rzp_test_HcIqECgcTGh7Na',
-    key_secret: '0oJyfx0TqcxmRsgNKTq9o05M',
+    key_id: 'rzp_test_ovddchQMnrblMK',
+    key_secret: 'o0wUHZ0m3cvfpcgmhLx3N4UL',
 });
 router.post('/checkcatpro', async (req, res) => {
     try {
+        const wallet=await Wallet.findOne({userId:req.user._id})
+        
+        const {paymentMethod}=req.body;
+       
         const cart = await Cart.findOne({ userId: req.user._id }).populate('products.productId');
         if (!cart || cart.products.length === 0) {
             return res.status(400).json({ success: false, message: 'Your cart is empty' });
         }
-        
+        if(cart.finalPrice>5000 && paymentMethod==='cod'){
+            return res.status(400).json({success:false, message: 'Amount greater than 5000 not applicable with COD. Please make the payment online.'})
+        }
+        if(wallet&&wallet.balance<cart.finalPrice && paymentMethod==='wallet'){
+            return res.status(400).json({success:false,message:'Your wallet amount low'})
+        }
         for (const product of cart.products) {
             const { productId, size, quantity } = product;
             const productDetails = await Product.findOne({ _id: productId, 'sizes.size': size });
@@ -70,6 +81,7 @@ router.post('/payment-success', async (req, res) => {
         if (payment.status !== 'captured') {
             return res.status(400).send('Payment not captured');
         }
+        
         const cart=await Cart.find({userId:req.user._id});
         // Create and save the order
         const newOrder = new Order({
@@ -100,6 +112,7 @@ router.post('/payment-success', async (req, res) => {
         res.status(500).send('Error processing payment');
     }
 });
+
 router.post('/coupon-check', async (req, res) => {
     try {
         const { couponCode } = req.body;
@@ -235,7 +248,18 @@ router.post('/coupon-delete', async (req, res) => {
 });
 
 router.get('/order-confirmation/:orderId', checkoutController.getOrderConfirmation);
-
+router.get('/payment-failed/:orderId',async(req,res)=>{
+    try {
+        const orderId=req.params.orderId;
+        const order=await Order.findById(orderId).populate('products.productId');
+        if(!order){
+            return res.status(400).json({success:false,message:'Order not found'})
+        }
+        res.status(200).render('order/payment-fail',{order:order})
+    } catch (error) {
+        res.status(400).json({success:false,message:error.message})
+    }
+})
 module.exports = router;
 
 

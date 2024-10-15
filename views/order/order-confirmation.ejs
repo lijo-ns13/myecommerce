@@ -1,13 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Order Confirmation</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
-    <style>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Order Confirmation</title>
+        <!-- Bootstrap CSS -->
+        <link
+            href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+            rel="stylesheet">
+        <link
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+            rel="stylesheet">
+        <style>
         body {
             background-color: #f8f9fa;
             font-family: 'Arial', sans-serif;
@@ -131,44 +135,78 @@
             }
         }
     </style>
-</head>
-<body>
-    <div class="container">
-        <div class="order-confirmation">
-            <div class="text-center">
-                <i class="fas fa-check-circle confirmation-icon"></i>
-                <h1 class="mb-4">Order Confirmation</h1>
-                <div class="alert alert-success" role="alert">
-                    <h4 class="alert-heading">Thank You for Your Purchase!</h4>
-                    <p>Your order has been successfully placed. Here are your order details:</p>
+    </head>
+    <body>
+        <div class="container">
+            <div class="order-confirmation">
+                <div class="text-center">
+                    <i class="fas fa-check-circle confirmation-icon"></i>
+                    <h1 class="mb-4">Order Confirmation</h1>
+                    <div class="alert alert-success" role="alert">
+                        <h4 class="alert-heading">Thank You for Your
+                            Purchase!</h4>
+                        <p>Your order has been successfully placed. Here are
+                            your order details:</p>
+                    </div>
+                </div>
+
+                <div class="order-details">
+                    <h5 class="card-title">Order Details</h5>
+                    <p class="detail-item"><strong>Order ID:</strong> <span
+                            id="orderId"><%= order._id %></span></p>
+                    <p class="detail-item"><strong>Total Price:</strong> $<span
+                            id="totalPrice"><%= order.totalPrice %></span></p>
+                    <p class="detail-item payment-method">
+                        <strong>Payment Method:</strong>
+                        <i class="<%= 
+                        order.paymentDetails.paymentMethod === 'razorpay' ? 'fab fa-cc-visa' : 
+                        order.paymentDetails.paymentMethod === 'wallet' ? 'fas fa-wallet' : 
+                        'fas fa-money-bill-wave' 
+                    %>"></i>
+                        <span id="paymentMethod"><%=
+                            order.paymentDetails.paymentMethod === 'razorpay' ?
+                            'Paid through Razorpay' :
+                            order.paymentDetails.paymentMethod === 'wallet' ?
+                            'Paid through Wallet' :
+                            'Cash on Delivery'
+                            %></span>
+                    </p>
+
+                    <p class="detail-item"><strong>Shipping Address:</strong>
+                        <span id="shippingAddress"><%=
+                            order.shippingAddress.street %>, <%=
+                            order.shippingAddress.city %>, <%=
+                            order.shippingAddress.state %>, <%=
+                            order.shippingAddress.country %> - <%=
+                            order.shippingAddress.postalCode %></span></p>
+                    <p class="detail-item"><strong>Estimated Delivery
+                            Date:</strong> <span id="deliveryDate"><%=
+                            order.deliveryDate ?
+                            order.deliveryDate.toDateString() : 'N/A'
+                            %></span></p>
+                </div>
+
+                <div class="text-center my-4 animate-in"
+                    style="animation-delay: 1.2s;">
+                    <a href="/user/orders"
+                        class="btn btn-primary btn-custom">View Order
+                        History</a>
+                    <a href="/" class="btn btn-secondary btn-custom">Continue
+                        Shopping</a>
+                    <a
+                        href="/user/orders/download-invoice/<%=order._id%>">Dowload
+                        Invoice</a>
                 </div>
             </div>
-
-            <div class="order-details">
-                <h5 class="card-title">Order Details</h5>
-                <p class="detail-item"><strong>Order ID:</strong> <span id="orderId"><%= order._id %></span></p>
-                <p class="detail-item"><strong>Total Price:</strong> $<span id="totalPrice"><%= order.totalPrice %></span></p>
-                <p class="detail-item payment-method">
-                    <strong>Payment Method:</strong> 
-                    <i class="<%= order.paymentDetails.paymentMethod === 'razorpay' ? 'fab fa-cc-visa' : 'fas fa-money-bill-wave' %>"></i>
-                    <span id="paymentMethod"><%= order.paymentDetails.paymentMethod === 'razorpay' ? 'Paid through Razorpay' : 'Cash on Delivery' %></span>
-                </p>
-                <p class="detail-item"><strong>Shipping Address:</strong> <span id="shippingAddress"><%= order.shippingAddress.street %>, <%= order.shippingAddress.city %>, <%= order.shippingAddress.state %>, <%= order.shippingAddress.country %> - <%= order.shippingAddress.postalCode %></span></p>
-                <p class="detail-item"><strong>Estimated Delivery Date:</strong> <span id="deliveryDate"><%= order.deliveryDate ? order.deliveryDate.toDateString() : 'N/A' %></span></p>
-            </div>
-
-            <div class="text-center my-4 animate-in" style="animation-delay: 1.2s;">
-                <a href="/user/orders" class="btn btn-primary btn-custom">View Order History</a>
-                <a href="/" class="btn btn-secondary btn-custom">Continue Shopping</a>
-            </div>
         </div>
-    </div>
 
-    <!-- Bootstrap JS and dependencies -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script>
+        <!-- Bootstrap JS and dependencies -->
+        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+        <script
+            src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+        <script
+            src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+        <script>
         document.addEventListener('DOMContentLoaded', (event) => {
             // Animate order details
             const detailItems = document.querySelectorAll('.detail-item');
@@ -210,5 +248,5 @@
             }
         });
     </script>
-</body>
+    </body>
 </html>

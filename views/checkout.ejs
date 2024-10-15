@@ -1,13 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Checkout</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <style>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Checkout</title>
+        <!-- Bootstrap CSS -->
+        <link
+            href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+            rel="stylesheet">
+        <style>
         body {
             background-color: #f8f9fa;
         }
@@ -123,158 +125,199 @@
         font-size: 14px;
     }
     </style>
-</head>
+    </head>
 
-<body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="/"><img src="img/logo.png" alt="Logo" height="40"></a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav mr-auto">
-                <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
-                <li class="nav-item"><a class="nav-link" href="/products">Products</a></li>
-                <li class="nav-item"><a class="nav-link" href="/about">About</a></li>
-            </ul>
-            <ul class="navbar-nav">
-                <li class="nav-item"><a class="nav-link" href="/auth/signin"><img src="img/log-in.png" alt="Login" height="30"></a></li>
-                <li class="nav-item"><a class="nav-link" href="/cart"><img src="img/cart.png" alt="Cart" height="30"></a></li>
-                <li class="nav-item"><a class="nav-link" href="/user/wishlist"><img src="img/wishlist.png" alt="Wishlist" height="30"></a></li>
-                <li class="nav-item"><a class="nav-link" href="/user/profile"><img src="img/userprofile.jpg" alt="User Profile" height="30"></a></li>
-            </ul>
-        </div>
-    </nav>
+    <body>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <a class="navbar-brand" href="/"><img src="img/logo.png" alt="Logo"
+                    height="40"></a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse"
+                data-target="#navbarNav" aria-controls="navbarNav"
+                aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item"><a class="nav-link"
+                            href="/">Home</a></li>
+                    <li class="nav-item"><a class="nav-link"
+                            href="/products">Products</a></li>
+                    <li class="nav-item"><a class="nav-link"
+                            href="/about">About</a></li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item"><a class="nav-link"
+                            href="/auth/signin"><img src="img/log-in.png"
+                                alt="Login" height="30"></a></li>
+                    <li class="nav-item"><a class="nav-link" href="/cart"><img
+                                src="img/cart.png" alt="Cart"
+                                height="30"></a></li>
+                    <li class="nav-item"><a class="nav-link"
+                            href="/user/wishlist"><img src="img/wishlist.png"
+                                alt="Wishlist" height="30"></a></li>
+                    <li class="nav-item"><a class="nav-link"
+                            href="/user/profile"><img src="img/userprofile.jpg"
+                                alt="User Profile" height="30"></a></li>
+                </ul>
+            </div>
+        </nav>
 
-    <div class="container mt-5">
-        <h2 class="checkout-header text-center">Checkout</h2>
+        <div class="container mt-5">
+            <h2 class="checkout-header text-center">Checkout</h2>
 
-<!-- Coupon Check Form -->
-<div class="coupon-container">
-    <form id="couponCheckForm" class="coupon-form">
-        <input type="text" name="couponCode" id="couponCode" placeholder="Enter your coupon to check" class="form-control mb-2" >
-        <button type="submit" class="btn btn-secondary">Apply Coupon</button>
-    </form>
-    <div id="discountMessage" class="discount-message"></div>
-    <div id="couponError" class="coupon-error" style="color:red;"></div>
-    
-    <!-- Buttons for Copying and Removing Coupon -->
-    <!-- <button id="copyCoupon" class="btn btn-info mt-2" style="display:none;">Copy Coupon Code</button> -->
-    <button id="removeCoupon" class="btn btn-danger mt-2" style="display:none;">Remove Coupon</button>
-</div>
+            <!-- Coupon Check Form -->
+            <div class="coupon-container">
+                <form id="couponCheckForm" class="coupon-form">
+                    <input type="text" name="couponCode" id="couponCode"
+                        placeholder="Enter your coupon to check"
+                        class="form-control mb-2">
+                    <button type="submit" class="btn btn-secondary">Apply
+                        Coupon</button>
+                </form>
+                <div id="discountMessage" class="discount-message"></div>
+                <div id="couponError" class="coupon-error"
+                    style="color:red;"></div>
 
-       			
-			 <!-- Cart Items -->
-             <h4>Cart Items</h4>
-             <% if (cart && cart.products && cart.products.length > 0) { %>
-                 <div class="row">
-                     <% for (const product of cart.products) { %>
-                         <div class="col-12 cart-item">
-                             <div class="row">
-                                 <div class="col-3 text-center">
-                                     <img src="<%= product.productId.images[0].secured_url %>" class="cart-img" alt="<%= product.productId.product %>">
-                                 </div>
-                                 <div class="col-5">
-                                     <h5><%= product.productId.product %></h5>
-                                     <p>Price: $<%= product.productId.finalPrice %></p>
-                                     <p>Quantity: <%= product.quantity %></p>
-                                     <p>Subtotal: $<%= (product.productId.finalPrice * product.quantity).toFixed(2) %></p>
-                                 </div>
-                             </div>
-                         </div>
-                     <% } %>
-                 </div>
-     
-                 <div class="text-right total-price">
-                     Total Price: $<%= cart.finalPrice.toFixed(2) %>
-                 </div>
-             <% } else { %>
-                 <div class="text-center">
-                     <h3>Your cart is empty</h3>
-                     <a href="/products" class="btn btn-primary">Continue Shopping</a>
-                 </div>
-             <% } %>
+                <!-- Buttons for Copying and Removing Coupon -->
+                <!-- <button id="copyCoupon" class="btn btn-info mt-2" style="display:none;">Copy Coupon Code</button> -->
+                <button id="removeCoupon" class="btn btn-danger mt-2"
+                    style="display:none;">Remove Coupon</button>
+            </div>
 
-        <!-- Shipping Address -->
-        <h4 class="mt-4">Shipping Address</h4>
-        <form id="checkoutForm" action="/checkout" method="POST">
-            
-            
-            <% user.address.forEach((address, index) => { %>
+            <!-- Cart Items -->
+            <h4>Cart Items</h4>
+            <% if (cart && cart.products && cart.products.length > 0) { %>
+            <div class="row">
+                <% for (const product of cart.products) { %>
+                <div class="col-12 cart-item">
+                    <div class="row">
+                        <div class="col-3 text-center">
+                            <img
+                                src="<%= product.productId.images[0].secured_url %>"
+                                class="cart-img"
+                                alt="<%= product.productId.product %>">
+                        </div>
+                        <div class="col-5">
+                            <h5><%= product.productId.product %></h5>
+                            <p>Price: $<%= product.productId.finalPrice %></p>
+                            <p>Quantity: <%= product.quantity %></p>
+                            <p>Subtotal: $<%= (product.productId.finalPrice *
+                                product.quantity).toFixed(2) %></p>
+                        </div>
+                    </div>
+                </div>
+                <% } %>
+            </div>
+
+            <div class="text-right total-price">
+                Total Price: $<%= cart.finalPrice.toFixed(2) %>
+            </div>
+            <% } else { %>
+            <div class="text-center">
+                <h3>Your cart is empty</h3>
+                <a href="/products" class="btn btn-primary">Continue
+                    Shopping</a>
+            </div>
+            <% } %>
+
+            <!-- Shipping Address -->
+            <h4 class="mt-4">Shipping Address</h4>
+            <form id="checkoutForm" action="/checkout" method="POST">
+
+                <% user.address.forEach((address, index) => { %>
                 <div class="form-check">
-                    <input class="form-check-input" type="radio" name="selectedAddress" id="address<%= index %>" value="<%= address._id %>" <%= index === 0 ? 'checked' : '' %>>
+                    <input class="form-check-input" type="radio"
+                        name="selectedAddress" id="address<%= index %>"
+                        value="<%= address._id %>" <%=index === 0 ? 'checked' :
+                        '' %>>
                     <label class="form-check-label" for="address<%= index %>">
-                        <%= address.street %>, <%= address.city %>, <%= address.state %> - <%= address.postalCode %>, <%= address.country %>
+                        <%= address.street %>, <%= address.city %>, <%=
+                        address.state %> - <%= address.postalCode %>, <%=
+                        address.country %>
                     </label>
                 </div>
-            <% }) %>
+                <% }) %>
 
-            <!-- Add New Address Radio Button -->
-            <div class="form-check">
-                <input class="form-check-input" type="radio" name="selectedAddress" id="newAddress" value="new">
-                <label class="form-check-label" for="newAddress">
-                    Add New Address
-                </label>
-            </div>
+                <!-- Add New Address Radio Button -->
+                <div class="form-check">
+                    <input class="form-check-input" type="radio"
+                        name="selectedAddress" id="newAddress" value="new">
+                    <label class="form-check-label" for="newAddress">
+                        Add New Address
+                    </label>
+                </div>
 
-            <!-- New Address Form -->
-            <div id="newAddressForm" style="display:none;">
-                <div class="form-group mt-3">
-                    <label for="street">Street</label>
-                    <input type="text" class="form-control" id="newStreet" name="newStreet" placeholder="123 Main St">
+                <!-- New Address Form -->
+                <div id="newAddressForm" style="display:none;">
+                    <div class="form-group mt-3">
+                        <label for="street">Street</label>
+                        <input type="text" class="form-control" id="newStreet"
+                            name="newStreet" placeholder="123 Main St">
+                    </div>
+                    <div class="form-group">
+                        <label for="city">City</label>
+                        <input type="text" class="form-control" id="newCity"
+                            name="newCity" placeholder="City">
+                    </div>
+                    <div class="form-group">
+                        <label for="state">State</label>
+                        <input type="text" class="form-control" id="newState"
+                            name="newState" placeholder="State">
+                    </div>
+                    <div class="form-group">
+                        <label for="postalCode">Postal Code</label>
+                        <input type="text" class="form-control"
+                            id="newPostalCode" name="newPostalCode"
+                            placeholder="Postal Code">
+                    </div>
+                    <div class="form-group">
+                        <label for="country">Country</label>
+                        <input type="text" class="form-control" id="newCountry"
+                            name="newCountry" placeholder="Country">
+                    </div>
+                    <div class="form-group">
+                        <label for="phoneNo">Phone Number</label>
+                        <input type="text" class="form-control" id="newPhoneNo"
+                            name="newPhoneNo" placeholder="Phone Number">
+                    </div>
+                    <button type="button" class="btn btn-success mt-3"
+                        id="confirmNewAddress">Confirm Address</button>
                 </div>
-                <div class="form-group">
-                    <label for="city">City</label>
-                    <input type="text" class="form-control" id="newCity" name="newCity" placeholder="City">
-                </div>
-                <div class="form-group">
-                    <label for="state">State</label>
-                    <input type="text" class="form-control" id="newState" name="newState" placeholder="State">
-                </div>
-                <div class="form-group">
-                    <label for="postalCode">Postal Code</label>
-                    <input type="text" class="form-control" id="newPostalCode" name="newPostalCode" placeholder="Postal Code">
-                </div>
-                <div class="form-group">
-                    <label for="country">Country</label>
-                    <input type="text" class="form-control" id="newCountry" name="newCountry" placeholder="Country">
-                </div>
-                <div class="form-group">
-                    <label for="phoneNo">Phone Number</label>
-                    <input type="text" class="form-control" id="newPhoneNo" name="newPhoneNo" placeholder="Phone Number">
-                </div>
-                <button type="button" class="btn btn-success mt-3" id="confirmNewAddress">Confirm Address</button>
-            </div>
 
-            <!-- Payment Method Section -->
-        <div class="payment-method">
-            <h4><i class="fas fa-credit-card"></i> Payment Method</h4>
-            <div class="form-group">
-                <select class="form-select" id="paymentMethod" name="paymentMethod">
-                    <option value="cod">Cash on Delivery (COD)</option>
-                    <option value="razorpay">Razorpay</option>
-                </select>
-            </div>
+                <!-- Payment Method Section -->
+                <div class="payment-method">
+                    <h4><i class="fas fa-credit-card"></i> Payment Method</h4>
+                    <div class="form-group">
+                        <select class="form-select" id="paymentMethod"
+                            name="paymentMethod">
+                            <option value="cod">Cash on Delivery (COD)</option>
+                            <option value="razorpay">Razorpay</option>
+                            <option value="wallet">Wallet</option>
+                        </select>
+                    </div>
+                </div>
+                <!-- dasfasf -->
+                <!-- Proceed to Checkout Button -->
+                <button type="submit" class="btn btn-primary mt-3"
+                    id="placeOrder" disabled>Place Order</button>
+            </form>
         </div>
-<!-- dasfasf -->
-            <!-- Proceed to Checkout Button -->
-            <button type="submit" class="btn btn-primary mt-3" id="placeOrder" disabled>Place Order</button>
-        </form>
-    </div>
 
-    <footer class="bg-dark text-white mt-5">
-        <div class="container text-center py-4">
-            <p>&copy; 2024 Your E-Commerce Site. All rights reserved.</p>
-        </div>
-    </footer>
+        <footer class="bg-dark text-white mt-5">
+            <div class="container text-center py-4">
+                <p>&copy; 2024 Your E-Commerce Site. All rights reserved.</p>
+            </div>
+        </footer>
 
-    <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <!-- Scripts -->
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script>
+        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+        <script
+            src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+        <script
+            src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+        <script>
         document.addEventListener('DOMContentLoaded', function () {
             const couponCheckForm = document.getElementById('couponCheckForm');
             const discountMessage = document.getElementById('discountMessage');
@@ -400,32 +443,25 @@
             });
         });
         </script>
-        
-    
-    
-    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-    <script>
+
+        <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
         $(document).ready(function () {
+            let isCheckPassed = false;
+        
             // Show new address form
             $('input[name="selectedAddress"]').on('change', function () {
                 if ($(this).val() === 'new') {
                     $('#newAddressForm').show();
+                    $('#placeOrder').prop('disabled', true);
                 } else {
                     $('#newAddressForm').hide();
-                    $('#placeOrder').prop('disabled', false); // Enable if existing address is selected
-                }
-            });
-    
-            // Enable the Place Order button based on address selection and form validation
-            $('input[name="selectedAddress"]').on('change', function () {
-                const selectedAddress = $('input[name="selectedAddress"]:checked').val();
-                if (selectedAddress === 'new') {
-                    $('#placeOrder').prop('disabled', true); // Disable until new address is confirmed
-                } else {
                     $('#placeOrder').prop('disabled', false);
                 }
+                checkCatPro();
             });
-    
+        
             // Confirm new address
             $('#confirmNewAddress').on('click', function () {
                 const street = $('#newStreet').val();
@@ -434,96 +470,231 @@
                 const postalCode = $('#newPostalCode').val();
                 const country = $('#newCountry').val();
                 const phoneNo = $('#newPhoneNo').val();
-    
+        
                 if (!street || !city || !state || !postalCode || !country || !phoneNo) {
-                    alert("Please fill in all address fields.");
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Incomplete Address',
+                        text: 'Please fill in all address fields.',
+                    });
                     return;
                 }
-    
-                // New address confirmed logic (you can add API call or other logic here)
-                alert("New address confirmed!");
-    
-                // Enable Place Order button after confirmation
+        
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Address Confirmed',
+                    text: 'New address has been confirmed.',
+                });
                 $('#placeOrder').prop('disabled', false);
+                checkCatPro();
             });
-    
-            $('#checkoutForm').on('submit', function (e) {
-            e.preventDefault(); // Prevent default form submission
-            
-            const paymentMethod = $('#paymentMethod').val();
-
-            // Function to check cart validity using Fetch API
-            function checkCartValidity() {
+        
+            // Payment method change
+            $('#paymentMethod').on('change', checkCatPro);
+        
+            function checkCatPro() {
+                $('#placeOrder').prop('disabled', true);
                 return fetch('/checkout/checkcatpro', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({}) // If you need to send any data, include it here
+                    body: JSON.stringify({
+                        paymentMethod: $('#paymentMethod').val()
+                    })
                 })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        return true; // Valid cart
+                        isCheckPassed = true;
+                        $('#placeOrder').prop('disabled', false);
                     } else {
-                        // alert(data.message); // Show error message
-                        swal.fire({
-                            icon:'warning',
-                            title:'Oops!',
-                            text:data.message
-                        })
-                        return false; // Invalid cart
+                        isCheckPassed = false;
+                        $('#placeOrder').prop('disabled', true);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: data.message,
+                        });
                     }
                 })
-                .catch(() => {
-                    alert("Error checking cart. Please try again.");
-                    return false; // Handle error
+                .catch(error => {
+                    console.error('Error checking category and product:', error);
+                    isCheckPassed = false;
+                    $('#placeOrder').prop('disabled', true);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Server Error',
+                        text: 'An error occurred while checking your order. Please try again.',
+                    });
                 });
             }
-
-            // Validate cart before proceeding
-            checkCartValidity().then(isValid => {
-                if (isValid) {
-                    if (paymentMethod === 'razorpay') {
-                        const finalPrice = <%= cart.finalPrice %>; // Ensure this value is properly passed from your server-side
-                        // Initiate Razorpay payment
-                        const options = {
-                            key: 'rzp_test_HcIqECgcTGh7Na',
-                            amount: finalPrice * 100, // amount in smallest currency unit
-                            currency: "INR",
-                            name: "Your E-Commerce Site",
-                            description: "Order Payment",
-                            handler: function (response) {
-                                // Handle payment success here
-                                // alert("Payment Successful! Transaction ID: " + response.razorpay_payment_id);
-                                $('#checkoutForm').off('submit').submit(); // Submit form after successful payment
-                            },
-                            prefill: {
-                                name: "Customer Name",
-                                email: "customer@example.com",
-                                phone_number: "9999999999"
-                            },
-                            theme: {
-                                color: "#F37254"
-                            }
-                        };
-                        const razorpay = new Razorpay(options);
-                        razorpay.open();
-                    } else {
-                        // Handle Cash on Delivery
-                        this.submit(); // Submit form directly for COD
+        
+            $('#checkoutForm').on('submit', function (e) {
+                e.preventDefault();
+        
+                if (!isCheckPassed) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Unable to Proceed',
+                        text: 'Please ensure all items in your cart are available and meet the requirements.',
+                    });
+                    return;
+                }
+        
+                const paymentMethod = $('#paymentMethod').val();
+                const selectedAddress = $('input[name="selectedAddress"]:checked').val();
+        
+                let addressDetails = {};
+                if (selectedAddress === 'new') {
+                    addressDetails = {
+                        street: $('#newStreet').val(),
+                        city: $('#newCity').val(),
+                        state: $('#newState').val(),
+                        postalCode: $('#newPostalCode').val(),
+                        country: $('#newCountry').val(),
+                        phoneNo: $('#newPhoneNo').val()
+                    };
+                    if (Object.values(addressDetails).some(value => !value)) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Incomplete Address',
+                            text: 'Please fill in all address fields.',
+                        });
+                        return;
                     }
                 }
+        
+                const checkoutData = {
+                    paymentMethod,
+                    selectedAddress,
+                    addressDetails
+                };
+        
+                $('#placeOrder').prop('disabled', true);
+        
+                fetch('/checkout', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(checkoutData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        if (paymentMethod === 'razorpay') {
+                            const options = {
+                                key: 'rzp_test_ovddchQMnrblMK',
+                                amount: data.amount,
+                                currency: "INR",
+                                name: "Your E-Commerce Site",
+                                description: "Order Payment",
+                                order_id: data.razorpayOrderId,
+                                handler: function (response) {
+                                    verifyPayment({
+                                        order: data.orderId,
+                                        orderId: data.razorpayOrderId,
+                                        razorpay_payment_id: response.razorpay_payment_id,
+                                        razorpay_signature: response.razorpay_signature
+                                    });
+                                },
+                                modal: {
+                                    ondismiss: function () {
+                                        handlePaymentFailure(data.orderId);
+                                    }
+                                },
+                                prefill: {
+                                    name: "Customer Name",
+                                    email: "customer@example.com",
+                                    contact: "9999999999"
+                                },
+                                theme: {
+                                    color: "#F37254"
+                                }
+                            };
+        
+                            const rzp = new Razorpay(options);
+                            rzp.open();
+                        } else {
+                            window.location.href = `/checkout/order-confirmation/${data.orderId}`;
+                        }
+                    } else {
+                        handlePaymentFailure(data.orderId);
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error during checkout:', error);
+                    handlePaymentFailure();
+                })
+                .finally(() => {
+                    $('#placeOrder').prop('disabled', false);
+                });
             });
+        
+            function verifyPayment(paymentResponse) {
+                fetch('/api/verify-payment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        order: paymentResponse.order,
+                        orderId: paymentResponse.orderId,
+                        paymentId: paymentResponse.razorpay_payment_id,
+                        signature: paymentResponse.razorpay_signature
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.href = `/checkout/order-confirmation/${paymentResponse.order}`;
+                    } else {
+                        handlePaymentFailure(paymentResponse.order);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error during payment verification:', error);
+                    handlePaymentFailure(paymentResponse.order);
+                });
+            }
+        
+            function handlePaymentFailure(orderId) {
+                if (orderId) {
+                    updateOrderStatus(orderId, 'payment_failed');
+                }
+                
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Payment Failed',
+                    text: 'Your payment could not be processed. You will be redirected to the failure page.',
+                    confirmButtonText: 'OK'
+                }).then(() => {
+                    window.location.href = `/checkout/payment-failed${orderId ? '/' + orderId : ''}`;
+                });
+            }
+        
+            function updateOrderStatus(orderId, status) {
+                fetch(`/update-order-status/${orderId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ status: status })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.success) {
+                        console.error('Failed to update order status');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error updating order status:', error);
+                });
+            }
         });
-        });
-    </script>
- 
-     
- 
- 
-</body>
+        </script>
+
+    </body>
 
 </html>
-
-

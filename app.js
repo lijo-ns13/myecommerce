@@ -6,6 +6,9 @@ const cookieParser=require('cookie-parser');
 const methodOverride = require('method-override');
 const passport = require('passport');
 require('./passport'); 
+const crypto = require('crypto');
+const Order=require('./models/orderSchema')
+const Product=require('./models/productSchema')
 
 const Razorpay=require('razorpay')
 
@@ -71,24 +74,159 @@ app.get('/auth/google/callback', passport.authenticate('google', { session: fals
     }
 });
 
+// 99999999999999999999999999999999999
 
-// app.post('/verify-payment', async (req, res) => {
-//     const { paymentId, orderId, signature } = req.body;
+// Initialize Razorpay
+const razorpayInstance = new Razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID, // Use your Razorpay key ID
+    key_secret: process.env.RAZORPAY_KEY_SECRET // Use your Razorpay secret
+});
 
-//     const expectedSignature = crypto.createHmac('sha256', '0oJyfx0TqcxmRsgNKTq9o05M')
-//         .update(orderId + '|' + paymentId)
-//         .digest('hex');
+app.post('/api/verify-payment', async (req, res) => {
+    const { orderId, paymentId, signature } = req.body;
 
-//     if (expectedSignature === signature) {
-//         // Payment is verified
-//         res.json({ success: true });
-//     } else {
-//         // Payment verification failed
-//         res.json({ success: false });
-//     }
-// });
+    console.log('Verifying payment:');
+    console.log('Order ID:', orderId);
+console.log('Payment ID:', paymentId);
+console.log('Received Signature:', signature);
 
 
+    const hmac = crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET);
+    hmac.update(`${orderId}|${paymentId}`);  // Ensure correct concatenation
+    const generatedSignature = hmac.digest('hex');
+
+    console.log('Generated signature:', generatedSignature);
+
+    if (generatedSignature === signature) {
+        console.log(`Payment verified for orderId: ${orderId}`);
+        return res.json({ success: true });
+    } else {
+        console.error('Payment verification failed for orderId:', orderId,signature);
+        return res.status(400).json({ success: false, message: 'Payment verification failed' });
+    }
+});
+
+app.post('/update-order-status/:orderId', async (req, res) => {
+    const { orderId } = req.params;
+    const { status } = req.body;
+
+    try {
+        const order = await Order.findById(orderId); // Assuming products is an array of { productId, quantity, size }
+
+        if (!order) {
+            return res.status(404).json({ success: false, message: 'Order not found' });
+        }
+
+        // Store product restock info immediately for rollback
+        const productRestockInfo = order.products.map(item => ({
+            productId: item.productId, // Assuming productId is stored in the product object
+            size: item.size, // Assuming each order item has a size
+            quantity: item.quantity,
+        }));
+
+
+        // Update order status
+        order.status = status;
+
+        // Save the order
+        await order.save();
+
+        // If the order status is failed, restock the products
+        if (status === 'payment_failed') {
+            const productsToUpdate = await Product.find({
+                _id: { $in: productRestockInfo.map(info => info.productId) }
+            });
+
+            await Promise.all(productsToUpdate.map(async (product) => {
+               
+                const sizeInfo = productRestockInfo.find(info =>{
+                    console.log('infoproductid',info.productId,'productid',product._id,typeof(info.productId),typeof(product._id)) 
+                    return info.productId.equals(product._id)});
+                if (sizeInfo) {
+                    const sizeEntry = product.sizes.find(s =>{ 
+                        console.log('s.size',s.size,'sizeInfo',sizeInfo.size,typeof(s.size),typeof(sizeInfo.size))
+                        return s.size.toString() === sizeInfo.size.toString()});
+                    if (sizeEntry) {
+                        sizeEntry.stock += sizeInfo.quantity; // Increase stock for the specific size
+                        await product.save();
+                    } else {
+                        console.error(`Size ${sizeInfo.size} not found for product ID: ${product._id}`);
+                    }
+                }
+            }));
+        }
+
+        return res.json({ success: true });
+    } catch (error) {
+        console.error('Error updating order status:', error);
+
+        await Promise.all(productRestockInfo.map(async ({ productId, size, quantity }) => {
+            const product = await Product.findById(productId);
+            if (product) {
+                const sizeEntry = product.sizes.find(s => s.size === size);
+                if (sizeEntry) {
+                    sizeEntry.stock += quantity; // Rollback by increasing the stock
+                    await product.save();
+                }
+            }
+        }));
+
+        return res.status(500).json({ success: false, message: 'Failed to update order status' });
+    }
+});
+
+const instance = new Razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID,
+    key_secret: process.env.RAZORPAY_KEY_SECRET
+});
+
+app.post('/create-order', async (req, res) => {
+    const { amount, orderId } = req.body; // Accept orderId in request
+    const options = {
+        amount: amount * 100,
+        currency: "INR",
+        receipt: orderId,
+        payment_capture: 1,
+    };
+
+    try {
+        const order = await instance.orders.create(options);
+        res.json({ razorpayOrderId: order.id, orderId: orderId });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Error creating order");
+    }
+});
+
+// Server-side code (in your Express app)
+app.post('/api/verify-paymenttwo', async (req, res) => {
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, order_id } = req.body;
+
+    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+        return res.status(400).json({ success: false, message: 'Invalid input data.' });
+    }
+
+    try {
+        const generatedSignature = crypto
+            .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
+            .update(razorpay_order_id + '|' + razorpay_payment_id)
+            .digest('hex');
+
+        if (generatedSignature === razorpay_signature) {
+            const result = await Order.updateOne({ _id: order_id }, { status: 'pending' });
+            if (result.modifiedCount === 0) {
+                return res.status(404).json({ success: false, message: 'Order not found or status already updated.' });
+            }
+
+            return res.json({ success: true });
+        } else {
+            return res.json({ success: false, message: 'Payment verification failed. Invalid signature.' });
+        }
+    } catch (err) {
+        console.error('Payment verification error:', err);
+        return res.status(500).json({ success: false, message: 'Payment verification error. Please try again later.' });
+    }
+});
 
 app.set('view engine','ejs');
 
@@ -104,35 +242,6 @@ app.use('/admin',adminRouter);
 
 
 
-const razorpay = new Razorpay({
-    key_id: 'rzp_test_HcIqECgcTGh7Na',
-    key_secret: '0oJyfx0TqcxmRsgNKTq9o05M',
-});
-
-// Create order API
-app.post('/api/create-order', async (req, res) => {
-    const amount = 339600; // Example amount, replace with your actual amount
-    const options = {
-        amount: amount, // Amount in smallest currency unit
-        currency: "INR",
-        receipt: "receipt#1" // Unique receipt ID for the order
-    };
-    
-    try {
-        const order = await razorpay.orders.create(options);
-        res.json({
-            success: true,
-            orderId: order.id,
-            amount: order.amount,
-            currency: order.currency,
-            key: 'rzp_test_HcIqECgcTGh7Na' ,
-            message:'checking'// Replace with your Razorpay Key
-        });
-    } catch (error) {
-        res.status(500).json({ success: false, message: 'Error creating Razorpay order' });
-    }
-});
-
 app.use('/cart',cartRouter)
 app.use('/user/profile',userprofileRouter);
 app.use('/user/address',addressRouter)
@@ -140,23 +249,7 @@ app.use('/user/wishlist',wishlistRouter)
 app.use('/checkout',checkoutRouter)
 app.use('/user/orders',orderRouter)
 app.use('/',allRouter)
-app.use('/reviews',reviewRouter)
-// 404 Handler for undefined routes
-// app.use((req, res, next) => {
-//     res.status(404).render('404'); // Render the 404 EJS page
-// });
-// // Centralized Error Handling Middleware
-// app.use((err, req, res, next) => {
-//     console.error('Error:', err); // Log error for debugging
-//     const status = err.status || 500; // Default to 500 if no status is set
-//     if (status === 404) {
-//         return res.status(404).render('404'); // Render 404 page for 404 errors
-//     }
-//     res.status(status).render('500'); // Render a different page for other errors, if desired
-// });
-
-
-
+app.use('/user/review',reviewRouter)
 
 
 module.exports=app;

@@ -1,95 +1,121 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Profile</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Edit Profile</title>
+        <link rel="stylesheet"
+            href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+        <link rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+        <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f0f2f5;
-        }
-        .navbar {
-            background-color: #ffffff;
-            box-shadow: 0 2px 4px rgba(0,0,0,.08);
-        }
-        .navbar-brand img {
-            height: 40px;
-        }
-        .nav-link {
-            color: #4a4a4a;
-            font-weight: 500;
-        }
-        .profile-container {
-            display: flex;
-            justify-content: center;
-            margin-top: 2rem;
-            padding: 20px;
-        }
-        .sidebar {
-            background-color: #ffffff;
-            padding: 2rem;
-            border-radius: 8px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-            width: 250px;
-            margin-right: 2rem;
-        }
-        .sidebar h4 {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f4f4f4;
             color: #333;
+        }
+
+        .profile-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            background: #f7f8fc;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            display: flex;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 250px;
+            background: #2c3e50;
+            padding: 2rem 0;
+            color: #ecf0f1;
+        }
+
+        .sidebar h4 {
+            padding: 0 1.5rem;
             margin-bottom: 1.5rem;
             font-weight: 600;
+            font-size: 1.2rem;
         }
+
         .sidebar .nav-link {
-            color: #555;
-            padding: 0.75rem 1rem;
-            border-radius: 5px;
+            color: #bdc3c7;
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            align-items: center;
             transition: all 0.3s ease;
         }
+
         .sidebar .nav-link:hover, .sidebar .nav-link.active {
-            background-color: #f0f2f5;
-            color: #007bff;
+            background: #34495e;
+            color: #fff;
         }
+
         .sidebar .nav-link i {
             margin-right: 10px;
+            font-size: 1.1rem;
         }
-        .container {
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+
+        .main-content {
+            flex: 1;
             padding: 2rem;
-            width: 100%;
-            max-width: 500px;
         }
-        h1 {
-            color: #333;
-            margin-bottom: 1.5rem;
+
+        .form-card {
+            background: #fff;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
         }
-        .form-label {
-            font-weight: 500;
-            color: #555;
-        }
-        .form-control {
-            border: 1px solid #ced4da;
-            border-radius: 5px;
-            padding: 0.75rem;
-        }
-        .form-control:focus {
-            border-color: #80bdff;
-            box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
-        }
-        .btn-primary {
-            background-color: #007bff;
-            border: none;
+
+        .btn {
             padding: 0.75rem 1.5rem;
+            border-radius: 8px;
             font-weight: 500;
             transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
         }
+
+        .btn-primary {
+            background: #3498db;
+            color: #fff;
+        }
+
         .btn-primary:hover {
-            background-color: #0056b3;
+            background: #2980b9;
         }
+
+        .navbar {
+            background-color: rgba(255, 255, 255, 0.9) !important;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar-brand img {
+            max-height: 50px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            color: #333;
+            font-size: 18px;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: #3498db;
+        }
+
+        .nav-link img {
+            margin-right: 5px;
+        }
+
         #error {
             background-color: #f8d7da;
             border: 1px solid #f5c6cb;
@@ -99,64 +125,196 @@
             margin-bottom: 1rem;
         }
     </style>
-</head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-light">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="/"><img src="/img/logo.png" alt="Logo"></a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/products">Products</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/about">About</a></li>
-                </ul>
-                <ul class="navbar-nav">
-                    <li class="nav-item"><a class="nav-link" href="/auth/signin"><i class="fas fa-sign-in-alt"></i></a></li>
-                    <li class="nav-item"><a class="nav-link" href="/cart"><i class="fas fa-shopping-cart"></i></a></li>
-                    <li class="nav-item"><a class="nav-link" href="/user/wishlist"><i class="fas fa-heart"></i></a></li>
-                    <li class="nav-item"><a class="nav-link" href="/user/profile"><i class="fas fa-user-circle"></i></a></li>
+    </head>
+
+    <body>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light py-3 w-100">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="/">
+                    <img src="/img/logo.png" alt="Logo"
+                        class="d-inline-block align-text-top"
+                        style="height: 40px;">
+                </a>
+                <button class="navbar-toggler" type="button"
+                    data-toggle="collapse" data-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false"
+                    aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ml-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/products">Products</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/about">About</a>
+                        </li>
+                    </ul>
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/auth/signin">
+                                <img src="/img/log-in.png" alt="Login"
+                                    style="height: 24px;">
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/user/wishlist">
+                                <img src="/img/wishlist.png" alt="Wishlist"
+                                    style="height: 24px;">
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/cart">
+                                <img src="/img/cart.png" alt="Cart"
+                                    style="height: 24px;">
+                                <span
+                                    class="badge badge-pill badge-danger"></span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/user/profile">
+                                <img src="/img/userprofile.jpg"
+                                    alt="User Profile" class="rounded-circle"
+                                    style="height: 24px;">
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <div class="profile-container">
+            <div class="sidebar">
+                <h4>Menu</h4>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/user/profile"><i
+                                class="fas fa-user"></i> Profile</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/user/address"><i
+                                class="fas fa-map-marker-alt"></i> Addresses</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/user/profile/edit"><i
+                                class="fas fa-edit"></i> Edit Profile</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/user/orders"><i
+                                class="fas fa-box"></i> Orders</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link"
+                            href="/user/profile/change-password"><i
+                                class="fas fa-key"></i> Change Password</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/user/profile/wallet"><i
+                                class="fas fa-wallet"></i> Wallet</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/auth/logout"><i
+                                class="fas fa-sign-out-alt"></i> Logout</a>
+                    </li>
                 </ul>
             </div>
-        </div>
-    </nav>
 
-    <div class="profile-container">
-        <div class="sidebar">
-            <h4>User Menu</h4>
-            <ul class="nav flex-column">
-                <li class="nav-item"><a class="nav-link" href="/user/profile"><i class="fas fa-user"></i> Profile</a></li>
-                <li class="nav-item"><a class="nav-link" href="/user/address"><i class="fas fa-map-marker-alt"></i> Addresses</a></li>
-                <li class="nav-item"><a class="nav-link active" href="/user/profile/edit"><i class="fas fa-edit"></i> Edit Profile</a></li>
-                <li class="nav-item"><a class="nav-link" href="/user/orders"><i class="fas fa-box"></i> Orders</a></li>
-                <li class="nav-item"><a class="nav-link" href="/user/profile/change-password"><i class="fas fa-key"></i> Change Password</a></li>
-                <li class="nav-item"><a class="nav-link" href="/user/profile/wallet"><i class="fas fa-wallet"></i> Wallet</a></li>
-                <li class="nav-item"><a class="nav-link" href="/auth/logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
-            </ul>
-        </div>
-
-        <div class="container">
-            <h1 class="text-center">Edit Your Profile</h1>
-            <div id="error" style="display: none;"></div>
-            <form id="editForm">
-                <div class="mb-3">
-                    <label for="name" class="form-label">Full Name</label>
-                    <input type="text" name="name" id="name" class="form-control" placeholder="Enter your full name" value="<%= user.name %>">
+            <div class="main-content">
+                <h2 class="mb-4">Edit Your Profile</h2>
+                <div class="form-card">
+                    <div id="error" style="display: none;"></div>
+                    <form id="editForm">
+                        <div class="form-group">
+                            <label for="name">Full Name</label>
+                            <input type="text" class="form-control" id="name"
+                                name="name" value="<%= user.name %>" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email Address</label>
+                            <input type="email" class="form-control" id="email"
+                                name="email" value="<%= user.email %>" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Update
+                            Profile</button>
+                    </form>
                 </div>
-                <div class="mb-3">
-                    <label for="email" class="form-label">Email Address</label>
-                    <input type="email" name="email" id="email" class="form-control" placeholder="Enter your email" value="<%= user.email %>">
-                </div>
-                <button type="submit" class="btn btn-primary w-100">Update Profile</button>
-            </form>
+            </div>
         </div>
-    </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
+        <footer class="bg-dark text-white mt-5">
+            <div class="container py-4">
+                <div class="row">
+                    <div class="col-md-4">
+                        <h5>About Us</h5>
+                        <p>At our shoe e-commerce store, we provide the best
+                            quality footwear for every occasion. Explore our
+                            collection to find the perfect pair of shoes for
+                            you.</p>
+                    </div>
+                    <div class="col-md-2">
+                        <h5>Quick Links</h5>
+                        <ul class="list-unstyled">
+                            <li><a href="/" class="text-white">Home</a></li>
+                            <li><a href="/products"
+                                    class="text-white">Products</a></li>
+                            <li><a href="/about"
+                                    class="text-white">About</a></li>
+                            <li><a href="/contact"
+                                    class="text-white">Contact</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-md-2">
+                        <h5>Support</h5>
+                        <ul class="list-unstyled">
+                            <li><a href="/faq" class="text-white">FAQ</a></li>
+                            <li><a href="/returns"
+                                    class="text-white">Returns</a></li>
+                            <li><a href="/shipping"
+                                    class="text-white">Shipping</a></li>
+                            <li><a href="/privacy-policy"
+                                    class="text-white">Privacy Policy</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-md-4">
+                        <h5>Follow Us</h5>
+                        <div class="d-flex">
+                            <a href="https://facebook.com"
+                                class="text-white mr-3"><img
+                                    src="img/facebook-icon.png" alt="Facebook"
+                                    style="width: 24px;"></a>
+                            <a href="https://twitter.com"
+                                class="text-white mr-3"><img
+                                    src="img/twitter-icon.png" alt="Twitter"
+                                    style="width: 24px;"></a>
+                            <a href="https://instagram.com"
+                                class="text-white mr-3"><img
+                                    src="img/instagram-icon.png" alt="Instagram"
+                                    style="width: 24px;"></a>
+                            <a href="https://linkedin.com"
+                                class="text-white"><img
+                                    src="img/linkedin-icon.png" alt="LinkedIn"
+                                    style="width: 24px;"></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-4">
+                    <div class="col text-center">
+                        <p>&copy; 2024 YourCompanyName. All Rights Reserved.</p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+
+        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+        <script
+            src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+        <script
+            src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
         document.getElementById('editForm').addEventListener('submit', async function(event) {
             event.preventDefault();
 
@@ -209,5 +367,6 @@
             }
         });
     </script>
-</body>
+    </body>
+
 </html>

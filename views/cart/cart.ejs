@@ -372,15 +372,16 @@
                     const result = await response.json();
 
                     if (result.success) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Quantity Updated',
-                            text: result.message,
-                            timer: 1500,
-                            showConfirmButton: false
-                        }).then(() => {
-                            location.reload();
-                        });
+                        // Swal.fire({
+                        //     icon: 'success',
+                        //     title: 'Quantity Updated',
+                        //     text: result.message,
+                        //     timer: 1500,
+                        //     showConfirmButton: false
+                        // }).then(() => {
+                        //     location.reload();
+                        // });
+                        location.reload()
                     } else {
                         Swal.fire({
                             icon: 'warning',

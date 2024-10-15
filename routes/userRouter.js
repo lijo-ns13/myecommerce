@@ -40,6 +40,8 @@ router.get('/',async(req,res)=>{
 })
 router.get('/product-detail/:productId',async(req,res)=>{
     const productId=req.params.productId;
+    const user=req.user&&req.user._id?req.user._id:null;
+    console.log('userIddddddddddddddddd',user)
     const product=await Products.findById(productId).populate({
         path:'reviews',
         populate:{
@@ -47,9 +49,10 @@ router.get('/product-detail/:productId',async(req,res)=>{
             select:'name'
         }
     });
+    const productOne=await Products.findById(productId)
     console.log('rq.user',req.user)
     currentUserId=req.user?req.user._id:null;
-    console.log('req.user._id',currentUserId)
+    console.log('currentUserId',currentUserId)
     
     // console.log('products',products)
     const cart=await Cart.find({});
@@ -88,10 +91,10 @@ router.get('/product-detail/:productId',async(req,res)=>{
     // res.json(product)
     if(check){
         res.render('product-detailed',{product:product,relatedProducts:relatedProducts,isOffer:true,
-            canReview: checkPurchase,wishlist})
+            canReview: checkPurchase,wishlist,productOne,user,currentUserId})
     }else{
         res.render('product-detailed',{product:product,relatedProducts:relatedProducts,isOffer:false,
-            canReview: checkPurchase,wishlist})
+            canReview: checkPurchase,wishlist,productOne,user,currentUserId})
     }
     
 })
