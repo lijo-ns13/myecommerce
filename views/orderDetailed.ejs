@@ -198,6 +198,18 @@
                                 <a
                                     href="/user/review/add/<%=orderData.productId%>">Rate
                                     Product</a>
+                                <!-- cancel individual products -->
+                                <% if (order.status === 'pending' ||
+                                order.status === 'processing') { %>
+                                <form id="cancelForm"
+                                    action="/user/orders/cancelsingle/<%= order._id %>/<%= orderData.productId %>/<%=orderData.productSize%>/<%=orderData.productQuantity%>"
+                                    method="post">
+
+                                    <button type="submit">Cancel single
+                                        product</button>
+                                </form>
+                                <% } %>
+
                             </div>
                         </div>
                     </div>
@@ -300,17 +312,16 @@
                                     described</option>
                                 <option value="no_longer_needed">No longer
                                     needed</option>
-                                <option value="other">Other (please
-                                    specify)</option>
+                                <option value="other">Other </option>
                             </select>
                         </div>
-                        <div id="otherReasonInput" class="form-group mb-4"
+                        <!-- <div id="otherReasonInput" class="form-group mb-4"
                             style="display: none;">
                             <label for="otherReason" class="form-label">Please
                                 specify:</label>
                             <textarea id="otherReason" class="form-control"
                                 rows="3"></textarea>
-                        </div>
+                        </div> -->
                         <button type="submit"
                             class="btn btn-primary btn-lg w-100 mt-4">Submit
                             Return Request</button>
@@ -329,6 +340,8 @@
                 </div>
             </div>
         </div>
+        <!-- Include SweetAlert library -->
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
         <script
             src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.all.min.js"></script>
@@ -505,6 +518,52 @@ function verifyPayment(response, razorpayOrderId, orderId) {
 
         // Rest of the previous scripts remain unchanged
     </script>
+        <script>
+            document.querySelectorAll('form[id^="cancelForm"]').forEach(form => {
+                form.addEventListener('submit', function(event) {
+                    event.preventDefault(); // Prevent the default form submission
+                    
+                    const formData = new FormData(this); // Create a FormData object
+        
+                    fetch(this.action, {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Show success message
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success!',
+                                text: data.message,
+                                confirmButtonText: 'OK'
+                            }).then(() => {
+                                // Optionally redirect or reload the page
+                                location.reload(); // Reloads the page to reflect changes
+                            });
+                        } else {
+                            // Show error message
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Oops!',
+                                text: data.message,
+                                confirmButtonText: 'OK'
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error!',
+                            text: 'Something went wrong. Please try again.',
+                            confirmButtonText: 'OK'
+                        });
+                    });
+                });
+            });
+        </script>
 
         <script
             src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>

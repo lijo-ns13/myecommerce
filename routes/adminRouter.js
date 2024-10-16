@@ -27,11 +27,84 @@ router.use(jwtAuth,adminProtected)
 
 
 
+const { getDailyOrderCounts } = require('../services/orderService');
 
 
 
 
+router.get('/orders/counts', async (req, res) => {
+  try {
+    const { timeUnit, startDate, endDate } = req.query;
 
+    // Validate timeUnit
+    const validTimeUnits = ['day', 'month', 'year'];
+    if (!validTimeUnits.includes(timeUnit)) {
+      return res.status(400).json({ error: 'Invalid time unit' });
+    }
+
+    // Validate and parse dates
+    let matchStage = {};
+    if (startDate && endDate) {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      if (isNaN(start) || isNaN(end)) {
+        return res.status(400).json({ error: 'Invalid date format' });
+      }
+      matchStage = {
+        $match: {
+          orderDate: { 
+            $gte: start, 
+            $lte: end 
+          }
+        }
+      };
+    }
+
+    let groupStage = {};
+    switch (timeUnit) {
+      case 'day':
+        groupStage = {
+          $group: {
+            _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+            count: { $sum: 1 },
+            totalAmount: { $sum: "$totalPrice" }
+          }
+        };
+        break;
+      case 'month':
+        groupStage = {
+          $group: {
+            _id: { $dateToString: { format: "%Y-%m", date: "$createdAt" } },
+            count: { $sum: 1 },
+            totalAmount: { $sum: "$totalPrice" }
+          }
+        };
+        break;
+      case 'year':
+        groupStage = {
+          $group: {
+            _id: { $dateToString: { format: "%Y", date: "$createdAt" } },
+            count: { $sum: 1 },
+            totalAmount: { $sum: "$totalPrice" }
+          }
+        };
+        break;
+    }
+
+    const sortStage = { $sort: { _id: 1 } }; // This can remain unchanged
+
+    const orderCounts = await Order.aggregate([
+      matchStage,
+      groupStage,
+      sortStage
+    ]);
+
+    res.json(orderCounts);
+  } catch (error) {
+    console.error('Error fetching order counts:', error);
+    res.status(500).json({ error: 'Error fetching order counts' });
+  }
+});
 
 
 
@@ -60,7 +133,7 @@ router.get('/dashboard', async (req, res) => {
   try {
     const orders = await Order.find({})
     const customers=await User.find({})
-    
+    const dailyCounts = await getDailyOrderCounts();
     
     // for top product,category,brand
     const productcountbybrandcount = await Product.aggregate([
@@ -183,7 +256,8 @@ router.get('/dashboard', async (req, res) => {
       customersCount,
       topSellingCategories,
       topSellingProducts,
-      topSellingBrands
+      topSellingBrands,
+      dailyCounts
     });
   } catch (error) {
     console.error('Error fetching orders:', error); // Log the error for debugging

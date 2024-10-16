@@ -109,7 +109,7 @@
 .top-selling li:hover {
     background-color: #f1f1f1; /* Change background on hover for effect */
 }
-
+.chart-container { position: relative; height: 400px; width: 100%; }
     </style>
     </head>
     <body>
@@ -331,7 +331,29 @@
                 <div id="salesReport" class="mt-3"></div>
             </div>
         </div>
+        <div class="content">
+            <div class="container">
+                <h1>Order Counts</h1>
+                <div>
+                    <label for="timeUnitSelect">Time Unit:</label>
+                    <select id="timeUnitSelect">
+                        <option value="day">Day</option>
+                        <option value="month">Month</option>
+                        <option value="year">Year</option>
+                    </select>
+                    <label for="startDate">Start Date:</label>
+                    <input type="date" id="startDate">
+                    <label for="endDate">End Date:</label>
+                    <input type="date" id="endDate">
+                    <button id="refreshBtn">Refresh Data</button>
+                </div>
+                <div class="chart-container">
+                    <canvas id="orderChart"></canvas>
+                </div>
+            </div>
+        </div>
 
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script>
         document.getElementById('reportType').addEventListener('change', function() {
     const reportType = this.value;
@@ -521,6 +543,112 @@ document.getElementById('downloadPdf').addEventListener('click', function() {
             .catch(error => console.error('Error fetching data:', error)); // Error handling
 
     </script>
+        <script>
+    const ctx = document.getElementById('orderChart').getContext('2d');
+    let orderChart;
+
+    function createChart(data) {
+        if (orderChart) {
+            orderChart.destroy();
+        }
+
+        orderChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: data.map(item => item._id),
+                datasets: [
+                    {
+                        label: 'Order Count',
+                        data: data.map(item => item.count),
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: 'Total Amount',
+                        data: data.map(item => item.totalAmount),
+                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1,
+                        yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        position: 'left',
+                        title: {
+                            display: true,
+                            text: 'Order Count'
+                        }
+                    },
+                    y1: {
+                        beginAtZero: true,
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: 'Total Amount'
+                        },
+                        grid: {
+                            drawOnChartArea: false
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    async function fetchData() {
+        const timeUnit = document.getElementById('timeUnitSelect').value;
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
+
+        // Validate dates
+        if (startDate > endDate) {
+            alert('Start date cannot be later than end date.');
+            return;
+        }
+
+        try {
+            const response = await fetch(`/admin/orders/counts?timeUnit=${timeUnit}&startDate=${startDate}&endDate=${endDate}`);
+            
+            // Check if response is OK
+            if (!response.ok) {
+                throw new Error('Network response was not ok ' + response.statusText);
+            }
+
+            const data = await response.json();
+            createChart(data);
+        } catch (error) {
+            console.error('Error fetching data:', error);
+            alert('An error occurred while fetching data: ' + error.message);
+        }
+    }
+
+    function setDefaultDates() {
+        const endDate = new Date();
+        const startDate = new Date();
+        startDate.setDate(startDate.getDate() - 30);
+        
+        document.getElementById('endDate').value = endDate.toISOString().split('T')[0];
+        document.getElementById('startDate').value = startDate.toISOString().split('T')[0];
+    }
+
+    // Add event listeners
+    document.getElementById('timeUnitSelect').addEventListener('change', fetchData);
+    document.getElementById('startDate').addEventListener('change', fetchData);
+    document.getElementById('endDate').addEventListener('change', fetchData);
+    document.getElementById('refreshBtn').addEventListener('click', fetchData);
+
+    // Set default date range and fetch initial data
+    setDefaultDates();
+    fetchData();
+</script>
 
     </body>
 </html>

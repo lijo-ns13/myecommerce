@@ -61,7 +61,8 @@ router.post('/return/:orderId',async(req,res)=>{
         order.status='pending_return';
         order.returnReason=reason;
         await order.save();
-        res.status(200).json({success:false,message:'order return process started'})
+        // res.status(200).json({success:false,message:'order return process started'})\
+        res.status(200).redirect(`/user/orders/${orderId}`)
 
     } catch (error) {
         console.log('error in post return',error.message);
@@ -214,5 +215,80 @@ router.get('/download-invoice/:orderId', async (req, res) => {
         res.status(400).json({ success: false, message: error.message });
     }
 });
+
+
+// cancel single product
+// /user/orders/cancelsingle/<%=order._id%>/<%=orderData.productId%>
+router.post('/cancelsingle/:orderId/:productId/:productSize/:productQuantity', async (req, res) => {
+    try {
+        const orderId = req.params.orderId;
+        const productSize = req.params.productSize; // Size of the product to cancel
+        const productId = req.params.productId; // ID of the product being canceled
+        const productQuantity = parseInt(req.params.productQuantity, 10); // Quantity to return to stock
+
+        // Fetch the order by ID
+        const order = await Order.findById(orderId);
+        if (!order) {
+            return res.status(404).json({ success: false, message: 'Order not found' });
+        }
+
+        // Ensure there are more than one product in the order
+        if (order.products.length <= 1) {
+            return res.status(400).json({ success: false, message: 'You can’t cancel a single product in a single item. Please cancel the entire order.' });
+        }
+
+        // Fetch the product being canceled
+        const product = await Product.findById(productId);
+        if (!product) {
+            return res.status(404).json({ success: false, message: 'Product not found' });
+        }
+
+        const productPrice = product.price; // Get the price of the product
+        order.originalPrice -= productPrice; // Adjust original price
+
+        let finalPrice = 0;
+
+        // Calculate finalPrice for ordered products
+        for (const orderedProduct of order.orderedProducts) {
+            if (orderedProduct.productId.toString() === productId.toString() && 
+                orderedProduct.productSize.toString() === productSize.toString()) {
+                finalPrice += orderedProduct.productPrice; // Sum the price of matching products
+            }
+        }
+
+        order.totalPrice -= finalPrice; // Adjust the total price
+
+        // Remove the product from the products array based on productId and size
+        order.products = order.products.filter(orderProduct => 
+            !(orderProduct.productId.toString() === productId.toString() && 
+              orderProduct.size && orderProduct.size.toString() === productSize.toString())
+        );
+
+        // Remove the product from orderedProducts based on productId and productSize
+        order.orderedProducts = order.orderedProducts.filter(orderedProduct => 
+            !(orderedProduct.productId.toString() === productId.toString() && 
+              orderedProduct.productSize.toString() === productSize.toString())
+        );
+
+        // Update the product's stock
+        const sizeToUpdate = product.sizes.find(size => size.size.toString() === productSize.toString());
+        if (sizeToUpdate) {
+            sizeToUpdate.stock += productQuantity; // Increment stock by the quantity of the canceled product
+        }
+
+        // Save the updated product stock
+        await product.save();
+
+        // Save the order after all updates
+        await order.save();
+
+        res.status(200).json({ success: true, message: 'Successfully cancelled  product' });
+    } catch (error) {
+        console.log('Error on cancel single product:', error.message);
+        res.status(400).json({ success: false, message: error.message }); 
+    }
+});
+
+
 
 module.exports = router;

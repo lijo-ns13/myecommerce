@@ -1,43 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- noted -->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><%= product.product %> - Product Detail</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <style>
-        body {
-            margin:0;
-            padding:0;
-            box-sizing: border-box;
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #e74c3c;
+            --accent-color: #f39c12;
+            --background-color: #f8f9fa;
+            --text-color: #333;
         }
-		:root {
-    --primary-color: #3498db;
-    --secondary-color: #e74c3c;
-    --accent-color: #f39c12;
-    --background-color: #f4f4f4;
-    --text-color: #333;
-}
 
-/* body {
-    font-family: 'Poppins', sans-serif;
-    background-color: var(--background-color);
-    color: var(--text-color);
-} */
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
 
-.navbar {
-    background-color: rgba(255, 255, 255, 0.9) !important;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-.navbar-brand img {
-    max-height: 50px;
-}
-
-.navbar-nav {
+        .navbar-nav {
     display: flex; /* Use flexbox for alignment */
     align-items: center; /* Center items vertically */
     list-style: none; /* Remove default list styles */
@@ -55,12 +39,6 @@
     text-decoration: none; /* Remove underline from links */
     color: #333; /* Set a default text color */
     font-size: 18px; /* Set a uniform font size */
-    font-weight: 600; /* Set font weight */
-    transition: color 0.3s ease; /* Transition for hover effect */
-}
-
-.nav-link:hover {
-    color: var(--primary-color) !important; /* Hover color */
 }
 
 .nav-link i {
@@ -73,635 +51,442 @@
     height: 30px; /* Set a fixed height for the user profile image */
 }
 
-
         .product-detail {
-        background-color: #fff;
-        border-radius: 10px;
-        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-        padding: 30px;
-        margin-bottom: 30px;
-    }
-    .main-image-container {
-        transition: all 0.3s ease;
-    }
-    .main-image-container:hover {
-        transform: scale(1.02);
-    }
-    .image-overlay {
-        background-color: rgba(0, 0, 0, 0.5);
-        opacity: 0;
-        transition: opacity 0.3s ease;
-    }
-    .main-image-container:hover .image-overlay {
-        opacity: 1;
-    }
-    .thumbnail {
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-    .thumbnail:hover {
-        transform: scale(1.05);
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-    }
-    .product-title {
-        font-size: 2.5rem;
-        font-weight: 700;
-    }
-    .size-button {
-        min-width: 50px;
-    }
-    .size-button.active {
-        background-color: #007bff;
-        color: #fff;
-    }
-/* Ensure the colors align with your design */
-.text-danger {
-    color: red; /* Color for liked items */
-}
-
-.text-muted {
-    color: gray; /* Color for not liked items */
-}
-.btn-wishlist {
-    font-size: 16px;
-    font-weight: 600;
-    color: #ff5252;  /* Red color for the heart icon */
-    background-color: transparent;
-    border-color: #ff5252;  /* Red border for the button */
-    border-radius: 30px;
-    padding: 8px 20px;
-    transition: background-color 0.3s, color 0.3s;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.btn-wishlist:hover {
-    background-color: #ff5252;  /* Red background on hover */
-    color: white;  /* White text on hover */
-}
-
-.btn-wishlist i {
-    font-size: 18px;
-}
-
-/* reviews */
-.reviews-container {
-            max-width: 1000px;
-            margin: 2rem auto;
-            padding: 2rem;
-            background-color: #ffffff;
-            border-radius: 12px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            background-color: #fff;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            margin-bottom: 40px;
         }
+
+        .main-image-container {
+            position: relative;
+            overflow: hidden;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .main-image-container img {
+            transition: transform 0.3s ease;
+        }
+
+        .main-image-container:hover img {
+            transform: scale(1.05);
+        }
+
+        .thumbnail-images {
+            margin-top: 20px;
+        }
+
+        .thumbnail {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 5px;
+        }
+
+        .thumbnail:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .product-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .product-rating {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+
+        .product-price {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+
+        .product-description {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .size-selection {
+            margin-bottom: 30px;
+        }
+
+        .size-button {
+            font-size: 1rem;
+            font-weight: 500;
+            padding: 10px 20px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .size-button:hover, .size-button.active {
+            background-color: var(--primary-color);
+            color: #fff;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border: none;
+            font-size: 1.1rem;
+            font-weight: 600;
+            padding: 12px 30px;
+            border-radius: 30px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #2980b9;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .btn-outline-danger {
+            font-size: 1.1rem;
+            font-weight: 600;
+            padding: 12px 30px;
+            border-radius: 30px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-danger:hover {
+            background-color: var(--secondary-color);
+            color: #fff;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3);
+        }
+        .reviews-containertwo {
+    max-height: 300px; /* Adjust the height as needed */
+    overflow-y: auto; /* Enable vertical scrolling */
+    padding: 15px; /* Add padding for better appearance */
+    border: 1px solid #ddd; /* Optional: Add a border */
+    border-radius: 8px; /* Optional: Rounded corners */
+    background-color: #f9f9f9; /* Optional: Background color */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Optional: Slight shadow for depth */
+}
+
+.review-item {
+    padding: 10px;
+    border-bottom: 1px solid #eee; /* Divider between reviews */
+}
+
+.review-item:last-child {
+    border-bottom: none; /* Remove border from last review */
+}
+
+.no-reviews {
+    text-align: center; /* Center content for no reviews */
+    margin-top: 20px;
+}
+
+        .reviews-container {
+            background-color: #fff;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            margin-bottom: 40px;
+        }
+
         .section-title {
             font-size: 2.5rem;
-            color: #2c3e50;
-            margin-bottom: 2rem;
-            text-align: center;
             font-weight: 700;
-        }
-        .rating-summary {
-            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
-            color: white;
-            padding: 2rem;
-            border-radius: 10px;
+            color: var(--text-color);
+            margin-bottom: 30px;
             text-align: center;
-            margin-bottom: 2rem;
         }
+
+        .rating-summary {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
         .rating-number {
-            font-size: 4rem;
+            font-size: 5rem;
             font-weight: bold;
             line-height: 1;
-            margin-bottom: 0.5rem;
+            margin-bottom: 10px;
         }
+
         .star-rating {
-            font-size: 1.5rem;
-            color: #ffd700;
+            font-size: 2rem;
+            color: #f1c40f;
+            margin-bottom: 10px;
         }
+
         .review-count {
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             opacity: 0.9;
         }
+
         .rating-bars {
-            background-color: #f1f3f5;
-            padding: 1.5rem;
-            border-radius: 10px;
+            background-color: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
         }
+
         .rating-bar {
             display: flex;
             align-items: center;
-            margin-bottom: 0.75rem;
+            margin-bottom: 15px;
         }
+
         .bar-label {
             flex: 0 0 50px;
             font-weight: bold;
+            font-size: 1.1rem;
         }
+
         .progress {
             flex-grow: 1;
-            height: 12px;
+            height: 15px;
             background-color: #e9ecef;
-            border-radius: 6px;
+            border-radius: 10px;
             overflow: hidden;
-            margin: 0 1rem;
+            margin: 0 15px;
         }
+
         .progress-bar {
             height: 100%;
-            background-color: #ffd700;
-            transition: width 0.3s ease;
+            background-color: var(--primary-color);
+            transition: width 0.5s ease;
         }
+
         .bar-value {
             flex: 0 0 40px;
             text-align: right;
-            font-size: 0.9rem;
+            font-size: 1rem;
             color: #6c757d;
         }
+
+        .btn-review {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .btn-review:hover {
+            background-color: #2980b9;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        }
+
         .review-item {
             background-color: #ffffff;
-            border-radius: 8px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
+
         .review-item:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
         }
-        .review-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
+
         .user-info {
             display: flex;
             align-items: center;
+            margin-bottom: 15px;
         }
+
         .user-avatar {
-            width: 50px;
-            height: 50px;
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
-            margin-right: 1rem;
+            margin-right: 15px;
             object-fit: cover;
         }
+
         .user-name {
             font-weight: 600;
-            margin-bottom: 0.25rem;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
         }
+
         .review-date {
             font-size: 0.9rem;
             color: #6c757d;
         }
+
         .review-content {
+            font-size: 1rem;
             line-height: 1.6;
+            margin-bottom: 15px;
         }
-        .btn-review {
-            display: inline-block;
-            background-color: #007bff;
-            color: white;
-            padding: 0.75rem 1.5rem;
-            border-radius: 5px;
-            text-decoration: none;
-            font-weight: 600;
-            transition: background-color 0.2s ease;
-            margin-top: 1rem;
-        }
-        .btn-review:hover {
-            background-color: #0056b3;
-        }
+
         .btn-delete, .btn-edit {
-            padding: 0.25rem 0.75rem;
-            border-radius: 4px;
+            padding: 8px 15px;
+            border-radius: 20px;
             font-size: 0.9rem;
-            margin-right: 0.5rem;
-            transition: opacity 0.2s ease;
+            font-weight: 500;
+            margin-right: 10px;
+            transition: all 0.3s ease;
         }
+
         .btn-delete {
-            background-color: #dc3545;
+            background-color: var(--secondary-color);
             color: white;
             border: none;
         }
+
         .btn-edit {
-            background-color: #ffc107;
-            color: #212529;
+            background-color: var(--accent-color);
+            color: white;
             text-decoration: none;
         }
+
         .btn-delete:hover, .btn-edit:hover {
             opacity: 0.8;
+            transform: translateY(-2px);
         }
-        .no-reviews {
-            text-align: center;
-            padding: 3rem;
-            background-color: #e9ecef;
-            border-radius: 8px;
-            font-size: 1.1rem;
-            color: #6c757d;
-        }
-/* 
- */
- .thumbnail-images img {
-        cursor: pointer;
-        transition: transform 0.3s;
-    }
-    
-    .thumbnail-images img:hover {
-        transform: scale(1.05);
-    }
-
-    .zoom-container {
-        position: relative;
-        overflow: hidden;
-    }
-
-    .product-zoom {
-        transition: transform 0.5s ease;
-    }
-
-    .zoom-container:hover .product-zoom {
-        transform: scale(1.2); /* Adjust the zoom level as needed */
-    }
-    
-    .product-rating .star {
-        font-size: 1.5rem;
-        color: #FFD700; /* Gold color for stars */
-    }
-    
-    .product-price .line-through {
-        text-decoration: line-through;
-        color: #ff0000; /* Red color for original price */
-    }
-
-    .size-button {
-        margin: 0.2rem;
-    }
-
-    .btn-custom {
-        background-color: #28a745;
-        color: white;
-    }
-    
-    .btn-custom:hover {
-        background-color: #218838;
-    }
-    
-    .btn-wishlist {
-        border: 2px solid #dc3545;
-    }
-
-    .btn-wishlist:hover {
-        background-color: #dc3545;
-        color: white;
-    }
-    /*  */
-    .related-products-section {
+        .related-products-section {
     background-color: #f8f9fa;
+    padding: 60px 0;
 }
 
 .section-title {
-    font-size: 2.5rem;
+    font-size: 2rem;
     font-weight: 700;
-    color: #333;
-    position: relative;
-    padding-bottom: 15px;
+    margin-bottom: 30px;
+    text-align: center;
+    color: var(--primary-color);
 }
 
-.section-title::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 50px;
-    height: 3px;
-    background-color: #007bff;
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 30px;
 }
 
-.product-card {
-    background-color: #fff;
-    border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
-    height: 100%;
-}
-
-.product-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-}
-
-.product-image-wrapper {
-    position: relative;
+.product-box {
+    background-color: #ffffff;
+    border-radius: 15px;
     overflow: hidden;
-    border-top-left-radius: 10px;
-    border-top-right-radius: 10px;
-}
-
-.product-image-carousel {
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
     position: relative;
-    padding-top: 100%; /* 1:1 Aspect Ratio */
 }
 
-.product-image {
-    position: absolute;
-    top: 0;
-    left: 0;
+.product-box:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+}
+
+.product-images {
+    position: relative;
+    height: 250px;
+    overflow: hidden;
+}
+
+.product-images img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    opacity: 0;
-    transition: opacity 0.5s ease;
+    transition: opacity 0.5s ease, transform 0.5s ease;
 }
 
-.product-image.active {
+.product-images img.active {
     opacity: 1;
+    transform: scale(1.05);
 }
 
-.product-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.product-image-wrapper:hover .product-overlay {
-    opacity: 1;
-}
-
-.btn-wishlist {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background-color: #fff;
-    border: none;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    z-index: 1;
-}
-
-.btn-wishlist i {
-    color: #ccc;
-    font-size: 1.2rem;
-    transition: color 0.3s ease;
-}
-
-.btn-wishlist.active i,
-.btn-wishlist:hover i {
-    color: #dc3545;
-}
-
-.product-info {
-    padding: 1rem;
+.product-content {
+    padding: 20px;
 }
 
 .product-title {
-    font-size: 1rem;
+    font-size: 1.2rem;
     font-weight: 600;
-    margin-bottom: 0.5rem;
-    color: #333;
+    margin-bottom: 10px;
+    color: var(--text-color);
 }
 
-.product-rating {
-    font-size: 0.9rem;
+.rating {
+    margin: 10px 0;
 }
 
-.rating-count {
-    color: #6c757d;
-    font-size: 0.8rem;
-    margin-left: 5px;
+.star {
+    color: #ccc;
+    font-size: 1.2rem;
 }
 
-.product-price {
-    font-weight: 600;
-    margin-top: 0.5rem;
+.star.filled {
+    color: #f39c12; /* Gold color for filled stars */
+}
+
+.price-container {
+    margin-bottom: 10px;
 }
 
 .original-price {
     text-decoration: line-through;
-    color: #6c757d;
+    color: #999;
     margin-right: 5px;
 }
 
 .final-price {
-    color: #28a745;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--primary-color);
 }
 
-.discount-badge {
-    background-color: #dc3545;
-    color: #fff;
-    font-size: 0.8rem;
-    padding: 2px 5px;
-    border-radius: 3px;
-    margin-left: 5px;
-}
-
-.product-availability .badge {
-    font-size: 0.8rem;
+.stock-status {
+    font-size: 0.9rem;
     font-weight: 500;
-}
-#zoomed-image-container {
-    display: none; /* Hidden by default */
-    top: 0;
-    left: 0;
-    pointer-events: none; /* Prevents mouse events from interacting with the container */
-    z-index: 1000; /* Ensures the zoomed image is on top */
+    padding: 5px 10px;
+    border-radius: 20px;
+    display: inline-block;
 }
 
-#zoomed-image {
-    position: absolute;
-    border: 2px solid #000; /* Optional: add a border for better visibility */
+.in-stock {
+    background-color: #2ecc71;
+    color: white;
 }
 
-.product-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 40px;
-            padding: 20px;
-        }
+.out-of-stock {
+    background-color: var(--secondary-color);
+    color: white;
+}
 
-        .product-box {
-            background-color: #ffffff;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-            transition: all 0.4s ease;
-            text-decoration: none;
-            color: inherit;
-            display: flex;
-            flex-direction: column;
-        }
+.btn.add-to-cart {
+    display: inline-block;
+    padding: 10px 15px;
+    background-color: var(--primary-color);
+    color: white;
+    border-radius: 25px;
+    text-align: center;
+    text-decoration: none;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+}
 
-        .product-box:hover {
-            transform: translateY(-15px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-        }
-
-        .product-images {
-            position: relative;
-            height: 300px;
-            overflow: hidden;
-        }
-
-        .product-images img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            position: absolute;
-            top: 0;
-            left: 0;
-            opacity: 0;
-            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
-        }
-
-        .product-images img.active {
-            opacity: 1;
-            transform: scale(1.05);
-        }
-
-        .product-content {
-            padding: 25px;
-        }
-
-        .product-title {
-            font-size: 1.3rem;
-            font-weight: 600;
-            margin-bottom: 15px;
-            color: var(--text-color);
-        }
-
-        .product-details {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .price-container {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-        }
-
-        .original-price {
-            text-decoration: line-through;
-            color: #999;
-            font-size: 0.9rem;
-        }
-
-        .final-price {
-            font-size: 1.6rem;
-            color: var(--accent-color);
-            font-weight: bold;
-        }
-
-        .discount-percentage {
-            background-color: var(--accent-color);
-            color: white;
-            padding: 4px 8px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: bold;
-            margin-top: 5px;
-        }
-
-        .stock-status {
-            font-size: 0.9rem;
-            font-weight: 600;
-            padding: 6px 12px;
-            border-radius: 20px;
-        }
-
-        .in-stock {
-            background-color: var(--secondary-color);
-            color: white;
-        }
-
-        .out-of-stock {
-            background-color: var(--accent-color);
-            color: white;
-        }
-
-        .text-danger {
-            color: var(--accent-color);
-        }
-
-        .text-muted {
-            color: #95a5a6;
-        }
+.btn.add-to-cart:hover {
+    background-color: #27ae60; /* Darker shade of primary color */
+}
 
         @media (max-width: 768px) {
             .product-grid {
                 grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-                gap: 30px;
             }
         }
-        /* reivew */
-        #ratings-reviews {
-    background-color: #f8f9fa;
-}
-
-.product-rating .fas.fa-star,
-.product-rating .far.fa-star {
-    color: #ffc107;
-}
-
-.star-rating {
-    display: inline-flex;
-    flex-direction: row-reverse;
-    font-size: 1.5em;
-    justify-content: space-around;
-    padding: 0 .2em;
-    text-align: center;
-    width: 5em;
-}
-
-.star-rating input {
-    display: none;
-}
-
-.star-rating label {
-    color: #ccc;
-    cursor: pointer;
-}
-
-.star-rating :checked ~ label {
-    color: #f90;
-}
-
-.star-rating label:hover,
-.star-rating label:hover ~ label {
-    color: #fc0;
-}
-
-.review-item {
-    transition: transform 0.3s ease-in-out;
-}
-
-.review-item:hover {
-    transform: translateY(-5px);
-}
-
-#addReviewBtn {
-    transition: all 0.3s ease;
-}
-
-#addReviewBtn:hover {
-    transform: scale(1.05);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-}
     </style>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/elevatezoom/3.0.8/jquery.elevatezoom.min.js"></script>
@@ -798,14 +583,16 @@
                 <div class="d-flex align-items-center mb-3">
                     <div class="product-rating mr-3">
                         <% for (let i = 1; i <= 5; i++) { %>
-                            <% if (i <= product.rating) { %>
-                                <i class="fas fa-star text-warning"></i>
+                            <% if (i <= Math.floor(avgRating)) { %>
+                                <i class="fas fa-star"></i> <!-- Full star -->
+                            <% } else if (i === Math.ceil(avgRating) && avgRating % 1 !== 0) { %>
+                                <i class="fas fa-star-half-alt"></i> <!-- Half star -->
                             <% } else { %>
-                                <i class="far fa-star text-warning"></i>
+                                <i class="far fa-star"></i> <!-- Empty star -->
                             <% } %>
                         <% } %>
                     </div>
-                    <span class="text-muted">(<%= product.rating %> / 5)</span>
+                    <!-- <span class="text-muted">(<%= avgRating %> / 5)</span> -->
                 </div>
     
                 <div class="pricing mb-4">
@@ -860,22 +647,26 @@
 
 
 </div>
+<div class="container">
 <div class="reviews-container">
     <h2 class="section-title">Customer Feedback</h2>
     
     <div class="row">
         <div class="col-md-4">
             <div class="rating-summary">
-                <div class="rating-number">4.0</div>
+                <div class="rating-number"><%=avgRating%></div>
                 <div class="star-rating">
                     <% for (let i = 1; i <= 5; i++) { %>
-                        <% if (i <= Math.round(product.rating)) { %>
-                            <i class="fas fa-star"></i>
+                        <% if (i <= Math.floor(avgRating)) { %>
+                            <i class="fas fa-star"></i> <!-- Full star -->
+                        <% } else if (i === Math.ceil(avgRating) && avgRating % 1 !== 0) { %>
+                            <i class="fas fa-star-half-alt"></i> <!-- Half star -->
                         <% } else { %>
-                            <i class="far fa-star"></i>
+                            <i class="far fa-star"></i> <!-- Empty star -->
                         <% } %>
                     <% } %>
                 </div>
+                
                 <div class="review-count"><%= product.reviews.length %> reviews</div>
             </div>
         </div>
@@ -885,8 +676,17 @@
                     <div class="rating-bar">
                         <div class="bar-label"><%= i %> <i class="fas fa-star" style="color: #ffd700;"></i></div>
                         <div class="progress">
-                            <% const percentage = (product.reviews.filter(review => review.rating === i).length / product.reviews.length) * 100 %>
-                            <div class="progress-bar" style="width: <%= percentage %>%"></div>
+                            <% 
+                              // Calculate the number of reviews with rating i
+                              const countWithRatingI = product.reviews.filter(review => review.rating === i).length;
+
+                              // Calculate the percentage, ensuring no division by zero
+                              const percentage = product.reviews.length > 0 
+                                ? (countWithRatingI / product.reviews.length) * 100 
+                                : 0; 
+                            %>
+<div class="progress-bar" style="width: <%= percentage.toFixed(2) %>%"></div>
+
                         </div>
                         <div class="bar-value"><%= Math.round(percentage) %>%</div>
                     </div>
@@ -897,39 +697,41 @@
 
     <a href="/user/review/add/<%=product._id%>" class="btn-review">Write a Review</a>
    
+
     <div id="reviewsList" class="mt-5">
         <% if (product.reviews.length > 0) { %>
-            <% product.reviews.forEach(review => { %>
-                <div class="review-item">
-                    <div class="review-header">
-                        <div class="user-info">
-                            <img src="https://i.pravatar.cc/150?u=<%= review.user._id %>" alt="User Avatar" class="user-avatar">
-                            <div>
-                                <div class="user-name"><%= review.user.name %></div>
-                                <div class="star-rating">
-                                    <% for (let i = 5; i >= 1; i--) { %>  <!-- Start from 5 and go to 1 -->
-                                        <% if (i <= review.rating) { %>
-                                            <i class="fas fa-star"></i>  <!-- Filled star -->
-                                        <% } else { %>
-                                            <i class="far fa-star"></i>   <!-- Empty star -->
+            <div class="reviews-containertwo">
+                <% product.reviews.forEach(review => { %>
+                    <div class="review-item">
+                        <div class="review-header">
+                            <div class="user-info">
+                                <img src="https://i.pravatar.cc/150?u=<%= review.user._id %>" alt="User Avatar" class="user-avatar">
+                                <div>
+                                    <div class="user-name"><%= review.user.name %></div>
+                                    <div class="star-rating">
+                                        <% for (let i = 5; i >= 1; i--) { %>  <!-- Start from 5 and go to 1 -->
+                                            <% if (i <= review.rating) { %>
+                                                <i class="fas fa-star"></i>  <!-- Filled star -->
+                                            <% } else { %>
+                                                <i class="far fa-star"></i>   <!-- Empty star -->
+                                            <% } %>
                                         <% } %>
-                                    <% } %>
+                                    </div>
                                 </div>
-                                
+                            </div>
+                            <div class="review-date">
+                                <%= new Date(review.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %>
                             </div>
                         </div>
-                        <div class="review-date">
-                            <%= new Date(review.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %>
-                        </div>
+                        <p class="review-content"><%= review.comment %></p>
+    
+                        <% if (review.user._id.toString() === currentUserId.toString()) { %>
+                            <button class="btn-delete" onclick="deleteReview('<%= review._id %>', '<%= product._id %>')">Delete</button>
+                            <a href="/user/review/edit/<%= review._id %>" class="btn-edit">Edit</a>
+                        <% } %>
                     </div>
-                    <p class="review-content"><%= review.comment %></p>
-
-                    <% if (review.user._id.toString() === currentUserId.toString()) { %>
-                        <button class="btn-delete" onclick="deleteReview('<%= review._id %>', '<%= product._id %>')">Delete</button>
-                        <a href="/user/review/edit/<%= review._id %>" class="btn-edit">Edit</a>
-                    <% } %>
-                </div>
-            <% }) %>
+                <% }) %>
+            </div>
         <% } else { %>
             <div class="no-reviews">
                 <i class="fas fa-comment-alt fa-3x mb-3"></i>
@@ -937,11 +739,13 @@
             </div>
         <% } %>
     </div>
+    
 </div>
-   <!-- Related Products Section -->
+</div>
+  <!-- Related Products Section -->
 <section class="related-products-section py-5 bg-light">
     <div class="container">
-        <h2>Related Products</h2>
+        <h2 class="section-title">Related Products</h2>
         <div class="product-grid">
             <% for (const product of relatedProducts) { %>
                 <div class="product-box">
@@ -954,7 +758,11 @@
                     </a>
                     <div class="product-content">
                         <h3 class="product-title"><%= product.product %></h3>
-                        
+                        <div class="rating">
+                            <% for (let i = 0; i < 5; i++) { %>
+                                <span class="star <%= i < product.rating ? 'filled' : '' %>">★</span>
+                            <% } %>
+                        </div>
                         <div class="product-details">
                             <div class="price-container">
                                 <% if (product.offerApplied) { %>
@@ -972,19 +780,16 @@
                                 <%= product.sizes.some(size => size.stock > 0) ? 'In Stock' : 'Out of Stock' %>
                             </span>
                         </div>
+                        
                     </div>
                 </div>
             <% } %>
         </div>
     </div>
-    </div>
 </section>
 
-<% if (productOne && Array.isArray(productOne.purchasedByUserIds) && productOne.purchasedByUserIds.includes(user)) { %>
-    <h1>Can review</h1>
-<% } else { %>
-    <h1>No add review</h1>
-<% } %>
+
+
 
 
     <%- include('partials/footer') %>

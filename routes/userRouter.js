@@ -44,11 +44,25 @@ router.get('/product-detail/:productId',async(req,res)=>{
     console.log('userIddddddddddddddddd',user)
     const product=await Products.findById(productId).populate({
         path:'reviews',
+        select: 'rating comment date isDeleted',
         populate:{
             path:'user',
             select:'name'
         }
     });
+    console.log('productreviews',product.reviews)
+    
+    let ratings=product.reviews.map(review=>review.rating);
+    let totalRatingCount=ratings.length;
+    let rating=ratings.reduce((acc,cur)=>acc+cur,0);
+    let avgRating=rating/totalRatingCount;
+    if(typeof(avgRating)==='number' && !isNaN(avgRating)){
+        avgRating=avgRating.toFixed(2);
+    }else{
+        avgRating=0;
+    }
+    console.log('avgRating',avgRating)
+    console.log('ratinnnnnnnnnnnnnngafasfasfd',ratings)
     const productOne=await Products.findById(productId)
     console.log('rq.user',req.user)
     currentUserId=req.user?req.user._id:null;
@@ -91,10 +105,10 @@ router.get('/product-detail/:productId',async(req,res)=>{
     // res.json(product)
     if(check){
         res.render('product-detailed',{product:product,relatedProducts:relatedProducts,isOffer:true,
-            canReview: checkPurchase,wishlist,productOne,user,currentUserId})
+            canReview: checkPurchase,wishlist,productOne,user,currentUserId,avgRating})
     }else{
         res.render('product-detailed',{product:product,relatedProducts:relatedProducts,isOffer:false,
-            canReview: checkPurchase,wishlist,productOne,user,currentUserId})
+            canReview: checkPurchase,wishlist,productOne,user,currentUserId,avgRating})
     }
     
 })

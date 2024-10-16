@@ -30,9 +30,45 @@ const getWishlist = async (req, res) => {
         res.status(500).json({ success: false, message: 'Error fetching wishlist.' });
     }
 };
+const postWishlistAdd=async (req, res) => {
+    try {
+        const productId = req.params.productId;
+        const userId = req.user._id;
 
+        const user = await User.findById(userId);
+        if(user.wishlist.includes(productId)){
+            return res.status(400).json({ message: "Product already in wishlist" });
+        }
+        if (!user.wishlist.includes(productId)) {
+            user.wishlist.push(productId);
+            await user.save();
+        }
 
+        return res.json({ success: true, message: 'Added to wishlist!' });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ success: false, message: 'Error adding to wishlist.' });
+    }
+}
+const postRemoveWishlist=async (req, res) => {
+    try {
+        const productId = req.params.productId;
+        const userId = req.user._id;
+
+        const user = await User.findById(userId);
+        user.wishlist = user.wishlist.filter(id => id.toString() !== productId);
+        await user.save();
+
+        return res.json({ success: true, message: 'Removed from wishlist!' });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ success: false, message: 'Error removing from wishlist.' });
+    }
+}
 
 module.exports = {
-    getWishlist
+    getWishlist,
+    postWishlistAdd,
+    postRemoveWishlist
+
 }
