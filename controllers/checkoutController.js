@@ -125,15 +125,15 @@ const postCheckout = async (req, res) => {
             const category=await Category.findById(productDetails.category);
             category.orderCount+=product.quantity;
             await category.save();
-            if (!productDetails.purchasedByUserIds.includes(userId)) {
+            // if (!productDetails.purchasedByUserIds.includes(userId)) {
                 
-                productDetails.purchasedByUserIds.push(userId);
+            //     productDetails.purchasedByUserIds.push(userId);
                                 
-                await productDetails.save();
-                console.log(`User ${userId} added to purchasedByUserIds for product ${product.productId}`);
-            } else {
-                console.log(`User ${userId} has already purchased product ${product.productId}`);
-            }
+            //     await productDetails.save();
+            //     console.log(`User ${userId} added to purchasedByUserIds for product ${product.productId}`);
+            // } else {
+            //     console.log(`User ${userId} has already purchased product ${product.productId}`);
+            // }
         }
         
         const calculateDeliveryDate = (daysToAdd) => {

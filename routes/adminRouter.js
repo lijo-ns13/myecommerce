@@ -29,7 +29,55 @@ router.use(jwtAuth,adminProtected)
 
 const { getDailyOrderCounts } = require('../services/orderService');
 
+router.get('/sales/graph', async (req, res) => {
+  try {
+    const { type } = req.query;
+    let pipeline = [];
+    let groupBy = {};
+    let sortBy = {};
 
+    if (type === 'yearly') {
+      groupBy = { $year: '$orderDate' };
+      sortBy = { _id: 1 };
+    } else if (type === 'monthly') {
+      groupBy = { 
+        year: { $year: '$orderDate' },
+        month: { $month: '$orderDate' }
+      };
+      sortBy = { '_id.year': 1, '_id.month': 1 };
+    } else if (type === 'weekly') {
+      groupBy = { 
+        year: { $year: '$orderDate' },
+        week: { $week: '$orderDate' }
+      };
+      sortBy = { '_id.year': 1, '_id.week': 1 };
+    }
+
+    pipeline = [
+      { $match: { status: 'delivered' } },
+      { $group: {
+        _id: groupBy,
+        sales: { $sum: '$totalPrice' }
+      }},
+      { $sort: sortBy }
+    ];
+
+    const salesData = await Order.aggregate(pipeline);
+
+    // Format the data for the chart
+    const formattedData = salesData.map(item => ({
+      name: type === 'yearly' ? item._id.toString() :
+            type === 'monthly' ? `${item._id.year}-${item._id.month}` :
+            `${item._id.year}-W${item._id.week}`,
+      sales: item.sales
+    }));
+
+    res.json(formattedData);
+  } catch (error) {
+    console.error('Error fetching sales graph data:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
 
 
 router.get('/orders/counts', async (req, res) => {
@@ -133,7 +181,7 @@ router.get('/dashboard', async (req, res) => {
   try {
     const orders = await Order.find({})
     const customers=await User.find({})
-    const dailyCounts = await getDailyOrderCounts();
+    
     
     // for top product,category,brand
     const productcountbybrandcount = await Product.aggregate([
@@ -256,8 +304,7 @@ router.get('/dashboard', async (req, res) => {
       customersCount,
       topSellingCategories,
       topSellingProducts,
-      topSellingBrands,
-      dailyCounts
+      topSellingBrands
     });
   } catch (error) {
     console.error('Error fetching orders:', error); // Log the error for debugging
@@ -366,7 +413,7 @@ router.get('/sales/report/pdf', async (req, res) => {
           });
       }
 
-      const html = await generatePdfHtml(salesData, orders); // Pass orders instead of startDate, endDate
+      const html = await generatePdfHtml(salesData, orders, type, start, end); // Pass orders instead of startDate, endDate
       const options = { format: 'A4' };
 
       pdf.create(html, options).toBuffer((err, buffer) => {
@@ -414,11 +461,51 @@ function getDateRange(type) {
   return { start, end };
 }
 
-async function generatePdfHtml(salesData, orders) {
+async function generatePdfHtml(salesData, orders, type, startDate, endDate) {
   let totalSales = salesData.reduce((total, sale) => total + sale.totalSales, 0).toFixed(2);
   let totalDiscount = salesData.reduce((total, sale) => total + sale.totalDiscount, 0).toFixed(2);
   let totalOrders = salesData.reduce((total, sale) => total + sale.orderCount, 0);
 
+  // Get the current date for daily reports or when dates are not provided
+  const currentDate = new Date();
+
+  // Define variables for the report title
+  let reportTitle = '';
+  let datePart = '';
+
+  // Handle different types of reports
+  switch (type) {
+      case 'daily':
+          reportTitle = `Daily Sales Report - ${currentDate.toLocaleDateString()}`;
+          break;
+      case 'weekly':
+          if (startDate && endDate) {
+              reportTitle = `Weekly Sales Report (${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()})`;
+          } else {
+              reportTitle = 'Weekly Sales Report';
+          }
+          break;
+      case 'monthly':
+          // Display the month and year (e.g., October 2024)
+          const monthName = currentDate.toLocaleString('default', { month: 'long' });
+          const year = currentDate.getFullYear();
+          reportTitle = `Monthly Sales Report - ${monthName} ${year}`;
+          break;
+      case 'yearly':
+          // Display only the year (e.g., 2024)
+          const reportYear = currentDate.getFullYear();
+          reportTitle = `Yearly Sales Report - ${reportYear}`;
+          break;
+      case 'custom':
+          if (startDate && endDate) {
+              reportTitle = `Custom Sales Report (${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()})`;
+          } else {
+              reportTitle = 'Custom Sales Report';
+          }
+          break;
+      default:
+          reportTitle = `Sales Report`;
+  }
   let html = `
   <html>
     <head>
@@ -475,6 +562,7 @@ async function generatePdfHtml(salesData, orders) {
       </style>
     </head>
     <body>
+    <h1>${reportTitle}</h1>
       <h1>Sales Report</h1>
       
       <div class="summary">

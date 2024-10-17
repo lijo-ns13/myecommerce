@@ -1,37 +1,53 @@
+// controllers/orderController.js
 const Order = require('../models/orderSchema');
 
-async function getDailyOrderCounts() {
-    const today = new Date();
-    const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-    const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
+// Get orders based on time period
+const getOrdersByTimePeriod = async (req, res) => {
+    const { period } = req.params; // 'daily', 'weekly', 'monthly', 'yearly'
+
+    let startDate;
+    const endDate = new Date();
+
+    switch (period) {
+        case 'daily':
+            startDate = new Date(endDate);
+            startDate.setDate(endDate.getDate() - 1);
+            break;
+        case 'weekly':
+            startDate = new Date(endDate);
+            startDate.setDate(endDate.getDate() - 7);
+            break;
+        case 'monthly':
+            startDate = new Date(endDate);
+            startDate.setMonth(endDate.getMonth() - 1);
+            break;
+        case 'yearly':
+            startDate = new Date(endDate);
+            startDate.setFullYear(endDate.getFullYear() - 1);
+            break;
+        default:
+            return res.status(400).json({ message: 'Invalid period' });
+    }
 
     try {
-        const results = await Order.aggregate([
-            {
-                $match: {
-                    orderDate: {
-                        $gte: startOfDay,
-                        $lt: endOfDay
-                    }
-                }
-            },
-            {
-                $group: {
-                    _id: { $dateToString: { format: "%Y-%m-%d", date: "$orderDate" } },
-                    count: { $sum: 1 }
-                }
-            },
-            {
-                $sort: { _id: 1 } // Sort by date ascending
-            }
-        ]);
+        const orders = await Order.find({
+            orderDate: { $gte: startDate, $lte: endDate },
+        });
 
-        // Convert results to an array of counts
-        return results.map(result => result.count);
+        const labels = orders.map(order => new Date(order.orderDate).toLocaleDateString());
+        const data = orders.map(order => order.totalPrice);
+
+        return res.render('orderChart', {
+            labels,
+            data,
+            period,
+            totalOrders: orders.length,
+            totalRevenue: orders.reduce((acc, order) => acc + order.totalPrice, 0),
+        });
     } catch (error) {
-        console.error('Error fetching daily order counts:', error);
-        throw error; // Rethrow to handle at the API level
+        return res.status(500).json({ message: 'Server error', error });
     }
-}
+};
 
-module.exports = { getDailyOrderCounts };
+module.exports = { getOrdersByTimePeriod };
+

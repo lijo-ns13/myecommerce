@@ -536,7 +536,7 @@ const getEditOrder=async (req, res) => {
     try {
         const { orderId } = req.params;
         const { status } = req.body; 
-
+      console.log('status',status)
         const order = await Order.findById(orderId).populate('products.productId'); // Populate product details
 
         if (!order) {
@@ -600,7 +600,7 @@ const getEditOrder=async (req, res) => {
                 }
             }
         }
-
+        
         // Create a transporter
         const transporter = nodemailer.createTransport({
             service: 'gmail', // Use your email service
@@ -637,46 +637,63 @@ const getEditOrder=async (req, res) => {
             const subject = 'Your order returned successfully and payment credit to your wallet in future days';
             sendEmail(email, 'Order returned Successfully', subject);
         }
-
-        if (order.status === 'refunded') {
-            const userId = order.userId;
-            const user = await User.findById(userId);
-            if (!user) {
-                return res.status(404).json({ success: false, message: 'User not found' });
-            }
-            
-            let walletId = user.walletId; // Assuming user has a walletId field
-            let wallet;
-            const refundAmount = order.totalPrice; // Assuming this is the amount to be refunded
-
-            // Check if the user has a wallet
-            if (walletId) {
-                wallet = await Wallet.findById(walletId);
-            }
-
-            // If wallet doesn't exist, create a new one
-            if (!wallet) {
-                // Create a new wallet for the user
-                wallet = new Wallet({
-                    userId: userId, // Set the userId reference
-                    balance: 0      // Initial balance can be 0
-                });
-                await wallet.save();
-                // Update the user's walletId to the new wallet
-                user.walletId = wallet._id;
-                await user.save();
-            }
-
-            // Update the wallet balance
-            wallet.balance += refundAmount; // Adjust this based on your wallet schema
-            await wallet.save();
-
-            // Send an email notification
-            const email = user.email; // Assuming the user's email is stored in the user object
-            await sendEmail(email, 'Amount Refunded Successfully', `The refunded amount of $${refundAmount} has been credited to your wallet. Enjoy!`);
-
-            return res.status(200).json({ success: true, message: 'Refund processed successfully' });
+        if(order.status==='rejected_return'){
+          const userId=order.userId;
+          const user=await User.findById(userId);
+          if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+          }
+          const email=user.email;
+          const subject = 'Your order return application rejected because irrelent reason ';
+            sendEmail(email, 'Order returned Failed', subject);
+          
         }
+        if (order.status === 'refunded') {
+          const userId = order.userId;
+          const user = await User.findById(userId);
+          if (!user) {
+              return res.status(404).json({ success: false, message: 'User not found' });
+          }
+          
+          let walletId = user.walletId; 
+          let wallet;
+          const refundAmount = order.totalPrice;
+      
+          if (walletId) {
+              wallet = await Wallet.findById(walletId);
+          }
+      
+          if (!wallet) {
+              wallet = new Wallet({
+                  userId: userId,
+                  balance: 0
+              });
+              await wallet.save();
+              user.walletId = wallet._id;
+              await user.save();
+          }
+      
+          // Update the wallet balance
+          wallet.balance += refundAmount;
+          
+          // Add a transaction entry
+          wallet.transactions.push({
+              amount: refundAmount,
+              type: 'credit',
+              description: `Refund for Order #${order._id}`,
+              date: new Date()
+          });
+      
+          await wallet.save();
+      
+          // Send an email notification
+          const email = user.email;
+          await sendEmail(email, 'Amount Refunded Successfully', 
+          `The refunded amount of $${refundAmount} has been credited to your wallet. Enjoy!`);
+      
+          // return res.status(200).json({ success: true, message: 'Refund processed successfully' });
+      }
+      
         
         res.status(200).redirect(`/admin/orders/${orderId}`); // Redirect back to orders page
     } catch (error) {

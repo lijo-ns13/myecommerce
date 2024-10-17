@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Order = require('../models/orderSchema');
+const User=require('../models/userSchema')
 const Product = require('../models/productSchema');
 const { jwtAuth, userProtected } = require('../middlewares/auth');
 const orderController=require('../controllers/orderController');
@@ -72,7 +73,7 @@ router.post('/return/:orderId',async(req,res)=>{
 
 
 
-const generateInvoice = (order) => {
+const generateInvoice = (order,userName) => {
     return new Promise((resolve, reject) => {
         const doc = new PDFDocument({ margin: 50 });
         let buffers = [];
@@ -127,7 +128,7 @@ const generateInvoice = (order) => {
            .fontSize(12)
            .text('Bill To:', 50, 200)
            .fontSize(10)
-           .text(`${order.shippingAddress.name}`, 50, 215)
+           .text(`${userName}`, 50, 215)
            .text(`${order.shippingAddress.street}`, 50, 230)
            .text(`${order.shippingAddress.city}, ${order.shippingAddress.state}, ${order.shippingAddress.postalCode}`, 50, 245)
            .text(`${order.shippingAddress.country}`, 50, 260)
@@ -140,7 +141,7 @@ const generateInvoice = (order) => {
 
         doc.fontSize(10)
            .text(`${new Date(order.orderDate).toLocaleDateString()}`, 400, 200)
-           .text(`${new Date(order.shippingAddress.deliveryDate).toLocaleDateString()}`, 400, 215)
+           .text(`${new Date(order.deliveryDate).toLocaleDateString()}`, 400, 215)
            .text(`${order.userId}`, 400, 230);
 
         // Invoice table
@@ -190,7 +191,9 @@ router.get('/download-invoice/:orderId', async (req, res) => {
     try {
         const orderId = req.params.orderId;
         const userId = req.user._id; // Ensure you have user authentication middleware
-        const order = await Order.findById(orderId);
+        const order = await Order.findById(orderId)
+        const user=await User.findById(userId);
+        const userName=user.name;
 
         if (!order) {
             return res.status(404).json({ success: false, message: 'Order not found' });
@@ -202,7 +205,7 @@ router.get('/download-invoice/:orderId', async (req, res) => {
         }
 
         // Generate the invoice here
-        const invoiceBuffer = await generateInvoice(order);
+        const invoiceBuffer = await generateInvoice(order,userName);
 
         // Set the headers to prompt a file download
         res.setHeader('Content-Disposition', 'attachment; filename="invoice.pdf"');
@@ -221,10 +224,7 @@ router.get('/download-invoice/:orderId', async (req, res) => {
 // /user/orders/cancelsingle/<%=order._id%>/<%=orderData.productId%>
 router.post('/cancelsingle/:orderId/:productId/:productSize/:productQuantity', async (req, res) => {
     try {
-        const orderId = req.params.orderId;
-        const productSize = req.params.productSize; // Size of the product to cancel
-        const productId = req.params.productId; // ID of the product being canceled
-        const productQuantity = parseInt(req.params.productQuantity, 10); // Quantity to return to stock
+        const { orderId, productId, productSize, productQuantity } = req.params;
 
         // Fetch the order by ID
         const order = await Order.findById(orderId);
@@ -250,7 +250,7 @@ router.post('/cancelsingle/:orderId/:productId/:productSize/:productQuantity', a
 
         // Calculate finalPrice for ordered products
         for (const orderedProduct of order.orderedProducts) {
-            if (orderedProduct.productId.toString() === productId.toString() && 
+            if (orderedProduct.productId.toString() === productId.toString() &&
                 orderedProduct.productSize.toString() === productSize.toString()) {
                 finalPrice += orderedProduct.productPrice; // Sum the price of matching products
             }
@@ -259,33 +259,46 @@ router.post('/cancelsingle/:orderId/:productId/:productSize/:productQuantity', a
         order.totalPrice -= finalPrice; // Adjust the total price
 
         // Remove the product from the products array based on productId and size
-        order.products = order.products.filter(orderProduct => 
-            !(orderProduct.productId.toString() === productId.toString() && 
-              orderProduct.size && orderProduct.size.toString() === productSize.toString())
+        order.products = order.products.filter(orderProduct =>
+            !(orderProduct.productId.toString() === productId.toString() &&
+              orderProduct.size.toString() === productSize.toString())
         );
 
         // Remove the product from orderedProducts based on productId and productSize
-        order.orderedProducts = order.orderedProducts.filter(orderedProduct => 
-            !(orderedProduct.productId.toString() === productId.toString() && 
+        order.orderedProducts = order.orderedProducts.filter(orderedProduct =>
+            !(orderedProduct.productId.toString() === productId.toString() &&
               orderedProduct.productSize.toString() === productSize.toString())
         );
 
         // Update the product's stock
         const sizeToUpdate = product.sizes.find(size => size.size.toString() === productSize.toString());
         if (sizeToUpdate) {
-            sizeToUpdate.stock += productQuantity; // Increment stock by the quantity of the canceled product
+            sizeToUpdate.stock += parseInt(productQuantity, 10); // Increment stock by the quantity of the canceled product
         }
 
         // Save the updated product stock
         await product.save();
 
+        // Check if payment method is Razorpay and initiate refund to wallet
+        if (order.paymentDetails.paymentMethod === 'razorpay') {
+            const refundAmount = finalPrice; // Amount to be refunded
+            const user = await User.findById(order.userId); // Fetch the user to update wallet
+
+            if (user) {
+                user.walletBalance += refundAmount; // Add refund amount to user's wallet
+                await user.save(); // Save the updated wallet balance
+            } else {
+                return res.status(404).json({ success: false, message: 'User not found for wallet refund' });
+            }
+        }
+
         // Save the order after all updates
         await order.save();
 
-        res.status(200).json({ success: true, message: 'Successfully cancelled  product' });
+        res.status(200).json({ success: true, message: 'Successfully cancelled product and processed refund if applicable' });
     } catch (error) {
         console.log('Error on cancel single product:', error.message);
-        res.status(400).json({ success: false, message: error.message }); 
+        res.status(400).json({ success: false, message: error.message });
     }
 });
 

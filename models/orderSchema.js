@@ -67,6 +67,7 @@ const orderSchema=new Schema({
             'pending_return',
             'processing_return',
             'initiated_return',
+            'rejected_return',
             'returned',
             'refunded',
             'cancelled',

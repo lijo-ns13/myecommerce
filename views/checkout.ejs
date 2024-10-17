@@ -9,122 +9,139 @@
         <link
             href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
             rel="stylesheet">
+        <!-- Font Awesome -->
+        <link
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css"
+            rel="stylesheet">
         <style>
-        body {
-            background-color: #f8f9fa;
-        }
+                body {
+                    background-color: #f8f9fa;
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                }
+        
+                .container {
+                    max-width: 1200px;
+                    margin: 0 auto;
+                    padding: 2rem;
+                }
+        
+                .checkout-header {
+                    border-bottom: 2px solid #007bff;
+                    padding-bottom: 1rem;
+                    margin-bottom: 2rem;
+                    text-align: center;
+                    color: #007bff;
+                    font-weight: 300;
+                    font-size: 2.5rem;
+                }
+        
+                .cart-item {
+                    background-color: #ffffff;
+                    border-radius: 8px;
+                    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                    padding: 1.5rem;
+                    margin-bottom: 1.5rem;
+                    transition: transform 0.3s ease;
+                }
+        
+                .cart-item:hover {
+                    transform: translateY(-5px);
+                }
+        
+                .cart-img {
+                    max-width: 120px;
+                    max-height: 120px;
+                    object-fit: cover;
+                    border-radius: 4px;
+                }
+        
+                .total-pricing {
+                    background-color: #ffffff;
+                    border-radius: 8px;
+                    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                    padding: 1.5rem;
+                    margin-top: 2rem;
+                }
+        
+                .coupon-container {
+                    background-color: #ffffff;
+                    border-radius: 8px;
+                    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                    padding: 1.5rem;
+                    margin: 2rem 0;
+                }
+        
+                .coupon-form {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                }
+        
+                .form-control {
+                    border-radius: 20px;
+                    padding: 0.75rem 1.5rem;
+                }
+        
+                .btn {
+                    border-radius: 20px;
+                    padding: 0.75rem 1.5rem;
+                    font-weight: 600;
+                    transition: all 0.3s ease;
+                }
+        
+                .btn-primary {
+                    background-color: #007bff;
+                    border-color: #007bff;
+                }
+        
+                .btn-primary:hover {
+                    background-color: #0056b3;
+                    border-color: #0056b3;
+                }
+        
+                .discount-message {
+                    margin-top: 1rem;
+                    font-size: 1rem;
+                    color: #28a745;
+                }
+        
+                .address-form,
+                .payment-form {
+                    background-color: #ffffff;
+                    border-radius: 8px;
+                    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                    padding: 1.5rem;
+                    margin-top: 2rem;
+                }
+        
+                .form-check-label {
+                    padding-left: 0.5rem;
+                }
+        
+                footer {
+                    margin-top: 3rem;
+                    padding: 2rem 0;
+                    background-color: #343a40;
+                    color: #ffffff;
+                }
+        
+                /* Animation for success messages */
+                @keyframes fadeInUp {
+                    from {
+                        opacity: 0;
+                        transform: translateY(20px);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                }
+        
+                .animate-fade-in-up {
+                    animation: fadeInUp 0.5s ease-out;
+                }
+            </style>
 
-        .checkout-header {
-            border-bottom: 1px solid #dee2e6;
-            padding-bottom: 15px;
-            margin-bottom: 15px;
-        }
-
-        .cart-item {
-            padding: 15px 0;
-            border-bottom: 1px solid #dee2e6;
-        }
-
-        .cart-item:last-child {
-            border-bottom: none;
-        }
-
-        .cart-img {
-            max-width: 120px;
-            max-height: 120px;
-            object-fit: cover;
-        }
-
-        .total-price {
-            font-weight: bold;
-            font-size: 1.5rem;
-            margin-top: 20px;
-        }
-
-        .address-form,
-        .payment-form {
-            margin-top: 20px;
-        }
-
-        .btn-add-address {
-            margin-top: 10px;
-        }
-        /* applycoupn adnd remove coupon */
-        .coupon-container {
-        border: 1px solid #ccc;
-        border-radius: 8px;
-        padding: 20px;
-        margin: 20px 0;
-        background-color: #f9f9f9;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    .coupon-form {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .form-control {
-        flex: 1;
-        margin-right: 10px;
-        padding: 10px;
-        border-radius: 5px;
-        border: 1px solid #ccc;
-        transition: border 0.3s ease;
-    }
-
-    .form-control:focus {
-        border-color: #007bff;
-        outline: none;
-        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-    }
-
-    .btn {
-        padding: 10px 15px;
-        border-radius: 5px;
-        font-weight: bold;
-        transition: background-color 0.3s ease;
-    }
-
-    .btn-secondary {
-        background-color: #007bff;
-        color: white;
-    }
-
-    .btn-secondary:hover {
-        background-color: #0056b3;
-    }
-
-    .btn-info {
-        background-color: #17a2b8;
-        color: white;
-    }
-
-    .btn-info:hover {
-        background-color: #138496;
-    }
-
-    .btn-danger {
-        background-color: #dc3545;
-        color: white;
-    }
-
-    .btn-danger:hover {
-        background-color: #c82333;
-    }
-
-    .discount-message {
-        margin-top: 10px;
-        font-size: 16px;
-        color: #28a745; /* Green color for success messages */
-    }
-
-    .coupon-error {
-        margin-top: 5px;
-        font-size: 14px;
-    }
-    </style>
     </head>
 
     <body>
@@ -163,45 +180,45 @@
         </nav>
 
         <div class="container mt-5">
-            <h2 class="checkout-header text-center">Checkout</h2>
+            <h2 class="checkout-header">Secure Checkout</h2>
 
             <!-- Coupon Check Form -->
             <div class="coupon-container">
+                <h4><i class="fas fa-tags"></i> Apply Coupon</h4>
                 <form id="couponCheckForm" class="coupon-form">
                     <input type="text" name="couponCode" id="couponCode"
-                        placeholder="Enter your coupon to check"
+                        placeholder="Enter your coupon code"
                         class="form-control mb-2">
-                    <button type="submit" class="btn btn-secondary">Apply
+                    <button type="submit" class="btn btn-primary">Apply
                         Coupon</button>
                 </form>
                 <div id="discountMessage" class="discount-message"></div>
-                <div id="couponError" class="coupon-error"
-                    style="color:red;"></div>
-
-                <!-- Buttons for Copying and Removing Coupon -->
-                <!-- <button id="copyCoupon" class="btn btn-info mt-2" style="display:none;">Copy Coupon Code</button> -->
-                <button id="removeCoupon" class="btn btn-danger mt-2"
+                <div id="couponError" class="coupon-error text-danger"></div>
+                <button id="removeCoupon" class="btn btn-outline-danger mt-2"
                     style="display:none;">Remove Coupon</button>
             </div>
 
             <!-- Cart Items -->
-            <h4>Cart Items</h4>
+            <h4><i class="fas fa-shopping-cart"></i> Your Cart</h4>
             <% if (cart && cart.products && cart.products.length > 0) { %>
             <div class="row">
                 <% for (const product of cart.products) { %>
                 <div class="col-12 cart-item">
-                    <div class="row">
+                    <div class="row align-items-center">
                         <div class="col-3 text-center">
                             <img
                                 src="<%= product.productId.images[0].secured_url %>"
                                 class="cart-img"
                                 alt="<%= product.productId.product %>">
                         </div>
-                        <div class="col-5">
+                        <div class="col-9">
                             <h5><%= product.productId.product %></h5>
-                            <p>Price: $<%= product.productId.finalPrice %></p>
-                            <p>Quantity: <%= product.quantity %></p>
-                            <p>Subtotal: $<%= (product.productId.finalPrice *
+                            <p><strong>Price:</strong> $<%=
+                                product.productId.finalPrice %></p>
+                            <p><strong>Quantity:</strong> <%= product.quantity
+                                %></p>
+                            <p><strong>Subtotal:</strong> $<%=
+                                (product.productId.finalPrice *
                                 product.quantity).toFixed(2) %></p>
                         </div>
                     </div>
@@ -209,98 +226,147 @@
                 <% } %>
             </div>
 
-            <div class="text-right total-price">
-                Total Price: $<%= cart.finalPrice.toFixed(2) %>
+            <div class="total-pricing">
+                <div class="d-flex justify-content-between align-items-center">
+                    <strong>Total Price:</strong>
+                    <span class="h5">$<%= cart.totalPrice.toFixed(2) %></span>
+                </div>
+
+                <% if (cart.totalPrice !== cart.finalPrice) { %>
+                <div
+                    class="d-flex justify-content-between align-items-center mt-2">
+                    <strong class="text-success">Discounted Price:</strong>
+                    <span class="h5 text-success">$<%=
+                        cart.finalPrice.toFixed(2) %></span>
+                </div>
+                <% } %>
+
+                <% if (cart.deliveryCharge > 0) { %>
+                <div
+                    class="d-flex justify-content-between align-items-center mt-2">
+                    <strong class="text-muted">Delivery Charge:</strong>
+                    <span class="h6 text-muted">$<%=
+                        cart.deliveryCharge.toFixed(2) %></span>
+                </div>
+                <% } else { %>
+                <div
+                    class="d-flex justify-content-between align-items-center mt-2">
+                    <strong class="text-muted">Delivery Charge:</strong>
+                    <span class="h6 text-success">Free</span>
+                </div>
+                <% } %>
+
+                <hr>
+
+                <div
+                    class="d-flex justify-content-between align-items-center mt-3">
+                    <strong class="h4 text-primary">Final Total:</strong>
+                    <span class="h4 text-primary">$<%=
+                        cart.finalPrice.toFixed(2) %></span>
+                </div>
             </div>
+
             <% } else { %>
-            <div class="text-center">
+            <div class="text-center mt-5">
                 <h3>Your cart is empty</h3>
-                <a href="/products" class="btn btn-primary">Continue
+                <a href="/products" class="btn btn-primary mt-3">Continue
                     Shopping</a>
             </div>
             <% } %>
 
             <!-- Shipping Address -->
-            <h4 class="mt-4">Shipping Address</h4>
-            <form id="checkoutForm" action="/checkout" method="POST">
+            <div class="address-form">
+                <h4><i class="fas fa-shipping-fast"></i> Shipping Address</h4>
+                <form id="checkoutForm" action="/checkout" method="POST">
 
-                <% user.address.forEach((address, index) => { %>
-                <div class="form-check">
-                    <input class="form-check-input" type="radio"
-                        name="selectedAddress" id="address<%= index %>"
-                        value="<%= address._id %>" <%=index === 0 ? 'checked' :
-                        '' %>>
-                    <label class="form-check-label" for="address<%= index %>">
-                        <%= address.street %>, <%= address.city %>, <%=
-                        address.state %> - <%= address.postalCode %>, <%=
-                        address.country %>
-                    </label>
-                </div>
-                <% }) %>
+                    <% user.address.forEach((address, index) => { %>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="radio"
+                            name="selectedAddress" id="address<%= index %>"
+                            value="<%= address._id %>" <%=index === 0 ?
+                            'checked' : '' %>>
+                        <label class="form-check-label"
+                            for="address<%= index %>">
+                            <%= address.street %>, <%= address.city %>, <%=
+                            address.state %> - <%= address.postalCode %>, <%=
+                            address.country %>
+                        </label>
+                    </div>
+                    <% }) %>
 
-                <!-- Add New Address Radio Button -->
-                <div class="form-check">
-                    <input class="form-check-input" type="radio"
-                        name="selectedAddress" id="newAddress" value="new">
-                    <label class="form-check-label" for="newAddress">
-                        Add New Address
-                    </label>
-                </div>
+                    <!-- Add New Address Radio Button -->
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="radio"
+                            name="selectedAddress" id="newAddress" value="new">
+                        <label class="form-check-label" for="newAddress">
+                            Add New Address
+                        </label>
+                    </div>
 
-                <!-- New Address Form -->
-                <div id="newAddressForm" style="display:none;">
-                    <div class="form-group mt-3">
-                        <label for="street">Street</label>
-                        <input type="text" class="form-control" id="newStreet"
-                            name="newStreet" placeholder="123 Main St">
+                    <!-- New Address Form -->
+                    <div id="newAddressForm" style="display:none;">
+                        <div class="form-group mt-3">
+                            <label for="street">Street</label>
+                            <input type="text" class="form-control"
+                                id="newStreet" name="newStreet"
+                                placeholder="123 Main St">
+                        </div>
+                        <div class="form-group">
+                            <label for="city">City</label>
+                            <input type="text" class="form-control" id="newCity"
+                                name="newCity" placeholder="City">
+                        </div>
+                        <div class="form-group">
+                            <label for="state">State</label>
+                            <input type="text" class="form-control"
+                                id="newState" name="newState"
+                                placeholder="State">
+                        </div>
+                        <div class="form-group">
+                            <label for="postalCode">Postal Code</label>
+                            <input type="text" class="form-control"
+                                id="newPostalCode" name="newPostalCode"
+                                placeholder="Postal Code">
+                        </div>
+                        <div class="form-group">
+                            <label for="country">Country</label>
+                            <input type="text" class="form-control"
+                                id="newCountry" name="newCountry"
+                                placeholder="Country">
+                        </div>
+                        <div class="form-group">
+                            <label for="phoneNo">Phone Number</label>
+                            <input type="text" class="form-control"
+                                id="newPhoneNo" name="newPhoneNo"
+                                placeholder="Phone Number">
+                        </div>
+                        <button type="button" class="btn btn-success mt-3"
+                            id="confirmNewAddress">Confirm Address</button>
                     </div>
-                    <div class="form-group">
-                        <label for="city">City</label>
-                        <input type="text" class="form-control" id="newCity"
-                            name="newCity" placeholder="City">
-                    </div>
-                    <div class="form-group">
-                        <label for="state">State</label>
-                        <input type="text" class="form-control" id="newState"
-                            name="newState" placeholder="State">
-                    </div>
-                    <div class="form-group">
-                        <label for="postalCode">Postal Code</label>
-                        <input type="text" class="form-control"
-                            id="newPostalCode" name="newPostalCode"
-                            placeholder="Postal Code">
-                    </div>
-                    <div class="form-group">
-                        <label for="country">Country</label>
-                        <input type="text" class="form-control" id="newCountry"
-                            name="newCountry" placeholder="Country">
-                    </div>
-                    <div class="form-group">
-                        <label for="phoneNo">Phone Number</label>
-                        <input type="text" class="form-control" id="newPhoneNo"
-                            name="newPhoneNo" placeholder="Phone Number">
-                    </div>
-                    <button type="button" class="btn btn-success mt-3"
-                        id="confirmNewAddress">Confirm Address</button>
-                </div>
 
-                <!-- Payment Method Section -->
-                <div class="payment-method">
-                    <h4><i class="fas fa-credit-card"></i> Payment Method</h4>
-                    <div class="form-group">
-                        <select class="form-select" id="paymentMethod"
-                            name="paymentMethod">
-                            <option value="cod">Cash on Delivery (COD)</option>
-                            <option value="razorpay">Razorpay</option>
-                            <option value="wallet">Wallet</option>
-                        </select>
+                    <!-- Payment Method Section -->
+                    <div class="payment-form mt-4">
+                        <h4><i class="fas fa-credit-card"></i> Payment
+                            Method</h4>
+                        <div class="form-group">
+                            <select class="form-control" id="paymentMethod"
+                                name="paymentMethod">
+                                <option value="cod">Cash on Delivery
+                                    (COD)</option>
+                                <option value="razorpay">Razorpay</option>
+                                <option value="wallet">Wallet</option>
+                            </select>
+                        </div>
                     </div>
-                </div>
-                <!-- dasfasf -->
-                <!-- Proceed to Checkout Button -->
-                <button type="submit" class="btn btn-primary mt-3"
-                    id="placeOrder" disabled>Place Order</button>
-            </form>
+
+                    <!-- Place Order Button -->
+                    <button type="submit"
+                        class="btn btn-primary btn-lg btn-block mt-4"
+                        id="placeOrder" disabled>
+                        <i class="fas fa-lock"></i> Place Order Securely
+                    </button>
+                </form>
+            </div>
         </div>
 
         <footer class="bg-dark text-white mt-5">
@@ -308,15 +374,14 @@
                 <p>&copy; 2024 Your E-Commerce Site. All rights reserved.</p>
             </div>
         </footer>
-
-        <!-- Scripts -->
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
         <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
         <script
             src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
         <script
             src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+        <!-- Scripts -->
+
         <script>
         document.addEventListener('DOMContentLoaded', function () {
             const couponCheckForm = document.getElementById('couponCheckForm');

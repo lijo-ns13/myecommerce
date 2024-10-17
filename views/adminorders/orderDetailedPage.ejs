@@ -410,6 +410,11 @@
                                 <option value="cancelled" <%=order.status ===
                                     'cancelled' ? 'selected' : ''
                                     %>>Cancelled</option>
+
+                                <option value="rejected_return" <%=order.status
+                                    ===
+                                    'rejected_return' ? 'selected' : ''
+                                    %>>rejected_return</option>
                                 <option value="out_of_stock" <%=order.status ===
                                     'out_of_stock' ? 'selected' : '' %>>Out of
                                     Stock</option>
@@ -473,9 +478,10 @@
                         "shipped": ["delivered"],
                         "delivered": [], // Admin cannot change this status
                         "cancelled": [], // Admin cannot change this status
-                        "pending_return":['processing_return'],
-                        "processing_return":["initiated_return"],
-                        "initiated_return":["returned"],
+                        "pending_return":['processing_return','rejected_return'],
+                        "processing_return":["initiated_return",'rejected_return'],
+                        "initiated_return":["returned",'rejected_return'],
+                        "rejected_return":[],
                         "returned": ["refunded"], // Admin cannot change this status
                         "refunded": [], // Admin cannot change this status
                         "out_of_stock": ["pending", "processing"],
