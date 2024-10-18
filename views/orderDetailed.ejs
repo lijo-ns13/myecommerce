@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,344 +9,364 @@
             rel="stylesheet">
         <link rel="stylesheet"
             href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
-        <link rel="stylesheet"
-            href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.css">
         <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+            --secondary: #64748b;
+            --danger: #ef4444;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --background: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --border: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+
         body {
-            background-color: #f4f7fa;
-            font-family: 'Roboto', sans-serif;
-            color: #333;
+            background-color: var(--background);
+            color: var(--text);
+            font-family: system-ui, -apple-system, sans-serif;
+            line-height: 1.5;
         }
+
         .order-container {
-            background-color: #ffffff;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-            margin-top: 3rem;
-            margin-bottom: 3rem;
-            overflow: hidden;
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
         }
-        .order-header {
-            background: #3a6186;  /* fallback for old browsers */
-            background: -webkit-linear-gradient(to right, #89253e, #3a6186);  /* Chrome 10-25, Safari 5.1-6 */
-            background: linear-gradient(to right, #89253e, #3a6186); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+
+        .hero-section {
+            background: linear-gradient(to right, var(--primary), var(--primary-dark));
+            border-radius: 1rem;
+            padding: 2.5rem;
             color: white;
-            padding: 2.5rem;
-        }
-        .product-image {
-            max-width: 150px;
-            border-radius: 8px;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .product-image:hover {
-            transform: scale(1.05);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-        .status-badge {
-            font-size: 1rem;
-            padding: 0.5em 1.2em;
-            border-radius: 25px;
-            text-transform: uppercase;
-            font-weight: bold;
-        }
-        .info-card {
-            background-color: #f8f9fa;
-            border-radius: 10px;
-            padding: 2rem;
-            height: 100%;
-            transition: box-shadow 0.3s ease;
-            border: 1px solid #e9ecef;
-        }
-        .info-card:hover {
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-        }
-        .price-breakdown {
-            background-color: #e9ecef;
-            border-radius: 10px;
-            padding: 2rem;
-        }
-        .return-form-container {
-            background-color: #ffffff;
-            border-radius: 10px;
-            padding: 2.5rem;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
-            margin-top: 3rem;
-            transition: all 0.3s ease;
-        }
-        .return-form-title {
-            color: #2c3e50;
-            margin-bottom: 1.5rem;
-            font-weight: bold;
-        }
-        .return-form .form-control, .return-form .form-select {
-            border: 2px solid #ced4da;
-            border-radius: 8px;
-            padding: 12px;
-            transition: all 0.3s ease;
-        }
-        .return-form .form-control:focus, .return-form .form-select:focus {
-            border-color: #3a6186;
-            box-shadow: 0 0 0 0.25rem rgba(58, 97, 134, 0.25);
-        }
-        .btn-primary {
-            background: #3a6186;
-            border: none;
-            border-radius: 8px;
-            padding: 12px 25px;
-            transition: all 0.3s ease;
-        }
-        .btn-primary:hover {
-            background: #89253e;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(137, 37, 62, 0.4);
-        }
-        .product-card {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            border: none;
-            border-radius: 10px;
-            overflow: hidden;
             margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
         }
-        .product-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+
+        .hero-section::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            background: url('/api/placeholder/1200/300') center/cover;
+            opacity: 0.1;
+            pointer-events: none;
         }
-        .section-title {
-            font-size: 1.8rem;
-            color: #3a6186;
+
+        .status-card {
+            background: var(--card-bg);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .product-card {
+            background: var(--card-bg);
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: var(--shadow);
             margin-bottom: 1.5rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 2px solid #3a6186;
+            transition: transform 0.2s;
         }
+
+        .product-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .product-image {
+            width: 120px;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 0.5rem;
+        }
+
+        .badge {
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-weight: 500;
+            font-size: 0.875rem;
+        }
+
+        .badge-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .badge-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .badge-warning {
+            background: var(--warning);
+            color: white;
+        }
+
+        .info-section {
+            background: var(--card-bg);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 1.5rem;
+        }
+
+        .price-breakdown {
+            background: var(--card-bg);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+        }
+
         .price-item {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 0.5rem;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border);
         }
-        .total-price {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #89253e;
+
+        .price-item:last-child {
+            border-bottom: none;
+            font-weight: 600;
+            font-size: 1.125rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            border: none;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            border: none;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+        }
+
+        .return-form {
+            background: var(--card-bg);
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            margin-top: 2rem;
+        }
+
+        .form-control, .form-select {
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1);
         }
     </style>
-        <script>
-        window.orderData = {
-            orderId: '<%= order._id %>',
-            totalPrice: <%= order.totalPrice %>,
-            status: '<%= order.status %>'
-        };
-    </script>
     </head>
-
     <body>
-        <nav
-            class="navbar navbar-expand-lg navbar-light bg-light py-3 container-fluid">
-            <!-- Navbar content remains unchanged -->
-        </nav>
-
-        <div class="container order-container">
-            <div class="order-header">
-                <h1 class="mb-2 display-4">Order Details</h1>
-                <p class="mb-0 lead">Order #<%= order._id %></p>
+        <div class="order-container">
+            <div class="hero-section">
+                <h1 class="mb-2">Order Details</h1>
+                <p class="mb-0 opacity-75">Order #<%= order._id %></p>
             </div>
 
-            <div class="p-5">
-                <div
-                    class="d-flex justify-content-between align-items-center mb-5">
-                    <div>
-                        <span class="fw-bold me-2">Status:</span>
-                        <span
-                            class="badge status-badge <%= order.status === 'delivered' ? 'bg-success' : 'bg-warning' %>">
-                            <%= order.status.charAt(0).toUpperCase() +
-                            order.status.slice(1) %>
-                        </span>
-                    </div>
-                    <p class="mb-0">
+            <div class="status-card">
+                <div class="d-flex align-items-center gap-3">
+                    <span
+                        class="badge <%= order.status === 'delivered' ? 'badge-success' : 'badge-warning' %>">
+                        <%= order.status.charAt(0).toUpperCase() +
+                        order.status.slice(1) %>
+                    </span>
+                    <div class="vr"></div>
+                    <span>
                         <i class="fas fa-calendar me-2"></i>
-                        Ordered on <%= new
+                        <%= new
                         Date(order.orderDate).toLocaleDateString('en-IN', {
                         year: 'numeric', month: 'long', day: 'numeric' }) %>
-                    </p>
+                    </span>
                 </div>
+                <% if(order.status==='pending' || order.status==='processing' ||
+                order.status==='shipped'){ %>
+                <div class="text-secondary">
+                    <i class="fas fa-truck me-2"></i>
+                    Expected delivery: <%= deliveryDate %>
+                </div>
+                <% } %>
+            </div>
 
-                <h2 class="section-title">Products</h2>
-                <% for (const orderData of order.orderedProducts) { %>
-                <div class="card mb-4 product-card">
-                    <div class="row g-0">
-                        <div
-                            class="col-md-3 d-flex align-items-center justify-content-center p-4">
+            <div class="row">
+                <div class="col-md-8">
+                    <h3 class="mb-4">Products</h3>
+                    <% for (const orderData of order.orderedProducts) { %>
+                    <div class="product-card">
+                        <div class="d-flex p-3 gap-4">
                             <img src="<%= orderData.productImage %>"
                                 alt="<%= orderData.productName %>"
                                 class="product-image">
-                        </div>
-                        <div class="col-md-9">
-                            <div class="card-body">
-                                <h5 class="card-title fs-4 mb-3"><%=
-                                    orderData.productName %></h5>
-                                <p class="card-text mb-3">
-                                    <span
-                                        class="badge bg-light text-dark me-2">Size:
+                            <div class="flex-grow-1">
+                                <h5 class="mb-3"><%= orderData.productName
+                                    %></h5>
+                                <div class="d-flex gap-2 mb-3">
+                                    <span class="badge bg-light text-dark">Size:
                                         <%= orderData.productSize %></span>
-                                    <span
-                                        class="badge bg-light text-dark">Quantity:
+                                    <span class="badge bg-light text-dark">Qty:
                                         <%= orderData.productQuantity %></span>
-                                </p>
-                                <p
-                                    class="card-text fw-bold fs-5 text-primary">₹<%=
-                                    orderData.productPrice.toLocaleString('en-IN')
-                                    %></p>
-                                <a
-                                    href="/user/review/add/<%=orderData.productId%>">Rate
-                                    Product</a>
-                                <!-- cancel individual products -->
-                                <% if (order.status === 'pending' ||
-                                order.status === 'processing') { %>
-                                <form id="cancelForm"
-                                    action="/user/orders/cancelsingle/<%= order._id %>/<%= orderData.productId %>/<%=orderData.productSize%>/<%=orderData.productQuantity%>"
-                                    method="post">
-
-                                    <button type="submit">Cancel single
-                                        product</button>
-                                </form>
-                                <% } %>
-
+                                </div>
+                                <div
+                                    class="d-flex justify-content-between align-items-center">
+                                    <span class="fs-5 fw-bold text-primary">₹<%=
+                                        orderData.productPrice.toLocaleString('en-IN')
+                                        %></span>
+                                    <div class="d-flex gap-2">
+                                        <a
+                                            href="/user/review/add/<%= orderData.productId %>"
+                                            class="btn btn-sm btn-outline-primary">Rate
+                                            Product</a>
+                                        <% if (order.status === 'pending' ||
+                                        order.status === 'processing') { %>
+                                        <form id="cancelForm"
+                                            action="/user/orders/cancelsingle/<%= order._id %>/<%= orderData.productId %>/<%= orderData.productSize %>/<%= orderData.productQuantity %>"
+                                            method="post" class="d-inline">
+                                            <button type="submit"
+                                                class="btn btn-sm btn-outline-danger">Cancel
+                                                Item</button>
+                                        </form>
+                                        <% } %>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
+                    <% } %>
                 </div>
-                <% } %>
 
-                <div class="row mt-5">
-                    <div class="col-md-6 mb-4">
-                        <div class="info-card">
-                            <h3 class="mb-4"><i
-                                    class="fas fa-map-marker-alt me-2"></i>Shipping
-                                Address</h3>
-                            <p class="mb-2"><%= order.shippingAddress.street
-                                %></p>
-                            <p class="mb-2"><%= order.shippingAddress.city %>,
-                                <%= order.shippingAddress.state %> <%=
-                                order.shippingAddress.postalCode %></p>
-                            <p class="mb-2"><%= order.shippingAddress.country
-                                %></p>
-                            <p class="mb-0"><strong>Phone:</strong> <%=
-                                order.shippingAddress.phoneNo %></p>
+                <div class="col-md-4">
+                    <div class="info-section mb-4">
+                        <h4 class="mb-3">Shipping Address</h4>
+                        <address class="mb-0">
+                            <%= order.shippingAddress.street %><br>
+                            <%= order.shippingAddress.city %>, <%=
+                            order.shippingAddress.state %> <%=
+                            order.shippingAddress.postalCode %><br>
+                            <%= order.shippingAddress.country %><br>
+                            <strong>Phone:</strong> <%=
+                            order.shippingAddress.phoneNo %>
+                        </address>
+                    </div>
+
+                    <div class="info-section mb-4">
+                        <h4 class="mb-3">Payment Details</h4>
+                        <p class="mb-2"><strong>Method:</strong> <%=
+                            order.paymentDetails.paymentMethod %></p>
+                        <% if (order.paymentDetails.paymentMethod === 'razorpay'
+                        || order.paymentDetails.paymentMethod === 'wallet') { %>
+                        <p class="mb-2"><strong>Amount Paid:</strong> ₹<%=
+                            order.totalPrice.toLocaleString('en-IN') %></p>
+                        <% } %>
+                        <p class="mb-0"><strong>Transaction ID:</strong> <%=
+                            order.paymentDetails.transactionId %></p>
+                    </div>
+
+                    <div class="price-breakdown">
+                        <h4 class="mb-3">Price Details</h4>
+                        <div class="price-item">
+                            <span>Original Price</span>
+                            <span>₹<%=
+                                order.originalPrice.toLocaleString('en-IN')
+                                %></span>
+                        </div>
+                        <div class="price-item">
+                            <span>Discount</span>
+                            <span>₹<%= (order.discount ||
+                                0).toLocaleString('en-IN') %></span>
+                        </div>
+                        <div class="price-item">
+                            <span>Total Amount</span>
+                            <span>₹<%= order.totalPrice.toLocaleString('en-IN')
+                                %></span>
                         </div>
                     </div>
-                    <div class="col-md-6 mb-4">
-                        <div class="info-card">
-                            <h3 class="mb-4"><i
-                                    class="fas fa-credit-card me-2"></i>Payment
-                                Details</h3>
-                            <p class="mb-2"><strong>Method:</strong> <%=
-                                order.paymentDetails.paymentMethod %></p>
-                            <% if (order.paymentDetails.paymentMethod ===
-                            'razorpay' || order.paymentDetails.paymentMethod ===
-                            'wallet') { %>
-                            <p class="mb-2"><strong>Amount Paid:</strong> ₹<%=
-                                order.totalPrice.toLocaleString('en-IN') %></p>
-                            <% } %>
-                            <p class="mb-0"><strong>Transaction ID:</strong> <%=
-                                order.paymentDetails.transactionId %></p>
-                        </div>
-                    </div>
-                </div>
-                <a
-                    href="/user/orders/download-invoice/<%=order._id%>">Dowload
-                    Invoice</a>
-                <div class="price-breakdown mt-5">
-                    <h3 class="mb-4"><i class="fas fa-receipt me-2"></i>Price
-                        Breakdown</h3>
-                    <div class="price-item">
-                        <span>Original Price:</span>
-                        <span>₹<%= order.originalPrice.toLocaleString('en-IN')
-                            %></span>
-                    </div>
-                    <div class="price-item">
-                        <span>Discount:</span>
-                        <span>₹<%= (order.discount || 0).toLocaleString('en-IN')
-                            %></span>
-                    </div>
-                    <hr>
-                    <div class="price-item total-price">
-                        <span>Total Price:</span>
-                        <span>₹<%= order.totalPrice.toLocaleString('en-IN')
-                            %></span>
-                    </div>
-                </div>
 
-                <%if(order.status==='pending' || order.status==='processing' ||
-                order.status==='shipped'){%>
-                <div class="alert alert-info mt-5" role="alert">
-                    <i class="fas fa-truck me-2"></i>
-                    Your order is expected to be delivered by <%= deliveryDate
-                    %>.
-                </div>
-                <%}%>
+                    <% if (order.status === 'pending' || order.status ===
+                    'processing') { %>
+                    <button id="cancelOrderBtn"
+                        class="btn btn-danger w-100 mt-4">Cancel Order</button>
+                    <% } %>
 
-                <% if (order.status === 'pending' || order.status ===
-                'processing') { %>
-                <button id="cancelOrderBtn"
-                    class="btn btn-danger btn-lg w-100 mt-5">Cancel
-                    Order</button>
-                <% } %>
-                <% if(order.status === 'delivered' ) { %>
-                <button id="returnOrderBtn"
-                    class="btn btn-primary btn-lg w-100 mt-5">Return
-                    Order</button>
+                    <% if(order.status === 'delivered' ) { %>
+                    <button id="returnOrderBtn"
+                        class="btn btn-primary w-100 mt-4">Return Order</button>
+                    <% } %>
 
-                <div id="returnOrderForm" class="return-form-container"
-                    style="display: none;">
-                    <h3 class="return-form-title">Return Order Form</h3>
-                    <form action="/user/orders/return/<%=order._id%>"
-                        method="post" class="return-form">
-                        <div class="form-group mb-4">
-                            <label for="reason" class="form-label">Reason for
-                                Return:</label>
-                            <select id="reason" name="reason"
-                                class="form-select">
-                                <option value>Select a reason</option>
-                                <option value="wrong_item">Wrong item
-                                    received</option>
-                                <option value="defective">Item is
-                                    defective</option>
-                                <option value="not_as_described">Item not as
-                                    described</option>
-                                <option value="no_longer_needed">No longer
-                                    needed</option>
-                                <option value="other">Other </option>
-                            </select>
-                        </div>
-                        <!-- <div id="otherReasonInput" class="form-group mb-4"
-                            style="display: none;">
-                            <label for="otherReason" class="form-label">Please
-                                specify:</label>
-                            <textarea id="otherReason" class="form-control"
-                                rows="3"></textarea>
-                        </div> -->
-                        <button type="submit"
-                            class="btn btn-primary btn-lg w-100 mt-4">Submit
-                            Return Request</button>
-                    </form>
-                </div>
-                <% } %>
-                <% if (order.status === 'payment_failed') { %>
-                <button id="payNowButton"
-                    class="btn btn-primary btn-lg w-100 mt-5">Pay Now</button>
-                <% } %>
+                    <% if (order.status === 'payment_failed') { %>
+                    <button id="payNowButton"
+                        class="btn btn-primary w-100 mt-4">Pay Now</button>
+                    <% } %>
 
-                <div class="mt-5">
+                    <a href="/user/orders/download-invoice/<%= order._id %>"
+                        class="btn btn-outline-primary w-100 mt-3">
+                        <i class="fas fa-download me-2"></i>Download Invoice
+                    </a>
+
                     <a href="/user/orders"
-                        class="btn btn-outline-primary btn-lg w-100">
-                        <i class="fas fa-arrow-left me-2"></i>Back to My Orders
+                        class="btn btn-outline-secondary w-100 mt-3">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Orders
                     </a>
                 </div>
             </div>
-        </div>
-        <!-- Include SweetAlert library -->
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-        <script
-            src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.all.min.js"></script>
+            <div id="returnOrderForm" class="return-form"
+                style="display: none;">
+                <h3 class="mb-4">Return Order Form</h3>
+                <form action="/user/orders/return/<%= order._id %>"
+                    method="post">
+                    <div class="mb-4">
+                        <label class="form-label">Reason for Return:</label>
+                        <select name="reason" class="form-select">
+                            <option value>Select a reason</option>
+                            <option value="wrong_item">Wrong item
+                                received</option>
+                            <option value="defective">Item is defective</option>
+                            <option value="not_as_described">Item not as
+                                described</option>
+                            <option value="no_longer_needed">No longer
+                                needed</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Submit
+                        Return Request</button>
+                </form>
+            </div>
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
         <script>
 // Client-side JavaScript (in your HTML file)

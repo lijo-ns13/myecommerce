@@ -1,385 +1,423 @@
 <!DOCTYPE html>
 <html lang="en">
-
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Checkout</title>
-        <!-- Bootstrap CSS -->
         <link
-            href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+            href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap"
             rel="stylesheet">
-        <!-- Font Awesome -->
-        <link
-            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css"
-            rel="stylesheet">
+        <link rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
         <style>
-                body {
-                    background-color: #f8f9fa;
-                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                }
-        
-                .container {
-                    max-width: 1200px;
-                    margin: 0 auto;
-                    padding: 2rem;
-                }
-        
-                .checkout-header {
-                    border-bottom: 2px solid #007bff;
-                    padding-bottom: 1rem;
-                    margin-bottom: 2rem;
-                    text-align: center;
-                    color: #007bff;
-                    font-weight: 300;
-                    font-size: 2.5rem;
-                }
-        
-                .cart-item {
-                    background-color: #ffffff;
-                    border-radius: 8px;
-                    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-                    padding: 1.5rem;
-                    margin-bottom: 1.5rem;
-                    transition: transform 0.3s ease;
-                }
-        
-                .cart-item:hover {
-                    transform: translateY(-5px);
-                }
-        
-                .cart-img {
-                    max-width: 120px;
-                    max-height: 120px;
-                    object-fit: cover;
-                    border-radius: 4px;
-                }
-        
-                .total-pricing {
-                    background-color: #ffffff;
-                    border-radius: 8px;
-                    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-                    padding: 1.5rem;
-                    margin-top: 2rem;
-                }
-        
-                .coupon-container {
-                    background-color: #ffffff;
-                    border-radius: 8px;
-                    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-                    padding: 1.5rem;
-                    margin: 2rem 0;
-                }
-        
-                .coupon-form {
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                }
-        
-                .form-control {
-                    border-radius: 20px;
-                    padding: 0.75rem 1.5rem;
-                }
-        
-                .btn {
-                    border-radius: 20px;
-                    padding: 0.75rem 1.5rem;
-                    font-weight: 600;
-                    transition: all 0.3s ease;
-                }
-        
-                .btn-primary {
-                    background-color: #007bff;
-                    border-color: #007bff;
-                }
-        
-                .btn-primary:hover {
-                    background-color: #0056b3;
-                    border-color: #0056b3;
-                }
-        
-                .discount-message {
-                    margin-top: 1rem;
-                    font-size: 1rem;
-                    color: #28a745;
-                }
-        
-                .address-form,
-                .payment-form {
-                    background-color: #ffffff;
-                    border-radius: 8px;
-                    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-                    padding: 1.5rem;
-                    margin-top: 2rem;
-                }
-        
-                .form-check-label {
-                    padding-left: 0.5rem;
-                }
-        
-                footer {
-                    margin-top: 3rem;
-                    padding: 2rem 0;
-                    background-color: #343a40;
-                    color: #ffffff;
-                }
-        
-                /* Animation for success messages */
-                @keyframes fadeInUp {
-                    from {
-                        opacity: 0;
-                        transform: translateY(20px);
-                    }
-                    to {
-                        opacity: 1;
-                        transform: translateY(0);
-                    }
-                }
-        
-                .animate-fade-in-up {
-                    animation: fadeInUp 0.5s ease-out;
-                }
-            </style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2ecc71;
+            --background-color: #f4f6f8;
+            --text-color: #333;
+            --card-bg: #ffffff;
+        }
 
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .checkout-header {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 2rem;
+            font-weight: 600;
+            font-size: 2.5rem;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .card h4 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+
+        .coupon-form {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .form-control {
+            flex-grow: 1;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 5px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+
+        .cart-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+
+        .cart-img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 5px;
+            margin-right: 1rem;
+        }
+
+        .cart-item-details {
+            flex-grow: 1;
+        }
+
+        .total-pricing {
+            font-size: 1.1rem;
+            margin-top: 1rem;
+        }
+
+        .address-form, .payment-form {
+            margin-top: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-check {
+            margin-bottom: 0.5rem;
+        }
+
+        #placeOrder {
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            margin-top: 2rem;
+            width: 100%;
+        }
+
+        #placeOrder:hover {
+            background-color: #27ae60;
+        }
+
+        footer {
+            background-color: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 1rem 0;
+            margin-top: 3rem;
+        }
+
+        .order-summary {
+            position: sticky;
+            top: 20px;
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .order-summary h4 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+
+        .order-summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .order-total {
+            font-weight: bold;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #eee;
+        }
+
+        .checkout-content {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .checkout-main {
+            flex: 1;
+        }
+
+        .checkout-sidebar {
+            width: 300px;
+        }
+
+        @media (max-width: 768px) {
+            .coupon-form {
+                flex-direction: column;
+            }
+
+            .checkout-content {
+                flex-direction: column;
+            }
+
+            .checkout-sidebar {
+                width: 100%;
+            }
+
+            .order-summary {
+                position: static;
+            }
+        }
+       
+      
+       
+    </style>
     </head>
-
     <body>
-        <nav class="navbar navbar-expand-lg navbar-light bg-light">
-            <a class="navbar-brand" href="/"><img src="img/logo.png" alt="Logo"
-                    height="40"></a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse"
-                data-target="#navbarNav" aria-controls="navbarNav"
-                aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav mr-auto">
-                    <li class="nav-item"><a class="nav-link"
-                            href="/">Home</a></li>
-                    <li class="nav-item"><a class="nav-link"
-                            href="/products">Products</a></li>
-                    <li class="nav-item"><a class="nav-link"
-                            href="/about">About</a></li>
-                </ul>
-                <ul class="navbar-nav">
-                    <li class="nav-item"><a class="nav-link"
-                            href="/auth/signin"><img src="img/log-in.png"
-                                alt="Login" height="30"></a></li>
-                    <li class="nav-item"><a class="nav-link" href="/cart"><img
-                                src="img/cart.png" alt="Cart"
-                                height="30"></a></li>
-                    <li class="nav-item"><a class="nav-link"
-                            href="/user/wishlist"><img src="img/wishlist.png"
-                                alt="Wishlist" height="30"></a></li>
-                    <li class="nav-item"><a class="nav-link"
-                            href="/user/profile"><img src="img/userprofile.jpg"
-                                alt="User Profile" height="30"></a></li>
-                </ul>
-            </div>
-        </nav>
 
-        <div class="container mt-5">
+        <div class="container">
             <h2 class="checkout-header">Secure Checkout</h2>
 
-            <!-- Coupon Check Form -->
-            <div class="coupon-container">
-                <h4><i class="fas fa-tags"></i> Apply Coupon</h4>
-                <form id="couponCheckForm" class="coupon-form">
-                    <input type="text" name="couponCode" id="couponCode"
-                        placeholder="Enter your coupon code"
-                        class="form-control mb-2">
-                    <button type="submit" class="btn btn-primary">Apply
-                        Coupon</button>
-                </form>
-                <div id="discountMessage" class="discount-message"></div>
-                <div id="couponError" class="coupon-error text-danger"></div>
-                <button id="removeCoupon" class="btn btn-outline-danger mt-2"
-                    style="display:none;">Remove Coupon</button>
-            </div>
+            <div class="checkout-content">
+                <div class="checkout-main">
+                    <div class="card">
+                        <h4><i class="fas fa-tags"></i> Apply Coupon</h4>
+                        <form id="couponCheckForm" class="coupon-form">
+                            <input type="text" name="couponCode" id="couponCode"
+                                placeholder="Enter your coupon code"
+                                class="form-control">
+                            <button type="submit" class="btn btn-primary">Apply
+                                Coupon</button>
+                        </form>
+                        <div id="discountMessage"
+                            class="discount-message"></div>
+                        <div id="couponError"
+                            class="coupon-error text-danger"></div>
+                        <button id="removeCoupon"
+                            class="btn btn-outline-danger mt-2"
+                            style="display:none;">Remove Coupon</button>
+                    </div>
 
-            <!-- Cart Items -->
-            <h4><i class="fas fa-shopping-cart"></i> Your Cart</h4>
-            <% if (cart && cart.products && cart.products.length > 0) { %>
-            <div class="row">
-                <% for (const product of cart.products) { %>
-                <div class="col-12 cart-item">
-                    <div class="row align-items-center">
-                        <div class="col-3 text-center">
+                    <div class="card">
+                        <h4><i class="fas fa-shopping-cart"></i> Your Cart</h4>
+                        <% if (cart && cart.products && cart.products.length >
+                        0) { %>
+                        <% for (const product of cart.products) { %>
+                        <div class="cart-item">
                             <img
                                 src="<%= product.productId.images[0].secured_url %>"
                                 class="cart-img"
                                 alt="<%= product.productId.product %>">
+                            <div class="cart-item-details">
+                                <h5><%= product.productId.product %></h5>
+                                <p>Price: $<%= product.productId.finalPrice
+                                    %></p>
+                                <p>Quantity: <%= product.quantity %></p>
+                                <p>Subtotal: $<%= (product.productId.finalPrice
+                                    * product.quantity).toFixed(2) %></p>
+                            </div>
                         </div>
-                        <div class="col-9">
-                            <h5><%= product.productId.product %></h5>
-                            <p><strong>Price:</strong> $<%=
-                                product.productId.finalPrice %></p>
-                            <p><strong>Quantity:</strong> <%= product.quantity
-                                %></p>
-                            <p><strong>Subtotal:</strong> $<%=
-                                (product.productId.finalPrice *
-                                product.quantity).toFixed(2) %></p>
+                        <% } %>
+                        <% } else { %>
+                        <div class="text-center mt-5">
+                            <h3>Your cart is empty</h3>
+                            <a href="/products"
+                                class="btn btn-primary mt-3">Continue
+                                Shopping</a>
                         </div>
-                    </div>
-                </div>
-                <% } %>
-            </div>
-
-            <div class="total-pricing">
-                <div class="d-flex justify-content-between align-items-center">
-                    <strong>Total Price:</strong>
-                    <span class="h5">$<%= cart.totalPrice.toFixed(2) %></span>
-                </div>
-
-                <% if (cart.totalPrice !== cart.finalPrice) { %>
-                <div
-                    class="d-flex justify-content-between align-items-center mt-2">
-                    <strong class="text-success">Discounted Price:</strong>
-                    <span class="h5 text-success">$<%=
-                        cart.finalPrice.toFixed(2) %></span>
-                </div>
-                <% } %>
-
-                <% if (cart.deliveryCharge > 0) { %>
-                <div
-                    class="d-flex justify-content-between align-items-center mt-2">
-                    <strong class="text-muted">Delivery Charge:</strong>
-                    <span class="h6 text-muted">$<%=
-                        cart.deliveryCharge.toFixed(2) %></span>
-                </div>
-                <% } else { %>
-                <div
-                    class="d-flex justify-content-between align-items-center mt-2">
-                    <strong class="text-muted">Delivery Charge:</strong>
-                    <span class="h6 text-success">Free</span>
-                </div>
-                <% } %>
-
-                <hr>
-
-                <div
-                    class="d-flex justify-content-between align-items-center mt-3">
-                    <strong class="h4 text-primary">Final Total:</strong>
-                    <span class="h4 text-primary">$<%=
-                        cart.finalPrice.toFixed(2) %></span>
-                </div>
-            </div>
-
-            <% } else { %>
-            <div class="text-center mt-5">
-                <h3>Your cart is empty</h3>
-                <a href="/products" class="btn btn-primary mt-3">Continue
-                    Shopping</a>
-            </div>
-            <% } %>
-
-            <!-- Shipping Address -->
-            <div class="address-form">
-                <h4><i class="fas fa-shipping-fast"></i> Shipping Address</h4>
-                <form id="checkoutForm" action="/checkout" method="POST">
-
-                    <% user.address.forEach((address, index) => { %>
-                    <div class="form-check mb-3">
-                        <input class="form-check-input" type="radio"
-                            name="selectedAddress" id="address<%= index %>"
-                            value="<%= address._id %>" <%=index === 0 ?
-                            'checked' : '' %>>
-                        <label class="form-check-label"
-                            for="address<%= index %>">
-                            <%= address.street %>, <%= address.city %>, <%=
-                            address.state %> - <%= address.postalCode %>, <%=
-                            address.country %>
-                        </label>
-                    </div>
-                    <% }) %>
-
-                    <!-- Add New Address Radio Button -->
-                    <div class="form-check mb-3">
-                        <input class="form-check-input" type="radio"
-                            name="selectedAddress" id="newAddress" value="new">
-                        <label class="form-check-label" for="newAddress">
-                            Add New Address
-                        </label>
+                        <% } %>
                     </div>
 
-                    <!-- New Address Form -->
-                    <div id="newAddressForm" style="display:none;">
-                        <div class="form-group mt-3">
-                            <label for="street">Street</label>
-                            <input type="text" class="form-control"
-                                id="newStreet" name="newStreet"
-                                placeholder="123 Main St">
-                        </div>
-                        <div class="form-group">
-                            <label for="city">City</label>
-                            <input type="text" class="form-control" id="newCity"
-                                name="newCity" placeholder="City">
-                        </div>
-                        <div class="form-group">
-                            <label for="state">State</label>
-                            <input type="text" class="form-control"
-                                id="newState" name="newState"
-                                placeholder="State">
-                        </div>
-                        <div class="form-group">
-                            <label for="postalCode">Postal Code</label>
-                            <input type="text" class="form-control"
-                                id="newPostalCode" name="newPostalCode"
-                                placeholder="Postal Code">
-                        </div>
-                        <div class="form-group">
-                            <label for="country">Country</label>
-                            <input type="text" class="form-control"
-                                id="newCountry" name="newCountry"
-                                placeholder="Country">
-                        </div>
-                        <div class="form-group">
-                            <label for="phoneNo">Phone Number</label>
-                            <input type="text" class="form-control"
-                                id="newPhoneNo" name="newPhoneNo"
-                                placeholder="Phone Number">
-                        </div>
-                        <button type="button" class="btn btn-success mt-3"
-                            id="confirmNewAddress">Confirm Address</button>
-                    </div>
+                    <div class="card address-form">
+                        <h4><i class="fas fa-shipping-fast"></i> Shipping
+                            Address</h4>
+                        <form id="checkoutForm" action="/checkout"
+                            method="POST">
+                            <% user.address.forEach((address, index) => { %>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio"
+                                    name="selectedAddress"
+                                    id="address<%= index %>"
+                                    value="<%= address._id %>" <%=index === 0 ?
+                                    'checked' : '' %>>
+                                <label class="form-check-label"
+                                    for="address<%= index %>">
+                                    <%= address.street %>, <%= address.city %>,
+                                    <%= address.state %> - <%=
+                                    address.postalCode %>, <%= address.country
+                                    %>
+                                </label>
+                            </div>
+                            <% }) %>
 
-                    <!-- Payment Method Section -->
-                    <div class="payment-form mt-4">
-                        <h4><i class="fas fa-credit-card"></i> Payment
-                            Method</h4>
-                        <div class="form-group">
-                            <select class="form-control" id="paymentMethod"
-                                name="paymentMethod">
-                                <option value="cod">Cash on Delivery
-                                    (COD)</option>
-                                <option value="razorpay">Razorpay</option>
-                                <option value="wallet">Wallet</option>
-                            </select>
-                        </div>
-                    </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio"
+                                    name="selectedAddress" id="newAddress"
+                                    value="new">
+                                <label class="form-check-label"
+                                    for="newAddress">Add New Address</label>
+                            </div>
 
-                    <!-- Place Order Button -->
-                    <button type="submit"
-                        class="btn btn-primary btn-lg btn-block mt-4"
-                        id="placeOrder" disabled>
-                        <i class="fas fa-lock"></i> Place Order Securely
-                    </button>
-                </form>
+                            <div id="newAddressForm" style="display:none;">
+                                <div class="form-group">
+                                    <label for="street">Street</label>
+                                    <input type="text" class="form-control"
+                                        id="newStreet" name="newStreet"
+                                        placeholder="123 Main St">
+                                </div>
+                                <div class="form-group">
+                                    <label for="city">City</label>
+                                    <input type="text" class="form-control"
+                                        id="newCity" name="newCity"
+                                        placeholder="City">
+                                </div>
+                                <div class="form-group">
+                                    <label for="state">State</label>
+                                    <input type="text" class="form-control"
+                                        id="newState" name="newState"
+                                        placeholder="State">
+                                </div>
+                                <div class="form-group">
+                                    <label for="postalCode">Postal Code</label>
+                                    <input type="text" class="form-control"
+                                        id="newPostalCode" name="newPostalCode"
+                                        placeholder="Postal Code">
+                                </div>
+                                <div class="form-group">
+                                    <label for="country">Country</label>
+                                    <input type="text" class="form-control"
+                                        id="newCountry" name="newCountry"
+                                        placeholder="Country">
+                                </div>
+                                <div class="form-group">
+                                    <label for="phoneNo">Phone Number</label>
+                                    <input type="text" class="form-control"
+                                        id="newPhoneNo" name="newPhoneNo"
+                                        placeholder="Phone Number">
+                                </div>
+                                <button type="button" class="btn btn-primary"
+                                    id="confirmNewAddress">Confirm
+                                    Address</button>
+                            </div>
+
+                            <div class="payment-form mt-4">
+                                <h4><i class="fas fa-credit-card"></i> Payment
+                                    Method</h4>
+                                <div class="form-group">
+                                    <select class="form-control"
+                                        id="paymentMethod" name="paymentMethod">
+                                        <option value="cod">Cash on Delivery
+                                            (COD)</option>
+                                        <option
+                                            value="razorpay">Razorpay</option>
+                                        <option value="wallet">Wallet</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn" id="placeOrder"
+                                disabled>
+                                <i class="fas fa-lock"></i> Place Order Securely
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="checkout-sidebar">
+                    <div class="order-summary">
+                        <h4><i class="fas fa-receipt"></i> Order Summary</h4>
+                        <% if (cart && cart.products && cart.products.length >
+                        0) { %>
+                        <div class="order-summary-item">
+                            <span>Subtotal:</span>
+                            <span>$<%= cart.totalPrice.toFixed(2) %></span>
+                        </div>
+                        <% if (cart.totalPrice !== cart.finalPrice) { %>
+                        <div class="order-summary-item">
+                            <span>Discount:</span>
+                            <span>-$<%= (cart.totalPrice -
+                                cart.finalPrice).toFixed(2) %></span>
+                        </div>
+                        <% } %>
+                        <% if (cart.deliveryCharge > 0) { %>
+                        <div class="order-summary-item">
+                            <span>Delivery Charge:</span>
+                            <span>$<%= cart.deliveryCharge.toFixed(2) %></span>
+                        </div>
+                        <% } else { %>
+                        <div class="order-summary-item">
+                            <span>Delivery Charge:</span>
+                            <span>Free</span>
+                        </div>
+                        <% } %>
+                        <div class="order-summary-item order-total">
+                            <span>Total:</span>
+                            <span>$<%= cart.finalPrice.toFixed(2) %></span>
+                        </div>
+                        <% } else { %>
+                        <p>No items in cart</p>
+                        <% } %>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <footer class="bg-dark text-white mt-5">
-            <div class="container text-center py-4">
-                <p>&copy; 2024 Your E-Commerce Site. All rights reserved.</p>
-            </div>
+        <footer>
+            <p>&copy; 2024 Your E-Commerce Site. All rights reserved.</p>
         </footer>
+
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
         <script
             src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
         <script
             src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+        <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
         <!-- Scripts -->
 
         <script>

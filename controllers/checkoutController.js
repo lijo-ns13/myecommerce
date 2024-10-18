@@ -317,6 +317,9 @@ const postCheckCatPro=async (req, res) => {
             if (!productDetails) {
                 return res.status(400).json({ success: false, message: `Unfortunately, we couldn't find a product with the ID: ${productId}. Please check and try again.` });
             }
+            if(productDetails.isListed==false){
+                return res.status(400).json({success:false,message:`product is temporary blocked ,${productDetails.product}`})
+            }
 
             const sizeDetails = productDetails.sizes.find(s => s.size === size);
             if (!sizeDetails || sizeDetails.stock < quantity) {

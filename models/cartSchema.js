@@ -31,15 +31,21 @@ const cartSchema = new Schema({
     totalPrice: {
         type: Number,
         required: true,
-        default: 0
+        default: 0,
+        get: v => Math.round(v), // Ensure value is stored as integer
+        set: v => Math.round(v)  // Ensure value is rounded before saving
     },
     finalPrice: {
         type: Number,
-        default: 0
+        default: 0,
+        get: v => Math.round(v), // Ensure value is stored as integer
+        set: v => Math.round(v)  // Ensure value is rounded before saving
     },
     finalTotalPrice: {
         type: Number,
-        default: 0 // Default value set to 0
+        default: 0,
+        get: v => Math.round(v), // Ensure value is stored as integer
+        set: v => Math.round(v)  // Ensure value is rounded before saving
     },
     status: {
         type: String,

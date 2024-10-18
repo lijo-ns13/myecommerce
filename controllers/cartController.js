@@ -78,26 +78,34 @@ const postAddCart= async (req, res) => {
         res.status(500).json({ success: false, message: 'Server error' });
     }
 } 
-const postDeleteCart=async(req,res)=>{
-    try{
-        const productId=req.params.id;
-        const cart=await Cart.findOne({userId:req.user._id});
-        if(!cart){
-            return res.status(404).send({message:'Cart not found'});
+const postDeleteCart = async (req, res) => {
+    try {
+        const productSize=req.body.size;
+        const productId = req.params.id;
+        const cart = await Cart.findOne({ userId: req.user._id });
+        if (!cart) {
+            return res.status(404).send({ message: 'Cart not found' });
         }
-        const productIndex=cart.products.findIndex(p=>p.productId.toString()===productId);
-        console.log(productIndex)
-        if(!productIndex){
-            return res.status(404).send({message:'Product not found in cart'});
-        }
-        cart.products.splice(productIndex,1);
-        await cart.save()
-        // res.status(200).send({success:true,message:'Product deleted from cart'});
-        res.status(200).redirect('/cart')
-    }catch(error){
+        console.log(productSize,'productsize')
+        const productIndex = cart.products.findIndex(p => p.productId.toString() === productId && p.size.toString()===productSize.toString());
+        console.log(productIndex);
 
+        // Correct the condition to check for `-1` when the product is not found
+        if (productIndex === -1) {
+            return res.status(404).send({ message: 'Product not found in cart' });
+        }
+
+        cart.products.splice(productIndex, 1);
+        await cart.save();
+
+        // Redirect to the cart page after successful deletion
+        res.status(200).redirect('/cart');
+    } catch (error) {
+        // Handle error properly
+        res.status(500).send({ message: 'Server error', error });
     }
-}
+};
+
 const postUpdateQuantity=async (req, res) => {
     try {
         const action = req.body.action; // 'increase' or 'decrease'
