@@ -347,7 +347,42 @@ router.get('/sales/report', async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 });
-const pdf = require('html-pdf');
+const PDFDocument = require('pdfkit');
+
+// First, define the getDateRange function
+function getDateRange(type) {
+    const now = new Date();
+    let start, end;
+
+    switch (type) {
+        case 'daily':
+            start = new Date(now.setHours(0, 0, 0, 0)); // Start of today
+            end = new Date(now.setHours(23, 59, 59, 999)); // End of today
+            break;
+        case 'weekly':
+            const dayOfWeek = now.getUTCDay(); // Sunday - Saturday : 0 - 6
+            start = new Date(now);
+            start.setUTCDate(now.getUTCDate() - dayOfWeek); // Set to last Sunday
+            start.setUTCHours(0, 0, 0, 0); // Start of the week
+
+            end = new Date(start);
+            end.setUTCDate(start.getUTCDate() + 6); // End of the week
+            end.setUTCHours(23, 59, 59, 999); // End of the last day of the week
+            break;
+        case 'monthly':
+            start = new Date(now.getFullYear(), now.getMonth(), 1); // Start of the month
+            end = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999); // End of the month
+            break;
+        case 'yearly':
+            start = new Date(now.getFullYear(), 0, 1); // Start of the year
+            end = new Date(now.getFullYear(), 11, 31, 23, 59, 59, 999); // End of the year
+            break;
+        default:
+            throw new Error('Invalid report type');
+    }
+
+    return { start, end };
+}
 
 router.get('/sales/report/pdf', async (req, res) => {
   const { type, startDate, endDate } = req.query;
@@ -398,13 +433,7 @@ router.get('/sales/report/pdf', async (req, res) => {
               }
           });
       } else {
-          // For daily, weekly, monthly, yearly, fetch orders accordingly
-          const dateKey = type === 'daily' ? 'day'
-                        : type === 'weekly' ? 'week'
-                        : type === 'monthly' ? 'month'
-                        : 'year'; // Assuming you have a function to get start and end date for the type
-
-          const dateRange = getDateRange(type); // Implement this function to get start and end dates based on type
+          const dateRange = getDateRange(type);
           orders = await Order.find({
               orderDate: {
                   $gte: dateRange.start,
@@ -413,233 +442,233 @@ router.get('/sales/report/pdf', async (req, res) => {
           });
       }
 
-      const html = await generatePdfHtml(salesData, orders, type, start, end); // Pass orders instead of startDate, endDate
-      const options = { format: 'A4' };
+      // Create PDF document
+      const doc = new PDFDocument({ margin: 50 });
 
-      pdf.create(html, options).toBuffer((err, buffer) => {
-          if (err) return res.status(500).send(err);
-          res.setHeader('Content-Type', 'application/pdf');
-          res.setHeader('Content-Disposition', 'attachment; filename=sales-report.pdf');
-          res.send(buffer);
-      });
+      // Set response headers
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', 'attachment; filename=sales-report.pdf');
+
+      // Pipe the PDF document to the response
+      doc.pipe(res);
+
+      // Generate PDF content
+      await generatePdfContent(doc, salesData, orders, type, start, end);
+
+      // Finalize PDF file
+      doc.end();
+
   } catch (error) {
       console.error('Error generating PDF report:', error);
-      res.status(500).json({ message: 'Server error' });
+      res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
-function getDateRange(type) {
-  const now = new Date();
-  let start, end;
 
-  switch (type) {
-      case 'daily':
-          start = new Date(now.setHours(0, 0, 0, 0)); // Start of today
-          end = new Date(now.setHours(23, 59, 59, 999)); // End of today
-          break;
-      case 'weekly':
-          const dayOfWeek = now.getUTCDay(); // Sunday - Saturday : 0 - 6
-          start = new Date(now);
-          start.setUTCDate(now.getUTCDate() - dayOfWeek); // Set to last Sunday
-          start.setUTCHours(0, 0, 0, 0); // Start of the week
+async function generatePdfContent(doc, salesData, orders, type, startDate, endDate) {
+  try {
+      // Set up document
+      doc.font('Helvetica-Bold')
+         .fontSize(24)
+         .fillColor('#1c4587')
+         .text('Sales Report', { align: 'center' })
+         .moveDown(0.5);
 
-          end = new Date(start);
-          end.setUTCDate(start.getUTCDate() + 6); // End of the week
-          end.setUTCHours(23, 59, 59, 999); // End of the last day of the week
-          break;
-      case 'monthly':
-          start = new Date(now.getFullYear(), now.getMonth(), 1); // Start of the month
-          end = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999); // End of the month
-          break;
-      case 'yearly':
-          start = new Date(now.getFullYear(), 0, 1); // Start of the year
-          end = new Date(now.getFullYear(), 11, 31, 23, 59, 59, 999); // End of the year
-          break;
-      default:
-          throw new Error('Invalid report type');
+      // Add logo (if exists)
+      try {
+          const logoPath = path.join(__dirname, '..', 'public', 'images', 'logo.png');
+          if (fs.existsSync(logoPath)) {
+              doc.image(logoPath, 50, 50, { width: 50 });
+          }
+      } catch (logoError) {
+          console.warn('Logo not found or could not be loaded:', logoError.message);
+      }
+      doc.moveDown();
+
+      // Get report title
+      const reportTitle = getReportTitle(type, startDate, endDate);
+      doc.fontSize(16)
+         .fillColor('#666666')
+         .text(reportTitle, { align: 'center' })
+         .moveDown();
+
+      // Calculate totals
+      let totalSales = salesData.reduce((total, sale) => total + sale.totalSales, 0);
+      let totalDiscount = salesData.reduce((total, sale) => total + sale.totalDiscount, 0);
+      let totalOrders = salesData.reduce((total, sale) => total + sale.orderCount, 0);
+      let averageOrderValue = totalOrders > 0 ? totalSales / totalOrders : 0;
+
+      // Add summary section
+      doc.fontSize(14)
+         .fillColor('#1c4587')
+         .text('Executive Summary', { underline: true })
+         .moveDown(0.5);
+
+      doc.fontSize(12)
+         .fillColor('#333333');
+
+      const summaryData = [
+          { label: 'Total Revenue', value: `$${totalSales.toFixed(2)}` },
+          { label: 'Total Discount', value: `$${totalDiscount.toFixed(2)}` },
+          { label: 'Net Revenue', value: `$${(totalSales - totalDiscount).toFixed(2)}` },
+          { label: 'Total Orders', value: totalOrders },
+          { label: 'Average Order Value', value: `$${averageOrderValue.toFixed(2)}` }
+      ];
+
+      const summaryColumnWidth = 200;
+      summaryData.forEach((item, index) => {
+          doc.text(item.label, 50 + (index % 2) * summaryColumnWidth, doc.y);
+          doc.text(item.value, 150 + (index % 2) * summaryColumnWidth, doc.y, { align: 'right' });
+          if (index % 2 === 1 || index === summaryData.length - 1) doc.moveDown();
+      });
+
+      doc.moveDown();
+
+      // Add sales data table
+      doc.addPage();
+      doc.fontSize(16)
+         .fillColor('#1c4587')
+         .text('Detailed Sales Statistics', { underline: true })
+         .moveDown(0.5);
+
+      // Define table layout
+      const tableTop = doc.y;
+      const tableHeaders = ['Date', 'Total Sales', 'Total Discount', 'Net Revenue', 'Order Count'];
+      const columnWidth = (doc.page.width - 100) / tableHeaders.length;
+
+      // Draw table headers
+      drawTableRow(doc, tableTop, tableHeaders, columnWidth, true);
+      let tableY = tableTop + 20;
+
+      // Draw table rows
+      for (const sale of salesData) {
+          if (tableY > doc.page.height - 100) {
+              doc.addPage();
+              tableY = 50;
+              drawTableRow(doc, tableY, tableHeaders, columnWidth, true);
+              tableY += 20;
+          }
+
+          const netRevenue = sale.totalSales - sale.totalDiscount;
+          const rowData = [
+              sale._id,
+              `$${sale.totalSales.toFixed(2)}`,
+              `$${sale.totalDiscount.toFixed(2)}`,
+              `$${netRevenue.toFixed(2)}`,
+              sale.orderCount.toString()
+          ];
+
+          drawTableRow(doc, tableY, rowData, columnWidth);
+          tableY += 20;
+      }
+
+      // Add orders table on new page
+      doc.addPage();
+      doc.fontSize(16)
+         .fillColor('#1c4587')
+         .text('Individual Order Details', { underline: true })
+         .moveDown(0.5);
+
+      // Fetch all users
+      const users = await User.find({});
+      const userMap = users.reduce((map, user) => {
+          map[user._id] = user.name;
+          return map;
+      }, {});
+
+      // Define orders table layout
+      const orderHeaders = ['Order ID', 'User Name', 'Total Price', 'Discount', 'Net Price', 'Order Date', 'Status'];
+      const orderColumnWidth = (doc.page.width - 100) / orderHeaders.length;
+
+      // Draw orders table headers
+      let orderTableY = doc.y;
+      drawTableRow(doc, orderTableY, orderHeaders, orderColumnWidth, true);
+      orderTableY += 20;
+
+      // Draw orders table rows
+      for (const order of orders) {
+          if (orderTableY > doc.page.height - 100) {
+              doc.addPage();
+              orderTableY = 50;
+              drawTableRow(doc, orderTableY, orderHeaders, orderColumnWidth, true);
+              orderTableY += 20;
+          }
+
+          const userName = userMap[order.userId] || "Unknown User";
+          const netPrice = order.totalPrice - (order.discount || 0);
+          const rowData = [
+              order._id.toString().substring(0, 8),
+              userName,
+              `$${order.totalPrice.toFixed(2)}`,
+              `$${order.discount ? order.discount.toFixed(2) : '0.00'}`,
+              `$${netPrice.toFixed(2)}`,
+              new Date(order.orderDate).toLocaleDateString(),
+              order.status
+          ];
+
+          drawTableRow(doc, orderTableY, rowData, orderColumnWidth);
+          orderTableY += 20;
+      }
+
+      // Add footer
+      doc.fontSize(10)
+         .fillColor('#666666')
+         .text(`Generated on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}`, {
+             align: 'center',
+             bottom: 30
+         });
+
+  } catch (error) {
+      console.error('Error generating PDF content:', error);
+      doc.fontSize(12)
+         .fillColor('red')
+         .text('An error occurred while generating the report. Please try again later.', 50, 50);
   }
-
-  return { start, end };
 }
 
-async function generatePdfHtml(salesData, orders, type, startDate, endDate) {
-  let totalSales = salesData.reduce((total, sale) => total + sale.totalSales, 0).toFixed(2);
-  let totalDiscount = salesData.reduce((total, sale) => total + sale.totalDiscount, 0).toFixed(2);
-  let totalOrders = salesData.reduce((total, sale) => total + sale.orderCount, 0);
-
-  // Get the current date for daily reports or when dates are not provided
-  const currentDate = new Date();
-
-  // Define variables for the report title
-  let reportTitle = '';
-  let datePart = '';
-
-  // Handle different types of reports
-  switch (type) {
-      case 'daily':
-          reportTitle = `Daily Sales Report - ${currentDate.toLocaleDateString()}`;
-          break;
-      case 'weekly':
-          if (startDate && endDate) {
-              reportTitle = `Weekly Sales Report (${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()})`;
-          } else {
-              reportTitle = 'Weekly Sales Report';
-          }
-          break;
-      case 'monthly':
-          // Display the month and year (e.g., October 2024)
-          const monthName = currentDate.toLocaleString('default', { month: 'long' });
-          const year = currentDate.getFullYear();
-          reportTitle = `Monthly Sales Report - ${monthName} ${year}`;
-          break;
-      case 'yearly':
-          // Display only the year (e.g., 2024)
-          const reportYear = currentDate.getFullYear();
-          reportTitle = `Yearly Sales Report - ${reportYear}`;
-          break;
-      case 'custom':
-          if (startDate && endDate) {
-              reportTitle = `Custom Sales Report (${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()})`;
-          } else {
-              reportTitle = 'Custom Sales Report';
-          }
-          break;
-      default:
-          reportTitle = `Sales Report`;
+function drawTableRow(doc, y, data, columnWidth, isHeader = false) {
+  const x = 50;
+  
+  if (isHeader) {
+      doc.fillColor('#1c4587').font('Helvetica-Bold');
+  } else {
+      doc.fillColor('#333333').font('Helvetica');
   }
-  let html = `
-  <html>
-    <head>
-      <style>
-        body {
-          font-family: Arial, sans-serif;
-          margin: 0;
-          padding: 20px;
-          background-color: #f4f4f4;
-        }
-        h1 {
-          text-align: center;
-          color: #333;
-        }
-        h2 {
-          color: #444;
-          border-bottom: 2px solid #007BFF;
-          padding-bottom: 10px;
-        }
-        table {
-          width: 100%;
-          border-collapse: collapse;
-          margin: 20px 0;
-          background: #fff;
-        }
-        th, td {
-          border: 1px solid #ddd;
-          padding: 8px;
-          text-align: center;
-        }
-        th {
-          background-color: #007BFF;
-          color: white;
-        }
-        tr:nth-child(even) {
-          background-color: #f2f2f2;
-        }
-        tr:hover {
-          background-color: #ddd;
-        }
-        .summary {
-          margin: 20px 0;
-          padding: 10px;
-          background-color: #007BFF;
-          color: white;
-          border-radius: 5px;
-        }
-        .footer {
-          margin-top: 40px;
-          text-align: center;
-          font-size: 0.9em;
-          color: #666;
-        }
-      </style>
-    </head>
-    <body>
-    <h1>${reportTitle}</h1>
-      <h1>Sales Report</h1>
-      
-      <div class="summary">
-        <strong>Total Revenue:</strong> ${totalSales}<br>
-        <strong>Total Discount:</strong> ${totalDiscount}<br>
-        <strong>Total Success Orders:</strong> ${totalOrders}<br>
-      </div>
+  doc.fontSize(10);
 
-      <h2>Overall Statistics</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Total Sales</th>
-            <th>Total Discount</th>
-            <th>Success Order Count</th>
-          </tr>
-        </thead>
-        <tbody>`;
-
-  salesData.forEach(sale => {
-      html += `<tr>
-                  <td>${sale._id}</td>
-                  <td>${sale.totalSales.toFixed(2)}</td>
-                  <td>${sale.totalDiscount.toFixed(2)}</td>
-                  <td>${sale.orderCount}</td>
-              </tr>`;
+  data.forEach((text, i) => {
+      doc.text(text, x + (columnWidth * i), y, {
+          width: columnWidth,
+          align: 'center'
+      });
   });
 
-  html += `</tbody>
-      </table>
-
-      <h2>Individual Orders</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Order ID</th>
-            <th>User Name</th>
-            <th>Total Price</th>
-            <th>Discount</th>
-            <th>Order Date</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>`;
-
-  // Fetch all users to get their names
-  const users = await User.find({}); // Assuming User is your User model
-  const userMap = users.reduce((map, user) => {
-      map[user._id] = user.name; // Create a map of userId to userName
-      return map;
-  }, {});
-
-  orders.forEach(order => {
-      const userName = userMap[order.userId] || "Unknown User"; // Get user name or set to "Unknown User"
-      html += `<tr>
-                  <td>${order._id}</td>
-                  <td>${userName}</td>
-                  <td>${order.totalPrice.toFixed(2)}</td>
-                  <td>${order.discount ? order.discount.toFixed(2) : 0}</td>
-                  <td>${new Date(order.orderDate).toLocaleDateString()}</td>
-                  <td>${order.status}</td>
-              </tr>`;
-  });
-
-  html += `</tbody>
-      </table>
-
-      <div class="footer">
-        <p>Generated on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}</p>
-      </div>
-    </body>
-  </html>`;
-
-  return html;
+  doc.moveTo(x, y + 15)
+     .lineTo(x + (columnWidth * data.length), y + 15)
+     .stroke(isHeader ? '#1c4587' : '#cccccc');
 }
-
+function getReportTitle(type, startDate, endDate) {
+    const currentDate = new Date();
+    
+    switch (type) {
+        case 'daily':
+            return `Daily Sales Report - ${currentDate.toLocaleDateString()}`;
+        case 'weekly':
+            return startDate && endDate 
+                ? `Weekly Sales Report (${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()})`
+                : 'Weekly Sales Report';
+        case 'monthly':
+            const monthName = currentDate.toLocaleString('default', { month: 'long' });
+            return `Monthly Sales Report - ${monthName} ${currentDate.getFullYear()}`;
+        case 'yearly':
+            return `Yearly Sales Report - ${currentDate.getFullYear()}`;
+        case 'custom':
+            return startDate && endDate
+                ? `Custom Sales Report (${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()})`
+                : 'Custom Sales Report';
+        default:
+            return 'Sales Report';
+    }
+}
 
 
 // admin product section************************************************************************************
