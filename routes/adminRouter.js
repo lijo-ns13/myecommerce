@@ -347,6 +347,7 @@ router.get('/sales/report', async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 });
+// pdf kit
 const PDFDocument = require('pdfkit');
 
 // First, define the getDateRange function
