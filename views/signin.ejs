@@ -1,122 +1,417 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-  <style>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Welcome Back</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet">
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet">
+    <style>
+    :root {
+      --primary-color: #4f46e5;
+      --primary-dark: #4338ca;
+      --error-color: #ef4444;
+      --success-color: #22c55e;
+    }
+
+    body {
+      background: #f5f7fb;
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    }
+
     .login-container {
-      min-height: 80vh; /* Adjust height to fit screen better */
+      min-height: 100vh;
+      padding: 1rem;
     }
-    .card {
-      border-radius: 1rem;
+
+    .split-layout {
+      background: white;
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
     }
-    .btn-outline-light {
-      border-color: #ffffff;
+
+    .login-sidebar {
+      background: var(--primary-color);
+      padding: 3rem;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .login-sidebar::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
+      transform: skewY(-45deg);
+    }
+
+    .login-form {
+      padding: 3rem;
+      background: white;
+    }
+
+    .form-floating {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-floating > label {
+      padding-left: 1rem;
+      color: #6b7280;
+    }
+
+    .form-floating > .form-control {
+      padding: 1rem;
+      height: 3.5rem;
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      transition: all 0.2s ease;
+    }
+
+    .form-floating > .form-control:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+    }
+
+    .form-floating > .form-control:hover:not(:focus) {
+      border-color: #d1d5db;
+    }
+
+    .password-toggle {
+      position: absolute;
+      right: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: #6b7280;
+      z-index: 10;
+    }
+
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border-radius: 12px;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+
+    .btn-primary {
+      background: var(--primary-color);
+      border: none;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+      transform: translateY(-1px);
+    }
+
+    .btn-google {
+      background: white;
+      border: 2px solid #e5e7eb;
+      color: #374151;
+    }
+
+    .btn-google:hover {
+      background: #f9fafb;
+      border-color: #d1d5db;
+    }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      color: #6b7280;
+      margin: 1.5rem 0;
+    }
+
+    .divider::before,
+    .divider::after {
+      content: '';
+      flex: 1;
+      border-bottom: 2px solid #e5e7eb;
+    }
+
+    .divider span {
+      padding: 0 1rem;
+      font-size: 0.875rem;
+    }
+
+    #error {
+      color: var(--error-color);
+      background: #fef2f2;
+      border: 1px solid #fee2e2;
+      padding: 1rem;
+      border-radius: 12px;
+      margin-bottom: 1.5rem;
+      display: none;
+    }
+
+    #error.show {
+      display: block;
+      animation: shake 0.5s ease-in-out;
+    }
+
+    .success-message {
+      color: var(--success-color);
+      background: #f0fdf4;
+      border: 1px solid #dcfce7;
+      padding: 1rem;
+      border-radius: 12px;
+      margin-bottom: 1.5rem;
+      display: none;
+    }
+
+    .success-message.show {
+      display: block;
+      animation: slideDown 0.3s ease-out;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 991.98px) {
+      .login-sidebar {
+        display: none;
+      }
+      
+      .login-form {
+        padding: 2rem;
+      }
+    }
+
+    .form-check-input {
+      width: 1.2em;
+      height: 1.2em;
+      border-radius: 6px;
+      border: 2px solid #e5e7eb;
+    }
+
+    .form-check-input:checked {
+      background-color: var(--primary-color);
+      border-color: var(--primary-color);
+    }
+
+    .form-check-label {
+      color: #6b7280;
+      padding-left: 0.5rem;
+    }
+
+    .forgot-password {
+      color: var(--primary-color);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .forgot-password:hover {
+      text-decoration: underline;
     }
   </style>
-</head>
-<body>
-  <section class="vh-100 gradient-custom">
-    <div class="container py-5 login-container">
-      <div class="row d-flex justify-content-center align-items-center h-100">
-        <div class="col-12 col-md-8 col-lg-6 col-xl-5">
-          <div class="card bg-dark text-white">
-            <div class="card-body p-4 text-center">
-              <div class="mb-md-4 pb-4">
-                <h2 class="fw-bold mb-2 text-uppercase">Login</h2>
-                <p class="text-white-50 mb-4">Please enter your login and password!</p>
-
-                <!-- Display error message if any -->
-                <div id="error"></div>
-
-                <form id="signinForm">
-                  <div class="form-outline form-white mb-3">
-                    <input 
-                      type="text" 
-                      id="email" 
-                      name="email" 
-                      class="form-control form-control-lg" 
-                      placeholder="Enter your email" 
-                      value="example@gmail.com"
-                      
-                    />
-                    <label class="form-label" for="email">Email</label>
-                  </div>
-
-                  <div class="form-outline form-white mb-3">
-                    <input 
-                      type="password" 
-                      id="password" 
-                      name="password" 
-                      class="form-control form-control-lg" 
-                      placeholder="Enter your password" 
-                      
-                    />
-                    <label class="form-label" for="password">Password</label>
-                  </div>
-
-                  <p class="small mb-4 pb-lg-2"><a class="text-white-50" href="/auth/forgot-password">Forgot password?</a></p>
-
-                  <button class="btn btn-outline-light btn-lg px-4" type="submit">Login</button>
-                </form>
-
-                <div class="d-flex justify-content-center text-center mt-3">
-                  <a href="#!" class="text-white"><i class="fab fa-google fa-lg"></i></a>
+  </head>
+  <body>
+    <div class="container login-container">
+      <div class="row justify-content-center align-items-center min-vh-100">
+        <div class="col-12 col-lg-10 col-xl-8">
+          <div class="split-layout row">
+            <div class="col-lg-5 login-sidebar">
+              <h1 class="display-4 mb-4">Welcome Back!</h1>
+              <p class="lead">Sign in to access your account and continue your
+                journey with us.</p>
+            </div>
+            <div class="col-lg-7">
+              <div class="login-form">
+                <div class="text-center mb-4">
+                  <h2 class="h3 mb-2">Sign In to Your Account</h2>
+                  <p class="text-muted">Please enter your credentials to
+                    continue</p>
                 </div>
 
-                <div class="d-flex justify-content-center mt-3">
-                  <a href="/auth/google" class="btn btn-light btn-lg px-4" style="background-color: #4285F4; color: white;">
-                    <i class="fab fa-google"></i> Sign in with Google
+                <div id="error">
+                  <i class="fas fa-exclamation-circle me-2"></i>
+                  <span class="error-text"></span>
+                </div>
+
+                <div class="success-message">
+                  <i class="fas fa-check-circle me-2"></i>
+                  <span>Successfully logged in! Redirecting...</span>
+                </div>
+
+                <form id="signinForm" novalidate>
+                  <div class="form-floating">
+                    <input
+                      type="email"
+                      class="form-control"
+                      id="email"
+                      placeholder="name@example.com">
+                    <label for="email">Email address</label>
+                  </div>
+
+                  <div class="form-floating position-relative">
+                    <input
+                      type="password"
+                      class="form-control"
+                      id="password"
+                      placeholder="Password">
+                    <label for="password">Password</label>
+                    <span class="password-toggle" onclick="togglePassword()">
+                      <i class="far fa-eye"></i>
+                    </span>
+                  </div>
+
+                  <div
+                    class="d-flex justify-content-between align-items-center mb-4">
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox"
+                        id="remember">
+                      <label class="form-check-label" for="remember">
+                        Remember me
+                      </label>
+                    </div>
+                    <a href="/auth/forgot-password"
+                      class="forgot-password">Forgot password?</a>
+                  </div>
+
+                  <button class="btn btn-primary w-100 mb-3" type="submit">
+                    <span class="spinner-border spinner-border-sm me-2 d-none"
+                      role="status"></span>
+                    Sign In
+                  </button>
+
+                  <div class="divider">
+                    <span>or continue with</span>
+                  </div>
+
+                  <a href="/auth/google" class="btn btn-google w-100">
+
+                    Sign in with Google
                   </a>
-                </div>
-              </div>
 
-              <div>
-                <p class="mb-0">Don't have an account? <a href="/auth/signup" class="text-white-50 fw-bold">Sign Up</a></p>
+                  <div class="text-center mt-4">
+                    <p class="text-muted mb-0">Don't have an account?
+                      <a href="/auth/signup"
+                        class="text-primary fw-semibold">Create account</a>
+                    </p>
+                  </div>
+                </form>
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </section>
 
-  <script>
+    <script>
+    function togglePassword() {
+      const passwordInput = document.getElementById('password');
+      const toggleIcon = document.querySelector('.password-toggle i');
+      
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        toggleIcon.classList.remove('fa-eye');
+        toggleIcon.classList.add('fa-eye-slash');
+      } else {
+        passwordInput.type = 'password';
+        toggleIcon.classList.remove('fa-eye-slash');
+        toggleIcon.classList.add('fa-eye');
+      }
+    }
+
     document.getElementById('signinForm').addEventListener('submit', login);
     
     async function login(event) {
-        event.preventDefault();
-        const url = "/auth/signin";
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
+      event.preventDefault();
+      
+      // Show loading state
+      const submitBtn = event.target.querySelector('button[type="submit"]');
+      const spinner = submitBtn.querySelector('.spinner-border');
+      submitBtn.disabled = true;
+      spinner.classList.remove('d-none');
+      
+      const errorDiv = document.getElementById('error');
+      const successDiv = document.querySelector('.success-message');
+      errorDiv.classList.remove('show');
+      successDiv.classList.remove('show');
 
-        const options = {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ email, password })
-        };
+      const url = "/auth/signin";
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
 
-        try {
-            const response = await fetch(url, options);
-            const result = await response.json();
-            console.log('result', result);
+      // Basic validation
+      if (!email || !password) {
+        showError('Please fill in all fields');
+        resetButton();
+        return;
+      }
 
-            if (response.ok) {
-                document.getElementById('email').value = '';
-                document.getElementById('password').value = '';
-                window.location.href = result.role === 'admin' ? '/admin/dashboard' : '/';
-            } else {
-                document.getElementById('error').innerText = result.message;
-            }
-        } catch (error) {
-            document.getElementById('error').innerText = 'An error occurred. Please try again.';
+      if (!email.includes('@')) {
+        showError('Please enter a valid email address');
+        resetButton();
+        return;
+      }
+
+      const options = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email, password })
+      };
+
+      try {
+        const response = await fetch(url, options);
+        const result = await response.json();
+
+        if (response.ok) {
+          successDiv.classList.add('show');
+          document.getElementById('email').value = '';
+          document.getElementById('password').value = '';
+          
+          // Redirect after a short delay
+          setTimeout(() => {
+            window.location.href = result.role === 'admin' ? '/admin/dashboard' : '/';
+          }, 1500);
+        } else {
+          showError(result.message || 'Invalid credentials');
         }
+      } catch (error) {
+        showError('An error occurred. Please try again.');
+      } finally {
+        resetButton();
+      }
     }
-</script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-</body>
+
+    function showError(message) {
+      const errorDiv = document.getElementById('error');
+      const errorText = errorDiv.querySelector('.error-text');
+      errorText.textContent = message;
+      errorDiv.classList.add('show');
+    }
+
+    function resetButton() {
+      const submitBtn = document.querySelector('button[type="submit"]');
+      const spinner = submitBtn.querySelector('.spinner-border');
+      submitBtn.disabled = false;
+      spinner.classList.add('d-none');
+    }
+  </script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
 </html>
