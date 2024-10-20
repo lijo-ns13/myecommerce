@@ -3,7 +3,7 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const jwt = require('jsonwebtoken');
 const MongoClient = require('mongodb').MongoClient;
 const uri = "mongodb://localhost:27017"; // Your MongoDB URI
-
+const dotenv=require('dotenv').config()
 // Connect to MongoDB
 let db;
 MongoClient.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
@@ -15,7 +15,7 @@ MongoClient.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: 'http://lijons.shop/auth/google/callback'
+    callbackURL: "/auth/google/callback"
 }, async (accessToken, refreshToken, profile, done) => {
     try {
         const usersCollection = db.collection('users');
