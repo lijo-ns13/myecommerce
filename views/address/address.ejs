@@ -8,121 +8,248 @@
         <link rel="stylesheet"
             href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
         <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #f4f4f4;
-            color: #333;
-        }
+    body {
+        font-family: 'Poppins', sans-serif;
+        background-color: #f4f4f4;
+        color: #333;
+    }
 
+    .profile-container {
+        max-width: 1200px;
+        margin: 2rem auto;
+        background: #f7f8fc;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        display: flex;
+        overflow: hidden;
+    }
+
+    .sidebar {
+        width: 250px;
+        background: #2c3e50;
+        padding: 2rem 0;
+        color: #ecf0f1;
+    }
+
+    .sidebar h4 {
+        padding: 0 1.5rem;
+        margin-bottom: 1.5rem;
+        font-weight: 600;
+        font-size: 1.2rem;
+    }
+
+    .sidebar .nav-link {
+        color: #bdc3c7;
+        padding: 0.75rem 1.5rem;
+        display: flex;
+        align-items: center;
+        transition: all 0.3s ease;
+    }
+
+    .sidebar .nav-link:hover, .sidebar .nav-link.active {
+        background: #34495e;
+        color: #fff;
+    }
+
+    .sidebar .nav-link i {
+        margin-right: 10px;
+        font-size: 1.1rem;
+    }
+
+    .main-content {
+        flex: 1;
+        padding: 2rem;
+    }
+
+    .address-card {
+        background: #fff;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        margin-bottom: 1.5rem;
+    }
+
+    .btn {
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-primary {
+        background: #3498db;
+        color: #fff;
+    }
+
+    .btn-primary:hover {
+        background: #2980b9;
+    }
+
+    .btn-danger {
+        background: #e74c3c;
+        color: #fff;
+    }
+
+    .btn-danger:hover {
+        background: #c0392b;
+    }
+
+    .navbar {
+        background-color: rgba(255, 255, 255, 0.9) !important;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .navbar-brand img {
+        max-height: 50px;
+    }
+
+    .nav-link {
+        display: flex;
+        align-items: center;
+        color: #333;
+        font-size: 18px;
+        font-weight: 600;
+        transition: color 0.3s ease;
+    }
+
+    .nav-link:hover {
+        color: #3498db;
+    }
+
+    .nav-link img {
+        margin-right: 5px;
+    }
+
+    /* Responsive Styles */
+    @media (max-width: 991px) {
         .profile-container {
-            max-width: 1200px;
-            margin: 2rem auto;
-            background: #f7f8fc;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            display: flex;
-            overflow: hidden;
+            flex-direction: column;
+            margin: 1rem;
         }
 
         .sidebar {
-            width: 250px;
-            background: #2c3e50;
-            padding: 2rem 0;
-            color: #ecf0f1;
-        }
-
-        .sidebar h4 {
-            padding: 0 1.5rem;
-            margin-bottom: 1.5rem;
-            font-weight: 600;
-            font-size: 1.2rem;
-        }
-
-        .sidebar .nav-link {
-            color: #bdc3c7;
-            padding: 0.75rem 1.5rem;
-            display: flex;
-            align-items: center;
-            transition: all 0.3s ease;
-        }
-
-        .sidebar .nav-link:hover, .sidebar .nav-link.active {
-            background: #34495e;
-            color: #fff;
-        }
-
-        .sidebar .nav-link i {
-            margin-right: 10px;
-            font-size: 1.1rem;
+            width: 100%;
+            padding: 1rem 0;
         }
 
         .main-content {
-            flex: 1;
-            padding: 2rem;
+            padding: 1.5rem;
         }
 
+        .navbar-nav {
+            flex-direction: row;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .nav-item {
+            margin: 5px;
+        }
+
+        .navbar-collapse {
+            text-align: center;
+        }
+    }
+
+    @media (max-width: 768px) {
         .address-card {
-            background: #fff;
-            border-radius: 15px;
-            padding: 1.5rem;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-            margin-bottom: 1.5rem;
+            padding: 1.25rem;
+        }
+
+        .address-card h5 {
+            font-size: 1.1rem;
+        }
+
+        .address-card p {
+            font-size: 0.9rem;
         }
 
         .btn {
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            border: none;
-            cursor: pointer;
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
         }
 
-        .btn-primary {
-            background: #3498db;
-            color: #fff;
+        footer {
+            text-align: center;
         }
 
-        .btn-primary:hover {
-            background: #2980b9;
+        footer .d-flex {
+            justify-content: center;
+            margin-top: 1rem;
         }
 
-        .btn-danger {
-            background: #e74c3c;
-            color: #fff;
+        footer .list-unstyled {
+            margin-bottom: 2rem;
         }
 
-        .btn-danger:hover {
-            background: #c0392b;
+        .d-flex.justify-content-between {
+            flex-direction: column;
+            gap: 1rem;
         }
 
-        .navbar {
-            background-color: rgba(255, 255, 255, 0.9) !important;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        .d-flex.justify-content-between .btn {
+            width: 100%;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .profile-container {
+            margin: 0;
+            border-radius: 0;
+        }
+
+        .main-content {
+            padding: 1rem;
+        }
+
+        h2 {
+            font-size: 1.5rem;
         }
 
         .navbar-brand img {
-            max-height: 50px;
+            max-height: 40px;
         }
 
         .nav-link {
-            display: flex;
-            align-items: center;
-            color: #333;
-            font-size: 18px;
-            font-weight: 600;
-            transition: color 0.3s ease;
+            padding: 0.5rem 1rem;
         }
 
-        .nav-link:hover {
-            color: #3498db;
+        .address-card {
+            padding: 1rem;
+        }
+    }
+
+    /* Navbar Icon Responsive Styles */
+    @media (max-width: 991px) {
+        .navbar-nav .nav-item {
+            margin: 0 5px;
         }
 
         .nav-link img {
-            margin-right: 5px;
+            height: 20px !important;
         }
+    }
+
+    /* Footer Responsive Styles */
+    @media (max-width: 768px) {
+        .footer .col-md-4,
+        .footer .col-md-2 {
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .footer .d-flex {
+            justify-content: center;
+        }
+
+        .footer img {
+            margin: 0 10px;
+        }
+    }
     </style>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     </head>

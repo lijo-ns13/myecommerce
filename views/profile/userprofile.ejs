@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Profile</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <style>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>User Profile</title>
+        <link rel="stylesheet"
+            href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+        <style>
       @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
 .profile-container {
@@ -131,6 +132,119 @@
 .btn-secondary:hover {
     background: #bdc3c7;
 }
+
+/* Responsive Design */
+@media (max-width: 991px) {
+    .profile-container {
+        margin: 1rem;
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        padding: 1rem 0;
+    }
+
+    .main-content {
+        padding: 1.5rem;
+    }
+
+    .profile-header {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .profile-picture {
+        margin: 0 auto 1rem;
+    }
+
+    .profile-name {
+        font-size: 1.75rem;
+    }
+
+    .navbar-nav {
+        margin-top: 1rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .profile-info {
+        flex-direction: column;
+        align-items: flex-start;
+        text-align: left;
+        margin-bottom: 1.5rem;
+    }
+
+    .profile-info i {
+        margin-bottom: 0.5rem;
+    }
+
+    .profile-card {
+        padding: 1.5rem;
+    }
+
+    .footer .col-md-4,
+    .footer .col-md-2 {
+        margin-bottom: 2rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .profile-container {
+        margin: 0;
+        border-radius: 0;
+    }
+
+    .main-content {
+        padding: 1rem;
+    }
+
+    .profile-name {
+        font-size: 1.5rem;
+    }
+
+    .navbar-brand img {
+        max-height: 40px;
+    }
+
+    .nav-link {
+        padding: 0.5rem 1rem;
+    }
+}
+
+/* Navbar Responsive Styles */
+@media (max-width: 991px) {
+    .navbar-nav {
+        flex-direction: row;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .nav-item {
+        margin: 5px;
+    }
+
+    .navbar-collapse {
+        text-align: center;
+    }
+}
+
+/* Footer Responsive Styles */
+@media (max-width: 768px) {
+    footer {
+        text-align: center;
+    }
+
+    footer .d-flex {
+        justify-content: center;
+        margin-top: 1rem;
+    }
+
+    footer .list-unstyled {
+        margin-bottom: 2rem;
+    }
+}
+
 :root {
     --primary-color: #3498db;
     --secondary-color: #e74c3c;
@@ -155,202 +269,242 @@ body {
 }
 
 .navbar-nav {
-    display: flex; /* Use flexbox for alignment */
-    align-items: center; /* Center items vertically */
-    list-style: none; /* Remove default list styles */
-    padding: 0; /* Remove default padding */
-    margin: 0; /* Remove default margin */
+    display: flex;
+    align-items: center;
+    list-style: none;
+    padding: 0;
+    margin: 0;
 }
 
 .nav-item {
-    margin: 0 10px; /* Set uniform horizontal spacing */
+    margin: 0 10px;
 }
 
 .nav-link {
-    display: flex; /* Use flexbox for proper alignment */
-    align-items: center; /* Center items vertically */
-    text-decoration: none; /* Remove underline from links */
-    color: #333; /* Set a default text color */
-    font-size: 18px; /* Set a uniform font size */
-    font-weight: 600; /* Set font weight */
-    transition: color 0.3s ease; /* Transition for hover effect */
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: #333;
+    font-size: 18px;
+    font-weight: 600;
+    transition: color 0.3s ease;
 }
 
 .nav-link:hover {
-    color: var(--primary-color) !important; /* Hover color */
+    color: var(--primary-color) !important;
 }
 
 .nav-link i {
-    font-size: 24px; /* Set a uniform icon size */
-    margin-right: 5px; /* Space between icon and text */
+    font-size: 24px;
+    margin-right: 5px;
 }
 
 .rounded-circle {
-    width: 30px; /* Set a fixed width for the user profile image */
-    height: 30px; /* Set a fixed height for the user profile image */
+    width: 30px;
+    height: 30px;
 }
-
-
-
     </style>
-</head>
+    </head>
 
-<body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light py-3 w-100">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="/">
-                <img src="/img/logo.png" alt="Logo" class="d-inline-block align-text-top" style="height: 40px;">
-            </a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ml-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/products">Products</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/about">About</a>
-                    </li>
-                </ul>
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/auth/signin">
-                            <img src="/img/log-in.png" alt="Login" class="nav-icon" style="height: 24px;">
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/user/wishlist">
-                            <img src="/img/wishlist.png" alt="Wishlist" class="nav-icon" style="height: 24px;">
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/cart">
-                            <img src="/img/cart.png" alt="Cart" class="nav-icon" style="height: 24px;">
-                            <span class="badge badge-pill badge-danger"></span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/user/profile">
-                            <img src="/img/userprofile.jpg" alt="User Profile" class="nav-icon rounded-circle" style="height: 24px;">
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-    
-    <div class="profile-container">
-        <div class="sidebar">
-            <h4>Menu</h4>
-            <ul class="nav flex-column">
-                <li class="nav-item">
-                    <a class="nav-link active" href="/user/profile"><i class="fas fa-user"></i> Profile</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/user/address"><i class="fas fa-map-marker-alt"></i> Addresses</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/user/profile/edit"><i class="fas fa-edit"></i> Edit Profile</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/user/orders"><i class="fas fa-box"></i> Orders</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/user/profile/change-password"><i class="fas fa-key"></i> Change Password</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/user/profile/wallet"><i class="fas fa-wallet"></i> Wallet</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/auth/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
-                </li>
-            </ul>
-        </div>
-    
-        <div class="main-content">
-            <div class="profile-header">
-                <img src="/api/placeholder/100/100"  class="profile-picture">
-                <h1 class="profile-name"><%= user.name %></h1>
-            </div>
-    
-            <div class="profile-card">
-                <div class="profile-info">
-                    <i class="fas fa-envelope"></i>
-                    <p><strong>Email:</strong> <%= user.email %></p>
-                </div>
-                <div class="profile-info">
-                    <i class="fas fa-phone"></i>
-                    <p><strong>Phone:</strong> <%= user.address && user.address.phoneNo ? user.address.phoneNo : 'Not available' %></p>
-                </div>
-                
-                <div class="profile-info">
-                    <i class="fas fa-map-pin"></i>
-                    <p><strong>Location:</strong> New York, USA</p>
-                </div>
-                <div class="profile-info">
-                    <i class="fas fa-birthday-cake"></i>
-                    <p><strong>Joined:</strong> <%= new Date(user.updatedAt).toLocaleDateString() %></p>
-
-                </div>
-                
-              
-            </div>
-        </div>
-    </div>
-    <footer class="bg-dark text-white mt-5">
-        <div class="container py-4">
-            <div class="row">
-                <!-- About Section -->
-                <div class="col-md-4">
-                    <h5>About Us</h5>
-                    <p>At our shoe e-commerce store, we provide the best quality footwear for every occasion. Explore our collection to find the perfect pair of shoes for you.</p>
-                </div>
-    
-                <!-- Quick Links -->
-                <div class="col-md-2">
-                    <h5>Quick Links</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="/" class="text-white">Home</a></li>
-                        <li><a href="/products" class="text-white">Products</a></li>
-                        <li><a href="/about" class="text-white">About</a></li>
-                        <li><a href="/contact" class="text-white">Contact</a></li>
+    <body>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light py-3 w-100">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="/">
+                    <img src="/img/logo.png" alt="Logo"
+                        class="d-inline-block align-text-top"
+                        style="height: 40px;">
+                </a>
+                <button class="navbar-toggler" type="button"
+                    data-toggle="collapse" data-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false"
+                    aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ml-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/products">Products</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/about">About</a>
+                        </li>
+                    </ul>
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/auth/signin">
+                                <img src="/img/log-in.png" alt="Login"
+                                    class="nav-icon" style="height: 24px;">
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/user/wishlist">
+                                <img src="/img/wishlist.png" alt="Wishlist"
+                                    class="nav-icon" style="height: 24px;">
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/cart">
+                                <img src="/img/cart.png" alt="Cart"
+                                    class="nav-icon" style="height: 24px;">
+                                <span
+                                    class="badge badge-pill badge-danger"></span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/user/profile">
+                                <img src="/img/userprofile.jpg"
+                                    alt="User Profile"
+                                    class="nav-icon rounded-circle"
+                                    style="height: 24px;">
+                            </a>
+                        </li>
                     </ul>
                 </div>
-    
-                <!-- Support -->
-                <div class="col-md-2">
-                    <h5>Support</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="/faq" class="text-white">FAQ</a></li>
-                        <li><a href="/returns" class="text-white">Returns</a></li>
-                        <li><a href="/shipping" class="text-white">Shipping</a></li>
-                        <li><a href="/privacy-policy" class="text-white">Privacy Policy</a></li>
-                    </ul>
+            </div>
+        </nav>
+
+        <div class="profile-container">
+            <div class="sidebar">
+                <h4>Menu</h4>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/user/profile"><i
+                                class="fas fa-user"></i> Profile</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/user/address"><i
+                                class="fas fa-map-marker-alt"></i> Addresses</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/user/profile/edit"><i
+                                class="fas fa-edit"></i> Edit Profile</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/user/orders"><i
+                                class="fas fa-box"></i> Orders</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link"
+                            href="/user/profile/change-password"><i
+                                class="fas fa-key"></i> Change Password</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/user/profile/wallet"><i
+                                class="fas fa-wallet"></i> Wallet</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/auth/logout"><i
+                                class="fas fa-sign-out-alt"></i> Logout</a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="main-content">
+                <div class="profile-header">
+                    <img src="/api/placeholder/100/100" class="profile-picture">
+                    <h1 class="profile-name"><%= user.name %></h1>
                 </div>
-    
-                <!-- Follow Us -->
-                <div class="col-md-4">
-                    <h5>Follow Us</h5>
-                    <div class="d-flex">
-                        <a href="https://facebook.com" class="text-white mr-3"><img src="img/facebook-icon.png" alt="Facebook" style="width: 24px;"></a>
-                        <a href="https://twitter.com" class="text-white mr-3"><img src="img/twitter-icon.png" alt="Twitter" style="width: 24px;"></a>
-                        <a href="https://instagram.com" class="text-white mr-3"><img src="img/instagram-icon.png" alt="Instagram" style="width: 24px;"></a>
-                        <a href="https://linkedin.com" class="text-white"><img src="img/linkedin-icon.png" alt="LinkedIn" style="width: 24px;"></a>
+
+                <div class="profile-card">
+                    <div class="profile-info">
+                        <i class="fas fa-envelope"></i>
+                        <p><strong>Email:</strong> <%= user.email %></p>
+                    </div>
+                    <div class="profile-info">
+                        <i class="fas fa-phone"></i>
+                        <p><strong>Phone:</strong> <%= user.address &&
+                            user.address.phoneNo ? user.address.phoneNo :
+                            'Not available' %></p>
+                    </div>
+
+                    <div class="profile-info">
+                        <i class="fas fa-map-pin"></i>
+                        <p><strong>Location:</strong> New York, USA</p>
+                    </div>
+                    <div class="profile-info">
+                        <i class="fas fa-birthday-cake"></i>
+                        <p><strong>Joined:</strong> <%= new
+                            Date(user.updatedAt).toLocaleDateString() %></p>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <footer class="bg-dark text-white mt-5">
+            <div class="container py-4">
+                <div class="row">
+                    <!-- About Section -->
+                    <div class="col-md-4">
+                        <h5>About Us</h5>
+                        <p>At our shoe e-commerce store, we provide the best
+                            quality footwear for every occasion. Explore our
+                            collection to find the perfect pair of shoes for
+                            you.</p>
+                    </div>
+
+                    <!-- Quick Links -->
+                    <div class="col-md-2">
+                        <h5>Quick Links</h5>
+                        <ul class="list-unstyled">
+                            <li><a href="/" class="text-white">Home</a></li>
+                            <li><a href="/products"
+                                    class="text-white">Products</a></li>
+                            <li><a href="/about"
+                                    class="text-white">About</a></li>
+                            <li><a href="/contact"
+                                    class="text-white">Contact</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Support -->
+                    <div class="col-md-2">
+                        <h5>Support</h5>
+                        <ul class="list-unstyled">
+                            <li><a href="/faq" class="text-white">FAQ</a></li>
+                            <li><a href="/returns"
+                                    class="text-white">Returns</a></li>
+                            <li><a href="/shipping"
+                                    class="text-white">Shipping</a></li>
+                            <li><a href="/privacy-policy"
+                                    class="text-white">Privacy Policy</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Follow Us -->
+                    <div class="col-md-4">
+                        <h5>Follow Us</h5>
+                        <div class="d-flex">
+                            <a href="https://facebook.com"
+                                class="text-white mr-3"><img
+                                    src="img/facebook-icon.png" alt="Facebook"
+                                    style="width: 24px;"></a>
+                            <a href="https://twitter.com"
+                                class="text-white mr-3"><img
+                                    src="img/twitter-icon.png" alt="Twitter"
+                                    style="width: 24px;"></a>
+                            <a href="https://instagram.com"
+                                class="text-white mr-3"><img
+                                    src="img/instagram-icon.png" alt="Instagram"
+                                    style="width: 24px;"></a>
+                            <a href="https://linkedin.com"
+                                class="text-white"><img
+                                    src="img/linkedin-icon.png" alt="LinkedIn"
+                                    style="width: 24px;"></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-4">
+                    <div class="col text-center">
+                        <p>&copy; 2024 YourCompanyName. All Rights Reserved.</p>
                     </div>
                 </div>
             </div>
-            <div class="row mt-4">
-                <div class="col text-center">
-                    <p>&copy; 2024 YourCompanyName. All Rights Reserved.</p>
-                </div>
-            </div>
-        </div>
-    </footer>
-    <!-- <script>
+        </footer>
+        <!-- <script>
         function copyReferralCode() {
     const referralCode = document.getElementById('referralCode').innerText;
     navigator.clipboard.writeText(referralCode).then(() => {
@@ -368,10 +522,11 @@ body {
 }
 
     </script> -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-</body>
+        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+        <script
+            src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+        <script
+            src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    </body>
 
 </html>
-

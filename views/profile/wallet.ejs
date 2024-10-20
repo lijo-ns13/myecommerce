@@ -32,6 +32,7 @@
             background: #2c3e50;
             padding: 2rem 0;
             color: #ecf0f1;
+            transition: all 0.3s ease;
         }
 
         .sidebar h4 {
@@ -47,6 +48,7 @@
             display: flex;
             align-items: center;
             transition: all 0.3s ease;
+            white-space: nowrap;
         }
 
         .sidebar .nav-link:hover, .sidebar .nav-link.active {
@@ -62,6 +64,7 @@
         .main-content {
             flex: 1;
             padding: 2rem;
+            min-width: 0; /* Prevent flex item from overflowing */
         }
 
         .wallet-card {
@@ -69,6 +72,7 @@
             border-radius: 15px;
             padding: 2rem;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            overflow-x: auto; /* Allow table to scroll horizontally */
         }
 
         .wallet-balance {
@@ -85,6 +89,7 @@
         table {
             width: 100%;
             border-collapse: collapse;
+            min-width: 600px; /* Minimum width to prevent squishing */
         }
 
         th, td {
@@ -114,32 +119,121 @@
             padding: 20px 0;
         }
 
-        .navbar {
-            background-color: rgba(255, 255, 255, 0.9) !important;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        /* Responsive Styles */
+        @media (max-width: 991px) {
+            .profile-container {
+                margin: 1rem;
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                padding: 1rem 0;
+            }
+
+            .sidebar .nav {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .sidebar .nav-item {
+                width: auto;
+            }
+
+            .main-content {
+                padding: 1rem;
+            }
+
+            .wallet-balance {
+                font-size: 1.5rem;
+            }
         }
 
-        .navbar-brand img {
-            max-height: 50px;
+        @media (max-width: 768px) {
+            .sidebar .nav {
+                flex-direction: column;
+            }
+
+            .sidebar .nav-item {
+                width: 100%;
+            }
+
+            .wallet-card {
+                padding: 1rem;
+            }
+
+            .wallet-balance {
+                font-size: 1.25rem;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            h3 {
+                font-size: 1.25rem;
+            }
         }
 
-        .nav-link {
-            display: flex;
-            align-items: center;
-            color: #333;
-            font-size: 18px;
-            font-weight: 600;
-            transition: color 0.3s ease;
+        @media (max-width: 576px) {
+            .profile-container {
+                margin: 0.5rem;
+                border-radius: 10px;
+            }
+
+            .wallet-card {
+                padding: 0.75rem;
+            }
+
+            .wallet-balance {
+                font-size: 1.1rem;
+            }
+
+            th, td {
+                padding: 8px;
+                font-size: 0.9rem;
+            }
         }
 
-        .nav-link:hover {
-            color: #3498db;
+        /* Responsive navbar styles */
+        @media (max-width: 991px) {
+            .navbar-nav {
+                flex-direction: row;
+                justify-content: center;
+            }
+
+            .navbar-nav .nav-item {
+                margin: 0 10px;
+            }
         }
 
-        .nav-link img {
-            margin-right: 5px;
+        @media (max-width: 576px) {
+            .navbar-brand img {
+                height: 30px;
+            }
+
+            .nav-link img {
+                height: 20px;
+            }
         }
-    </style>
+
+        /* Responsive footer styles */
+        @media (max-width: 768px) {
+            footer h5 {
+                margin-top: 1rem;
+            }
+
+            footer .col-md-4, 
+            footer .col-md-2 {
+                text-align: center;
+            }
+
+            footer .d-flex {
+                justify-content: center;
+            }
+        }
+        </style>
     </head>
     <body>
         <nav class="navbar navbar-expand-lg navbar-light bg-light py-3 w-100">
