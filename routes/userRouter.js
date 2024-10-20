@@ -29,14 +29,14 @@ router.get('/',async(req,res)=>{
     console.log('rq.user',req.user)
     currentUserId=req.user?req.user._id:null;
     console.log('req.user._id',currentUserId)
-    
+    const categories=await Category.find({})
     // console.log('products',products)
     const cart=await Cart.find({});
     console.log('cart',cart);
     const userWishlist = currentUserId ? await User.findById(currentUserId).populate('wishlist') : null;
     const wishlist = userWishlist ? userWishlist.wishlist : [];
     console.log('wishlist/land',wishlist)
-    res.render('land',{products:products,currentUserId,wishlist});
+    res.render('land',{products:products,currentUserId,wishlist,categories});
 })
 router.get('/product-detail/:productId',async(req,res)=>{
     const productId=req.params.productId;

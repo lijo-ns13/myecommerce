@@ -413,8 +413,128 @@
     25% { transform: translateX(-5px); }
     75% { transform: translateX(5px); }
 }
+    /* New styles for the category section */
+    .category-section {
+        padding: 60px 0;
+        background: linear-gradient(135deg, #f6f9fc 0%, #ffffff 100%);
+        overflow: hidden;
+    }
 
-    </style>
+    .category-slider {
+        position: relative;
+        overflow: hidden;
+        padding: 20px 0;
+    }
+
+    .category-track {
+        display: flex;
+        animation: scroll 60s linear infinite;
+    }
+
+    .category-track:hover {
+        animation-play-state: paused;
+    }
+
+    @keyframes scroll {
+        0% {
+            transform: translateX(0);
+        }
+        100% {
+            transform: translateX(-100%);
+        }
+    }
+
+    .category-item {
+        flex: 0 0 auto;
+        padding: 0 15px;
+    }
+
+    .category-button {
+        display: flex;
+        align-items: center;
+        padding: 15px 30px;
+        background-color: #ffffff;
+        color: var(--primary-color);
+        border: 2px solid var(--primary-color);
+        border-radius: 50px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+
+    .category-button:hover {
+        background-color: var(--primary-color);
+        color: #ffffff;
+        transform: translateY(-3px);
+        box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
+    }
+
+    .category-button i {
+        margin-right: 10px;
+        font-size: 1.2rem;
+    }
+
+    .scroll-button {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background-color: var(--primary-color);
+        color: #ffffff;
+        border: none;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        font-size: 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        z-index: 10;
+    }
+
+    .scroll-button:hover {
+        background-color: var(--accent-color);
+        box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
+    }
+
+    .scroll-left {
+        left: 20px;
+    }
+
+    .scroll-right {
+        right: 20px;
+    }
+
+    @media (max-width: 768px) {
+        .category-button {
+            padding: 12px 20px;
+            font-size: 1rem;
+        }
+
+        .scroll-button {
+            width: 40px;
+            height: 40px;
+            font-size: 1.2rem;
+        }
+    }
+</style>
+
+<script>
+   
+    
+
+    // Pause animation on hover
+    const categorySlider = document.getElementById('categorySlider');
+    categorySlider.addEventListener('mouseenter', () => {
+        categorySlider.style.animationPlayState = 'paused';
+    });
+    categorySlider.addEventListener('mouseleave', () => {
+        categorySlider.style.animationPlayState = 'running';
+    });
+    </script>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light py-3 w-100">
@@ -473,7 +593,25 @@
             <a href="/products" class="btn btn-shop-now">Shop Now</a>
         </div>
     </div>
-
+    <section class="category-section">
+        <div class="container-fluid">
+            
+            <div class="position-relative">
+                <div class="category-slider" id="categorySlider">
+                    <div class="category-track">
+                        <% for(const category of categories){ %>
+                            <div class="category-item">
+                                <a href="/products?query=&category=<%=category._id%>&sort=" class="category-button">
+                                    <%= category.name %>
+                                </a>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </section>
     <!-- New Arrivals Section -->
     <div class="container my-5">
         <h2 class="section-title">New Arrivals</h2>
@@ -513,12 +651,6 @@
                             aria-label="Add to wishlist">
                             <i class="heart-icon fas fa-heart"></i>
                         </button>
-                        
-                        
-
-                            
-                            
-                            
                         </div>
                     </div>
                 </div>
