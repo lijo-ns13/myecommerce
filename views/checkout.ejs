@@ -565,32 +565,60 @@
                 checkCatPro();
             });
         
-            // Confirm new address
-            $('#confirmNewAddress').on('click', function () {
-                const street = $('#newStreet').val();
-                const city = $('#newCity').val();
-                const state = $('#newState').val();
-                const postalCode = $('#newPostalCode').val();
-                const country = $('#newCountry').val();
-                const phoneNo = $('#newPhoneNo').val();
-        
-                if (!street || !city || !state || !postalCode || !country || !phoneNo) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Incomplete Address',
-                        text: 'Please fill in all address fields.',
-                    });
-                    return;
-                }
-        
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Address Confirmed',
-                    text: 'New address has been confirmed.',
-                });
-                $('#placeOrder').prop('disabled', false);
-                checkCatPro();
-            });
+         // Confirm new address
+$('#confirmNewAddress').on('click', function () {
+    const street = $('#newStreet').val().trim(); // Trim to remove leading/trailing spaces
+    const city = $('#newCity').val().trim();
+    const state = $('#newState').val().trim();
+    const postalCode = $('#newPostalCode').val().trim();
+    const country = $('#newCountry').val().trim();
+    const phoneNo = $('#newPhoneNo').val().trim();
+
+    // Regex for validation
+    const phoneRegex = /^\d{10}$/; // Example for 10-digit phone numbers
+    const postalCodeRegex = /^[1-9][0-9]{5}$/; // Indian postal code format
+
+    // Check for empty fields or fields with only spaces
+    if (!street || !city || !state || !postalCode || !country || !phoneNo) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Incomplete Address',
+            text: 'Please fill in all address fields without spaces.',
+        });
+        return;
+    }
+
+    // Validate phone number
+    if (!phoneRegex.test(phoneNo)) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Invalid Phone Number',
+            text: 'Please enter a valid 10-digit phone number.',
+        });
+        return;
+    }
+
+    // Validate postal code
+    if (!postalCodeRegex.test(postalCode)) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Invalid Postal Code',
+            text: 'Please enter a valid 6-digit Indian postal code.',
+        });
+        return;
+    }
+
+    // Success message
+    Swal.fire({
+        icon: 'success',
+        title: 'Address Confirmed',
+        text: 'New address has been confirmed.',
+    });
+    
+    $('#placeOrder').prop('disabled', false);
+    checkCatPro();
+});
+
         
             // Payment method change
             $('#paymentMethod').on('change', checkCatPro);
