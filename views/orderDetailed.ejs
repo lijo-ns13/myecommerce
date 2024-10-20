@@ -365,7 +365,14 @@
                 </form>
             </div>
         </div>
-
+        <script>
+            // Initialize order data
+            window.orderData = {
+                totalPrice: <%= order.totalPrice %>,
+                orderId: '<%= order._id %>',
+                status: '<%= order.status %>'
+            };
+        </script>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
         <script>

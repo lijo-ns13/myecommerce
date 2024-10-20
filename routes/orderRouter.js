@@ -231,7 +231,7 @@ router.post('/cancelsingle/:orderId/:productId/:productSize/:productQuantity', a
         if (!order) {
             return res.status(404).json({ success: false, message: 'Order not found' });
         }
-
+        
         // Ensure there are more than one product in the order
         if (order.products.length <= 1) {
             return res.status(400).json({ success: false, message: 'You can’t cancel a single product in a single item. Please cancel the entire order.' });
@@ -242,7 +242,9 @@ router.post('/cancelsingle/:orderId/:productId/:productSize/:productQuantity', a
         if (!product) {
             return res.status(404).json({ success: false, message: 'Product not found' });
         }
-
+        if(order.paymentDetails.paymentMethod==='razorpay' || order.paymentDetails.paymentMethod==='wallet'){
+            return res.status(400).json({success:false,message:'You cant cancel this order only after deliver'})
+        }
         const productPrice = product.price; // Get the price of the product
         order.originalPrice -= productPrice; // Adjust original price
 
