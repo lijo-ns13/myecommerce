@@ -725,10 +725,11 @@
                         </div>
                         <p class="review-content"><%= review.comment %></p>
     
-                        <% if (review.user._id.toString() === currentUserId.toString()) { %>
+                        <% if (review.user && review.user._id && review.user._id.toString() === currentUserId.toString()) { %>
                             <button class="btn-delete" onclick="deleteReview('<%= review._id %>', '<%= product._id %>')">Delete</button>
                             <a href="/user/review/edit/<%= review._id %>" class="btn-edit">Edit</a>
                         <% } %>
+                        
                     </div>
                 <% }) %>
             </div>
