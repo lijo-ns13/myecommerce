@@ -558,7 +558,7 @@
                 <div class="main-image-container position-relative overflow-hidden rounded shadow-sm">
                     <img id="main-product-image" src="<%= product.images[0].secured_url %>" alt="<%= product.product %>" class="img-fluid w-100">
                     <div id="zoomed-image-container" class="position-absolute" style="display:none;">
-                        <img id="zoomed-image" src="" alt="Zoomed Image" style="width:300%; height:auto;"/>
+                        <img id="zoomed-image" loading="lazy" src="" alt="Zoomed Image" style="width:300%; height:auto;"/>
                     </div>
                 </div>
             
@@ -570,6 +570,7 @@
                                 <img src="<%= image.secured_url %>" 
                                      alt="<%= product.product %>" 
                                      class="img-thumbnail thumbnail" 
+                                     loading="lazy"
                                      onclick="changeMainImage('<%= image.secured_url %>', <%= index %>)">
                             </div>
                         <% }) %>
@@ -754,7 +755,7 @@
                     <a href="/product-detail/<%= product._id %>">
                         <div class="product-images" onmouseover="startSlideshow(this)" onmouseout="stopSlideshow(this)">
                             <% for (const image of product.images) { %>
-                                <img src="<%= image.secured_url %>" alt="Product Image" class="<%= image === product.images[0] ? 'active' : '' %>">
+                                <img src="<%= image.secured_url %>" alt="Product Image" loading="lazy" class="<%= image === product.images[0] ? 'active' : '' %>">
                             <% } %>
                         </div>
                     </a>

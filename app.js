@@ -48,6 +48,7 @@ app.use(express.json());
 app.use(methodOverride('_method'));
 app.use(express.static('public'));
 
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.use(express.static('uploads'))
 app.use(express.static(path.join(__dirname, 'public')));

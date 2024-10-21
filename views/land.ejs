@@ -621,7 +621,7 @@
                     <a href="/product-detail/<%= product._id %>">
                         <div class="product-images" onmouseover="startSlideshow(this)" onmouseout="stopSlideshow(this)">
                             <% for (const image of product.images) { %>
-                                <img src="<%= image.secured_url %>" alt="Product Image" class="<%= image === product.images[0] ? 'active' : '' %>">
+                                <img src="<%= image.secured_url %>" alt="Product Image" loading="lazy" class="<%= image === product.images[0] ? 'active' : '' %>">
                             <% } %>
                         </div>
                     </a>
