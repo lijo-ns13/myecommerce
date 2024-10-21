@@ -24,12 +24,12 @@ exports.jwtAuth=async(req,res,next)=>{
         next();
     } catch (e) {
         console.log("Token verification error:", e); 
-        return res.status(400).json({
-            success: false,
-            ok:'noted',
-            message: e.message
-        });
-        // res.redirect('/signin')
+        // return res.status(400).json({
+        //     success: false,
+        //     ok:'noted',
+        //     message: e.message
+        // });
+        res.redirect('/auth/signin')
     }
     
 }

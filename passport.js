@@ -3,7 +3,8 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const jwt = require('jsonwebtoken');
 const MongoClient = require('mongodb').MongoClient;
 const uri = "mongodb://localhost:27017"; // Your MongoDB URI
-const dotenv=require('dotenv').config()
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, '.env') });
 // Connect to MongoDB
 let db;
 MongoClient.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
