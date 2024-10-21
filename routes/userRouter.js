@@ -47,7 +47,7 @@ router.get('/product-detail/:productId',async(req,res)=>{
         select: 'rating comment date isDeleted',
         populate:{
             path:'user',
-            select:'name'
+            select:'name _id'
         }
     });
     console.log('productreviews',product.reviews)
