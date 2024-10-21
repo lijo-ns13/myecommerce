@@ -682,7 +682,7 @@ if (!fs.existsSync(uploadsDir)) {
 }
 
 // Multer setup for file uploads
-const upload = multer({ dest: 'uploads/' });
+const upload = multer({ dest: 'public/uploads/' });
 
 // Function to save base64 image data
 const saveBase64Image = async (dataUrl, filename) => {
