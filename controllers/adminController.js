@@ -1,5 +1,3 @@
-const express=require('express');
-
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
@@ -17,7 +15,7 @@ const {jwtAuth,adminProtected,userProtected}=require('../middlewares/auth');
 const dotenv=require('dotenv').config()
 
 const nodemailer = require('nodemailer');
-const uploadsDir = path.join(__dirname,'../public/uploads');
+const uploadsDir = path.join(__dirname, '../uploads');
 
 const getProduct = async (req, res) => {
   const page = parseInt(req.query.page) || 1; // Get the current page from query params, default to 1
@@ -53,7 +51,7 @@ if (!fs.existsSync(uploadsDir)) {
   }
   
   // Multer setup for file uploads
-  const upload = multer({ dest: 'public/uploads/' });
+  const upload = multer({ dest: 'uploads/' });
   
   // Function to save base64 image data
   const saveBase64Image = async (dataUrl, filename) => {
@@ -93,7 +91,7 @@ const postAddProduct=async (req, res) => {
       if (req.files) {
         images = req.files.map(file => ({
           id: file.filename,
-          secured_url: `uploads/${file.filename}`,
+          secured_url: `/uploads/${file.filename}`,
         }));
       }
   
@@ -111,7 +109,7 @@ const postAddProduct=async (req, res) => {
           const fileExtension = path.extname(filePath).slice(1); // Extract file extension
           images.push({
             id: filename,
-            secured_url: `uploads/${filename}.${fileExtension}`,
+            secured_url: `/uploads/${filename}.${fileExtension}`,
           });
         }
       }
@@ -184,6 +182,7 @@ const postAddProduct=async (req, res) => {
       res.status(500).json({success:false, message: 'Failed to add product', error: error.message });
     }
   }
+  
   const generateUniqueFilename = () => {
     return `${Date.now()}-${Math.round(Math.random() * 1E9)}`;
   };
