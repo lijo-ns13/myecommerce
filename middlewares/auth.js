@@ -29,7 +29,13 @@ exports.jwtAuth=async(req,res,next)=>{
         //     ok:'noted',
         //     message: e.message
         // });
-        res.redirect('/auth/signin')
+        if(req.cookies && req.cookies.token){
+            res.clearCookie('token'); // Assuming 'jwt' is the name of your JWT cookie
+        }
+        
+
+    // If using Passport sessions, log out and clear session
+    res.redirect('/auth/signin')
     }
     
 }
