@@ -35,32 +35,61 @@
         }
 
         .cart-wrapper {
-            display: grid;
-            grid-template-columns: 1fr 350px;
+            display: flex;
+            flex-direction: column;
             gap: 2rem;
             margin-top: 2rem;
+        }
+
+        @media (min-width: 768px) {
+            .cart-wrapper {
+                flex-direction: row;
+            }
+        }
+
+        .main-cart {
+            flex: 1;
         }
 
         .cart-container {
             background-color: white;
             border-radius: 16px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            padding: 2rem;
+            padding: 1rem;
+        }
+
+        @media (min-width: 768px) {
+            .cart-container {
+                padding: 2rem;
+            }
         }
 
         .cart-summary {
             background-color: white;
             border-radius: 16px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            padding: 2rem;
+            padding: 1rem;
             height: fit-content;
+        }
+
+        @media (min-width: 768px) {
+            .cart-summary {
+                padding: 2rem;
+                width: 350px;
+            }
         }
 
         .cart-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        @media (min-width: 768px) {
+            .cart-header {
+                margin-bottom: 2rem;
+            }
         }
 
         .cart-count {
@@ -75,9 +104,15 @@
         .cart-item {
             border: 1px solid var(--border-color);
             border-radius: 12px;
-            padding: 1.5rem;
+            padding: 1rem;
             margin-bottom: 1rem;
             transition: all 0.3s ease;
+        }
+
+        @media (min-width: 768px) {
+            .cart-item {
+                padding: 1.5rem;
+            }
         }
 
         .cart-item:hover {
@@ -88,6 +123,8 @@
         .cart-img {
             border-radius: 8px;
             transition: transform 0.3s ease;
+            max-width: 100%;
+            height: auto;
         }
 
         .quantity-controls {
@@ -96,6 +133,13 @@
             background-color: #f7fafc;
             border-radius: 8px;
             padding: 0.25rem;
+            margin-top: 1rem;
+        }
+
+        @media (min-width: 768px) {
+            .quantity-controls {
+                margin-top: 0;
+            }
         }
 
         .quantity-btn {
@@ -158,13 +202,26 @@
 
         .empty-cart {
             text-align: center;
-            padding: 4rem 2rem;
+            padding: 2rem 1rem;
+        }
+
+        @media (min-width: 768px) {
+            .empty-cart {
+                padding: 4rem 2rem;
+            }
         }
 
         .empty-cart i {
-            font-size: 4rem;
+            font-size: 3rem;
             color: #cbd5e0;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        @media (min-width: 768px) {
+            .empty-cart i {
+                font-size: 4rem;
+                margin-bottom: 1.5rem;
+            }
         }
 
         .product-details {
@@ -200,34 +257,59 @@
             margin-bottom: 0.5rem;
         }
         .navbar-nav {
-    display: flex; /* Use flexbox for alignment */
-    align-items: center; /* Center items vertically */
-    list-style: none; /* Remove default list styles */
-    padding: 0; /* Remove default padding */
-    margin: 0; /* Remove default margin */
-}
+            display: flex;
+            align-items: center;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
 
-.nav-item {
-    margin: 0 10px; /* Set uniform horizontal spacing */
-}
+        .nav-item {
+            margin: 0 10px;
+        }
 
-.nav-link {
-    display: flex; /* Use flexbox for proper alignment */
-    align-items: center; /* Center items vertically */
-    text-decoration: none; /* Remove underline from links */
-    color: #333; /* Set a default text color */
-    font-size: 18px; /* Set a uniform font size */
-}
+        .nav-link {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: #333;
+            font-size: 18px;
+        }
 
-.nav-link i {
-    font-size: 24px; /* Set a uniform icon size */
-    margin-right: 5px; /* Space between icon and text */
-}
+        .nav-link i {
+            font-size: 24px;
+            margin-right: 5px;
+        }
 
-.rounded-circle {
-    width: 30px; /* Set a fixed width for the user profile image */
-    height: 30px; /* Set a fixed height for the user profile image */
-}
+        .rounded-circle {
+            width: 30px;
+            height: 30px;
+        }
+
+        @media (max-width: 767px) {
+            .navbar-nav {
+                flex-direction: row;
+                justify-content: center;
+                margin-top: 1rem;
+            }
+
+            .nav-item {
+                margin: 0 5px;
+            }
+
+            .nav-link {
+                font-size: 16px;
+            }
+
+            .nav-link i {
+                font-size: 20px;
+            }
+
+            .rounded-circle {
+                width: 24px;
+                height: 24px;
+            }
+        }
     </style>
     </head>
     <body>

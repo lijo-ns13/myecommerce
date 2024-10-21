@@ -1,14 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your Wishlist</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    <style>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Your Wishlist</title>
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet"
+            href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+        <link rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+        <link
+            href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css"
+            rel="stylesheet">
+        <link
+            href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap"
+            rel="stylesheet">
+        <!-- Your existing styles here -->
+        <style>
 		:root {
     --primary-color: #3498db;
     --secondary-color: #e74c3c;
@@ -21,285 +29,302 @@ body {
     font-family: 'Poppins', sans-serif;
     background-color: var(--background-color);
     color: var(--text-color);
+    min-height: 100vh;
 }
 
+/* Responsive navbar */
 .navbar {
     background-color: rgba(255, 255, 255, 0.9) !important;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 0.5rem 1rem;
 }
 
 .navbar-brand img {
-    max-height: 50px;
+    max-height: 40px;
+    width: auto;
 }
 
 .navbar-nav {
-    display: flex; /* Use flexbox for alignment */
-    align-items: center; /* Center items vertically */
-    list-style: none; /* Remove default list styles */
-    padding: 0; /* Remove default padding */
-    margin: 0; /* Remove default margin */
+    display: flex;
+    align-items: center;
+    list-style: none;
+    padding: 0;
+    margin: 0;
 }
 
 .nav-item {
-    margin: 0 10px; /* Set uniform horizontal spacing */
+    margin: 0 8px;
 }
 
 .nav-link {
-    display: flex; /* Use flexbox for proper alignment */
-    align-items: center; /* Center items vertically */
-    text-decoration: none; /* Remove underline from links */
-    color: #333; /* Set a default text color */
-    font-size: 18px; /* Set a uniform font size */
-    font-weight: 600; /* Set font weight */
-    transition: color 0.3s ease; /* Transition for hover effect */
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: #333;
+    font-size: clamp(14px, 2vw, 18px);
+    font-weight: 600;
+    transition: color 0.3s ease;
 }
 
-.nav-link:hover {
-    color: var(--primary-color) !important; /* Hover color */
+/* Wishlist container responsive styles */
+.wishlist-container {
+    margin: 20px auto;
+    max-width: min(1000px, 95%);
+    padding: clamp(20px, 4vw, 40px);
+    background-color: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 25px rgba(0, 0, 0, 0.1);
 }
 
-.nav-link i {
-    font-size: 24px; /* Set a uniform icon size */
-    margin-right: 5px; /* Space between icon and text */
+h1 {
+    font-weight: 600;
+    color: var(--primary-color);
+    text-align: center;
+    margin-bottom: clamp(20px, 4vw, 40px);
+    font-size: clamp(1.8rem, 4vw, 2.5rem);
 }
 
-.rounded-circle {
-    width: 30px; /* Set a fixed width for the user profile image */
-    height: 30px; /* Set a fixed height for the user profile image */
+/* Product item responsive styles */
+.product-item {
+    padding: clamp(15px, 3vw, 25px);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
 }
 
+.product-image {
+    width: clamp(120px, 30%, 150px);
+    height: auto;
+    object-fit: cover;
+    margin: 0;
+}
 
-        .wishlist-container {
-            margin: 50px auto;
-            max-width: 1000px;
-            padding: 40px;
-            background-color: white;
-            border-radius: 15px;
-            box-shadow: 0 4px 25px rgba(0, 0, 0, 0.1);
-            transition: box-shadow 0.3s ease-in-out;
-        }
+.product-details {
+    flex: 1 1 250px;
+    min-width: 0;
+}
 
-        .wishlist-container:hover {
-            box-shadow: 0 6px 30px rgba(0, 0, 0, 0.15);
-        }
+.product-name {
+    font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+    margin-bottom: 8px;
+}
 
-        h1 {
-            font-weight: 600;
-            color: var(--primary-color);
-            text-align: center;
-            margin-bottom: 40px;
-            font-size: 2.5rem;
-        }
+.product-price {
+    font-size: clamp(1rem, 2vw, 1.2rem);
+    margin-bottom: 12px;
+}
 
-        .product-item {
-            padding: 25px;
-            border-bottom: 1px solid #e9ecef;
-            display: flex;
-            align-items: center;
-            transition: transform 0.3s, box-shadow 0.3s;
-            border-radius: 10px;
-            margin-bottom: 20px;
-        }
+/* Size selection responsive styles */
+.size-selection {
+    margin-top: clamp(10px, 2vw, 15px);
+}
 
-        .product-item:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-        }
+.size-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+}
 
-        .product-item:last-child {
-            border-bottom: none;
-        }
+.size-button {
+    padding: 6px 12px;
+    font-size: clamp(12px, 1.5vw, 14px);
+    min-width: 40px;
+}
 
-        .product-image {
-            max-width: 150px;
-            margin-right: 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease-in-out;
-        }
+/* Button responsive styles */
+.btn-custom {
+    padding: 8px 16px;
+    font-size: clamp(14px, 1.5vw, 16px);
+}
 
-        .product-image:hover {
-            transform: scale(1.05);
-        }
+.remove-button {
+    margin: 0;
+    flex-shrink: 0;
+}
 
-        .product-details {
-            flex-grow: 1;
-        }
+/* Responsive breakpoints */
+@media (max-width: 992px) {
+    .navbar-nav {
+        margin: 10px 0;
+    }
+    
+    .nav-item {
+        margin: 5px;
+    }
+}
 
-        .product-name {
-            font-size: 1.4rem;
-            font-weight: 600;
-            color: var(--primary-color);
-            margin-bottom: 10px;
-        }
+@media (max-width: 768px) {
+    .product-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
 
-        .product-price {
-            font-size: 1.2rem;
-            font-weight: 500;
-            color: var(--secondary-color);
-            margin-bottom: 15px;
-        }
+    .product-image {
+        width: 100%;
+        max-width: 200px;
+        margin: 0 auto;
+    }
 
-        .size-selection {
-            margin-top: 15px;
-        }
+    .product-details {
+        width: 100%;
+    }
 
-        .size-button {
-            padding: 8px 15px;
-            margin-right: 10px;
-            font-size: 14px;
-            border-radius: 20px;
-            transition: all 0.3s;
-            border: 2px solid var(--primary-color);
-            color: var(--primary-color);
-            background-color: transparent;
-        }
+    .remove-button {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+    }
 
-        .size-button:hover, .size-button.active {
-            background-color: var(--primary-color);
-            color: white;
-        }
+    .size-buttons {
+        justify-content: flex-start;
+    }
+}
 
-        .btn-custom {
-            padding: 10px 20px;
-            font-weight: 600;
-            transition: all 0.3s;
-            border-radius: 25px;
-        }
+@media (max-width: 480px) {
+    .wishlist-container {
+        padding: 15px;
+        margin: 10px auto;
+    }
 
-        .btn-custom:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        }
+    .btn-custom {
+        width: 100%;
+        margin-top: 10px;
+    }
 
-        .remove-button {
-            margin-left: 15px;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            padding: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s;
-        }
+    .size-buttons {
+        gap: 5px;
+    }
 
-        .remove-button:hover {
-            background-color: var(--secondary-color);
-            color: white;
-            transform: rotate(90deg);
-        }
-
-        @media (max-width: 768px) {
-            .product-item {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .product-image {
-                margin-right: 0;
-                margin-bottom: 20px;
-                max-width: 100%;
-            }
-
-            .btn-custom, .remove-button {
-                margin-top: 15px;
-            }
-        }
+    .size-button {
+        padding: 5px 10px;
+        min-width: 35px;
+    }
+}
     </style>
-</head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light py-3 w-100">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="/">
-                <img src="/img/logo.png" alt="Logo" class="d-inline-block align-text-top" style="height: 40px;">
-            </a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ml-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/products">Products</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/about">About</a>
-                    </li>
-                </ul>
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/auth/signin">
-                            <img src="/img/log-in.png" alt="Login" class="nav-icon" style="height: 24px;">
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/user/wishlist">
-                            <img src="/img/wishlist.png" alt="Wishlist" class="nav-icon" style="height: 24px;">
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/cart">
-                            <img src="/img/cart.png" alt="Cart" class="nav-icon" style="height: 24px;">
-                            <span class="badge badge-pill badge-danger"></span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/user/profile">
-                            <img src="/img/userprofile.jpg" alt="User Profile" class="nav-icon rounded-circle" style="height: 24px;">
-                        </a>
-                    </li>
-                </ul>
+    </head>
+    <body>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light py-3 w-100">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="/">
+                    <img src="/img/logo.png" alt="Logo"
+                        class="d-inline-block align-text-top"
+                        style="height: 40px;">
+                </a>
+                <button class="navbar-toggler" type="button"
+                    data-toggle="collapse" data-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false"
+                    aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ml-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/products">Products</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/about">About</a>
+                        </li>
+                    </ul>
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/auth/signin">
+                                <img src="/img/log-in.png" alt="Login"
+                                    class="nav-icon" style="height: 24px;">
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/user/wishlist">
+                                <img src="/img/wishlist.png" alt="Wishlist"
+                                    class="nav-icon" style="height: 24px;">
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/cart">
+                                <img src="/img/cart.png" alt="Cart"
+                                    class="nav-icon" style="height: 24px;">
+                                <span
+                                    class="badge badge-pill badge-danger"></span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/user/profile">
+                                <img src="/img/userprofile.jpg"
+                                    alt="User Profile"
+                                    class="nav-icon rounded-circle"
+                                    style="height: 24px;">
+                            </a>
+                        </li>
+                    </ul>
+                </div>
             </div>
-        </div>
-    </nav>
+        </nav>
 
-    <div class="wishlist-container">
-        <h1>Your Wishlist</h1>
-        <% if (products.length === 0) { %>
+        <div class="wishlist-container">
+            <h1>Your Wishlist</h1>
+            <% if (products.length === 0) { %>
             <p class="text-center">Your wishlist is empty.</p>
-        <% } else { %>
+            <% } else { %>
             <ul class="list-group">
                 <% products.forEach(product => { %>
-                    <li class="list-group-item product-item">
-                        <img src="<%= product.images[0].secured_url %>" alt="<%= product.product %>" class="product-image">
-                        <div class="product-details">
-                            <h5 class="product-name"><%= product.product %></h5>
-                            <p class="product-price">$<%= product.finalPrice.toFixed(2) %></p>
-                            <div class="size-selection">
-                                <label for="sizeSelect">Select Size:</label>
-                                <% if (product.sizes.length > 0) { %>
-                                    <div class="size-buttons">
-                                        <% product.sizes.forEach(size => { %>
-                                            <button type="button" class="btn size-button" data-size="<%= size.size %>"><%= size.size %></button>
-                                        <% }) %>
-                                    </div>
-                                <% } else { %>
-                                    <p>No sizes available</p>
-                                <% } %>
+                <li class="list-group-item product-item">
+                    <img src="<%= product.images[0].secured_url %>"
+                        alt="<%= product.product %>" class="product-image">
+                    <div class="product-details">
+                        <h5 class="product-name"><%= product.product %></h5>
+                        <p class="product-price">$<%=
+                            product.finalPrice.toFixed(2) %></p>
+                        <div class="size-selection">
+                            <label for="sizeSelect">Select Size:</label>
+                            <% if (product.sizes.length > 0) { %>
+                            <div class="size-buttons">
+                                <% product.sizes.forEach(size => { %>
+                                <button type="button" class="btn size-button"
+                                    data-size="<%= size.size %>"><%= size.size
+                                    %></button>
+                                <% }) %>
                             </div>
-                            <form class="addToCartForm" action="/cart/add" method="POST">
-                                <input type="hidden" name="productId" value="<%= product._id %>">
-                                <input type="hidden" name="size" class="selectedSize">
-                                <button type="submit" class="btn btn-success btn-custom mt-3">Add to Cart</button>
-                            </form>
+                            <% } else { %>
+                            <p>No sizes available</p>
+                            <% } %>
                         </div>
-                        <form action="/user/wishlist/remove/<%= product._id %>" method="post">
-                            <button class="btn btn-danger btn-sm remove-button" type="submit">
-                                <i class="fas fa-times"></i>
-                            </button>
+                        <form class="addToCartForm" action="/cart/add"
+                            method="POST">
+                            <input type="hidden" name="productId"
+                                value="<%= product._id %>">
+                            <input type="hidden" name="size"
+                                class="selectedSize">
+                            <button type="submit"
+                                class="btn btn-success btn-custom mt-3">Add to
+                                Cart</button>
                         </form>
-                    </li>
+                    </div>
+                    <form action="/user/wishlist/remove/<%= product._id %>"
+                        method="post">
+                        <button class="btn btn-danger btn-sm remove-button"
+                            type="submit">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </form>
+                </li>
                 <% }) %>
             </ul>
-        <% } %>
-    </div>
+            <% } %>
+        </div>
+        <!-- Updated Script Tags in Correct Order -->
+        <!-- jQuery and Bootstrap JS -->
+        <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+        <script
+            src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+        <script
+            src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
         // Handle size selection
         $('.size-button').on('click', function() {
             const selectedSize = $(this).data('size');
@@ -415,6 +440,6 @@ $('.remove-button').on('click', function(e) {
 });
 
     </script>
-    
-</body>
+
+    </body>
 </html>
