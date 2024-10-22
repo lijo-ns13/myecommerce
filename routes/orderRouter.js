@@ -167,6 +167,15 @@ const generateInvoice = (order,userName) => {
             drawLine(50, position, doc.page.width - 50, position, '#e0e0e0');
             position += 5;
         });
+        // Before total
+        if (order.isDiscount) {
+            doc.fontSize(12)
+               .text('Discount:', 350, position + 10)
+               .fillColor(primaryColor)
+               .fontSize(14)
+               .text(`${order.discount.toFixed(2)}`, 450, position + 10);
+            position += 20;  // Move position for total below discount
+        }
 
         // Total
         doc.fontSize(12)
