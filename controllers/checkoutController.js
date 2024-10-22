@@ -147,7 +147,16 @@ const postCheckout = async (req, res) => {
             
             return `${month}-${day}-${year}`;
         };
+        const generatedOrderId = () => {
+            const prefix = "ORD"; // Prefix for the order ID
+            const timestamp = Date.now(); // Current timestamp
+            const randomPart = Math.floor(1000 + Math.random() * 9000); // Random 4-digit number for uniqueness
         
+            return `${prefix}-${timestamp}-${randomPart}`;
+        };
+        
+        // Example usage:
+        const genOrderId = generatedOrderId();
         // Calculate delivery date with 7 days added
         const deliveryDate = calculateDeliveryDate(7);
         const orderData = {
@@ -164,7 +173,8 @@ const postCheckout = async (req, res) => {
             isDiscount: cart.totalPrice !== cart.finalPrice,
             discount: cart.totalPrice - cart.finalPrice,
             orderedProducts:orderedProducts,
-            status: 'pending'
+            status: 'pending',
+            genOrderId:genOrderId
         };
         
         

@@ -118,7 +118,7 @@
         <tbody>
             <% orders.forEach((order) => { %>
             <tr>
-                <td><%= order._id %></td>
+                <td><%= order.genOrderId %></td>
                 <td><%= order.userId ? order.userId.name : 'No User' %></td>
                 <td>₹<%= order.totalPrice %></td>
                 <td><%= order.status %></td>

@@ -142,7 +142,8 @@ const generateInvoice = (order,userName) => {
         doc.fontSize(10)
            .text(`${new Date(order.orderDate).toLocaleDateString()}`, 400, 200)
            .text(`${new Date(order.deliveryDate).toLocaleDateString()}`, 400, 215)
-           .text(`${order.userId}`, 400, 230);
+           .text(`${order.userId}`, 400, 230)
+           .text(`${order.genOrderId}`, 400, 230);
 
         // Invoice table
         const invoiceTop = 290;

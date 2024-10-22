@@ -134,6 +134,10 @@ const orderSchema=new Schema({
     originalPrice:{
         type:Number,
         
+    },
+    genOrderId:{
+        type:String,
+        default:'generatedOrderId'
     }
 },{
     timestamps:true
