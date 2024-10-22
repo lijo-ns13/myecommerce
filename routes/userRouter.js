@@ -41,15 +41,19 @@ router.get('/',async(req,res)=>{
 router.get('/product-detail/:productId',async(req,res)=>{
     const productId=req.params.productId;
     const user=req.user&&req.user._id?req.user._id:null;
+    console.log('req.userssssssssssssss',req.user)
     console.log('userIddddddddddddddddd',user)
     const product=await Products.findById(productId).populate({
         path:'reviews',
         select: 'rating comment date isDeleted',
         populate:{
             path:'user',
-            select:'name _id'
+            select:'name _id '
         }
-    });
+    }).populate({
+        path:'category',
+        select:"name _id"
+    })
     console.log('productreviews',product.reviews)
     
     let ratings=product.reviews.map(review=>review.rating);

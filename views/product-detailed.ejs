@@ -487,6 +487,166 @@
                 grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
             }
         }
+         /* Additional responsive styles */
+         @media (max-width: 991px) {
+            .product-detail {
+                padding: 20px;
+            }
+
+            .product-title {
+                font-size: 2rem;
+            }
+
+            .product-price {
+                font-size: 1.5rem;
+            }
+
+            .btn-primary, .btn-outline-danger {
+                padding: 10px 20px;
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 767px) {
+            .rating-summary, .rating-bars {
+                margin-bottom: 20px;
+            }
+
+            .review-item {
+                padding: 15px;
+            }
+
+            .user-avatar {
+                width: 40px;
+                height: 40px;
+            }
+
+            .product-grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            }
+        }
+
+        @media (max-width: 575px) {
+            .product-images {
+                height: 200px;
+            }
+
+            .product-title {
+                font-size: 1.5rem;
+            }
+
+            .product-price {
+                font-size: 1.2rem;
+            }
+
+            .size-button {
+                padding: 8px 15px;
+                font-size: 0.9rem;
+            }
+
+            .btn-primary, .btn-outline-danger {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+
+            .rating-number {
+                font-size: 3rem;
+            }
+
+            .star-rating {
+                font-size: 1.5rem;
+            }
+        }
+        @media (max-width: 991px) {
+            .product-detail {
+                padding: 20px;
+            }
+
+            .product-title {
+                font-size: 2rem;
+            }
+
+            .product-price {
+                font-size: 1.5rem;
+            }
+
+            .btn-primary, .btn-outline-danger {
+                padding: 10px 20px;
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 767px) {
+            .main-image-container {
+                height: 300px;
+            }
+
+            .thumbnail-images .col-3 {
+                flex: 0 0 25%;
+                max-width: 25%;
+            }
+
+            .rating-summary, .rating-bars {
+                margin-bottom: 20px;
+            }
+
+            .review-item {
+                padding: 15px;
+            }
+
+            .user-avatar {
+                width: 40px;
+                height: 40px;
+            }
+
+            .product-grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            }
+        }
+
+        @media (max-width: 575px) {
+            .main-image-container {
+                height: 250px;
+            }
+
+            .product-title {
+                font-size: 1.5rem;
+            }
+
+            .product-price {
+                font-size: 1.2rem;
+            }
+
+            .size-button {
+                padding: 8px 15px;
+                font-size: 0.9rem;
+            }
+
+            .btn-primary, .btn-outline-danger {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+
+            .rating-number {
+                font-size: 3rem;
+            }
+
+            .star-rating {
+                font-size: 1.5rem;
+            }
+
+            .review-item {
+                padding: 10px;
+            }
+
+            .user-name {
+                font-size: 0.9rem;
+            }
+
+            .review-content {
+                font-size: 0.9rem;
+            }
+        }
     </style>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/elevatezoom/3.0.8/jquery.elevatezoom.min.js"></script>
@@ -546,7 +706,7 @@
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb bg-transparent">
                 <li class="breadcrumb-item"><a href="/" class="text-muted">Home</a></li>
-                <li class="breadcrumb-item"><a href="/category/<%= product.category %>" class="text-muted"><%= product.category %></a></li>
+                <li class="breadcrumb-item"><a href="/products?query=&category=<%=product.category._id%>&sort=" class="text-muted"><%= product.category.name %></a></li>
                 <li class="breadcrumb-item active" aria-current="page"><%= product.product %></li>
             </ol>
         </nav>
@@ -911,17 +1071,18 @@
         }
         else {
             return response.text().then(text => {
-                throw new Error(text || 'Something went wrong');
+                throw new Error( text || 'Something went wrong');
             });
         }
     })
     .catch(error => {
         console.error('Error adding to cart:', error);
         Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: error.message || 'There was a problem adding the product to your cart. Please try again later.',
-            confirmButtonText: 'OK'
+            icon: 'warning',
+            title: 'Oops!',
+            text: "Please login for add to cart",
+            confirmButtonText: 'OK',
+            footer: '<a href="/auth/signin">Log in now!</a>'
         });
     });
 });
@@ -963,7 +1124,7 @@
                     }
                 })
                 .catch(error => {
-                    Swal.fire('Error!', 'An error occurred. Please try again later.', 'error');
+                    Swal.fire('Oops', 'Please login for add to wishlist', 'warning');
                 });
             });
         });

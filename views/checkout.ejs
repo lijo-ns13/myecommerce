@@ -550,281 +550,292 @@
         <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script>
-        $(document).ready(function () {
-            let isCheckPassed = false;
-        
-            // Show new address form
-            $('input[name="selectedAddress"]').on('change', function () {
-                if ($(this).val() === 'new') {
-                    $('#newAddressForm').show();
-                    $('#placeOrder').prop('disabled', true);
-                } else {
-                    $('#newAddressForm').hide();
-                    $('#placeOrder').prop('disabled', false);
-                }
-                checkCatPro();
-            });
-        
-         // Confirm new address
-$('#confirmNewAddress').on('click', function () {
-    const street = $('#newStreet').val().trim(); // Trim to remove leading/trailing spaces
-    const city = $('#newCity').val().trim();
-    const state = $('#newState').val().trim();
-    const postalCode = $('#newPostalCode').val().trim();
-    const country = $('#newCountry').val().trim();
-    const phoneNo = $('#newPhoneNo').val().trim();
-
-    // Regex for validation
-    const phoneRegex = /^\d{10}$/; // Example for 10-digit phone numbers
-    const postalCodeRegex = /^[1-9][0-9]{5}$/; // Indian postal code format
-
-    // Check for empty fields or fields with only spaces
-    if (!street || !city || !state || !postalCode || !country || !phoneNo) {
-        Swal.fire({
-            icon: 'error',
-            title: 'Incomplete Address',
-            text: 'Please fill in all address fields without spaces.',
-        });
-        return;
-    }
-
-    // Validate phone number
-    if (!phoneRegex.test(phoneNo)) {
-        Swal.fire({
-            icon: 'error',
-            title: 'Invalid Phone Number',
-            text: 'Please enter a valid 10-digit phone number.',
-        });
-        return;
-    }
-
-    // Validate postal code
-    if (!postalCodeRegex.test(postalCode)) {
-        Swal.fire({
-            icon: 'error',
-            title: 'Invalid Postal Code',
-            text: 'Please enter a valid 6-digit Indian postal code.',
-        });
-        return;
-    }
-
-    // Success message
-    Swal.fire({
-        icon: 'success',
-        title: 'Address Confirmed',
-        text: 'New address has been confirmed.',
-    });
-    
-    $('#placeOrder').prop('disabled', false);
-    checkCatPro();
-});
-
-        
-            // Payment method change
-            $('#paymentMethod').on('change', checkCatPro);
-        
-            function checkCatPro() {
+            $(document).ready(function () {
+                let isCheckPassed = false;
+                
+                // Initially disable the Place Order button
                 $('#placeOrder').prop('disabled', true);
-                return fetch('/checkout/checkcatpro', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        paymentMethod: $('#paymentMethod').val()
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        isCheckPassed = true;
-                        $('#placeOrder').prop('disabled', false);
+                
+                // Show new address form
+                $('input[name="selectedAddress"]').on('change', function () {
+                    if ($(this).val() === 'new') {
+                        $('#newAddressForm').show();
+                        $('#placeOrder').prop('disabled', true); // Disable until the new address is confirmed
                     } else {
+                        $('#newAddressForm').hide();
+                        $('#placeOrder').prop('disabled', false); // Enable if existing address is selected
+                    }
+                    checkCatPro();
+                });
+            
+                // Confirm new address
+                $('#confirmNewAddress').on('click', function () {
+                    const street = $('#newStreet').val().trim();
+                    const city = $('#newCity').val().trim();
+                    const state = $('#newState').val().trim();
+                    const postalCode = $('#newPostalCode').val().trim();
+                    const country = $('#newCountry').val().trim();
+                    const phoneNo = $('#newPhoneNo').val().trim();
+            
+                    const phoneRegex = /^\d{10}$/; // 10-digit phone numbers
+                    const postalCodeRegex = /^[1-9][0-9]{5}$/; // Indian postal code format
+            
+                    // Check for empty fields
+                    if (!street || !city || !state || !postalCode || !country || !phoneNo) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Incomplete Address',
+                            text: 'Please fill in all address fields without spaces.',
+                        });
+                        return;
+                    }
+            
+                    // Validate phone number
+                    if (!phoneRegex.test(phoneNo)) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Invalid Phone Number',
+                            text: 'Please enter a valid 10-digit phone number.',
+                        });
+                        return;
+                    }
+            
+                    // Validate postal code
+                    if (!postalCodeRegex.test(postalCode)) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Invalid Postal Code',
+                            text: 'Please enter a valid 6-digit Indian postal code.',
+                        });
+                        return;
+                    }
+            
+                    // Success message
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Address Confirmed',
+                        text: 'New address has been confirmed.',
+                    });
+                    
+                    $('#placeOrder').prop('disabled', false); // Enable Place Order button after confirming new address
+                    checkCatPro();
+                });
+            
+                // Payment method change
+                $('#paymentMethod').on('change', checkCatPro);
+            
+                function checkCatPro() {
+                    $('#placeOrder').prop('disabled', true);
+                    return fetch('/checkout/checkcatpro', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            paymentMethod: $('#paymentMethod').val()
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            isCheckPassed = true;
+                            $('#placeOrder').prop('disabled', false);
+                        } else {
+                            isCheckPassed = false;
+                            $('#placeOrder').prop('disabled', true);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Oops...',
+                                text: data.message,
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error checking category and product:', error);
                         isCheckPassed = false;
                         $('#placeOrder').prop('disabled', true);
                         Swal.fire({
                             icon: 'error',
-                            title: 'Oops...',
-                            text: data.message,
+                            title: 'Server Error',
+                            text: 'An error occurred while checking your order. Please try again.',
                         });
-                    }
-                })
-                .catch(error => {
-                    console.error('Error checking category and product:', error);
-                    isCheckPassed = false;
-                    $('#placeOrder').prop('disabled', true);
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Server Error',
-                        text: 'An error occurred while checking your order. Please try again.',
                     });
-                });
-            }
-        
-            $('#checkoutForm').on('submit', function (e) {
-                e.preventDefault();
-        
-                if (!isCheckPassed) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Unable to Proceed',
-                        text: 'Please ensure all items in your cart are available and meet the requirements.',
-                    });
-                    return;
                 }
-        
-                const paymentMethod = $('#paymentMethod').val();
-                const selectedAddress = $('input[name="selectedAddress"]:checked').val();
-        
-                let addressDetails = {};
-                if (selectedAddress === 'new') {
-                    addressDetails = {
-                        street: $('#newStreet').val(),
-                        city: $('#newCity').val(),
-                        state: $('#newState').val(),
-                        postalCode: $('#newPostalCode').val(),
-                        country: $('#newCountry').val(),
-                        phoneNo: $('#newPhoneNo').val()
-                    };
-                    if (Object.values(addressDetails).some(value => !value)) {
+            
+                $('#checkoutForm').on('submit', function (e) {
+                    e.preventDefault();
+            
+                    // Check if an address is selected
+                    const selectedAddress = $('input[name="selectedAddress"]:checked').val();
+                    if (!selectedAddress) {
                         Swal.fire({
                             icon: 'error',
-                            title: 'Incomplete Address',
-                            text: 'Please fill in all address fields.',
+                            title: 'No Address Selected',
+                            text: 'Please select an address before proceeding.',
                         });
                         return;
                     }
-                }
-        
-                const checkoutData = {
-                    paymentMethod,
-                    selectedAddress,
-                    addressDetails
-                };
-        
-                $('#placeOrder').prop('disabled', true);
-        
-                fetch('/checkout', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(checkoutData)
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        if (paymentMethod === 'razorpay') {
-                            const options = {
-                                key: 'rzp_test_ovddchQMnrblMK',
-                                amount: data.amount,
-                                currency: "INR",
-                                name: "Your E-Commerce Site",
-                                description: "Order Payment",
-                                order_id: data.razorpayOrderId,
-                                handler: function (response) {
-                                    verifyPayment({
-                                        order: data.orderId,
-                                        orderId: data.razorpayOrderId,
-                                        razorpay_payment_id: response.razorpay_payment_id,
-                                        razorpay_signature: response.razorpay_signature
-                                    });
-                                },
-                                modal: {
-                                    ondismiss: function () {
-                                        handlePaymentFailure(data.orderId);
-                                    }
-                                },
-                                prefill: {
-                                    name: "Customer Name",
-                                    email: "customer@example.com",
-                                    contact: "9999999999"
-                                },
-                                theme: {
-                                    color: "#F37254"
-                                }
-                            };
-        
-                            const rzp = new Razorpay(options);
-                            rzp.open();
-                        } else {
-                            window.location.href = `/checkout/order-confirmation/${data.orderId}`;
+            
+                    if (!isCheckPassed) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Unable to Proceed',
+                            text: 'Please ensure all items in your cart are available and meet the requirements.',
+                        });
+                        return;
+                    }
+            
+                    const paymentMethod = $('#paymentMethod').val();
+            
+                    let addressDetails = {};
+                    if (selectedAddress === 'new') {
+                        addressDetails = {
+                            street: $('#newStreet').val(),
+                            city: $('#newCity').val(),
+                            state: $('#newState').val(),
+                            postalCode: $('#newPostalCode').val(),
+                            country: $('#newCountry').val(),
+                            phoneNo: $('#newPhoneNo').val()
+                        };
+                        if (Object.values(addressDetails).some(value => !value)) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Incomplete Address',
+                                text: 'Please fill in all address fields.',
+                            });
+                            return;
                         }
-                    } else {
-                        handlePaymentFailure(data.orderId);
                     }
-                })
-                .catch((error) => {
-                    console.error('Error during checkout:', error);
-                    handlePaymentFailure();
-                })
-                .finally(() => {
-                    $('#placeOrder').prop('disabled', false);
-                });
-            });
-        
-            function verifyPayment(paymentResponse) {
-                fetch('/api/verify-payment', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        order: paymentResponse.order,
-                        orderId: paymentResponse.orderId,
-                        paymentId: paymentResponse.razorpay_payment_id,
-                        signature: paymentResponse.razorpay_signature
+            
+                    const checkoutData = {
+                        paymentMethod,
+                        selectedAddress,
+                        addressDetails
+                    };
+            
+                    $('#placeOrder').prop('disabled', true);
+            
+                    fetch('/checkout', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(checkoutData)
                     })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        window.location.href = `/checkout/order-confirmation/${paymentResponse.order}`;
-                    } else {
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            if (paymentMethod === 'razorpay') {
+                                const options = {
+                                    key: 'rzp_test_ovddchQMnrblMK',
+                                    amount: data.amount,
+                                    currency: "INR",
+                                    name: "Your E-Commerce Site",
+                                    description: "Order Payment",
+                                    order_id: data.razorpayOrderId,
+                                    handler: function (response) {
+                                        verifyPayment({
+                                            order: data.orderId,
+                                            orderId: data.razorpayOrderId,
+                                            razorpay_payment_id: response.razorpay_payment_id,
+                                            razorpay_signature: response.razorpay_signature
+                                        });
+                                    },
+                                    modal: {
+                                        ondismiss: function () {
+                                            handlePaymentFailure(data.orderId);
+                                        }
+                                    },
+                                    prefill: {
+                                        name: "Customer Name",
+                                        email: "customer@example.com",
+                                        contact: "9999999999"
+                                    },
+                                    theme: {
+                                        color: "#F37254"
+                                    }
+                                };
+            
+                                const rzp = new Razorpay(options);
+                                rzp.open();
+                            } else {
+                                window.location.href = `/checkout/order-confirmation/${data.orderId}`;
+                            }
+                        } else {
+                            handlePaymentFailure(data.orderId);
+                        }
+                    })
+                    .catch((error) => {
+                        console.error('Error during checkout:', error);
+                        handlePaymentFailure();
+                    })
+                    .finally(() => {
+                        $('#placeOrder').prop('disabled', false);
+                    });
+                });
+            
+                function verifyPayment(paymentResponse) {
+                    fetch('/api/verify-payment', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            order: paymentResponse.order,
+                            orderId: paymentResponse.orderId,
+                            paymentId: paymentResponse.razorpay_payment_id,
+                            signature: paymentResponse.razorpay_signature
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            window.location.href = `/checkout/order-confirmation/${paymentResponse.order}`;
+                        } else {
+                            handlePaymentFailure(paymentResponse.order);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error during payment verification:', error);
                         handlePaymentFailure(paymentResponse.order);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error during payment verification:', error);
-                    handlePaymentFailure(paymentResponse.order);
-                });
-            }
-        
-            function handlePaymentFailure(orderId) {
-                if (orderId) {
-                    updateOrderStatus(orderId, 'payment_failed');
+                    });
                 }
-                
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Payment Failed',
-                    text: 'Your payment could not be processed. You will be redirected to the failure page.',
-                    confirmButtonText: 'OK'
-                }).then(() => {
-                    window.location.href = `/checkout/payment-failed${orderId ? '/' + orderId : ''}`;
-                });
-            }
-        
-            function updateOrderStatus(orderId, status) {
-                fetch(`/update-order-status/${orderId}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ status: status })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (!data.success) {
-                        console.error('Failed to update order status');
+            
+                function handlePaymentFailure(orderId) {
+                    if (orderId) {
+                        updateOrderStatus(orderId, 'payment_failed');
                     }
-                })
-                .catch(error => {
-                    console.error('Error updating order status:', error);
-                });
-            }
-        });
-        </script>
+                    
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Payment Failed',
+                        text: 'Your payment could not be processed. You will be redirected to the failure page.',
+                        confirmButtonText: 'OK'
+                    }).then(() => {
+                        window.location.href = `/checkout/payment-failed${orderId ? '/' + orderId : ''}`;
+                    });
+                }
+            
+                function updateOrderStatus(orderId, status) {
+                    fetch(`/update-order-status/${orderId}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ status: status })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (!data.success) {
+                            console.error('Failed to update order status');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error updating order status:', error);
+                    });
+                }
+            });
+            </script>
 
     </body>
 

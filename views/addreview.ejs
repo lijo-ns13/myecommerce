@@ -196,8 +196,14 @@
                             window.location.href = `/product-detail/${productId}`; // Redirect to the product detail page
                         });
                     } else {
-                        // Display error messages
-                        document.getElementById('error').innerText = result.message || 'Failed to add review.';
+                        Swal.fire({
+                            title:"Oops",
+                            text:"You already added review",
+                            icon:'warning',
+                            confirmButtonText:'Ok'
+                        }).then(() => {
+                            window.location.href = `/product-detail/${productId}`; // Redirect to the product detail page
+                        });
                     }
                 } catch (error) {
                     document.getElementById('error').innerText = 'An error occurred. Please try again.';
