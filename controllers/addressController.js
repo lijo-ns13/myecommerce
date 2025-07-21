@@ -1,8 +1,6 @@
-const express=require('express');
 
 const User=require('../models/userSchema');
 const Address=require('../models/addressSchema')
-const {jwtAuth,userProtected}=require('../middlewares/auth');
 
 const getAddress=async(req,res)=>{
     try{

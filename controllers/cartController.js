@@ -2,7 +2,6 @@ const express=require('express');
 
 const Product=require('../models/productSchema');
 const Cart=require('../models/cartSchema')
-const {jwtAuth,userProtected}=require('../middlewares/auth')
 
 const getCart=async(req,res)=>{
     try{
