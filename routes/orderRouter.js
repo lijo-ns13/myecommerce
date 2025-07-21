@@ -14,26 +14,14 @@ router.use(jwtAuth, userProtected);
 router.get('/',orderController.getOrders);
 // /user/orders/<%= order._id %>
 router.get('/:orderId',orderController.getOrderDetailed)
-
 // Route to cancel an order
 router.post('/:orderId/cancel', orderController.postOrderCancel);
-
 // /user/orders/return/<%=order._id%>
-
 router.get('/return/:orderId',orderController.getReturnOrderId)
 router.post('/return/:orderId',orderController.postReturnOrderId)
-
-
-
-
 // dowload invoice
 router.get('/download-invoice/:orderId', orderController.getInvoiceDowload);
-
-
 // cancel single product
 // /user/orders/cancelsingle/<%=order._id%>/<%=orderData.productId%>
 router.post('/cancelsingle/:orderId/:productId/:productSize/:productQuantity', orderController.postCancelSingleProduct);
-
-
-
 module.exports = router;

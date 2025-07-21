@@ -39,3 +39,4 @@ router.post('/verify', authController.postVerify);
 router.get('/logout',authController.getLogout)
 
 module.exports=router;
+
