@@ -382,7 +382,7 @@ async function payNow() {
     const amount = window.orderData.totalPrice;
     console.log("Amount to pay:", amount);
     
-    const response = await fetch('/create-order', {
+    const response = await fetch('/api/create-order', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'

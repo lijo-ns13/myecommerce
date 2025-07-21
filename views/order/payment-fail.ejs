@@ -1,13 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Payment Failed</title>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <style>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Payment Failed</title>
+        <link
+            href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+            rel="stylesheet">
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
 
         body {
@@ -83,66 +85,89 @@
             }
         }
     </style>
-</head>
+    </head>
 
-<body>
-    <div class="container">
-        <div class="bg-white rounded shadow-lg max-w-lg w-100 overflow-hidden">
-            <div class="bg-gradient text-white p-4 text-center">
-                <div class="error-icon">
-                    <i class="fas fa-times-circle"></i>
-                </div>
-                <h1 class="display-4 mt-4">Payment Failed</h1>
-                <p class="lead">We couldn't process your payment. Please try again.</p>
-            </div>
-
-            <div class="p-4">
-                <div class="alert alert-danger" role="alert">
-                    <strong>Error:</strong> Please check your order details and try again.
+    <body>
+        <div class="container">
+            <div
+                class="bg-white rounded shadow-lg max-w-lg w-100 overflow-hidden">
+                <div class="bg-gradient text-white p-4 text-center">
+                    <div class="error-icon">
+                        <i class="fas fa-times-circle"></i>
+                    </div>
+                    <h1 class="display-4 mt-4">Payment Failed</h1>
+                    <p class="lead">We couldn't process your payment. Please try
+                        again.</p>
                 </div>
 
-                <h2 class="h5 font-weight-bold mb-3">Order Details</h2>
-                <div class="order-details">
-                    <p>Order ID: <span class="font-weight-bold text-primary"><%= order._id %></span></p>
-                    <p>Total Amount: <span class="font-weight-bold text-primary">₹<%= order.totalPrice.toFixed(2) %></span></p>
-                    <p>Order Date: <span class="font-weight-bold text-primary"><%= new Date(order.orderDate).toLocaleString() %></span></p>
-                    <p>Status: <span class="font-weight-bold text-danger"><%= order.status %></span></p>
-                </div>
+                <div class="p-4">
 
-                <h3 class="h5 font-weight-bold mb-3">Items in Your Order</h3>
-                <% if (order.products && order.products.length > 0) { %>
+                    <h2 class="h5 font-weight-bold mb-3">Order Details</h2>
+                    <div class="order-details">
+                        <p>Order ID: <span
+                                class="font-weight-bold text-primary"><%=
+                                order._id %></span></p>
+                        <p>Total Amount: <span
+                                class="font-weight-bold text-primary">₹<%=
+                                order.totalPrice.toFixed(2) %></span></p>
+                        <p>Order Date: <span
+                                class="font-weight-bold text-primary"><%= new
+                                Date(order.orderDate).toLocaleString()
+                                %></span></p>
+                        <p>Status: <span
+                                class="font-weight-bold text-danger"><%=
+                                order.status %></span></p>
+                    </div>
+
+                    <h3 class="h5 font-weight-bold mb-3">Items in Your
+                        Order</h3>
+                    <% if (order.products && order.products.length > 0) { %>
                     <ul class="list-unstyled mb-4">
                         <% order.products.forEach(product => { %>
-                            <li class="media mb-3">
-                                <img src="<%=product.productId.images[0].secured_url%>" class="mr-3 item-image" alt="Product Image">
-                                <div class="media-body">
-                                    <h5 class="mt-0 mb-1"><%= product.productId.product || 'Product' %></h5>
-                                    <p>Quantity: <span class="font-weight-bold"><%= product.quantity || 1 %></span></p>
-                                    <p>Size: <span class="font-weight-bold"><%= product.size %></span></p>
-                                    <p>Subtotal: <span class="font-weight-bold">₹<%= (product.quantity * product.productId.price).toFixed(2) %></span></p>
-                                </div>
-                            </li>
+                        <li class="media mb-3">
+                            <img
+                                src="<%=product.productId.images[0].secured_url%>"
+                                class="mr-3 item-image" alt="Product Image">
+                            <div class="media-body">
+                                <h5 class="mt-0 mb-1"><%=
+                                    product.productId.product || 'Product'
+                                    %></h5>
+                                <p>Quantity: <span class="font-weight-bold"><%=
+                                        product.quantity || 1 %></span></p>
+                                <p>Size: <span class="font-weight-bold"><%=
+                                        product.size %></span></p>
+                                <p>Subtotal: <span class="font-weight-bold">₹<%=
+                                        (product.quantity *
+                                        product.productId.price).toFixed(2)
+                                        %></span></p>
+                            </div>
+                        </li>
                         <% }); %>
                     </ul>
-                <% } else { %>
+                    <% } else { %>
                     <p class="text-muted">No items found in this order.</p>
-                <% } %>
+                    <% } %>
 
-                <div class="d-flex flex-column flex-md-row justify-content-between mb-4">
-                    <a href="/" class="btn btn-primary btn-block mb-2 mb-md-0">Return to Homepage</a>
-                </div>
+                    <div
+                        class="d-flex flex-column flex-md-row justify-content-between mb-4">
+                        <a href="/"
+                            class="btn btn-primary btn-block mb-2 mb-md-0">Return
+                            to Homepage</a>
+                    </div>
 
-                <div class="text-center mt-4">
-                    <p class="mb-2">If you believe this is a mistake, please reach out to our support team:</p>
-                    <a href="mailto:support@example.com" class="text-primary">
-                        <i class="fas fa-envelope"></i> support@example.com
-                    </a>
+                    <div class="text-center mt-4">
+                        <p class="mb-2">If you believe this is a mistake, please
+                            reach out to our support team:</p>
+                        <a href="mailto:support@example.com"
+                            class="text-primary">
+                            <i class="fas fa-envelope"></i> support@example.com
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <script src="https://kit.fontawesome.com/a076d05399.js"></script>
-</body>
+        <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+    </body>
 
 </html>

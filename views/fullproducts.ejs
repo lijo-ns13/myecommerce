@@ -1,17 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stunning Product Page</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <!-- FontAwesome for icons -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    <!-- Custom Styles -->
-    <style>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Stunning Product Page</title>
+        <!-- Bootstrap CSS -->
+        <link
+            href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+            rel="stylesheet">
+        <!-- FontAwesome for icons -->
+        <link
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css"
+            rel="stylesheet">
+        <!-- Google Fonts -->
+        <link
+            href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap"
+            rel="stylesheet">
+        <!-- Custom Styles -->
+        <style>
         :root {
             --primary-color: #3498db;
             --secondary-color: #2ecc71;
@@ -203,12 +209,12 @@ body {
         }
 
         .in-stock {
-            background-color: var(--secondary-color);
+            background-color: rgb(23, 145, 23);
             color: white;
         }
 
         .out-of-stock {
-            background-color: var(--accent-color);
+            background-color:red;
             color: white;
         }
 
@@ -326,100 +332,134 @@ body {
 }
 
     </style>
-</head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light py-3 w-100">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="/">
-                <img src="/img/logo.png" alt="Logo" class="d-inline-block align-text-top" style="height: 40px;">
-            </a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ml-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/products">Products</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/about">About</a>
-                    </li>
-                </ul>
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/auth/signin">
-                            <img src="/img/log-in.png" alt="Login" class="nav-icon" style="height: 24px;">
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/user/wishlist">
-                            <img src="/img/wishlist.png" alt="Wishlist" class="nav-icon" style="height: 24px;">
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/cart">
-                            <img src="/img/cart.png" alt="Cart" class="nav-icon" style="height: 24px;">
-                            <span class="badge badge-pill badge-danger"></span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/user/profile">
-                            <img src="/img/userprofile.jpg" alt="User Profile" class="nav-icon rounded-circle" style="height: 24px;">
-                        </a>
-                    </li>
-                </ul>
+    </head>
+    <body>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light py-3 w-100">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="/">
+                    <img src="/img/logo.png" alt="Logo"
+                        class="d-inline-block align-text-top"
+                        style="height: 40px;">
+                </a>
+                <button class="navbar-toggler" type="button"
+                    data-toggle="collapse" data-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false"
+                    aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ml-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/products">Products</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/about">About</a>
+                        </li>
+                    </ul>
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/auth/signin">
+                                <img src="/img/log-in.png" alt="Login"
+                                    class="nav-icon" style="height: 24px;">
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/user/wishlist">
+                                <img src="/img/wishlist.png" alt="Wishlist"
+                                    class="nav-icon" style="height: 24px;">
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/cart">
+                                <img src="/img/cart.png" alt="Cart"
+                                    class="nav-icon" style="height: 24px;">
+                                <span
+                                    class="badge badge-pill badge-danger"></span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/user/profile">
+                                <img src="/img/userprofile.jpg"
+                                    alt="User Profile"
+                                    class="nav-icon rounded-circle"
+                                    style="height: 24px;">
+                            </a>
+                        </li>
+                    </ul>
+                </div>
             </div>
-        </div>
-    </nav>
-    <div class="container mt-4">
+        </nav>
         <div class="container mt-4">
-            <div class="filter-section mt-3">
-                <form method="GET" action="/products" class="d-flex flex-column flex-md-row align-items-center">
-                    <div class="input-group mb-2 flex-grow-1 me-md-2">
-                        <input class="form-control" type="search" name="query" placeholder="Search for products..." aria-label="Search" value="<%= searchQuery %>">
-                        <div class="input-group-append">
-                            <button class="btn btn-outline-primary" type="submit">
-                                <i class="fas fa-search"></i>
-                            </button>
+            <div class="container mt-4">
+                <div class="filter-section mt-3">
+                    <form method="GET" action="/products"
+                        class="d-flex flex-column flex-md-row align-items-center">
+                        <div class="input-group mb-2 flex-grow-1 me-md-2">
+                            <input class="form-control" type="search"
+                                name="query"
+                                placeholder="Search for products..."
+                                aria-label="Search" value="<%= searchQuery %>">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-primary"
+                                    type="submit">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
                         </div>
-                    </div>
-        
-                    <div class="form-group mb-2 flex-grow-1 me-md-2">
-                        <select id="category" name="category" class="custom-select">
-                            <option value="">All Categories</option>
-                            <% categories.forEach(category => { %>
-                                <option value="<%= category._id %>" <%= selectedCategory === category._id ? 'selected' : '' %>><%= category.name %></option>
-                            <% }); %>
-                        </select>
-                    </div>
-        
-                    <div class="form-group mb-2 flex-grow-1 me-md-2">
-                        <select id="sort" name="sort" class="custom-select">
-                            <option value="">Sort By</option>
-                            <option value="price_low_high" <%= selectedSort === 'price_low_high' ? 'selected' : '' %>>Price: Low to High</option>
-                            <option value="price_high_low" <%= selectedSort === 'price_high_low' ? 'selected' : '' %>>Price: High to Low</option>
-                            <option value="new_arrivals" <%= selectedSort === 'new_arrivals' ? 'selected' : '' %>>New Arrivals</option>
-                            <option value="a_z" <%= selectedSort === 'a_z' ? 'selected' : '' %>>A - Z</option>
-                            <option value="z_a" <%= selectedSort === 'z_a' ? 'selected' : '' %>>Z - A</option>
-                        </select>
-                    </div>
-        
-                    <button type="submit" class="btn btn-primary mb-2 mb-md-0">Apply Filters</button>
-                </form>
-            </div>
-        </div>
-        
 
-        <div class="product-grid">
-            <% for (const product of products) { %>
+                        <div class="form-group mb-2 flex-grow-1 me-md-2">
+                            <select id="category" name="category"
+                                class="custom-select">
+                                <option value>All Categories</option>
+                                <% categories.forEach(category => { %>
+                                <option value="<%= category._id %>"
+                                    <%=selectedCategory === category._id ?
+                                    'selected' : '' %>><%= category.name
+                                    %></option>
+                                <% }); %>
+                            </select>
+                        </div>
+
+                        <div class="form-group mb-2 flex-grow-1 me-md-2">
+                            <select id="sort" name="sort" class="custom-select">
+                                <option value>Sort By</option>
+                                <option value="price_low_high" <%=selectedSort
+                                    === 'price_low_high' ? 'selected' : ''
+                                    %>>Price: Low to High</option>
+                                <option value="price_high_low" <%=selectedSort
+                                    === 'price_high_low' ? 'selected' : ''
+                                    %>>Price: High to Low</option>
+                                <option value="new_arrivals" <%=selectedSort ===
+                                    'new_arrivals' ? 'selected' : '' %>>New
+                                    Arrivals</option>
+                                <option value="a_z" <%=selectedSort === 'a_z' ?
+                                    'selected' : '' %>>A - Z</option>
+                                <option value="z_a" <%=selectedSort === 'z_a' ?
+                                    'selected' : '' %>>Z - A</option>
+                            </select>
+                        </div>
+
+                        <button type="submit"
+                            class="btn btn-primary mb-2 mb-md-0">Apply
+                            Filters</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="product-grid">
+                <% for (const product of products) { %>
                 <div class="product-box">
                     <a href="/product-detail/<%= product._id %>">
-                        <div class="product-images" onmouseover="startSlideshow(this)" onmouseout="stopSlideshow(this)">
+                        <div class="product-images"
+                            onmouseover="startSlideshow(this)"
+                            onmouseout="stopSlideshow(this)">
                             <% for (const image of product.images) { %>
-                                <img src="<%= image.secured_url %>" alt="Product Image" class="<%= image === product.images[0] ? 'active' : '' %>">
+                            <img src="<%= image.secured_url %>"
+                                alt="Product Image"
+                                class="<%= image === product.images[0] ? 'active' : '' %>">
                             <% } %>
                         </div>
                     </a>
@@ -428,40 +468,49 @@ body {
                         <div class="product-details">
                             <div class="price-container">
                                 <% if (product.offerApplied) { %>
-                                    <span class="original-price">$<%= product.price.toFixed(2) %></span>
-                                    <span class="final-price">$<%= product.finalPrice.toFixed(2) %></span>
-                                    <%
-                                        const discountPercentage = ((product.price - product.finalPrice) / product.price) * 100;
-                                    %>
-                                    <span class="discount-percentage"><%= discountPercentage.toFixed(0) %>% off</span>
+                                <span class="original-price">$<%=
+                                    product.price.toFixed(2) %></span>
+                                <span class="final-price">$<%=
+                                    product.finalPrice.toFixed(2) %></span>
+                                <%
+                                const discountPercentage = ((product.price -
+                                product.finalPrice) / product.price) * 100;
+                                %>
+                                <span class="discount-percentage"><%=
+                                    discountPercentage.toFixed(0) %>% off</span>
                                 <% } else { %>
-                                    <span class="final-price">$<%= product.price.toFixed(2) %></span>
+                                <span class="final-price">$<%=
+                                    product.price.toFixed(2) %></span>
                                 <% } %>
                             </div>
-                            <span class="stock-status <%= product.sizes.some(size => size.stock > 0) ? 'in-stock' : 'out-of-stock' %>">
-                                <%= product.sizes.some(size => size.stock > 0) ? 'In Stock' : 'Out of Stock' %>
+                            <span
+                                class="stock-status <%= product.sizes.some(size => size.stock > 0) ? 'in-stock' : 'out-of-stock' %>">
+                                <%= product.sizes.some(size => size.stock > 0) ?
+                                'In Stock' : 'Out of Stock' %>
                             </span>
-                            <button 
-                            class="wishlist-button <%= wishlist.some(item => item._id.toString() === product._id.toString()) ? 'in-wishlist' : 'not-in-wishlist' %>" 
-                            onclick="toggleWishlist('<%= product._id %>', this)"
-                            data-product-id="<%= product._id %>"
-                            data-in-wishlist="<%= wishlist.some(item => item._id.toString() === product._id.toString()) %>"
-                            aria-label="Add to wishlist">
-                            <i class="heart-icon fas fa-heart"></i>
-                        </button>
+                            <button
+                                class="wishlist-button <%= wishlist.some(item => item._id.toString() === product._id.toString()) ? 'in-wishlist' : 'not-in-wishlist' %>"
+                                onclick="toggleWishlist('<%= product._id %>', this)"
+                                data-product-id="<%= product._id %>"
+                                data-in-wishlist="<%= wishlist.some(item => item._id.toString() === product._id.toString()) %>"
+                                aria-label="Add to wishlist">
+                                <i class="heart-icon fas fa-heart"></i>
+                            </button>
                         </div>
                     </div>
                 </div>
-            <% } %>
+                <% } %>
+            </div>
         </div>
-    </div>
 
-    <!-- Bootstrap JS and dependencies -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    
-    <script>
+        <!-- Bootstrap JS and dependencies -->
+        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+        <script
+            src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+        <script
+            src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+        <script>
         function startSlideshow(element) {
             element.slideshowInterval = setInterval(() => {
                 const images = element.querySelectorAll('img');
@@ -480,7 +529,7 @@ body {
             });
         }
     </script>
-    <script>
+        <script>
         async function toggleWishlist(productId, button) {
             try {
                 const isInWishlist = button.classList.contains('in-wishlist');
@@ -510,6 +559,6 @@ body {
             }
         }
     </script>
-    
-</body>
+
+    </body>
 </html>

@@ -759,12 +759,12 @@
                 <div class="pricing mb-4">
                     <% if(isOffer) { %>
                         <p class="product-price mb-0">
-                            <span class="text-muted text-decoration-line-through h5">$<%= product.price.toFixed(2) %></span>
-                            <span class="ml-2 h3 text-success font-weight-bold">$<%= product.finalPrice.toFixed(2) %></span>
+                            <span class="text-muted text-decoration-line-through h5">₹<%= product.price.toFixed(2) %></span>
+                            <span class="ml-2 h3 text-success font-weight-bold">₹<%= product.finalPrice.toFixed(2) %></span>
                         </p>
                         <span class="badge badge-danger">Sale</span>
                     <% } else { %>
-                        <p class="product-price h3 text-success font-weight-bold mb-0">$<%= product.finalPrice.toFixed(2) %></p>
+                        <p class="product-price h3 text-success font-weight-bold mb-0">₹<%= product.finalPrice.toFixed(2) %></p>
                     <% } %>
                 </div>
     

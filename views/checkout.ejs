@@ -817,7 +817,7 @@
                 }
             
                 function updateOrderStatus(orderId, status) {
-                    fetch(`/update-order-status/${orderId}`, {
+                    fetch(`/api/update-order-status/${orderId}`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',

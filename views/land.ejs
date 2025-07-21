@@ -177,13 +177,13 @@
 
         .original-price {
             text-decoration: line-through;
-            color: #999;
+            color: #b8c1c7;
             font-size: 0.9rem;
         }
 
         .final-price {
             font-size: 1.6rem;
-            color: var(--accent-color);
+            color: green;
             font-weight: bold;
         }
 
@@ -630,14 +630,14 @@
                         <div class="product-details">
                             <div class="price-container">
                                 <% if (product.offerApplied) { %>
-                                    <span class="original-price">$<%= product.price.toFixed(2) %></span>
-                                    <span class="final-price">$<%= product.finalPrice.toFixed(2) %></span>
+                                    <span class="original-price ">₹<%= product.price.toFixed(2) %></span>
+                                    <span class="final-price ">₹<%= product.finalPrice.toFixed(2) %></span>
                                     <%
                                         const discountPercentage = ((product.price - product.finalPrice) / product.price) * 100;
                                     %>
                                     <span class="discount-percentage"><%= discountPercentage.toFixed(0) %>% off</span>
                                 <% } else { %>
-                                    <span class="final-price">$<%= product.price.toFixed(2) %></span>
+                                    <span class="final-price">₹<%= product.price.toFixed(2) %></span>
                                 <% } %>
                             </div>
                             <span class="stock-status <%= product.sizes.some(size => size.stock > 0) ? 'in-stock' : 'out-of-stock' %>">

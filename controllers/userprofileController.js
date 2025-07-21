@@ -155,8 +155,12 @@ const postChangePassword=async(req,res)=>{
             return res.status(400).json({success:false,message:'provide all fields'})
         }
         const user=await User.findById(req.user._id).select('+password');
+
         if(!user){
             return res.status(400).json({success:false,message:'user not found'})
+        }
+        if(!user.password){
+            return res.status(400).json({success:false,message:'Your a google user so how password change'})
         }
         if (!(await bcrypt.compare(password, user.password))) {
             return res.status(400).json({ success: false, message: 'Current password does not match' });
@@ -174,7 +178,30 @@ const postChangePassword=async(req,res)=>{
         res.status(400).json({success:false,message:error.message})
     }
 }
+const getWallet=async (req, res) => {
+    try {
+        // Find the wallet for the user
+        let wallet = await Wallet.findOne({ userId: req.user._id });
+        const user = await User.findById(req.user._id);
 
+        // Check if the user already has a walletId
+        if (!user.walletId) {
+            if (!wallet) {
+                // Create a new wallet if none exists
+                wallet = await Wallet.create({ userId: req.user._id });
+            }
+            // Assign the wallet ID to the user and save the user document
+            user.walletId = wallet._id;
+            await user.save(); // Save the updated user document
+        }
+
+        // Render the wallet page with the wallet data
+        res.render('profile/wallet', { wallet });
+    } catch (error) {
+        console.error('Error fetching wallet:', error); // Log the error for debugging
+        res.status(500).json({ success: false, message: 'An error occurred while fetching the wallet.' }); // Send error response
+    }
+}
 module.exports={
     getProfile,
     getEditProfile,
@@ -182,5 +209,6 @@ module.exports={
     postEditProfile,
     postVerifyOtp,
     getChangePassword,
-    postChangePassword
+    postChangePassword,
+    getWallet
     }

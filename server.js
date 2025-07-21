@@ -1,7 +1,6 @@
 const app=require('./app');
-
-
 const databaseConnect=require('./config/databaseConfig')
+
 databaseConnect()
 
 
