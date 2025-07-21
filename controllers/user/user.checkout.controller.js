@@ -2,15 +2,15 @@ const express = require('express');
 
 const Razorpay = require('razorpay');
 
-const User = require('../models/userSchema');
-const Cart = require('../models/cartSchema');
-const Product = require('../models/productSchema');
-const Order = require('../models/orderSchema');
-const Address = require('../models/addressSchema');
-const Coupon = require('../models/couponSchema');
-const Category = require('../models/categorySchema');
+const User = require('../../models/userSchema');
+const Cart = require('../../models/cartSchema');
+const Product = require('../../models/productSchema');
+const Order = require('../../models/orderSchema');
+const Address = require('../../models/addressSchema');
+const Coupon = require('../../models/couponSchema');
+const Category = require('../../models/categorySchema');
 const dotenv = require('dotenv').config();
-const Wallet = require('../models/walletSchema');
+const Wallet = require('../../models/walletSchema');
 const crypto = require('crypto');
 
 const getCheckout = async (req, res) => {
@@ -303,13 +303,11 @@ const postCheckCatPro = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Your cart is empty' });
     }
     if (cart.finalPrice > 5000 && paymentMethod === 'cod') {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message:
-            'Amount greater than 5000 not applicable with COD. Please make the payment online.',
-        });
+      return res.status(400).json({
+        success: false,
+        message:
+          'Amount greater than 5000 not applicable with COD. Please make the payment online.',
+      });
     }
     if (wallet && wallet.balance < cart.finalPrice && paymentMethod === 'wallet') {
       return res.status(400).json({ success: false, message: 'Your wallet amount low' });
@@ -321,39 +319,31 @@ const postCheckCatPro = async (req, res) => {
       const checkCategory = await Category.findById(categoryId);
 
       if (checkCategory.isBlocked) {
-        return res
-          .status(400)
-          .json({
-            success: false,
-            message: `We're sorry, but you can't purchase "${productDetails.product}". This category is currently blocked.`,
-          });
+        return res.status(400).json({
+          success: false,
+          message: `We're sorry, but you can't purchase "${productDetails.product}". This category is currently blocked.`,
+        });
       }
 
       if (!productDetails) {
-        return res
-          .status(400)
-          .json({
-            success: false,
-            message: `Unfortunately, we couldn't find a product with the ID: ${productId}. Please check and try again.`,
-          });
+        return res.status(400).json({
+          success: false,
+          message: `Unfortunately, we couldn't find a product with the ID: ${productId}. Please check and try again.`,
+        });
       }
       if (productDetails.isListed == false) {
-        return res
-          .status(400)
-          .json({
-            success: false,
-            message: `product is temporary blocked ,${productDetails.product}`,
-          });
+        return res.status(400).json({
+          success: false,
+          message: `product is temporary blocked ,${productDetails.product}`,
+        });
       }
 
       const sizeDetails = productDetails.sizes.find((s) => s.size === size);
       if (!sizeDetails || sizeDetails.stock < quantity) {
-        return res
-          .status(400)
-          .json({
-            success: false,
-            message: `Oops! It looks like there isn’t enough stock for "${productDetails.product}" in size "${size}". Available stock: ${sizeDetails ? sizeDetails.stock : 0}. Please adjust your quantity.`,
-          });
+        return res.status(400).json({
+          success: false,
+          message: `Oops! It looks like there isn’t enough stock for "${productDetails.product}" in size "${size}". Available stock: ${sizeDetails ? sizeDetails.stock : 0}. Please adjust your quantity.`,
+        });
       }
     }
 
@@ -452,12 +442,10 @@ const postCouponCheck = async (req, res) => {
 
     // Ensure the total price meets the minimum purchase amount
     if (totalPrice < coupon.minPurchaseAmount) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: `Minimum purchase amount for this coupon is ${coupon.minPurchaseAmount}`,
-        });
+      return res.status(400).json({
+        success: false,
+        message: `Minimum purchase amount for this coupon is ${coupon.minPurchaseAmount}`,
+      });
     }
     if (coupon.usedUsers.includes(req.user._id)) {
       return res

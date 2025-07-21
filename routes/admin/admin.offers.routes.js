@@ -1,10 +1,10 @@
 const express=require('express');
 const methodOverride=require('method-override')
-const Product = require('../models/productSchema'); // Adjust the path to your Product model
-const Category=require('../models/categorySchema')
-const Offer=require('../models/offerSchema')
-const {jwtAuth,adminProtected}=require('../middlewares/auth');
-const Cart=require('../models/cartSchema')
+const Product = require('../../models/productSchema'); // Adjust the path to your Product model
+const Category=require('../../models/categorySchema')
+const Offer=require('../../models/offerSchema')
+const {jwtAuth,adminProtected}=require("../../middlewares/auth");
+const Cart=require("../../models/cartSchema")
 const router=express.Router();
 router.use(express.urlencoded({ extended: true })); // To parse form data
 router.use(methodOverride('_method')); 
@@ -14,7 +14,7 @@ router.use(jwtAuth,adminProtected)
 
 
 
-router.get('/offers', async (req, res) => {
+router.get('/', async (req, res) => {
   try {
     const offers = await Offer.find({}).populate('categoryIds');
     // if (!offers || offers.length === 0) {
@@ -26,7 +26,7 @@ router.get('/offers', async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 });
-router.get('/offers/add-offer', async (req, res) => {
+router.get('/add-offer', async (req, res) => {
   try {
     const categories = await Category.find({});
     const products = await Product.find({}); // Fetch all products as well
@@ -35,7 +35,7 @@ router.get('/offers/add-offer', async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 });
-router.post('/offers/add-offer', async (req, res) => {
+router.post('/add-offer', async (req, res) => {
   try {
     const {
       offerName,
@@ -204,7 +204,7 @@ async function applyOfferToProducts(products, offer, discountValue, discountType
 }
 
 // GET route to render the edit offer form
-router.get('/offers/edit-offer/:id', async (req, res) => {
+router.get('/edit-offer/:id', async (req, res) => {
   try {
       const offerId = req.params.id;
       const offer = await Offer.findById(offerId); // Fetch the specific offer
@@ -233,7 +233,7 @@ router.get('/offers/edit-offer/:id', async (req, res) => {
 });
 
 // POST route to handle form submission for editing an offer
-router.post('/offers/edit-offer/:id', async (req, res) => {
+router.post('/edit-offer/:id', async (req, res) => {
   const offerId = req.params.id;
 
   // Destructure the incoming request body
@@ -323,7 +323,7 @@ router.post('/offers/edit-offer/:id', async (req, res) => {
 });
 
 
-router.delete('/offers/delete-offer/:offerId', async (req, res) => {
+router.delete('/delete-offer/:offerId', async (req, res) => {
   const offerId = req.params.offerId;
 
   try {

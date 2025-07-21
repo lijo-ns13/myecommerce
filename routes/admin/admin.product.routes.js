@@ -1,28 +1,24 @@
-
-const express=require('express');
+const express = require('express');
 
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const sharp = require('sharp');
-const methodOverride=require('method-override')
-const Product = require('../models/productSchema'); // Adjust the path to your Product model
-const {jwtAuth,adminProtected}=require('../middlewares/auth');
-const adminController=require('../controllers/adminController')
-const router=express.Router();
+const methodOverride = require('method-override');
+const Product = require('../../models/productSchema'); // Adjust the path to your Product model
+const { jwtAuth, adminProtected } = require('../../middlewares/auth');
+const adminController = require('../../controllers/admin/admin.product.controller');
+const router = express.Router();
 router.use(express.urlencoded({ extended: true })); // To parse form data
-router.use(methodOverride('_method')); 
+router.use(methodOverride('_method'));
 
 const uploadsDir = path.join(__dirname, '../uploads');
 
-router.use(jwtAuth,adminProtected)
+router.use(jwtAuth, adminProtected);
 
-
-
-
-router.get('/products',adminController.getProduct)
-router.get('/products/viewproducts',adminController.getViewProduct)
-router.get('/products/add-product',adminController.getAddProduct)
+router.get('/', adminController.getProduct);
+router.get('/viewproducts', adminController.getViewProduct);
+router.get('/add-product', adminController.getAddProduct);
 // Ensure the upload directory exists
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
@@ -56,17 +52,21 @@ const saveBase64Image = async (dataUrl, filename) => {
 
   return filePath;
 };
-router.post('/products/add-product', upload.array('productImages', 5),adminController.postAddProduct );
+router.post('/add-product', upload.array('productImages', 5), adminController.postAddProduct);
 
 // Helper function to generate a unique filename
 const generateUniqueFilename = () => {
-  return `${Date.now()}-${Math.round(Math.random() * 1E9)}`;
+  return `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
 };
-router.post('/products/unlist-product/:id',adminController.postUnlist)
-router.post('/products/list-product/:id',adminController.postList)
+router.post('/unlist-product/:id', adminController.postUnlist);
+router.post('/list-product/:id', adminController.postList);
 
-router.get('/products/edit/:id',adminController.getProductEdit)
-router.patch('/products/edit-product/:id', upload.array('productImages', 5), adminController.patchProductEdit);
+router.get('/edit/:id', adminController.getProductEdit);
+router.patch(
+  '/edit-product/:id',
+  upload.array('productImages', 5),
+  adminController.patchProductEdit
+);
 
 // delete image
 router.delete('/delete-image/:productId/:imageId', async (req, res) => {
@@ -74,16 +74,16 @@ router.delete('/delete-image/:productId/:imageId', async (req, res) => {
   const imageId = req.params.imageId;
 
   try {
-      // Remove the image with the specified ID from the specified product's images array
-      await Product.updateOne(
-          { _id: productId },
-          { $pull: { images: { id: imageId } } } // Remove the image by its ID
-      );
+    // Remove the image with the specified ID from the specified product's images array
+    await Product.updateOne(
+      { _id: productId },
+      { $pull: { images: { id: imageId } } } // Remove the image by its ID
+    );
 
-      res.status(200).send({ message: 'Image deleted successfully' });
+    res.status(200).send({ message: 'Image deleted successfully' });
   } catch (error) {
-      console.error(error);
-      res.status(500).send({ message: 'Error deleting image' });
+    console.error(error);
+    res.status(500).send({ message: 'Error deleting image' });
   }
 });
-module.exports=router;
+module.exports = router;

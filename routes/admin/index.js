@@ -11,12 +11,12 @@ const adminOffersRouter = require('./admin.offers.routes');
 const adminOrdersRouter = require('./admin.orders.routes');
 const adminProductRouter = require('./admin.product.routes');
 
-router.use('/banner', adminBannerRouter);
+router.use('/banners', adminBannerRouter);
 router.use('/category', adminCategoryRouter);
 router.use('/coupon', admincouponRouter);
 router.use('/customers', adminCustomerRouter);
-router.use('/dashboard', adminDashboardRouter);
+router.use('/', adminDashboardRouter);
 router.use('/inventory', adminInventoryRouter);
 router.use('/offers', adminOffersRouter);
 router.use('/orders', adminOrdersRouter);
-router.use('/product', adminProductRouter);
+router.use('/products', adminProductRouter);
