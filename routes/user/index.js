@@ -9,7 +9,8 @@ const userPaymentRouter = require('./user.payment.routes');
 const userProfileRouter = require('./user.profile.routes');
 const userReviewRouter = require('./user.review.routes');
 const userWishlistRouter = require('./user.wishlist.routes');
-
+const userRouter = require('./user.routes');
+router.use('/', userRouter);
 router.use('/user/address', userAddressRouter);
 router.use('/cart', userCartRouter);
 router.use('/checkout', userCheckoutRouter);

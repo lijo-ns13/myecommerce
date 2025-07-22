@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const { jwtAuth, userProtected } = require('../middlewares/auth');
+const { jwtAuth, userProtected } = require('../../middlewares/auth');
 const reviewController = require('../../controllers/user/user.review.controller');
 
 router.use(jwtAuth, userProtected);

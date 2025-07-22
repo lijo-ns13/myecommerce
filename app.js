@@ -27,7 +27,7 @@ const googleauthRouter = require('./routes/googleauthRouter');
 // const wishlistRouter=require('./routes/wishlistRouter')
 // const checkoutRouter=require('./routes/checkoutRouter')
 // const orderRouter=require('./routes/orderRouter')
-// const allRouter=require('./routes/all')
+const allRouter = require('./routes/all');
 // const reviewRouter=require('./routes/reviewRouter')
 // const paymentRouter=require('./routes/paymentRouter')
 
@@ -80,7 +80,7 @@ app.get(
 
 app.use(googleauthRouter);
 
-app.use('/', userRouter);
+// app.use('/', userRouter);
 app.use('/auth', authRouter);
 app.use('/admin', adminRouter);
 app.use('/', userRouter);

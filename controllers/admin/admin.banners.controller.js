@@ -1,7 +1,7 @@
 const path = require('path');
 const Banner = require('../../models/bannerSchema');
 
-const getBanners = async (req, res) => {
+const getBanners = async (_req, res) => {
   try {
     const banners = await Banner.find({});
     res.render('admin/banner', { banners });

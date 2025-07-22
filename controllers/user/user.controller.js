@@ -1,12 +1,10 @@
-const express = require('express');
-const userModel = require('../../models/userSchema');
 const Products = require('../../models/productSchema');
 const Product = require('../../models/productSchema');
 const Category = require('../../models/categorySchema');
 const Cart = require('../../models/cartSchema');
 const User = require('../../models/userSchema');
 
-const { getProductsWithOffers } = require('../services/productService');
+const { getProductsWithOffers } = require('../../services/productService');
 
 const getLand = async (req, res) => {
   const products = await Products.find({ isListed: true }).limit(6);

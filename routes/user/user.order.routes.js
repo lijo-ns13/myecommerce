@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { jwtAuth, userProtected } = require('../middlewares/auth');
+const { jwtAuth, userProtected } = require('../../middlewares/auth');
 const orderController = require('../../controllers/user/user.order.controller');
 router.use(jwtAuth, userProtected);
 

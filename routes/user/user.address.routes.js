@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { jwtAuth, userProtected } = require('../middlewares/auth');
+const { jwtAuth, userProtected } = require('../../middlewares/auth');
 const addressController = require('../../controllers/user/user.address.controller');
 router.use(jwtAuth, userProtected);
 router.get('/', addressController.getAddress);

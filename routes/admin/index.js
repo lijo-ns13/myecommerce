@@ -20,3 +20,5 @@ router.use('/inventory', adminInventoryRouter);
 router.use('/offers', adminOffersRouter);
 router.use('/orders', adminOrdersRouter);
 router.use('/products', adminProductRouter);
+
+module.exports = router;

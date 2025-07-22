@@ -7,24 +7,12 @@ router.use(express.urlencoded({ extended: true }));
 router.use(methodOverride('_method'));
 router.use(jwtAuth, adminProtected);
 
-// getSalesGraph,
-//   getOrdersCount,
-//   getOrdersStats,
-//   getDashboard,
-//   getSalesReport,
-//   getSalesReportPDF,
-
 router.get('/sales/graph', adminDashboardController.getSalesGraph);
-
 router.get('/orders/counts', adminDashboardController.getOrdersCount);
-
 router.get('/orders/stats', adminDashboardController.getOrdersCount);
 // router.get('/dashboard',adminController.getDashboard)
 router.get('/dashboard', adminDashboardController.getDashboard);
-
-// Route to get daily sales report
 router.get('/sales/report', adminDashboardController.getSalesGraph);
-
 router.get('/sales/report/pdf', adminDashboardController.getSalesReportPDF);
 
 module.exports = router;

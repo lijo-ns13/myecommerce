@@ -1,8 +1,8 @@
 const express = require('express');
-const path = require('path');
 const methodOverride = require('method-override');
 const { jwtAuth, adminProtected } = require('../../middlewares/auth');
 const adminController = require('../../controllers/admin/admin.customer.controller');
+
 const router = express.Router();
 router.use(express.urlencoded({ extended: true })); // To parse form data
 router.use(methodOverride('_method'));
