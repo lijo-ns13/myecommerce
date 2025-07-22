@@ -13,7 +13,7 @@ const adminProductRouter = require('./admin.product.routes');
 
 router.use('/banners', adminBannerRouter);
 router.use('/category', adminCategoryRouter);
-router.use('/coupon', admincouponRouter);
+router.use('/', admincouponRouter);
 router.use('/customers', adminCustomerRouter);
 router.use('/', adminDashboardRouter);
 router.use('/inventory', adminInventoryRouter);
