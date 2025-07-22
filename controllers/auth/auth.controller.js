@@ -1,19 +1,26 @@
+require('dotenv').config();
 const userModel = require('../../models/userSchema');
 const JWT = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 
-let transporter = nodemailer.createTransport({
+console.log(
+  'nodemailusermail',
+  process.env.NODEMAILER_USEREMAIL,
+  'pass',
+  process.env.NODEMAILER_USERPASS
+);
+const transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com',
-  port: 465, // or use 587 for TLS (with secure: false)
-  secure: true, // true for 465, false for 587
-  service: 'Gmail',
+  port: 465,
+  secure: true,
   auth: {
-    user: 'lijons13@gmail.com', // Your email
-    pass: process.env.nodemailerPass, // Your email password or an app-specific password
+    user: process.env.NODEMAILER_USEREMAIL,
+    pass: process.env.NODEMAILER_USERPASS,
   },
 });
+
 let otp;
 let otpExpirationTime;
 let oremail;
@@ -112,24 +119,25 @@ const postSignup = async (req, res) => {
     console.log(otp);
     otpExpirationTime = Date.now() + 1 * 60 * 1000;
     const mailOptions = {
+      from: process.env.NODEMAILER_USEREMAIL,
       to: email,
-      subject: 'OTP for registration',
-      html: `<h3>OTP for account verification is</h3><h1 style='font-weight:bold;'>${otp}</h1>`,
+      subject: 'OTP for Registration',
+      html: `<h3>OTP for account verification:</h3><h1 style="font-weight:bold;">${otp}</h1>`,
     };
 
-    transporter.sendMail(mailOptions, (error) => {
-      if (error) {
-        console.log(error);
+    transporter
+      .sendMail(mailOptions)
+      .then((info) => {
+        console.log('OTP email sent:', info.response);
+        return res.status(200).json({ success: true, message: 'OTP sent successfully' });
+      })
+      .catch((error) => {
+        console.error('Error sending OTP:', error);
         return res.status(500).json({ success: false, message: 'Failed to send OTP' });
-      }
-      // res.status(200).render('otp', { msg: '' });
-      return res.status(200).json({ success: true, message: 'otp sent successfull' });
-    });
+      });
   } catch (error) {
-    if (error.code === 11000) {
-      return res.status(400).json({ success: false, message: 'Email already exists' });
-    }
-    res.status(500).json({ success: false, message: error.message });
+    console.error('Signup error:', error);
+    return res.status(500).json({ success: false, message: 'Something went wrong' });
   }
 };
 
@@ -155,16 +163,6 @@ const postForgotpassword = async (req, res) => {
   let messageone = `copy this url ${myUrl}`;
 
   try {
-    let transporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
-      port: 465, // or use 587 for TLS (with secure: false)
-      secure: true, // true for 465, false for 587
-      service: 'Gmail',
-      auth: {
-        user: 'lijons13@gmail.com', // your Gmail address
-        pass: 'cbyb zggu etpz yhsu', // your generated app password
-      },
-    });
     const message = {
       from: 'lijons13@gmail.com', // sender address
       to: user.email, // list of receivers
