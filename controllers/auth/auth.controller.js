@@ -4,13 +4,8 @@ const JWT = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
+const httpStatusCodes = require('../../constants/httpStatusCodes');
 
-console.log(
-  'nodemailusermail',
-  process.env.NODEMAILER_USEREMAIL,
-  'pass',
-  process.env.NODEMAILER_USERPASS
-);
 const transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com',
   port: 465,
@@ -33,22 +28,28 @@ const postSignin = async (req, res) => {
   try {
     const { email, password } = req.body;
     if (!email || !password) {
-      return res.status(400).json({ success: false, message: 'Please fill in all fields' });
+      return res
+        .status(httpStatusCodes.BAD_REQUEST)
+        .json({ success: false, message: 'Please fill in all fields' });
     }
     const regex =
       /^(("[\w-\s]+")|([\w-]+(?:\.[\w-]+)*)|("[\w-\s]+")([\w-]+(?:\.[\w-]+)*))(@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$)|(@\[?((25[0-5]\.|2[0-4][0-9]\.|1[0-9]{2}\.|[0-9]{1,2}\.))((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\.){2}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\]?$)/i;
     let result = regex.test(email);
     if (!result) {
-      return res.status(400).json({ success: false, message: 'Invalid email' });
+      return res
+        .status(httpStatusCodes.BAD_REQUEST)
+        .json({ success: false, message: 'Invalid email' });
     }
     const user = await userModel.findOne({ email }).select('+password +isBlocked');
 
     if (user.isBlocked) {
-      return res.status(400).json({ success: false, message: 'Your account temporary blocked' });
+      return res
+        .status(httpStatusCodes.BAD_REQUEST)
+        .json({ success: false, message: 'Your account temporary blocked' });
     }
     if (!user || !(await bcrypt.compare(password, user.password))) {
       return res
-        .status(400)
+        .status(httpStatusCodes.BAD_REQUEST)
         .json({ success: false, message: 'User not found or password not matching' });
     }
 
@@ -68,7 +69,9 @@ const postSignin = async (req, res) => {
     console.log('login');
     res.json({ success: true, message: 'login successful', role: user.role });
   } catch (error) {
-    return res.status(400).json({ success: false, message: 'please provide valid credentials' });
+    return res
+      .status(httpStatusCodes.BAD_REQUEST)
+      .json({ success: false, message: 'please provide valid credentials' });
   }
 };
 
@@ -82,29 +85,39 @@ const postSignup = async (req, res) => {
     oremail = email;
 
     if (!name || !email || !password || !confirmPassword) {
-      return res.status(400).json({ success: false, message: 'Please fill in all fields' });
+      return res
+        .status(httpStatusCodes.BAD_REQUEST)
+        .json({ success: false, message: 'Please fill in all fields' });
     }
     if (!name.length >= 4) {
       return res
-        .status(400)
+        .status(httpStatusCodes.BAD_REQUEST)
         .json({ success: false, message: 'atleast 4 characters required for name' });
     }
     if (password !== confirmPassword) {
-      return res.status(400).json({ success: false, message: 'Passwords do not match' });
+      return res
+        .status(httpStatusCodes.BAD_REQUEST)
+        .json({ success: false, message: 'Passwords do not match' });
     }
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!regex.test(email)) {
-      return res.status(400).json({ success: false, message: 'Invalid email' });
+      return res
+        .status(httpStatusCodes.BAD_REQUEST)
+        .json({ success: false, message: 'Invalid email' });
     }
 
     const validUsername = /^[A-Za-z\s'-]{2,50}$/;
     if (!validUsername.test(name)) {
-      return res.status(400).json({ success: false, message: 'Invalid name' });
+      return res
+        .status(httpStatusCodes.BAD_REQUEST)
+        .json({ success: false, message: 'Invalid name' });
     }
 
     const existingUser = await userModel.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({ success: false, message: 'Email already exists' });
+      return res
+        .status(httpStatusCodes.BAD_REQUEST)
+        .json({ success: false, message: 'Email already exists' });
     }
     // res.status(200).json({success:true})
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -129,15 +142,21 @@ const postSignup = async (req, res) => {
       .sendMail(mailOptions)
       .then((info) => {
         console.log('OTP email sent:', info.response);
-        return res.status(200).json({ success: true, message: 'OTP sent successfully' });
+        return res
+          .status(httpStatusCodes.OK)
+          .json({ success: true, message: 'OTP sent successfully' });
       })
       .catch((error) => {
         console.error('Error sending OTP:', error);
-        return res.status(500).json({ success: false, message: 'Failed to send OTP' });
+        return res
+          .status(httpStatusCodes.INTERNAL_SERVER_ERROR)
+          .json({ success: false, message: 'Failed to send OTP' });
       });
   } catch (error) {
     console.error('Signup error:', error);
-    return res.status(500).json({ success: false, message: 'Something went wrong' });
+    return res
+      .status(httpStatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: 'Something went wrong' });
   }
 };
 
@@ -148,12 +167,16 @@ const postForgotpassword = async (req, res) => {
   const { email } = req.body;
   const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!regex.test(email)) {
-    return res.status(400).json({ success: false, message: 'Invalid email' });
+    return res
+      .status(httpStatusCodes.BAD_REQUEST)
+      .json({ success: false, message: 'Invalid email' });
   }
 
   const user = await userModel.findOne({ email });
   if (!user) {
-    return res.status(400).json({ success: false, message: 'User not found' });
+    return res
+      .status(httpStatusCodes.BAD_REQUEST)
+      .json({ success: false, message: 'User not found' });
   }
   const forgotToken = user.getForgotPasswordToken();
   await user.save({ validateBeforeSave: false });
@@ -170,12 +193,12 @@ const postForgotpassword = async (req, res) => {
       text: messageone,
     };
     await transporter.sendMail(message);
-    res.status(200).json({ success: true, message: 'email send successful' });
+    res.status(httpStatusCodes.OK).json({ success: true, message: 'email send successful' });
   } catch (error) {
     user.forgotPasswordToken = undefined;
     user.forgotPasswordExpiry = undefined;
     await user.save({ validateBeforeSave: false });
-    res.status(400).json({ success: false, message: error.message });
+    res.status(httpStatusCodes.BAD_REQUEST).json({ success: false, message: error.message });
   }
 };
 
@@ -199,20 +222,24 @@ const postPasswordreset = async (req, res) => {
 
     console.log(user);
     if (!user) {
-      return res.status(400).json({ success: false, message: 'Invalid token or expired' });
+      return res
+        .status(httpStatusCodes.BAD_REQUEST)
+        .json({ success: false, message: 'Invalid token or expired' });
     }
     if (req.body.password !== req.body.confirmPassword) {
       return res
-        .status(400)
+        .status(httpStatusCodes.BAD_REQUEST)
         .json({ success: false, message: 'password and confirm password not same' });
     }
     user.forgotPasswordExpiry = undefined;
     user.forgotPasswordToken = undefined;
     user.password = req.body.password;
     await user.save();
-    res.status(200).json({ success: true, message: 'Password changed successfully' });
+    res
+      .status(httpStatusCodes.OK)
+      .json({ success: true, message: 'Password changed successfully' });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    res.status(httpStatusCodes.BAD_REQUEST).json({ success: false, message: error.message });
   }
 };
 
@@ -233,12 +260,14 @@ const postResend = async (req, res) => {
     transporter.sendMail(mailOptions, (error) => {
       if (error) {
         console.log(error);
-        return res.status(500).json({ success: false, message: 'Failed to resend OTP' });
+        return res
+          .status(httpStatusCodes.INTERNAL_SERVER_ERROR)
+          .json({ success: false, message: 'Failed to resend OTP' });
       }
-      res.status(200).render('otp');
+      res.status(httpStatusCodes.OK).render('otp');
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Failure' });
+    res.status(httpStatusCodes.INTERNAL_SERVER_ERROR).json({ success: false, message: 'Failure' });
   }
 };
 const postVerify = async (req, res) => {
@@ -247,15 +276,19 @@ const postVerify = async (req, res) => {
   console.log('provided', providedOtp);
   if (providedOtp == otp) {
     if (Date.now() > otpExpirationTime) {
-      return res.status(400).json({ success: false, message: 'otp expired' });
+      return res
+        .status(httpStatusCodes.BAD_REQUEST)
+        .json({ success: false, message: 'otp expired' });
     }
 
     const userInfo = new userModel(temperaluserData);
     await userInfo.save();
 
-    res.status(200).json({ success: true, message: 'You have been successfully registered' });
+    res
+      .status(httpStatusCodes.OK)
+      .json({ success: true, message: 'You have been successfully registered' });
   } else {
-    res.status(400).json({ success: false, message: 'otp is incorrect' });
+    res.status(httpStatusCodes.BAD_REQUEST).json({ success: false, message: 'otp is incorrect' });
   }
 };
 const getLogout = (_req, res) => {

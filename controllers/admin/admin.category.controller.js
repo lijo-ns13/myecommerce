@@ -1,4 +1,5 @@
 const Category = require('../../models/categorySchema');
+const httpStatusCodes = require('../../constants/httpStatusCodes');
 const getCategory = async (req, res) => {
   const categories = await Category.find();
 
@@ -13,10 +14,10 @@ const patchCategoryUpdate = async (req, res) => {
   const categoryId = req.params.id;
   const category = await Category.findByIdAndUpdate(categoryId, req.body, { new: true });
   if (!category) {
-    return res.status(404).send({ message: 'Category not found' });
+    return res.status(httpStatusCodes.NOT_FOUND).send({ message: 'Category not found' });
   }
   res
-    .status(200)
+    .status(httpStatusCodes.OK)
     .json({ success: true, message: 'Category updated successfully', category: category });
 };
 // const deleteCategoryDelete=async(req,res)=>{
@@ -38,7 +39,9 @@ const postCategoryBlock = async (req, res) => {
     const categoryId = req.params.id;
     const category = await Category.findById({ _id: categoryId });
     if (!category) {
-      return res.status(400).json({ success: false, message: 'Category not found' });
+      return res
+        .status(httpStatusCodes.BAD_REQUEST)
+        .json({ success: false, message: 'Category not found' });
     }
     const upCategory = await Category.findByIdAndUpdate(
       categoryId,
@@ -47,14 +50,14 @@ const postCategoryBlock = async (req, res) => {
     );
     if (!upCategory) {
       return res
-        .status(400)
+        .status(httpStatusCodes.BAD_REQUEST)
         .json({ success: false, message: 'not updating and not find categoryId' });
     }
-    res.status(200).json({ success: true, message: 'Category is Blocked' });
+    res.status(httpStatusCodes.OK).json({ success: true, message: 'Category is Blocked' });
     // res.status(200).redirect('/admin/category')
   } catch (error) {
     console.log('Error from category Block', error.message);
-    res.status(400).json({ success: false, message: error.message });
+    res.status(httpStatusCodes.BAD_REQUEST).json({ success: false, message: error.message });
   }
 };
 const postCategoryUnblock = async (req, res) => {
@@ -62,7 +65,9 @@ const postCategoryUnblock = async (req, res) => {
     const categoryId = req.params.id;
     const category = await Category.findById({ _id: categoryId });
     if (!category) {
-      return res.status(400).json({ success: false, message: 'Category not found' });
+      return res
+        .status(httpStatusCodes.BAD_REQUEST)
+        .json({ success: false, message: 'Category not found' });
     }
     const upCategory = await Category.findByIdAndUpdate(
       categoryId,
@@ -71,14 +76,14 @@ const postCategoryUnblock = async (req, res) => {
     );
     if (!upCategory) {
       return res
-        .status(400)
+        .status(httpStatusCodes.BAD_REQUEST)
         .json({ success: false, message: 'not updating and not find categoryId' });
     }
-    res.status(200).json({ success: true, message: 'Category is Unblocked' });
+    res.status(httpStatusCodes.OK).json({ success: true, message: 'Category is Unblocked' });
     // res.status(200).redirect('/admin/category')
   } catch (error) {
     console.log('Error from category Block', error.message);
-    res.status(400).json({ success: false, message: error.message });
+    res.status(httpStatusCodes.BAD_REQUEST).json({ success: false, message: error.message });
   }
 };
 const getAddCategory = (req, res) => {
@@ -89,18 +94,22 @@ const postAddCategory = async (req, res) => {
     const { name, description } = req.body;
     if (!name || !description) {
       return res
-        .status(400)
+        .status(httpStatusCodes.BAD_REQUEST)
         .json({ success: false, message: 'category and description are required' });
     }
     const categoryExist = await Category.findOne({ name });
     if (categoryExist) {
-      return res.status(400).json({ success: false, message: 'category already exist' });
+      return res
+        .status(httpStatusCodes.BAD_REQUEST)
+        .json({ success: false, message: 'category already exist' });
     }
     const newCategory = new Category(req.body);
     await newCategory.save();
-    res.status(200).json({ success: true, message: 'Category added successfully' });
+    res
+      .status(httpStatusCodes.CREATED)
+      .json({ success: true, message: 'Category added successfully' });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    res.status(httpStatusCodes.BAD_REQUEST).json({ success: false, message: error.message });
   }
 };
 module.exports = {

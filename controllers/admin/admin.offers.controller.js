@@ -1,7 +1,7 @@
 const Product = require('../../models/productSchema');
 const Offer = require('../../models/offerSchema');
 const Cart = require('../../models/cartSchema');
-
+const httpStatusCodes = require('../../constants/httpStatusCodes');
 // Function to apply offer to products
 async function applyOfferToProducts(products, offer, discountValue, discountType) {
   await Promise.all(
@@ -45,7 +45,9 @@ const getOffers = async (req, res) => {
     const products = await Product.find();
     res.render('adminoffer/offer', { offers, products, currentPath: '/offer' });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res
+      .status(httpStatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: error.message });
   }
 };
 const getAddOffer = async (req, res) => {
@@ -54,7 +56,9 @@ const getAddOffer = async (req, res) => {
     const products = await Product.find({}); // Fetch all products as well
     res.render('adminoffer/addoffer', { categories, products, currentPath: '/offer' }); // Pass products to the template
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res
+      .status(httpStatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: error.message });
   }
 };
 const addOffer = async (req, res) => {
@@ -76,38 +80,54 @@ const addOffer = async (req, res) => {
 
     // Validation checks
     if (!offerName) {
-      return res.status(400).json({ success: false, message: 'OfferName is required' });
+      return res
+        .status(httpStatusCodes.BAD_REQUEST)
+        .json({ success: false, message: 'OfferName is required' });
     }
     if (!offerType) {
-      return res.status(400).json({ success: false, message: 'OfferType is required' });
+      return res
+        .status(httpStatusCodes.BAD_REQUEST)
+        .json({ success: false, message: 'OfferType is required' });
     }
     if (!discountType) {
-      return res.status(400).json({ success: false, message: 'DiscountType is required' });
+      return res
+        .status(httpStatusCodes.BAD_REQUEST)
+        .json({ success: false, message: 'DiscountType is required' });
     }
     if (!discountValue) {
-      return res.status(400).json({ success: false, message: 'DiscountValue is required' });
+      return res
+        .status(httpStatusCodes.BAD_REQUEST)
+        .json({ success: false, message: 'DiscountValue is required' });
     }
     if (!startDate || !endDate) {
-      return res.status(400).json({ success: false, message: 'Start and End Date are required' });
+      return res
+        .status(httpStatusCodes.BAD_REQUEST)
+        .json({ success: false, message: 'Start and End Date are required' });
     }
     if (!offerStatus) {
-      return res.status(400).json({ success: false, message: 'OfferStatus is required' });
+      return res
+        .status(httpStatusCodes.BAD_REQUEST)
+        .json({ success: false, message: 'OfferStatus is required' });
     }
     if (!offerDescription) {
-      return res.status(400).json({ success: false, message: 'OfferDescription is required' });
+      return res
+        .status(httpStatusCodes.BAD_REQUEST)
+        .json({ success: false, message: 'OfferDescription is required' });
     }
 
     const regex = /^[A-Z0-9]+$/;
     if (!regex.test(offerName)) {
       return res
-        .status(400)
+        .status(httpStatusCodes.BAD_REQUEST)
         .json({ success: false, message: 'Only capital letters and numbers are allowed' });
     }
 
     // Check if the offer type is valid
     const validOfferTypes = ['category', 'product'];
     if (!validOfferTypes.includes(offerType)) {
-      return res.status(400).json({ success: false, message: 'Invalid offer type' });
+      return res
+        .status(httpStatusCodes.BAD_REQUEST)
+        .json({ success: false, message: 'Invalid offer type' });
     }
 
     // Validate discount value
@@ -118,7 +138,7 @@ const addOffer = async (req, res) => {
     }
     if (discountValue <= 0) {
       return res
-        .status(400)
+        .status(httpStatusCodes.BAD_REQUEST)
         .json({ success: false, message: 'Discount Value must be greater than 0' });
     }
 
@@ -126,21 +146,27 @@ const addOffer = async (req, res) => {
     const start = new Date(startDate);
     const end = new Date(endDate);
     if (start >= end) {
-      return res.status(400).json({ success: false, message: 'End date must be after start date' });
+      return res
+        .status(httpStatusCodes.BAD_REQUEST)
+        .json({ success: false, message: 'End date must be after start date' });
     }
     if (isNaN(start) || isNaN(end)) {
-      return res.status(400).json({ success: false, message: 'Invalid date format' });
+      return res
+        .status(httpStatusCodes.BAD_REQUEST)
+        .json({ success: false, message: 'Invalid date format' });
     }
 
     const validStatuses = ['active', 'inactive'];
     if (!validStatuses.includes(offerStatus)) {
-      return res.status(400).json({ success: false, message: 'Invalid offer status' });
+      return res
+        .status(httpStatusCodes.BAD_REQUEST)
+        .json({ success: false, message: 'Invalid offer status' });
     }
 
     const existingOffers = await Offer.find({ offerName: offerName });
     if (existingOffers.length > 0) {
       return res
-        .status(400)
+        .status(httpStatusCodes.BAD_REQUEST)
         .json({ success: false, message: 'An offer with this name already exists.' });
     }
 
@@ -159,12 +185,12 @@ const addOffer = async (req, res) => {
     // Validate category or product selection
     if (offerType === 'category' && categoryIds.length === 0) {
       return res
-        .status(400)
+        .status(httpStatusCodes.BAD_REQUEST)
         .json({ success: false, message: 'Please select at least one category' });
     }
     if (offerType === 'product' && productIds.length === 0) {
       return res
-        .status(400)
+        .status(httpStatusCodes.BAD_REQUEST)
         .json({ success: false, message: 'Please select at least one product' });
     }
 
@@ -179,13 +205,11 @@ const addOffer = async (req, res) => {
       offerStatus: 'active',
     });
     if (overlappingOffers.length > 0) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message:
-            'An overlapping offer already exists for the selected category or product during this date range.',
-        });
+      return res.status(httpStatusCodes.BAD_REQUEST).json({
+        success: false,
+        message:
+          'An overlapping offer already exists for the selected category or product during this date range.',
+      });
     }
 
     // Create new offer
@@ -214,10 +238,12 @@ const addOffer = async (req, res) => {
 
     // Save the offer
     await offer.save();
-    res.status(200).json({ success: true, message: 'Offer created successfully' });
+    res
+      .status(httpStatusCodes.CREATED)
+      .json({ success: true, message: 'Offer created successfully' });
   } catch (error) {
     console.log('add offer error', error.message);
-    res.status(400).json({ success: false, message: error.message });
+    res.status(httpStatusCodes.BAD_REQUEST).json({ success: false, message: error.message });
   }
 };
 const getEditOffer = async (req, res) => {
@@ -228,7 +254,9 @@ const getEditOffer = async (req, res) => {
 
     if (!offer) {
       // return res.status(404).render('errorPage', { message: 'Offer not found' }); // Render an error page
-      return res.status(404).json({ success: false, message: 'offer not found' });
+      return res
+        .status(httpStatusCodes.NOT_FOUND)
+        .json({ success: false, message: 'offer not found' });
     }
 
     // Fetch all products and categories to populate the select options
@@ -245,7 +273,9 @@ const getEditOffer = async (req, res) => {
     });
   } catch (error) {
     console.error('Error fetching offer for editing:', error.message);
-    res.status(500).json({ success: false, message: error.message });
+    res
+      .status(httpStatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: error.message });
   }
 };
 const editOffer = async (req, res) => {
@@ -277,24 +307,24 @@ const editOffer = async (req, res) => {
       !offerStatus ||
       !offerDescription
     ) {
-      return res.status(400).json({ success: false, message: 'All fields are required.' });
+      return res
+        .status(httpStatusCodes.BAD_REQUEST)
+        .json({ success: false, message: 'All fields are required.' });
     }
 
     // Offer Name validation
     const regex = /^[A-Z0-9]+$/;
     if (!regex.test(offerName)) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: 'Only capital letters and numbers are allowed for Offer Name.',
-        });
+      return res.status(httpStatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: 'Only capital letters and numbers are allowed for Offer Name.',
+      });
     }
 
     // Discount Value validation
     if (discountValue >= 60 || discountValue <= 0) {
       return res
-        .status(400)
+        .status(httpStatusCodes.BAD_REQUEST)
         .json({ success: false, message: 'Discount Value must be between 1 and 59.' });
     }
 
@@ -302,18 +332,18 @@ const editOffer = async (req, res) => {
     const start = new Date(startDate);
     const end = new Date(endDate);
     if (isNaN(start) || isNaN(end) || start >= end) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: 'Invalid date range: Start date must be before End date.',
-        });
+      return res.status(httpStatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: 'Invalid date range: Start date must be before End date.',
+      });
     }
 
     // Find existing offer
     const existingOffer = await Offer.findById(offerId);
     if (!existingOffer) {
-      return res.status(404).json({ success: false, message: 'Offer not found' });
+      return res
+        .status(httpStatusCodes.NOT_FOUND)
+        .json({ success: false, message: 'Offer not found' });
     }
 
     // Update offer details
@@ -351,10 +381,12 @@ const editOffer = async (req, res) => {
     }
 
     // Redirect or respond with success
-    res.status(200).redirect('/admin/offers'); // Redirecting to offers list after successful edit
+    res.status(httpStatusCodes.OK).redirect('/admin/offers'); // Redirecting to offers list after successful edit
   } catch (error) {
     console.error('Error updating offer:', error.message);
-    res.status(500).json({ success: false, message: error.message });
+    res
+      .status(httpStatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: error.message });
   }
 };
 const deleteOffer = async (req, res) => {
@@ -364,7 +396,9 @@ const deleteOffer = async (req, res) => {
     // Step 1: Find the offer by ID
     const offer = await Offer.findById(offerId);
     if (!offer) {
-      return res.status(404).json({ success: false, message: 'Offer not found' });
+      return res
+        .status(httpStatusCodes.NOT_FOUND)
+        .json({ success: false, message: 'Offer not found' });
     }
 
     // Step 2: Find products associated with the offer
@@ -426,11 +460,13 @@ const deleteOffer = async (req, res) => {
     // Step 6: Delete the offer
     await Offer.findByIdAndDelete(offerId);
 
-    return res.status(200).json({ success: true, message: 'Offer deleted successfully' });
+    return res
+      .status(httpStatusCodes.OK)
+      .json({ success: true, message: 'Offer deleted successfully' });
   } catch (error) {
     console.error('Error deleting offer:', error);
     return res
-      .status(500)
+      .status(httpStatusCodes.INTERNAL_SERVER_ERROR)
       .json({ success: false, message: 'An error occurred while deleting the offer.' });
   }
 };

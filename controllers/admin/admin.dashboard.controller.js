@@ -6,7 +6,7 @@ const User = require('../../models/userSchema');
 const PDFDocument = require('pdfkit');
 const { getDailyOrderCounts } = require('../../services/orderService');
 const SalesReport = require('../../services/salesReport');
-
+const httpStatusCodes = require('../../constants/httpStatusCodes');
 // First, define the getDateRange function
 function getDateRange(type) {
   const now = new Date();
@@ -288,7 +288,7 @@ const getSalesGraph = async (req, res) => {
     res.json(formattedData);
   } catch (error) {
     console.error('Error fetching sales graph data:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(httpStatusCodes.INTERNAL_SERVER_ERROR).json({ error: 'Internal server error' });
   }
 };
 const getOrdersCount = async (req, res) => {
@@ -298,7 +298,7 @@ const getOrdersCount = async (req, res) => {
     // Validate timeUnit
     const validTimeUnits = ['day', 'month', 'year'];
     if (!validTimeUnits.includes(timeUnit)) {
-      return res.status(400).json({ error: 'Invalid time unit' });
+      return res.status(httpStatusCodes.BAD_REQUEST).json({ error: 'Invalid time unit' });
     }
 
     // Validate and parse dates
@@ -307,7 +307,7 @@ const getOrdersCount = async (req, res) => {
       const start = new Date(startDate);
       const end = new Date(endDate);
       if (isNaN(start) || isNaN(end)) {
-        return res.status(400).json({ error: 'Invalid date format' });
+        return res.status(httpStatusCodes.BAD_REQUEST).json({ error: 'Invalid date format' });
       }
       matchStage = {
         $match: {
@@ -357,7 +357,9 @@ const getOrdersCount = async (req, res) => {
     res.json(orderCounts);
   } catch (error) {
     console.error('Error fetching order counts:', error);
-    res.status(500).json({ error: 'Error fetching order counts' });
+    res
+      .status(httpStatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ error: 'Error fetching order counts' });
   }
 };
 const getOrdersStats = async (req, res) => {
@@ -375,7 +377,9 @@ const getOrdersStats = async (req, res) => {
     res.json({ statusCounts: statusCounts });
   } catch (error) {
     console.error('Error fetching order stats:', error); // Log the error for debugging
-    res.status(500).json({ message: 'Error fetching order stats', error });
+    res
+      .status(httpStatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: 'Error fetching order stats', error });
   }
 };
 const getDashboard = async (req, res) => {
@@ -505,7 +509,7 @@ const getDashboard = async (req, res) => {
     });
   } catch (error) {
     console.error('Error fetching orders:', error); // Log the error for debugging
-    res.status(500).send('Internal Server Error'); // Send a response in case of error
+    res.status(httpStatusCodes.INTERNAL_SERVER_ERROR).send('Internal Server Error'); // Send a response in case of error
   }
 };
 const getSalesReport = async (req, res) => {
@@ -530,13 +534,13 @@ const getSalesReport = async (req, res) => {
         salesData = await SalesReport.getCustomSales(startDate, endDate);
         break;
       default:
-        return res.status(400).json({ message: 'Invalid report type' });
+        return res.status(httpStatusCodes.BAD_REQUEST).json({ message: 'Invalid report type' });
     }
 
     res.json(salesData);
   } catch (error) {
     console.error('Error generating sales report:', error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(httpStatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Server error' });
   }
 };
 const getSalesReportPDF = async (req, res) => {
@@ -545,7 +549,7 @@ const getSalesReportPDF = async (req, res) => {
   // Validate that startDate and endDate are present for custom reports
   if (type === 'custom' && (!startDate || !endDate)) {
     return res
-      .status(400)
+      .status(httpStatusCodes.BAD_REQUEST)
       .json({ message: 'Start date and end date are required for custom reports' });
   }
 
@@ -555,7 +559,9 @@ const getSalesReportPDF = async (req, res) => {
 
   // Check if the dates are valid for custom report
   if (type === 'custom' && (isNaN(start.getTime()) || isNaN(end.getTime()))) {
-    return res.status(400).json({ message: 'Invalid start date or end date' });
+    return res
+      .status(httpStatusCodes.BAD_REQUEST)
+      .json({ message: 'Invalid start date or end date' });
   }
 
   try {
@@ -577,7 +583,7 @@ const getSalesReportPDF = async (req, res) => {
         salesData = await SalesReport.getCustomSales(start, end);
         break;
       default:
-        return res.status(400).json({ message: 'Invalid report type' });
+        return res.status(httpStatusCodes.BAD_REQUEST).json({ message: 'Invalid report type' });
     }
 
     // Fetch orders based on report type
@@ -616,7 +622,9 @@ const getSalesReportPDF = async (req, res) => {
     doc.end();
   } catch (error) {
     console.error('Error generating PDF report:', error);
-    res.status(500).json({ message: 'Server error', error: error.message });
+    res
+      .status(httpStatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: 'Server error', error: error.message });
   }
 };
 module.exports = {

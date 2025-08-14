@@ -1,6 +1,6 @@
 const Product = require('../../models/productSchema');
 const Cart = require('../../models/cartSchema');
-
+const httpStatusCodes = require('../../constants/httpStatusCodes');
 const getCart = async (req, res) => {
   try {
     let cart = await Cart.findOne({ userId: req.user._id }).populate('products.productId');
@@ -14,7 +14,7 @@ const getCart = async (req, res) => {
 
     res.render('cart/cart', { cart, cartLength: cartLength });
   } catch (error) {
-    res.status(500).send({ message: error.message });
+    res.status(httpStatusCodes.INTERNAL_SERVER_ERROR).send({ message: error.message });
   }
 };
 const postAddCart = async (req, res) => {
@@ -23,21 +23,29 @@ const postAddCart = async (req, res) => {
     const maxQuantity = 5; // Maximum quantity allowed per product
     console.log('productId', productId, 'size', size);
     if (!req.user || req.user.role !== 'user') {
-      return res.status(401).json({ success: false, message: 'Unauthorized' });
+      return res
+        .status(httpStatusCodes.UNAUTHORIZED)
+        .json({ success: false, message: 'Unauthorized' });
     }
     if (!productId || !size) {
-      return res.status(400).json({ success: false, message: 'Product ID and size are required' });
+      return res
+        .status(httpStatusCodes.BAD_REQUEST)
+        .json({ success: false, message: 'Product ID and size are required' });
     }
 
     const product = await Product.findById(productId);
     if (!product) {
-      return res.status(404).json({ success: false, message: 'Product not found' });
+      return res
+        .status(httpStatusCodes.NOT_FOUND)
+        .json({ success: false, message: 'Product not found' });
     }
 
     // Find the size details for the product
     const sizeDetails = product.sizes.find((s) => s.size === parseInt(size));
     if (!sizeDetails) {
-      return res.status(404).json({ success: false, message: 'Size not found' });
+      return res
+        .status(httpStatusCodes.NOT_FOUND)
+        .json({ success: false, message: 'Size not found' });
     }
 
     let cart = await Cart.findOne({ userId: req.user._id });
@@ -53,13 +61,13 @@ const postAddCart = async (req, res) => {
       // Check if the existing item’s quantity is less than the max allowed
       if (existingItem.quantity >= maxQuantity) {
         return res
-          .status(403)
+          .status(httpStatusCodes.FORBIDDEN)
           .json({ success: false, message: 'Maximum quantity of 5 for this product reached' });
       }
       // Check if adding one more exceeds the available stock
       if (existingItem.quantity + 1 > sizeDetails.stock) {
         return res
-          .status(403)
+          .status(httpStatusCodes.FORBIDDEN)
           .json({ success: false, message: 'Not enough stock available to increase quantity' });
       }
       existingItem.quantity += 1; // Increment quantity by 1
@@ -67,7 +75,7 @@ const postAddCart = async (req, res) => {
       // Check if the stock is sufficient for adding 1 product
       if (sizeDetails.stock <= 0) {
         return res
-          .status(403)
+          .status(httpStatusCodes.FORBIDDEN)
           .json({ success: false, message: 'No stock available for this size' });
       }
       // Add the new item with quantity of 1
@@ -75,10 +83,12 @@ const postAddCart = async (req, res) => {
     }
 
     await cart.save();
-    res.status(200).json({ success: true, message: 'Product added to cart' });
+    res.status(httpStatusCodes.OK).json({ success: true, message: 'Product added to cart' });
   } catch (error) {
     console.error('Error adding product to cart:', error);
-    res.status(500).json({ success: false, message: 'Server error' });
+    res
+      .status(httpStatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: 'Server error' });
   }
 };
 const postDeleteCart = async (req, res) => {
@@ -87,7 +97,7 @@ const postDeleteCart = async (req, res) => {
     const productId = req.params.id;
     const cart = await Cart.findOne({ userId: req.user._id });
     if (!cart) {
-      return res.status(404).send({ message: 'Cart not found' });
+      return res.status(httpStatusCodes.NOT_FOUND).send({ message: 'Cart not found' });
     }
     console.log(productSize, 'productsize');
     const productIndex = cart.products.findIndex(
@@ -97,17 +107,17 @@ const postDeleteCart = async (req, res) => {
 
     // Correct the condition to check for `-1` when the product is not found
     if (productIndex === -1) {
-      return res.status(404).send({ message: 'Product not found in cart' });
+      return res.status(httpStatusCodes.NOT_FOUND).send({ message: 'Product not found in cart' });
     }
 
     cart.products.splice(productIndex, 1);
     await cart.save();
 
     // Redirect to the cart page after successful deletion
-    res.status(200).redirect('/cart');
+    res.status(httpStatusCodes.OK).redirect('/cart');
   } catch (error) {
     // Handle error properly
-    res.status(500).send({ message: 'Server error', error });
+    res.status(httpStatusCodes.INTERNAL_SERVER_ERROR).send({ message: 'Server error', error });
   }
 };
 
@@ -120,7 +130,9 @@ const postUpdateQuantity = async (req, res) => {
     // Find the active cart for the user
     const cart = await Cart.findOne({ userId: req.user._id, status: 'active' });
     if (!cart) {
-      return res.status(404).json({ success: false, message: 'Cart not found' });
+      return res
+        .status(httpStatusCodes.NOT_FOUND)
+        .json({ success: false, message: 'Cart not found' });
     }
 
     // Find the product in the cart
@@ -128,48 +140,62 @@ const postUpdateQuantity = async (req, res) => {
       (p) => p.productId.toString() === productId && p.size.toString() === size.toString()
     );
     if (!product) {
-      return res.status(404).json({ success: false, message: 'Product not found in cart' });
+      return res
+        .status(httpStatusCodes.NOT_FOUND)
+        .json({ success: false, message: 'Product not found in cart' });
     }
 
     // Find the product details
     const productDetails = await Product.findById(productId);
     if (!productDetails) {
-      return res.status(404).json({ success: false, message: 'Product not found' });
+      return res
+        .status(httpStatusCodes.NOT_FOUND)
+        .json({ success: false, message: 'Product not found' });
     }
 
     // Find the size details for the product
     const sizeDetails = productDetails.sizes.find((s) => s.size === parseInt(size));
     if (!sizeDetails) {
-      return res.status(404).json({ success: false, message: 'Size not found' });
+      return res
+        .status(httpStatusCodes.NOT_FOUND)
+        .json({ success: false, message: 'Size not found' });
     }
 
     // Check stock availability and enforce quantity limits
     if (action === 'increase') {
       if (product.quantity >= maxQuantity) {
-        return res.status(400).json({
+        return res.status(httpStatusCodes.BAD_REQUEST).json({
           success: false,
           message: `Cannot add more than ${maxQuantity} units of this product`,
         });
       }
       if (product.quantity + 1 > sizeDetails.stock) {
-        return res.status(400).json({ success: false, message: 'Not enough stock available' });
+        return res
+          .status(httpStatusCodes.BAD_REQUEST)
+          .json({ success: false, message: 'Not enough stock available' });
       }
       product.quantity += 1;
     } else if (action === 'decrease') {
       if (product.quantity <= 1) {
-        return res.status(400).json({ success: false, message: 'Cannot reduce quantity below 1' });
+        return res
+          .status(httpStatusCodes.BAD_REQUEST)
+          .json({ success: false, message: 'Cannot reduce quantity below 1' });
       }
       product.quantity -= 1;
     } else {
-      return res.status(400).json({ success: false, message: 'Invalid action' });
+      return res
+        .status(httpStatusCodes.BAD_REQUEST)
+        .json({ success: false, message: 'Invalid action' });
     }
 
     // Save the updated cart
     await cart.save();
-    res.status(200).json({ success: true, message: 'Quantity updated' });
+    res.status(httpStatusCodes.OK).json({ success: true, message: 'Quantity updated' });
   } catch (error) {
     console.error('Error updating quantity:', error);
-    res.status(500).json({ success: false, message: 'Server error' });
+    res
+      .status(httpStatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: 'Server error' });
   }
 };
 

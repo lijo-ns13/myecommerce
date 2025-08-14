@@ -2,6 +2,7 @@ const Product = require('../../models/productSchema');
 const Order = require('../../models/orderSchema');
 const crypto = require('crypto');
 const Razorpay = require('razorpay');
+const httpStatusCodes = require('../../constants/httpStatusCodes');
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
   key_secret: process.env.RAZORPAY_KEY_SECRET,
@@ -25,7 +26,9 @@ const verifyPayment = async (req, res) => {
     return res.json({ success: true });
   } else {
     console.error('Payment verification failed for orderId:', orderId, signature);
-    return res.status(400).json({ success: false, message: 'Payment verification failed' });
+    return res
+      .status(httpStatusCodes.BAD_REQUEST)
+      .json({ success: false, message: 'Payment verification failed' });
   }
 };
 const updateOrderStatus = async (req, res) => {
@@ -36,7 +39,9 @@ const updateOrderStatus = async (req, res) => {
     const order = await Order.findById(orderId); // Assuming products is an array of { productId, quantity, size }
 
     if (!order) {
-      return res.status(404).json({ success: false, message: 'Order not found' });
+      return res
+        .status(httpStatusCodes.NOT_FOUND)
+        .json({ success: false, message: 'Order not found' });
     }
 
     // Store product restock info immediately for rollback
@@ -111,7 +116,9 @@ const updateOrderStatus = async (req, res) => {
       })
     );
 
-    return res.status(500).json({ success: false, message: 'Failed to update order status' });
+    return res
+      .status(httpStatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: 'Failed to update order status' });
   }
 };
 const createOrder = async (req, res) => {
@@ -128,14 +135,16 @@ const createOrder = async (req, res) => {
     res.json({ razorpayOrderId: order.id, orderId: orderId });
   } catch (error) {
     console.error(error);
-    res.status(500).send('Error creating order');
+    res.status(httpStatusCodes.INTERNAL_SERVER_ERROR).send('Error creating order');
   }
 };
 const verifyPaymentTwo = async (req, res) => {
   const { razorpay_order_id, razorpay_payment_id, razorpay_signature, order_id } = req.body;
 
   if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
-    return res.status(400).json({ success: false, message: 'Invalid input data.' });
+    return res
+      .status(httpStatusCodes.BAD_REQUEST)
+      .json({ success: false, message: 'Invalid input data.' });
   }
 
   try {
@@ -148,7 +157,7 @@ const verifyPaymentTwo = async (req, res) => {
       const result = await Order.updateOne({ _id: order_id }, { status: 'pending' });
       if (result.modifiedCount === 0) {
         return res
-          .status(404)
+          .status(httpStatusCodes.NOT_FOUND)
           .json({ success: false, message: 'Order not found or status already updated.' });
       }
 
@@ -162,7 +171,7 @@ const verifyPaymentTwo = async (req, res) => {
   } catch (err) {
     console.error('Payment verification error:', err);
     return res
-      .status(500)
+      .status(httpStatusCodes.INTERNAL_SERVER_ERROR)
       .json({ success: false, message: 'Payment verification error. Please try again later.' });
   }
 };

@@ -1,6 +1,6 @@
 const User = require('../../models/userSchema');
 const Address = require('../../models/addressSchema');
-
+const httpStatusCodes = require('../../constants/httpStatusCodes');
 const getAddress = async (req, res) => {
   try {
     console.log('clicked');
@@ -8,16 +8,18 @@ const getAddress = async (req, res) => {
     const user = await User.findById({ _id: req.user._id }).populate('address');
     console.log('user', user);
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(httpStatusCodes.NOT_FOUND).json({ message: 'User not found' });
     }
     console.log('addy', user.address);
-    res.status(200).render('address/address', { user: user });
+    res.status(httpStatusCodes.OK).render('address/address', { user: user });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res
+      .status(httpStatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: error.message });
   }
 };
 const getAddAddress = (req, res) => {
-  res.status(200).render('address/add-address');
+  res.status(httpStatusCodes.OK).render('address/add-address');
 };
 const postAddAddress = async (req, res) => {
   try {
@@ -46,19 +48,23 @@ const postAddAddress = async (req, res) => {
       !trimmedPostalCode ||
       !trimmedCountry
     ) {
-      return res.status(400).json({ success: false, message: 'All fields are required' });
+      return res
+        .status(httpStatusCodes.BAD_REQUEST)
+        .json({ success: false, message: 'All fields are required' });
     }
 
     // Regex for phone number (adjust if necessary)
     const phoneRegex = /^(\+91[\s.-]?)?((\d{5}[\s.-]?\d{5})|\d{10})$/;
     if (!phoneRegex.test(trimmedPhoneNo)) {
-      return res.status(400).json({ success: false, message: 'Invalid phone number' });
+      return res
+        .status(httpStatusCodes.BAD_REQUEST)
+        .json({ success: false, message: 'Invalid phone number' });
     }
 
     // Regex for Indian postal code
     const postalCodeRegex = /^[1-9][0-9]{5}$/; // Must be 6 digits and cannot start with 0
     if (!postalCodeRegex.test(trimmedPostalCode)) {
-      return res.status(400).json({
+      return res.status(httpStatusCodes.BAD_REQUEST).json({
         success: false,
         message: 'Invalid postal code. Must be a 6-digit Indian postal code.',
       });
@@ -66,7 +72,9 @@ const postAddAddress = async (req, res) => {
 
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).json({ success: false, message: 'User not found' });
+      return res
+        .status(httpStatusCodes.NOT_FOUND)
+        .json({ success: false, message: 'User not found' });
     }
 
     const newAddrs = {
@@ -83,9 +91,11 @@ const postAddAddress = async (req, res) => {
     user.address.push(newAddress._id);
     await user.save();
 
-    res.status(200).json({ success: true, message: 'New address added successfully' });
+    res
+      .status(httpStatusCodes.OK)
+      .json({ success: true, message: 'New address added successfully' });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    res.status(httpStatusCodes.BAD_REQUEST).json({ success: false, message: error.message });
   }
 };
 
@@ -94,11 +104,13 @@ const getEditAddress = async (req, res) => {
     const id = req.params.id;
     const address = await Address.findById(id);
     if (!address) {
-      return res.status(404).json({ success: false, message: 'address not found' });
+      return res
+        .status(httpStatusCodes.NOT_FOUND)
+        .json({ success: false, message: 'address not found' });
     }
     res.render('address/edit-address', { address: address });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    res.status(httpStatusCodes.BAD_REQUEST).json({ success: false, message: error.message });
   }
 };
 const patchEditAddress = async (req, res) => {
@@ -120,13 +132,15 @@ const patchEditAddress = async (req, res) => {
     // Fetch the address from the database
     const address = await Address.findById(addressId);
     if (!address) {
-      return res.status(404).json({ success: false, message: 'Address not found' });
+      return res
+        .status(httpStatusCodes.NOT_FOUND)
+        .json({ success: false, message: 'Address not found' });
     }
 
     // Check if the user is authorized to edit this address
     if (address.user.toString() !== userId.toString()) {
       return res
-        .status(403)
+        .status(httpStatusCodes.FORBIDDEN)
         .json({ success: false, message: 'You are not authorized to edit this address' });
     }
 
@@ -139,19 +153,23 @@ const patchEditAddress = async (req, res) => {
       !trimmedPostalCode ||
       !trimmedCountry
     ) {
-      return res.status(400).json({ success: false, message: 'All fields are required' });
+      return res
+        .status(httpStatusCodes.BAD_REQUEST)
+        .json({ success: false, message: 'All fields are required' });
     }
 
     // Regex for phone number (adjust if necessary)
     const phoneRegex = /^(\+91[\s.-]?)?((\d{5}[\s.-]?\d{5})|\d{10})$/;
     if (!phoneRegex.test(trimmedPhoneNo)) {
-      return res.status(400).json({ success: false, message: 'Invalid phone number' });
+      return res
+        .status(httpStatusCodes.BAD_REQUEST)
+        .json({ success: false, message: 'Invalid phone number' });
     }
 
     // Regex for Indian postal code
     const postalCodeRegex = /^[1-9][0-9]{5}$/; // Must be 6 digits and cannot start with 0
     if (!postalCodeRegex.test(trimmedPostalCode)) {
-      return res.status(400).json({
+      return res.status(httpStatusCodes.BAD_REQUEST).json({
         success: false,
         message: 'Invalid postal code. Must be a 6-digit Indian postal code.',
       });
@@ -172,7 +190,7 @@ const patchEditAddress = async (req, res) => {
 
     res.status(200).json({ success: true, message: 'Address successfully updated' });
   } catch (error) {
-    return res.status(400).json({ success: false, message: error.message });
+    return res.status(httpStatusCodes.BAD_REQUEST).json({ success: false, message: error.message });
   }
 };
 
@@ -183,7 +201,9 @@ const deleteAddress = async (req, res) => {
 
     // Validate addressId and userId
     if (!addressId || !userId) {
-      return res.status(400).json({ success: false, message: 'Invalid address ID or user ID' });
+      return res
+        .status(httpStatusCodes.BAD_REQUEST)
+        .json({ success: false, message: 'Invalid address ID or user ID' });
     }
 
     // Find and delete the address
@@ -191,14 +211,16 @@ const deleteAddress = async (req, res) => {
 
     if (!address) {
       return res
-        .status(404)
+        .status(httpStatusCodes.BAD_REQUEST)
         .json({ success: false, message: 'Address not found or does not belong to the user' });
     }
 
-    res.status(200).json({ success: true, message: 'Address successfully deleted' });
+    res.status(httpStatusCodes.OK).json({ success: true, message: 'Address successfully deleted' });
   } catch (error) {
     console.error('Error deleting address:', error); // Log the error for debugging
-    res.status(500).json({ success: false, message: 'Server error' });
+    res
+      .status(httpStatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: 'Server error' });
   }
 };
 

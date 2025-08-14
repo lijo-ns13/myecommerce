@@ -3,7 +3,7 @@ const Order = require('../../models/orderSchema');
 const Product = require('../../models/productSchema');
 const Wallet=require('../../models/walletSchema');
 const User=require('../../models/userSchema');
-
+const httpStatusCodes=require('../../constants/httpStatusCodes')
 const PDFDocument = require('pdfkit');
 const path=require('path')
 const getOrders = async (req, res) => {
@@ -11,7 +11,7 @@ const getOrders = async (req, res) => {
         const userId = req.user._id; 
         const orders=await Order.find({userId:userId});
         if(!orders){
-            return res.status(404).json({success:false,message:"order not found"})
+            return res.status(httpStatusCodes.NOT_FOUND).json({success:false,message:"order not found"})
         }
 
 
@@ -21,7 +21,7 @@ const getOrders = async (req, res) => {
         });
     } catch (err) {
         console.error(err);
-        res.status(500).send('Server Error');
+        res.status(httpStatusCodes.INTERNAL_SERVER_ERROR).send('Server Error');
     }
 };
 
@@ -33,18 +33,18 @@ const postOrderCancel = async (req, res) => {
         
         // Check if order exists
         if (!order) {
-            return res.status(404).json({ success: false, message: 'Order not found' });
+            return res.status(httpStatusCodes.NOT_FOUND).json({ success: false, message: 'Order not found' });
         }
 
         // Check if user is authorized to cancel
         if (order.userId.toString() !== req.user._id.toString()) {
-            return res.status(403).json({ success: false, message: 'Unauthorized' });
+            return res.status(httpStatusCodes.FORBIDDEN).json({ success: false, message: 'Unauthorized' });
         }
 
         // Ensure the order can be cancelled
         const cancellableStatuses = ['pending', 'processing'];
         if (!cancellableStatuses.includes(order.status)) {
-            return res.status(400).json({ success: false, message: 'Order cannot be cancelled' });
+            return res.status(httpStatusCodes.BAD_REQUEST).json({ success: false, message: 'Order cannot be cancelled' });
         }
 
         // Update the order status
@@ -104,14 +104,14 @@ const postOrderCancel = async (req, res) => {
                 user.walletId=newWallet._id;
                 await user.save()
             }
-            return res.status(200).json({ success: true, message: 'Order cancelled successfully and amount credited to wallet' });
+            return res.status(httpStatusCodes.OK).json({ success: true, message: 'Order cancelled successfully and amount credited to wallet' });
         }
         
         
-        res.status(200).json({ success: true, message: 'Order successfully cancelled', updatedProducts });
+        res.status(httpStatusCodes.OK).json({ success: true, message: 'Order successfully cancelled', updatedProducts });
     } catch (error) {
         console.error('Error during cancellation:', error);
-        res.status(400).json({ success: false, message: error.message });
+        res.status(httpStatusCodes.BAD_REQUEST).json({ success: false, message: error.message });
     }
 }
 
@@ -119,7 +119,7 @@ const getOrderDetailed=async(req,res)=>{
     const orderId = req.params.orderId;
     const order = await Order.findById(orderId);
     if (!order) {
-        return res.status(400).json({ success: false, message: 'Order not found' });
+        return res.status(httpStatusCodes.BAD_REQUEST).json({ success: false, message: 'Order not found' });
     }
 
     // Format the delivery date
@@ -133,12 +133,12 @@ const getReturnOrderId=async(req,res)=>{
         const orderId=req.params.orderId;
         const order=await Order.findById(orderId);
         if(!order){
-            return res.status(404).json({success:false,message:'order not found'})
+            return res.status(httpStatusCodes.NOT_FOUND).json({success:false,message:'order not found'})
         }
-        res.status(200).render('return',{order})
+        res.status(httpStatusCodes.OK).render('return',{order})
     } catch (error) {
         console.log('error in get return',error.message);
-        res.status(400).json({success:false,message:error.message})
+        res.status(httpStatusCodes.BAD_REQUEST).json({success:false,message:error.message})
     }
 }
 const postReturnOrderId=async(req,res)=>{
@@ -147,23 +147,23 @@ const postReturnOrderId=async(req,res)=>{
         const {reason}=req.body;
         const order=await Order.findById(orderId);
         if(!reason){
-            return res.status(400).json({success:false,message:'please provide a reason'})
+            return res.status(httpStatusCodes.BAD_REQUEST).json({success:false,message:'please provide a reason'})
         }
         if(!orderId){
-            return res.status(400).json({success:false,message:'order id is required'})
+            return res.status(httpStatusCodes.BAD_REQUEST).json({success:false,message:'order id is required'})
         }
         if(!order){
-            return res.status(400).json({success:false,message:'order not found'})
+            return res.status(httpStatusCodes.BAD_REQUEST).json({success:false,message:'order not found'})
         }
         order.status='pending_return';
         order.returnReason=reason;
         await order.save();
         // res.status(200).json({success:false,message:'order return process started'})\
-        res.status(200).redirect(`/user/orders/${orderId}`)
+        res.status(httpStatusCodes.OK).redirect(`/user/orders/${orderId}`)
 
     } catch (error) {
         console.log('error in post return',error.message);
-        res.status(400).json({success:false,message:error.message})
+        res.status(httpStatusCodes.BAD_REQUEST).json({success:false,message:error.message})
     }
 }
 const generateInvoice = (order,userName) => {
@@ -298,12 +298,12 @@ const getInvoiceDowload=async (req, res) => {
         const userName=user.name;
 
         if (!order) {
-            return res.status(404).json({ success: false, message: 'Order not found' });
+            return res.status(httpStatusCodes.NOT_FOUND).json({ success: false, message: 'Order not found' });
         }
 
         // Optionally check if the user owns the order
         if (order.userId.toString() !== userId.toString()) {
-            return res.status(403).json({ success: false, message: 'Unauthorized to access this invoice' });
+            return res.status(httpStatusCodes.FORBIDDEN).json({ success: false, message: 'Unauthorized to access this invoice' });
         }
 
         // Generate the invoice here
@@ -317,7 +317,7 @@ const getInvoiceDowload=async (req, res) => {
         res.send(invoiceBuffer);
     } catch (error) {
         console.error('Error on downloading invoice:', error);
-        res.status(400).json({ success: false, message: error.message });
+        res.status(httpStatusCodes.BAD_REQUEST).json({ success: false, message: error.message });
     }
 }
 const postCancelSingleProduct=async (req, res) => {
@@ -327,21 +327,21 @@ const postCancelSingleProduct=async (req, res) => {
         // Fetch the order by ID
         const order = await Order.findById(orderId);
         if (!order) {
-            return res.status(404).json({ success: false, message: 'Order not found' });
+            return res.status(httpStatusCodes.NOT_FOUND).json({ success: false, message: 'Order not found' });
         }
         
         // Ensure there are more than one product in the order
         if (order.products.length <= 1) {
-            return res.status(400).json({ success: false, message: 'You can’t cancel a single product in a single item. Please cancel the entire order.' });
+            return res.status(httpStatusCodes.BAD_REQUEST).json({ success: false, message: 'You can’t cancel a single product in a single item. Please cancel the entire order.' });
         }
 
         // Fetch the product being canceled
         const product = await Product.findById(productId);
         if (!product) {
-            return res.status(404).json({ success: false, message: 'Product not found' });
+            return res.status(httpStatusCodes.NOT_FOUND).json({ success: false, message: 'Product not found' });
         }
         if(order.paymentDetails.paymentMethod==='razorpay' || order.paymentDetails.paymentMethod==='wallet'){
-            return res.status(400).json({success:false,message:'You cant cancel this order only after deliver'})
+            return res.status(httpStatusCodes.BAD_REQUEST).json({success:false,message:'You cant cancel this order only after deliver'})
         }
         const productPrice = product.price; // Get the price of the product
         order.originalPrice -= productPrice; // Adjust original price
@@ -388,17 +388,17 @@ const postCancelSingleProduct=async (req, res) => {
                 user.walletBalance += refundAmount; // Add refund amount to user's wallet
                 await user.save(); // Save the updated wallet balance
             } else {
-                return res.status(404).json({ success: false, message: 'User not found for wallet refund' });
+                return res.status(httpStatusCodes.NOT_FOUND).json({ success: false, message: 'User not found for wallet refund' });
             }
         }
 
         // Save the order after all updates
         await order.save();
 
-        res.status(200).json({ success: true, message: 'Successfully cancelled product and processed refund if applicable' });
+        res.status(httpStatusCodes.OK).json({ success: true, message: 'Successfully cancelled product and processed refund if applicable' });
     } catch (error) {
         console.log('Error on cancel single product:', error.message);
-        res.status(400).json({ success: false, message: error.message });
+        res.status(httpStatusCodes.BAD_REQUEST).json({ success: false, message: error.message });
     }
 };
 

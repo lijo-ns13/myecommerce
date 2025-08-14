@@ -1,6 +1,6 @@
 const Review = require('../../models/reviewSchema');
 const Product = require('../../models/productSchema');
-
+const httpStatusCodes = require('../../constants/httpStatusCodes');
 const getAddReview = async (req, res) => {
   try {
     const userId = req.user._id;
@@ -8,14 +8,14 @@ const getAddReview = async (req, res) => {
     const product = await Product.findById(productId);
     if (product.purchasedByUserIds.includes(userId)) {
       // you can add review
-      return res.status(200).render('addreview', { isAccess: true, product });
+      return res.status(httpStatusCodes.OK).render('addreview', { isAccess: true, product });
     } else {
       // you cant review this product because you dont purchase this prdouct
-      return res.status(200).render('addreview', { isAccess: false, product });
+      return res.status(httpStatusCodes.OK).render('addreview', { isAccess: false, product });
     }
   } catch (error) {
     console.log('error in add review page showing ', error.message);
-    res.status(400).json({ success: false, message: error.message });
+    res.status(httpStatusCodes.BAD_REQUEST).json({ success: false, message: error.message });
   }
 };
 const addReview = async (req, res) => {
@@ -25,27 +25,33 @@ const addReview = async (req, res) => {
     const { rating, comment } = req.body;
 
     if (!rating) {
-      return res.status(400).json({ success: false, message: 'Rating is required' });
+      return res
+        .status(httpStatusCodes.BAD_REQUEST)
+        .json({ success: false, message: 'Rating is required' });
     }
     if (!comment) {
-      return res.status(400).json({ success: false, message: 'comment is required' });
+      return res
+        .status(httpStatusCodes.BAD_REQUEST)
+        .json({ success: false, message: 'comment is required' });
     }
     if (comment.length < 10 || comment.length > 500) {
       return res
-        .status(400)
+        .status(httpStatusCodes.BAD_REQUEST)
         .json({ success: false, message: 'Comment length must be between 10 and 500 characters.' });
     }
 
     // Check if product exists
     const product = await Product.findById(productId);
     if (!product) {
-      return res.status(404).json({ success: false, message: 'Product not found.' });
+      return res
+        .status(httpStatusCodes.NOT_FOUND)
+        .json({ success: false, message: 'Product not found.' });
     }
 
     // Check if user has already reviewed the product
     if (product.reviewAddedUserIds.includes(userId)) {
       return res
-        .status(400)
+        .status(httpStatusCodes.BAD_REQUEST)
         .json({ success: false, message: 'You have already added a review for this product.' });
     }
 
@@ -64,10 +70,14 @@ const addReview = async (req, res) => {
     product.reviews.push(newReview._id);
     await product.save();
 
-    return res.status(200).json({ success: true, message: 'Review added successfully.' });
+    return res
+      .status(httpStatusCodes.CREATED)
+      .json({ success: true, message: 'Review added successfully.' });
   } catch (error) {
     console.error('Error in add review:', error.message);
-    res.status(500).json({ success: false, message: error.message });
+    res
+      .status(httpStatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: error.message });
   }
 };
 const getEditReview = async (req, res) => {
@@ -76,14 +86,18 @@ const getEditReview = async (req, res) => {
     const review = await Review.findById(reviewId).populate('user', 'name');
 
     if (!review) {
-      return res.status(404).json({ success: false, message: 'Review not found' });
+      return res
+        .status(httpStatusCodes.NOT_FOUND)
+        .json({ success: false, message: 'Review not found' });
     }
 
     // Render the edit form with the review data
     res.render('editReview', { review });
   } catch (error) {
     console.error('Error fetching review for edit:', error.message);
-    res.status(500).json({ success: false, message: error.message });
+    res
+      .status(httpStatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: error.message });
   }
 };
 const editReview = async (req, res) => {
@@ -100,13 +114,17 @@ const editReview = async (req, res) => {
     );
 
     if (!updatedReview) {
-      return res.status(404).json({ success: false, message: 'Review not found' });
+      return res
+        .status(httpStatusCodes.NOT_FOUND)
+        .json({ success: false, message: 'Review not found' });
     }
 
-    return res.status(200).json({ success: true, message: 'Review updated successfully' });
+    return res
+      .status(httpStatusCodes.OK)
+      .json({ success: true, message: 'Review updated successfully' });
   } catch (error) {
     console.error('Error updating review:', error.message);
-    res.status(400).json({ success: false, message: error.message });
+    res.status(httpStatusCodes.BAD_REQUEST).json({ success: false, message: error.message });
   }
 };
 const deleteReview = async (req, res) => {
@@ -122,16 +140,16 @@ const deleteReview = async (req, res) => {
 
     // Check if review was found
     if (!review) {
-      return res.status(404).json({ message: 'Review not found' });
+      return res.status(httpStatusCodes.NOT_FOUND).json({ message: 'Review not found' });
     }
 
     // Optionally, remove the review from the product's data
     await Product.findByIdAndUpdate(productId, { $pull: { reviews: reviewId } });
     await Product.findByIdAndUpdate(productId, { $pull: { reviewAddedUserIds: userId } });
-    res.status(200).json({ message: 'Review deleted successfully' });
+    res.status(httpStatusCodes.OK).json({ message: 'Review deleted successfully' });
   } catch (error) {
     console.error('Error deleting review:', error);
-    res.status(500).json({ message: 'Error deleting review' });
+    res.status(httpStatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Error deleting review' });
   }
 };
 module.exports = {

@@ -1,4 +1,5 @@
-const Product = require('../../models/productSchema'); // Adjust the path to your Product model
+const Product = require('../../models/productSchema');
+const httpStatusCodes = require('../../constants/httpStatusCodes');
 const getInventory = async (_req, res) => {
   try {
     // Fetch all products
@@ -8,7 +9,7 @@ const getInventory = async (_req, res) => {
     res.render('admininventory/inventory', { products, currentPath: '/inventory' });
   } catch (error) {
     console.error('Error fetching inventory:', error);
-    res.status(500).send('Error fetching inventory');
+    res.status(httpStatusCodes.INTERNAL_SERVER_ERROR).send('Error fetching inventory');
   }
 };
 const postInventoryUpdate = async (req, res) => {
@@ -18,13 +19,17 @@ const postInventoryUpdate = async (req, res) => {
     // Find the product
     const product = await Product.findOne({ _id: productId });
     if (!product) {
-      return res.status(404).json({ success: false, message: 'Product not found' });
+      return res
+        .status(httpStatusCodes.NOT_FOUND)
+        .json({ success: false, message: 'Product not found' });
     }
 
     // Find the size object
     const sizeObj = product.sizes.find((s) => s.size === Number(size));
     if (!sizeObj) {
-      return res.status(404).json({ success: false, message: 'Size not found' });
+      return res
+        .status(httpStatusCodes.NOT_FOUND)
+        .json({ success: false, message: 'Size not found' });
     }
 
     // Update stock
@@ -37,7 +42,7 @@ const postInventoryUpdate = async (req, res) => {
   } catch (error) {
     console.error('Error updating stock:', error);
     res
-      .status(500)
+      .status(httpStatusCodes.INTERNAL_SERVER_ERROR)
       .json({ success: false, message: 'Failed to update stock', error: error.message });
   }
 };

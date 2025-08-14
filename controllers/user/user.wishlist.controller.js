@@ -1,5 +1,5 @@
 const User = require('../../models/userSchema');
-
+const httpStatusCodes = require('../../constants/httpStatusCodes');
 const Product = require('../../models/productSchema'); // Assuming you have a Product model
 
 const getWishlist = async (req, res) => {
@@ -23,7 +23,9 @@ const getWishlist = async (req, res) => {
     res.render('wishlist', { products: productsWithWishlistFlag });
   } catch (error) {
     console.error('Error fetching wishlist:', error);
-    res.status(500).json({ success: false, message: 'Error fetching wishlist.' });
+    res
+      .status(httpStatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: 'Error fetching wishlist.' });
   }
 };
 const postWishlistAdd = async (req, res) => {
@@ -33,7 +35,9 @@ const postWishlistAdd = async (req, res) => {
 
     const user = await User.findById(userId);
     if (user.wishlist.includes(productId)) {
-      return res.status(400).json({ message: 'Product already in wishlist' });
+      return res
+        .status(httpStatusCodes.BAD_REQUEST)
+        .json({ message: 'Product already in wishlist' });
     }
     if (!user.wishlist.includes(productId)) {
       user.wishlist.push(productId);
@@ -43,7 +47,9 @@ const postWishlistAdd = async (req, res) => {
     return res.json({ success: true, message: 'Added to wishlist!' });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ success: false, message: 'Error adding to wishlist.' });
+    return res
+      .status(httpStatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: 'Error adding to wishlist.' });
   }
 };
 const postRemoveWishlist = async (req, res) => {
@@ -58,7 +64,9 @@ const postRemoveWishlist = async (req, res) => {
     return res.json({ success: true, message: 'Removed from wishlist!' });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ success: false, message: 'Error removing from wishlist.' });
+    return res
+      .status(httpStatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: 'Error removing from wishlist.' });
   }
 };
 

@@ -3,7 +3,7 @@ const Product = require('../../models/productSchema');
 const Category = require('../../models/categorySchema');
 const Cart = require('../../models/cartSchema');
 const User = require('../../models/userSchema');
-
+const httpStatusCodes = require('../../constants/httpStatusCodes');
 const { getProductsWithOffers } = require('../../services/productService');
 
 const getLand = async (req, res) => {
@@ -182,7 +182,7 @@ const getFullProducts = async (req, res) => {
     });
   } catch (error) {
     console.error('Error fetching products or categories:', error);
-    res.status(500).send('Internal Server Error');
+    res.status(httpStatusCodes.INTERNAL_SERVER_ERROR).send('Internal Server Error');
   }
 };
 const getOffer = async (req, res) => {

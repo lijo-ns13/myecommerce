@@ -2,7 +2,7 @@ const Product = require('../../models/productSchema'); // Adjust the path to you
 const User = require('../../models/userSchema');
 const Order = require('../../models/orderSchema');
 const Wallet = require('../../models/walletSchema');
-
+const httpStatusCodes = require('../../constants/httpStatusCodes');
 const nodemailer = require('nodemailer');
 
 const getOrders = async (req, res) => {
@@ -33,7 +33,9 @@ const getOrders = async (req, res) => {
       currentPath: 'order',
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res
+      .status(httpStatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: error.message });
   }
 };
 
@@ -43,12 +45,16 @@ const getEditOrder = async (req, res) => {
     const order = await Order.findById(orderId);
 
     if (!order) {
-      return res.status(404).json({ success: false, message: 'Order not found' });
+      return res
+        .status(httpStatusCodes.NOT_FOUND)
+        .json({ success: false, message: 'Order not found' });
     }
 
     res.render('adminorders/edit', { order, currentPath: '/order' });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res
+      .status(httpStatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: error.message });
   }
 };
 const postEditOrder = async (req, res) => {
@@ -59,12 +65,14 @@ const postEditOrder = async (req, res) => {
     const order = await Order.findById(orderId).populate('products.productId'); // Populate product details
 
     if (!order) {
-      return res.status(404).json({ success: false, message: 'Order not found' });
+      return res
+        .status(httpStatusCodes.NOT_FOUND)
+        .json({ success: false, message: 'Order not found' });
     }
 
     // Check if the order status is payment_failed
     if (order.status === 'payment_failed') {
-      return res.status(400).json({
+      return res.status(httpStatusCodes.BAD_REQUEST).json({
         success: false,
         message: 'Cannot change status of an order with payment_failed status',
       });
@@ -83,7 +91,7 @@ const postEditOrder = async (req, res) => {
             product.sizes[sizeIndex].stock += item.quantity; // Rebuild stock
           } else {
             return res
-              .status(400)
+              .status(httpStatusCodes.BAD_REQUEST)
               .json({ success: false, message: `Size ${item.size} not found for product` });
           }
           await product.save();
@@ -123,7 +131,7 @@ const postEditOrder = async (req, res) => {
             product.sizes[sizeIndex].stock += item.quantity; // Rebuild stock
           } else {
             return res
-              .status(400)
+              .status(httpStatusCodes.BAD_REQUEST)
               .json({ success: false, message: `Size ${item.size} not found for product` });
           }
           await product.save();
@@ -143,7 +151,7 @@ const postEditOrder = async (req, res) => {
     // Send mail function
     const sendEmail = async (to, subject, text) => {
       const mailOptions = {
-        from: 'lijons12@gmail.com', // Sender address
+        from: 'lijons13@gmail.com', // Sender address
         to: to, // List of recipients
         subject: subject, // Subject line
         text: text, // Plain text body
@@ -161,7 +169,9 @@ const postEditOrder = async (req, res) => {
       const userId = order.userId;
       const user = await User.findById(userId);
       if (!user) {
-        return res.status(404).json({ success: false, message: 'User not found' });
+        return res
+          .status(httpStatusCodes.NOT_FOUND)
+          .json({ success: false, message: 'User not found' });
       }
       const email = user.email;
       const subject =
@@ -172,7 +182,9 @@ const postEditOrder = async (req, res) => {
       const userId = order.userId;
       const user = await User.findById(userId);
       if (!user) {
-        return res.status(404).json({ success: false, message: 'User not found' });
+        return res
+          .status(httpStatusCodes.NOT_FOUND)
+          .json({ success: false, message: 'User not found' });
       }
       const email = user.email;
       const subject = 'Your order return application rejected because irrelent reason ';
@@ -182,7 +194,9 @@ const postEditOrder = async (req, res) => {
       const userId = order.userId;
       const user = await User.findById(userId);
       if (!user) {
-        return res.status(404).json({ success: false, message: 'User not found' });
+        return res
+          .status(httpStatusCodes.NOT_FOUND)
+          .json({ success: false, message: 'User not found' });
       }
 
       let walletId = user.walletId;
@@ -227,10 +241,12 @@ const postEditOrder = async (req, res) => {
       // return res.status(200).json({ success: true, message: 'Refund processed successfully' });
     }
 
-    res.status(200).redirect(`/admin/orders/${orderId}`); // Redirect back to orders page
+    res.status(httpStatusCodes.OK).redirect(`/admin/orders/${orderId}`); // Redirect back to orders page
   } catch (error) {
     console.error('Error updating order:', error); // Log the error for debugging
-    res.status(500).json({ success: false, message: error.message });
+    res
+      .status(httpStatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: error.message });
   }
 };
 
@@ -240,13 +256,15 @@ const getOrderDetailedPage = async (req, res) => {
     const order = await Order.findById(orderId).populate('products.productId');
     console.log(order, orderId);
     if (!order) {
-      return res.status(400).json({ success: false, message: 'Order not found' });
+      return res
+        .status(httpStatusCodes.NOT_FOUND)
+        .json({ success: false, message: 'Order not found' });
     }
 
     res.render('adminorders/orderDetailedPage', { order: order, currentPath: '/order' });
   } catch (error) {
     console.log('error order detailed page', error.message);
-    res.status(400).json({ success: false, message: error.message });
+    res.status(httpStatusCodes.BAD_REQUEST).json({ success: false, message: error.message });
   }
 };
 module.exports = {
