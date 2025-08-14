@@ -1,14 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Coupon</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-    <style>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Add Coupon</title>
+        <link rel="stylesheet"
+            href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+        <link rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+            rel="stylesheet">
+        <link
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+            rel="stylesheet">
+        <style>
 
         body {
             background-color: #000;
@@ -17,31 +23,7 @@
             padding: 0;
             display: flex;
         }
-        .sidebar {
-            height: 100vh;
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: 100;
-            width: 250px;
-            background-color: #343a40;
-            color: #fff;
-            overflow-y: auto;
-            transition: all 0.3s;
-        }
-        .sidebar .nav-link {
-            color: #adb5bd;
-            transition: all 0.3s;
-            border-radius: 5px;
-            margin: 5px 0;
-        }
-        .sidebar .nav-link:hover, .sidebar .nav-link.active {
-            color: #fff;
-            background-color: #495057;
-        }
-        .sidebar .nav-link.active {
-            background-color: #007bff;
-        }
+      
         .main-content {
             margin-left: 250px; /* Space for the sidebar */
             padding: 20px;
@@ -54,81 +36,57 @@
             color: #dc3545; /* Bootstrap danger color */
         }
     </style>
-</head>
-<body>
-    <div class="sidebar p-3">
-        <h4 class="mb-4 text-center">Dashboard</h4>
-        <ul class="nav flex-column">
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/dashboard"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link " href="/admin/products"><i class="fas fa-box me-2"></i>Products</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/orders"><i class="fas fa-shopping-cart me-2"></i>Orders</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/category"><i class="fas fa-tags me-2"></i>Category</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/customers"><i class="fas fa-users me-2"></i>Customers</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link active" href="/admin/coupons"><i class="fas fa-ticket-alt me-2"></i>Coupons</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/banners"><i class="fas fa-image me-2"></i>Banners</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/offers"><i class="fas fa-gift me-2"></i>Offers</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/inventory"><i class="fas fa-warehouse me-2"></i>Inventory</a>
-            </li>
-            <li class="nav-item mt-auto">
-                <a class="nav-link text-danger" href="/auth/logout"><i class="fas fa-sign-out-alt me-2"></i>Logout</a>
-            </li>
-        </ul>
-    </div>
+    </head>
+    <body>
 
-    <div class="main-content">
-        <h1>Add Coupon</h1>
-        <form id="addCouponForm">
-            <div class="mb-3">
-                <input type="text" name="couponCode" id="couponCode" class="form-control" placeholder="Coupon Code" >
-            </div>
-            <label>Discount Type:</label>
-            <div class="mb-3">
-                <div>
-                    <input type="radio" id="percentage" name="discountType" value="percentage" >
-                    <label for="percentage" class="form-check-label">Percentage</label>
+        <div class="main-content">
+            <h1>Add Coupon</h1>
+            <form id="addCouponForm">
+                <div class="mb-3">
+                    <input type="text" name="couponCode" id="couponCode"
+                        class="form-control" placeholder="Coupon Code">
                 </div>
-            </div>
-            <div class="mb-3">
-                <input type="number" name="discountValue" id="discountValue" class="form-control" placeholder="Discount Percentage" >
-            </div>
-            <div class="mb-3">
-                <input type="date" name="startDate" id="startDate" class="form-control" >
-            </div>
-            <div class="mb-3">
-                <input type="date" name="endDate" id="endDate" class="form-control" >
-            </div>
-            <div class="mb-3">
-                <input type="number" name="minPurchaseAmount" id="minPurchaseAmount" class="form-control" placeholder="Minimum Purchase Amount" >
-            </div>
-            <div class="mb-3">
-                <input type="number" name="usageLimit" id="usageLimit" class="form-control" placeholder="Usage Limit" >
-            </div>
-            <button type="submit" class="btn btn-primary">Add Coupon</button>
-        </form>
-        <div id="error"></div>
-    </div>
+                <label>Discount Type:</label>
+                <div class="mb-3">
+                    <div>
+                        <input type="radio" id="percentage" name="discountType"
+                            value="percentage">
+                        <label for="percentage"
+                            class="form-check-label">Percentage</label>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <input type="number" name="discountValue" id="discountValue"
+                        class="form-control" placeholder="Discount Percentage">
+                </div>
+                <div class="mb-3">
+                    <input type="date" name="startDate" id="startDate"
+                        class="form-control">
+                </div>
+                <div class="mb-3">
+                    <input type="date" name="endDate" id="endDate"
+                        class="form-control">
+                </div>
+                <div class="mb-3">
+                    <input type="number" name="minPurchaseAmount"
+                        id="minPurchaseAmount" class="form-control"
+                        placeholder="Minimum Purchase Amount">
+                </div>
+                <div class="mb-3">
+                    <input type="number" name="usageLimit" id="usageLimit"
+                        class="form-control" placeholder="Usage Limit">
+                </div>
+                <button type="submit" class="btn btn-primary">Add
+                    Coupon</button>
+            </form>
+            <div id="error"></div>
+        </div>
 
-    <!-- Bootstrap JS and SweetAlert2 -->
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
-    <script>
+        <!-- Bootstrap JS and SweetAlert2 -->
+        <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+        <script
+            src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+        <script>
         $(document).ready(function () {
             $('#addCouponForm').on('submit', function (e) {
                 e.preventDefault(); // Prevent the default form submission
@@ -161,5 +119,5 @@
             });
         });
     </script>
-</body>
+    </body>
 </html>

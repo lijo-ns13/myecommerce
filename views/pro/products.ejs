@@ -1,41 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Products Dashboard</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-    <style>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Products Dashboard</title>
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+            rel="stylesheet">
+        <link
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+            rel="stylesheet">
+        <style>
         body {
             background-color: #f8f9fa;
             color: #343a40;
         }
-        .sidebar {
-            height: 100vh;
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: 100;
-            width: 250px;
-            background-color: #343a40;
-            color: #fff;
-            overflow-y: auto;
-            transition: all 0.3s;
-        }
-        .sidebar .nav-link {
-            color: #adb5bd;
-            transition: all 0.3s;
-            border-radius: 5px;
-            margin: 5px 0;
-        }
-        .sidebar .nav-link:hover, .sidebar .nav-link.active {
-            color: #fff;
-            background-color: #495057;
-        }
-        .sidebar .nav-link.active {
-            background-color: #007bff;
-        }
+       
         .content {
             margin-left: 250px;
             padding: 20px;
@@ -74,54 +54,21 @@
             margin: 0 3px;
         }
     </style>
-</head>
-<body>
-    <div class="sidebar p-3">
-        <h4 class="mb-4 text-center">Dashboard</h4>
-        <ul class="nav flex-column">
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/dashboard"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link active" href="/admin/products"><i class="fas fa-box me-2"></i>Products</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/orders"><i class="fas fa-shopping-cart me-2"></i>Orders</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/category"><i class="fas fa-tags me-2"></i>Category</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/customers"><i class="fas fa-users me-2"></i>Customers</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/coupons"><i class="fas fa-ticket-alt me-2"></i>Coupons</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/banners"><i class="fas fa-image me-2"></i>Banners</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/offers"><i class="fas fa-gift me-2"></i>Offers</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/inventory"><i class="fas fa-warehouse me-2"></i>Inventory</a>
-            </li>
-            <li class="nav-item mt-auto">
-                <a class="nav-link text-danger" href="/auth/logout"><i class="fas fa-sign-out-alt me-2"></i>Logout</a>
-            </li>
-        </ul>
-    </div>
+    </head>
+    <body>
 
-    <div class="content">
-        <div class="container">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="mb-0">Products</h2>
-                <a href="/admin/products/add-product" class="btn btn-primary btn-custom">
-                    <i class="fas fa-plus me-2"></i>Add Product
-                </a>
-            </div>
+        <div class="content">
+            <div class="container">
+                <div
+                    class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="mb-0">Products</h2>
+                    <a href="/admin/products/add-product"
+                        class="btn btn-primary btn-custom">
+                        <i class="fas fa-plus me-2"></i>Add Product*
+                    </a>
+                </div>
 
-            <% if (products.length > 0) { %>
+                <% if (products.length > 0) { %>
                 <div class="card">
                     <div class="card-body">
                         <div class="table-responsive">
@@ -140,50 +87,68 @@
                                 </thead>
                                 <tbody>
                                     <% for (const pro of products) { %>
-                                        <tr>
-                                            <td><%= pro.product %></td>
-                                            <td><%= pro.brand %></td>
-                                            <td>$<%= pro.price %></td>
-                                            <td><%= pro.category.name %></td>
-                                            <td>
-                                                <% if (pro.sizes.length > 0) { %>
-                                                    <ul class="list-unstyled mb-0">
-                                                        <% for (const size of pro.sizes) { %>
-                                                            <li><%= size.size %></li>
-                                                        <% } %>
-                                                    </ul>
-                                                <% } else { %>
-                                                    <span class="text-muted">No sizes</span>
+                                    <tr>
+                                        <td><%= pro.product %></td>
+                                        <td><%= pro.brand %></td>
+                                        <td>$<%= pro.price %></td>
+                                        <td><%= pro.category.name %></td>
+                                        <td>
+                                            <% if (pro.sizes.length > 0) { %>
+                                            <ul class="list-unstyled mb-0">
+                                                <% for (const size of pro.sizes)
+                                                { %>
+                                                <li><%= size.size %></li>
                                                 <% } %>
-                                            </td>
-                                            <td>
-                                                <% if (pro.sizes.length > 0) { %>
-                                                    <ul class="list-unstyled mb-0">
-                                                        <% for (const size of pro.sizes) { %>
-                                                            <li><%= size.stock %></li>
-                                                        <% } %>
-                                                    </ul>
-                                                <% } else { %>
-                                                    <span class="text-muted">No stock</span>
+                                            </ul>
+                                            <% } else { %>
+                                            <span class="text-muted">No
+                                                sizes</span>
+                                            <% } %>
+                                        </td>
+                                        <td>
+                                            <% if (pro.sizes.length > 0) { %>
+                                            <ul class="list-unstyled mb-0">
+                                                <% for (const size of pro.sizes)
+                                                { %>
+                                                <li><%= size.stock %></li>
                                                 <% } %>
-                                            </td>
-                                            <td>
-                                                <img src="<%=pro.images[0].secured_url%>" alt="Product Image" class="img-thumbnail" style="max-width: 100px;">
-                                            </td>
-                                            <td>
-                                                <div class="btn-group" role="group">
-                                                    <a href="/admin/products/edit/<%= pro._id %>" class="btn btn-warning btn-sm btn-custom">
-                                                        <i class="fas fa-edit"></i> Edit
-                                                    </a>
-                                                    <form action="/admin/products/<%= pro.isListed ? 'unlist-product' : 'list-product' %>/<%= pro._id %>" method="post" class="d-inline-block" id="form-<%= pro._id %>">
-                                                        <button type="submit" class="btn <%= pro.isListed ? 'btn-danger' : 'btn-success' %> btn-sm btn-custom ms-2">
-                                                            <i class="fas <%= pro.isListed ? 'fa-times-circle' : 'fa-check-circle' %> me-1"></i>
-                                                            <%= pro.isListed ? 'Unlist' : 'List' %>
-                                                        </button>
-                                                    </form>
-                                                </div>
-                                            </td>
-                                        </tr>
+                                            </ul>
+                                            <% } else { %>
+                                            <span class="text-muted">No
+                                                stock</span>
+                                            <% } %>
+                                        </td>
+                                        <td>
+                                            <img
+                                                src="<%=pro.images[0].secured_url%>"
+                                                alt="Product Image"
+                                                class="img-thumbnail"
+                                                style="max-width: 100px;">
+                                        </td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                <a
+                                                    href="/admin/products/edit/<%= pro._id %>"
+                                                    class="btn btn-warning btn-sm btn-custom">
+                                                    <i class="fas fa-edit"></i>
+                                                    Edit
+                                                </a>
+                                                <form
+                                                    action="/admin/products/<%= pro.isListed ? 'unlist-product' : 'list-product' %>/<%= pro._id %>"
+                                                    method="post"
+                                                    class="d-inline-block"
+                                                    id="form-<%= pro._id %>">
+                                                    <button type="submit"
+                                                        class="btn <%= pro.isListed ? 'btn-danger' : 'btn-success' %> btn-sm btn-custom ms-2">
+                                                        <i
+                                                            class="fas <%= pro.isListed ? 'fa-times-circle' : 'fa-check-circle' %> me-1"></i>
+                                                        <%= pro.isListed ?
+                                                        'Unlist' : 'List' %>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
                                     <% } %>
                                 </tbody>
                             </table>
@@ -195,24 +160,28 @@
                 <nav aria-label="Page navigation" class="mt-4">
                     <ul class="pagination justify-content-center">
                         <% for (let i = 1; i <= totalPages; i++) { %>
-                            <li class="page-item <%= i === currentPage ? 'active' : '' %>">
-                                <a class="page-link" href="?page=<%= i %>"><%= i %></a>
-                            </li>
+                        <li
+                            class="page-item <%= i === currentPage ? 'active' : '' %>">
+                            <a class="page-link" href="?page=<%= i %>"><%= i
+                                %></a>
+                        </li>
                         <% } %>
                     </ul>
                 </nav>
-            <% } else { %>
+                <% } else { %>
                 <div class="alert alert-info" role="alert">
-                    <i class="fas fa-info-circle me-2"></i> No products available
+                    <i class="fas fa-info-circle me-2"></i> No products
+                    available
                 </div>
-            <% } %>
+                <% } %>
+            </div>
         </div>
-    </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script
+            src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <script>
+        <script>
         document.querySelectorAll('form[id^="form-"]').forEach(form => {
           form.addEventListener('submit', async (event) => {
             event.preventDefault();
@@ -256,5 +225,5 @@
           });
         });
     </script>
-</body>
+    </body>
 </html>

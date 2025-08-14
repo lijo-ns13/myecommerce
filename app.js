@@ -7,6 +7,7 @@ require('./passport');
 // const noCache=require('nocache')
 const noCache = require('./middlewares/noCache');
 const session = require('express-session');
+const expressLayouts = require('express-ejs-layouts');
 
 // updated
 const authRouter = require('./routes/auth/auth.routes');
@@ -35,7 +36,8 @@ const app = express();
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
-
+app.use(expressLayouts);
+app.set('layout', 'layouts/adminLayout');
 app.use(noCache);
 app.use(cookieParser());
 

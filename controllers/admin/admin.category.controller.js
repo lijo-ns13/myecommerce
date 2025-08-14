@@ -2,12 +2,12 @@ const Category = require('../../models/categorySchema');
 const getCategory = async (req, res) => {
   const categories = await Category.find();
 
-  res.render('category', { categories: categories });
+  res.render('category', { categories: categories, currentPath: '/category' });
 };
 const getCategoryUpdate = async (req, res) => {
   const id = req.params.id;
   const category = await Category.findById(id);
-  res.render('update-category', { category });
+  res.render('update-category', { category, currentPath: '/category' });
 };
 const patchCategoryUpdate = async (req, res) => {
   const categoryId = req.params.id;
@@ -82,7 +82,7 @@ const postCategoryUnblock = async (req, res) => {
   }
 };
 const getAddCategory = (req, res) => {
-  res.render('add-category');
+  res.render('add-category', { currentPath: '/category' });
 };
 const postAddCategory = async (req, res) => {
   try {

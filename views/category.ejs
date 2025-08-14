@@ -1,42 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Categories Management</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-    <style>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Categories Management</title>
+        <link rel="stylesheet"
+            href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+        <link
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+            rel="stylesheet">
+        <link rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+        <style>
         body {
             background-color: #f0f2f5;
             font-family: 'Arial', sans-serif;
         }
-        .sidebar {
-            height: 100vh;
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: 100;
-            width: 250px;
-            background-color: #343a40;
-            color: #fff;
-            overflow-y: auto;
-            transition: all 0.3s;
-        }
-        .sidebar .nav-link {
-            color: #adb5bd;
-            transition: all 0.3s;
-            border-radius: 5px;
-            margin: 5px 0;
-        }
-        .sidebar .nav-link:hover, .sidebar .nav-link.active {
-            color: #fff;
-            background-color: #495057;
-        }
-        .sidebar .nav-link.active {
-            background-color: #007bff;
-        }
+       
         .main-content {
             margin-left: 250px;
             padding: 20px;
@@ -76,109 +56,87 @@
             }
         }
     </style>
-</head>
-<body>
+    </head>
+    <body>
 
-    <div class="sidebar p-3">
-        <h4 class="mb-4 text-center">Dashboard</h4>
-        <ul class="nav flex-column">
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/dashboard"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/products"><i class="fas fa-box me-2"></i>Products</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/orders"><i class="fas fa-shopping-cart me-2"></i>Orders</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link active" href="/admin/category"><i class="fas fa-tags me-2"></i>Category</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/customers"><i class="fas fa-users me-2"></i>Customers</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/coupons"><i class="fas fa-ticket-alt me-2"></i>Coupons</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/banners"><i class="fas fa-image me-2"></i>Banners</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/offers"><i class="fas fa-gift me-2"></i>Offers</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/inventory"><i class="fas fa-warehouse me-2"></i>Inventory</a>
-            </li>
-            <li class="nav-item mt-auto">
-                <a class="nav-link text-danger" href="/auth/logout"><i class="fas fa-sign-out-alt me-2"></i>Logout</a>
-            </li>
-        </ul>
-    </div>
+        <div class="main-content">
+            <div
+                class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3">
+                <h1 class="h2">Categories Management</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <div class="input-group search-box me-2">
+                        <input type="text" id="searchInput" class="form-control"
+                            placeholder="Search categories...">
+                        <div class="input-group-append">
+                            <span class="input-group-text"><i
+                                    class="fas fa-search"></i></span>
+                        </div>
+                    </div>
+                    <a href="/admin/category/add-category"
+                        class="btn btn-primary"><i class="fas fa-plus"></i> Add
+                        Category</a>
+                </div>
+            </div>
 
-    <div class="main-content">
-        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3">
-            <h1 class="h2">Categories Management</h1>
-            <div class="btn-toolbar mb-2 mb-md-0">
-                <div class="input-group search-box me-2">
-                    <input type="text" id="searchInput" class="form-control" placeholder="Search categories...">
-                    <div class="input-group-append">
-                        <span class="input-group-text"><i class="fas fa-search"></i></span>
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Category List</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="categoriesTable">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Category Name</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% categories.forEach((category, index) => { %>
+                                <tr>
+                                    <td><%= index + 1 %></td>
+                                    <td><%= category.name %></td>
+                                    <td>
+                                        <span
+                                            class="badge <%= category.isBlocked ? 'badge-danger' : 'badge-success' %>">
+                                            <%= category.isBlocked ? 'Blocked' :
+                                            'Active' %>
+                                        </span>
+                                    </td>
+                                    <td class="category-actions">
+                                        <a
+                                            href="/admin/category/update/<%= category._id %>"
+                                            class="btn btn-warning btn-sm btn-custom">
+                                            <i class="fas fa-edit"></i> Update
+                                        </a>
+                                        <button
+                                            class="btn <%= category.isBlocked ? 'btn-success' : 'btn-danger' %> btn-sm btn-custom"
+                                            onclick="toggleBlockStatus('<%= category._id %>', <%= category.isBlocked %>)">
+                                            <i
+                                                class="fas <%= category.isBlocked ? 'fa-unlock' : 'fa-lock' %>"></i>
+                                            <%= category.isBlocked ? 'Unblock' :
+                                            'Block' %>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <% }); %>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-                <a href="/admin/category/add-category" class="btn btn-primary"><i class="fas fa-plus"></i> Add Category</a>
             </div>
         </div>
 
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">Category List</h5>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-hover" id="categoriesTable">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Category Name</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <% categories.forEach((category, index) => { %>
-                            <tr>
-                                <td><%= index + 1 %></td>
-                                <td><%= category.name %></td>
-                                <td>
-                                    <span class="badge <%= category.isBlocked ? 'badge-danger' : 'badge-success' %>">
-                                        <%= category.isBlocked ? 'Blocked' : 'Active' %>
-                                    </span>
-                                </td>
-                                <td class="category-actions">
-                                    <a href="/admin/category/update/<%= category._id %>" class="btn btn-warning btn-sm btn-custom">
-                                        <i class="fas fa-edit"></i> Update
-                                    </a>
-                                    <button class="btn <%= category.isBlocked ? 'btn-success' : 'btn-danger' %> btn-sm btn-custom" 
-                                            onclick="toggleBlockStatus('<%= category._id %>', <%= category.isBlocked %>)">
-                                        <i class="fas <%= category.isBlocked ? 'fa-unlock' : 'fa-lock' %>"></i>
-                                        <%= category.isBlocked ? 'Unblock' : 'Block' %>
-                                    </button>
-                                </td>
-                            </tr>
-                            <% }); %>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
+        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+        <script
+            src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+        <script
+            src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    
-    <script>
+        <script>
         function toggleBlockStatus(categoryId, isBlocked) {
             const url = `/admin/category/${isBlocked ? 'unblock' : 'block'}/${categoryId}`;
             
@@ -231,5 +189,5 @@
             }
         });
     </script>
-</body>
+    </body>
 </html>

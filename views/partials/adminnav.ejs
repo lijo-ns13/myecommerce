@@ -1,0 +1,37 @@
+ <div class="sidebar">
+        <div class="p-3">
+            <h4>Dashboard</h4>
+        </div>
+        <!-- <a class="nav-link <%= currentPath === '/admin/customers' ? 'active' : '' %>" href="/admin/customers">Customers</a> -->
+
+        <ul class="nav flex-column p-3">
+            <li class="nav-item">
+                <a class="nav-link <%= currentPath === '/dashboard' ? 'active' : '' %>" href="/admin/dashboard">Dashboard</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <%= currentPath === '/product' ? 'active' : '' %>" href="/admin/products">Products</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <%= currentPath === '/order' ? 'active' : '' %>" href="/admin/orders">Orders</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <%= currentPath === '/customer' ? 'active' : '' %>" href="/admin/customers">Customers</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <%= currentPath === '/category' ? 'active' : '' %>" href="/admin/category">Category</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <%= currentPath === '/coupon' ? 'active' : '' %>" href="/admin/coupons">Coupons</a>
+            </li>
+            <li class="nav-item"></li>
+                <a class="nav-link <%= currentPath === '/inventory' ? 'active' : '' %>" href="/admin/inventory">Inventory</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <%= currentPath === '/offer' ? 'active' : '' %>" href="/admin/offers">Offers</a>
+            </li>
+            <li class="nav-item mt-auto">
+                <a class="nav-link text-danger" href="/auth/logout">Logout</a>
+            </li>
+        </ul>
+    </div>
+    

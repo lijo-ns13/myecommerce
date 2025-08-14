@@ -19,17 +19,18 @@ const getProduct = async (req, res) => {
     products: products,
     currentPage: page,
     totalPages: totalPages,
+    currentPath: '/product',
   });
 };
 const getViewProduct = async (req, res) => {
   const products = await Product.find({});
   // res.json(products)
-  res.render('viewproducts', { products: products });
+  res.render('viewproducts', { products: products, currentPath: '/product' });
 };
 const getAddProduct = async (req, res) => {
   try {
     const categories = await Category.find({});
-    res.status(200).render('add-product', { categories: categories });
+    res.status(200).render('add-product', { categories: categories, currentPath: '/product' });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
   }
@@ -220,7 +221,7 @@ const getProductEdit = async (req, res) => {
     const productId = req.params.id;
     const categories = await Category.find({});
     const product = await Product.findById(productId);
-    res.render('pro/updateproduct', { product, categories });
+    res.render('pro/updateproduct', { product, categories, currentPath: '/product' });
   } catch (error) {
     console.error(error);
     res.status(500).send('Server Error');

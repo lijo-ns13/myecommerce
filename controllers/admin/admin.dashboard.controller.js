@@ -501,6 +501,7 @@ const getDashboard = async (req, res) => {
       topSellingCategories,
       topSellingProducts,
       topSellingBrands,
+      currentPath: '/dashboard',
     });
   } catch (error) {
     console.error('Error fetching orders:', error); // Log the error for debugging
