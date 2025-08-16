@@ -4,7 +4,7 @@ const Order = require('../../models/orderSchema');
 const Wallet = require('../../models/walletSchema');
 const httpStatusCodes = require('../../constants/httpStatusCodes');
 const nodemailer = require('nodemailer');
-
+const messages = require('../../constants/message');
 const getOrders = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1; // Current page number
@@ -47,7 +47,7 @@ const getEditOrder = async (req, res) => {
     if (!order) {
       return res
         .status(httpStatusCodes.NOT_FOUND)
-        .json({ success: false, message: 'Order not found' });
+        .json({ success: false, message: messages.COMMON.ORDER_NOT_FOUND });
     }
 
     res.render('adminorders/edit', { order, currentPath: '/order' });
@@ -67,14 +67,14 @@ const postEditOrder = async (req, res) => {
     if (!order) {
       return res
         .status(httpStatusCodes.NOT_FOUND)
-        .json({ success: false, message: 'Order not found' });
+        .json({ success: false, message: messages.COMMON.ORDER_NOT_FOUND });
     }
 
     // Check if the order status is payment_failed
     if (order.status === 'payment_failed') {
       return res.status(httpStatusCodes.BAD_REQUEST).json({
         success: false,
-        message: 'Cannot change status of an order with payment_failed status',
+        message: messages.ORDER.PAYMENT_FAILED_STATUS,
       });
     }
 
@@ -171,12 +171,11 @@ const postEditOrder = async (req, res) => {
       if (!user) {
         return res
           .status(httpStatusCodes.NOT_FOUND)
-          .json({ success: false, message: 'User not found' });
+          .json({ success: false, message: messages.COMMON.USER_NOT_FOUND });
       }
       const email = user.email;
-      const subject =
-        'Your order returned successfully and payment credit to your wallet in future days';
-      sendEmail(email, 'Order returned Successfully', subject);
+      const subject = messages.ORDER.RETURN_SUCCESS_BODY;
+      sendEmail(email, messages.ORDER.RETURN_SUCCESS_SUBJECT, subject);
     }
     if (order.status === 'rejected_return') {
       const userId = order.userId;
@@ -184,10 +183,10 @@ const postEditOrder = async (req, res) => {
       if (!user) {
         return res
           .status(httpStatusCodes.NOT_FOUND)
-          .json({ success: false, message: 'User not found' });
+          .json({ success: false, message: messages.COMMON.USER_NOT_FOUND });
       }
       const email = user.email;
-      const subject = 'Your order return application rejected because irrelent reason ';
+      const subject = messages.ORDER.RETURN_REJECT_BODY;
       sendEmail(email, 'Order returned Failed', subject);
     }
     if (order.status === 'refunded') {
@@ -196,7 +195,7 @@ const postEditOrder = async (req, res) => {
       if (!user) {
         return res
           .status(httpStatusCodes.NOT_FOUND)
-          .json({ success: false, message: 'User not found' });
+          .json({ success: false, message: messages.COMMON.USER_NOT_FOUND });
       }
 
       let walletId = user.walletId;
@@ -243,7 +242,6 @@ const postEditOrder = async (req, res) => {
 
     res.status(httpStatusCodes.OK).redirect(`/admin/orders/${orderId}`); // Redirect back to orders page
   } catch (error) {
-    console.error('Error updating order:', error); // Log the error for debugging
     res
       .status(httpStatusCodes.INTERNAL_SERVER_ERROR)
       .json({ success: false, message: error.message });

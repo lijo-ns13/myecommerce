@@ -1,5 +1,6 @@
 const Product = require('../../models/productSchema');
 const httpStatusCodes = require('../../constants/httpStatusCodes');
+const messages = require('../../constants/message');
 const getInventory = async (_req, res) => {
   try {
     // Fetch all products
@@ -8,8 +9,7 @@ const getInventory = async (_req, res) => {
     // Render the admin inventory page with the product data
     res.render('admininventory/inventory', { products, currentPath: '/inventory' });
   } catch (error) {
-    console.error('Error fetching inventory:', error);
-    res.status(httpStatusCodes.INTERNAL_SERVER_ERROR).send('Error fetching inventory');
+    res.status(httpStatusCodes.INTERNAL_SERVER_ERROR).send(messages.INVENTORY.FETCH_ERROR);
   }
 };
 const postInventoryUpdate = async (req, res) => {
@@ -21,7 +21,7 @@ const postInventoryUpdate = async (req, res) => {
     if (!product) {
       return res
         .status(httpStatusCodes.NOT_FOUND)
-        .json({ success: false, message: 'Product not found' });
+        .json({ success: false, message: messages.INVENTORY.PRODUCT_NOT_FOUND });
     }
 
     // Find the size object
@@ -29,7 +29,7 @@ const postInventoryUpdate = async (req, res) => {
     if (!sizeObj) {
       return res
         .status(httpStatusCodes.NOT_FOUND)
-        .json({ success: false, message: 'Size not found' });
+        .json({ success: false, message: messages.INVENTORY.SIZE_NOT_FOUND });
     }
 
     // Update stock
@@ -40,10 +40,9 @@ const postInventoryUpdate = async (req, res) => {
 
     res.redirect('/admin/inventory'); // Redirect back to inventory page
   } catch (error) {
-    console.error('Error updating stock:', error);
     res
       .status(httpStatusCodes.INTERNAL_SERVER_ERROR)
-      .json({ success: false, message: 'Failed to update stock', error: error.message });
+      .json({ success: false, message: messages.INVENTORY.UPDATE_ERROR, error: error.message });
   }
 };
 module.exports = {

@@ -6,6 +6,8 @@ const Product = require('../../models/productSchema');
 const Category = require('../../models/categorySchema');
 const uploadsDir = path.join(__dirname, '../../uploads');
 const httpStatusCodes = require('../../constants/httpStatusCodes');
+const messages = require('../../constants/message');
+const message = require('../../constants/message');
 const getProduct = async (req, res) => {
   const page = parseInt(req.query.page) || 1; // Get the current page from query params, default to 1
   const limit = 10; // Number of products per page
@@ -22,12 +24,12 @@ const getProduct = async (req, res) => {
     currentPath: '/product',
   });
 };
-const getViewProduct = async (req, res) => {
+const getViewProduct = async (_req, res) => {
   const products = await Product.find({});
   // res.json(products)
   res.render('viewproducts', { products: products, currentPath: '/product' });
 };
-const getAddProduct = async (req, res) => {
+const getAddProduct = async (_req, res) => {
   try {
     const categories = await Category.find({});
     res
@@ -50,12 +52,12 @@ const upload = multer({ dest: 'uploads/' });
 // Function to save base64 image data
 const saveBase64Image = async (dataUrl, filename) => {
   if (!dataUrl || typeof dataUrl !== 'string') {
-    throw new Error('Invalid base64 image data');
+    throw new Error(messages.PRODUCT.INVALID_BASE_IMAGE);
   }
 
   const matches = dataUrl.match(/^data:image\/(\w+);base64,(.+)$/);
   if (!matches) {
-    throw new Error('Invalid base64 image data format');
+    throw new Error(messages.PRODUCT.INVALID_BASE_IMAGE_FORMAT);
   }
 
   const fileExtension = matches[1] || 'jpeg'; // Default to jpeg if unspecified
@@ -67,7 +69,7 @@ const saveBase64Image = async (dataUrl, filename) => {
     await sharp(Buffer.from(base64Data, 'base64')).toFile(filePath);
   } catch (error) {
     console.error('Error saving image with sharp:', error);
-    throw new Error('Failed to save image');
+    throw new Error(messages.PRODUCT.FAILED_SAVE_IMAGE);
   }
 
   return filePath;
@@ -109,40 +111,40 @@ const postAddProduct = async (req, res) => {
     if (!product || !brand || !description || !price || !category || !croppedImages) {
       return res
         .status(httpStatusCodes.BAD_REQUEST)
-        .json({ status: false, message: 'Please fill all fieldss' });
+        .json({ status: false, message: messages.PRODUCT.FILL_ALL_FIELDS });
     }
     const productRegex = /^[a-zA-Z0-9 _'-]{2,100}$/;
 
     if (!productRegex.test(product)) {
       return res
         .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'Product name should only contain letters, numbers' });
+        .json({ success: false, message: messages.PRODUCT.PRODUCT_NAME_INVALID });
     }
     if (product.length < 4) {
       return res
         .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'Product name atleast 4 characters' });
+        .json({ success: false, message: messages.PRODUCT.PRODUCT_NAME_SHORT });
     }
     const brandRegex = /^[a-zA-Z0-9][a-zA-Z0-9 &-]{1,48}[a-zA-Z0-9]$/;
     if (!brandRegex.test(brand)) {
       return res
         .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'Brand name should only contain letters' });
+        .json({ success: false, message: messages.PRODUCT.BRAND_NAME_INVALID });
     }
     if (brand.length < 4) {
       return res
         .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'Brand atleast have 4 characters' });
+        .json({ success: false, message: messages.PRODUCT.BRAND_NAME_SHORT });
     }
     if (description.length < 8) {
       return res
         .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'Description atleat have 8 characters' });
+        .json({ success: false, message: messages.PRODUCT.DESCRIPTION_SHORT });
     }
     if (Number(price) < 0) {
       return res
         .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'Price should be greater than zero' });
+        .json({ success: false, message: message.PRODUCT.PRICE_INVALID });
     }
     const sizes = req.body.sizes.map((sizeObj) => ({
       size: Number(sizeObj.size),
@@ -151,7 +153,7 @@ const postAddProduct = async (req, res) => {
     if (!sizes || sizes.length == 0) {
       return res
         .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'add atleast one size and stock' });
+        .json({ success: false, message: messages.PRODUCT.SIZE_REQUIRED });
     }
 
     let errors = [];
@@ -159,10 +161,10 @@ const postAddProduct = async (req, res) => {
     // Validate sizes and stock
     for (const size of sizes) {
       if (size.size <= 0) {
-        errors.push('Size must be greater than 0');
+        errors.push(messages.PRODUCT.SIZE_POSITIVE);
       }
       if (size.stock < 0) {
-        errors.push('Stock must be 0 or greater');
+        errors.push(messages.PRODUCT.STOCK_POSITIVE);
       }
     }
 
@@ -187,13 +189,13 @@ const postAddProduct = async (req, res) => {
     await newProduct.save();
     res
       .status(httpStatusCodes.CREATED)
-      .json({ success: true, message: 'Product added successfully!' });
+      .json({ success: true, message: messages.PRODUCT.ADD_SUCCESS });
     // res.status(200).render('pro/addproductsuccess')
   } catch (error) {
     console.error('Error adding product:', error);
     res
       .status(httpStatusCodes.INTERNAL_SERVER_ERROR)
-      .json({ success: false, message: 'Failed to add product', error: error.message });
+      .json({ success: false, message: messages.PRODUCT.ADD_FAIL, error: error.message });
   }
 };
 
@@ -211,10 +213,12 @@ const postUnlist = async (req, res) => {
     if (!product) {
       return res
         .status(httpStatusCodes.NOT_FOUND)
-        .json({ success: false, message: 'Product not found' });
+        .json({ success: false, message: messages.COMMON.PRODUCT_NOT_FOUND });
     }
     // res.status(200).render('pro/unlistproductsuccess')
-    res.status(httpStatusCodes.OK).json({ success: true, message: 'unlisted successfully' });
+    res
+      .status(httpStatusCodes.OK)
+      .json({ success: true, message: messages.PRODUCT.UNLIST_SUCCESS });
   } catch (error) {
     res
       .status(httpStatusCodes.INTERNAL_SERVER_ERROR)
@@ -232,10 +236,10 @@ const postList = async (req, res) => {
     if (!product) {
       return res
         .status(httpStatusCodes.NOT_FOUND)
-        .json({ success: false, message: 'Product not found' });
+        .json({ success: false, message: messages.COMMON.PRODUCT_NOT_FOUND });
     }
     // res.status(200).render('pro/listproductsuccess')
-    res.status(httpStatusCodes.OK).json({ success: true, message: 'listed successfully' });
+    res.status(httpStatusCodes.OK).json({ success: true, message: messages.COMMON.LIST_SUCCESS });
   } catch (error) {
     res
       .status(httpStatusCodes.INTERNAL_SERVER_ERROR)
@@ -250,7 +254,7 @@ const getProductEdit = async (req, res) => {
     res.render('pro/updateproduct', { product, categories, currentPath: '/product' });
   } catch (error) {
     console.error(error);
-    res.status(httpStatusCodes.INTERNAL_SERVER_ERROR).send('Server Error');
+    res.status(httpStatusCodes.INTERNAL_SERVER_ERROR).send(messages.ERROR.SERVER_ERROR);
   }
 };
 const patchProductEdit = async (req, res) => {
@@ -265,7 +269,7 @@ const patchProductEdit = async (req, res) => {
     if (!existingProduct) {
       return res
         .status(httpStatusCodes.NOT_FOUND)
-        .json({ success: false, message: 'Product not found' });
+        .json({ success: false, message: messages.COMMON.PRODUCT_NOT_FOUND });
     }
 
     // Initialize images array with existing images
@@ -292,40 +296,40 @@ const patchProductEdit = async (req, res) => {
     if (!product || !brand || !description || !price || !category) {
       return res
         .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'Please fill all fields' });
+        .json({ success: false, message: messages.PRODUCT.FILL_ALL_FIELDS });
     }
     const productRegex = /^[a-zA-Z0-9 _'-]{2,100}$/;
 
     if (!productRegex.test(product)) {
       return res
         .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'Product name should only contain letters, numbers' });
+        .json({ success: false, message: messages.PRODUCT.PRODUCT_NAME_INVALID });
     }
     if (product.length < 4) {
       return res
         .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'Product name atleast 4 characters' });
+        .json({ success: false, message: messages.PRODUCT.PRODUCT_NAME_SHORT });
     }
     const brandRegex = /^[a-zA-Z0-9][a-zA-Z0-9 &-]{1,48}[a-zA-Z0-9]$/;
     if (!brandRegex.test(brand)) {
       return res
         .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'Brand name should only contain letters' });
+        .json({ success: false, message: messages.PRODUCT.BRAND_NAME_INVALID });
     }
     if (brand.length < 4) {
       return res
         .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'Brand atleast have 4 characters' });
+        .json({ success: false, message: messages.PRODUCT.BRAND_NAME_SHORT });
     }
     if (description.length < 8) {
       return res
         .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'Description atleat have 8 characters' });
+        .json({ success: false, message: messages.PRODUCT.DESCRIPTION_SHORT });
     }
     if (Number(price) < 0) {
       return res
         .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'Price should be greater than zero' });
+        .json({ success: false, message: messages.PRODUCT.PRICE_INVALID });
     }
     // Validate sizes from the request body
     const sizes = req.body.sizes; // Ensure sizes is correctly assigned
@@ -333,7 +337,7 @@ const patchProductEdit = async (req, res) => {
     if (!Array.isArray(sizes)) {
       return res
         .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'Sizes must be an array.' });
+        .json({ success: false, message: messages.PRODUCT.SIZES_ARRAY });
     }
 
     // Filter out any invalid or empty size entries, if necessary
@@ -343,7 +347,7 @@ const patchProductEdit = async (req, res) => {
     if (filteredSizes.length === 0) {
       return res
         .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'Add at least one size and stock' });
+        .json({ success: false, message: messages.PRODUCT.SIZE_REQUIRED });
     }
 
     const sizesArray = filteredSizes.map((sizeObj) => {
@@ -351,7 +355,7 @@ const patchProductEdit = async (req, res) => {
       const stock = Number(sizeObj.stock);
 
       if (isNaN(size) || isNaN(stock)) {
-        throw new Error('Size and stock must be valid numbers.');
+        throw new Error(messages.PRODUCT.VALID_NUMBER);
       }
 
       return { size, stock };
@@ -362,10 +366,10 @@ const patchProductEdit = async (req, res) => {
     // Validate sizes and stock
     for (const size of sizesArray) {
       if (size.size <= 0) {
-        errors.push('Size must be greater than 0');
+        errors.push(messages.PRODUCT.SIZE_POSITIVE);
       }
       if (size.stock < 0) {
-        errors.push('Stock must be 0 or greater');
+        errors.push(messages.PRODUCT.STOCK_POSITIVE);
       }
     }
 
@@ -390,12 +394,12 @@ const patchProductEdit = async (req, res) => {
 
     res
       .status(httpStatusCodes.OK)
-      .json({ success: true, message: 'Product updated successfully!' });
+      .json({ success: true, message: messages.PRODUCT.UPDATE_SUCCESS });
   } catch (error) {
     console.error('Error updating product:', error);
     res
       .status(httpStatusCodes.INTERNAL_SERVER_ERROR)
-      .json({ success: false, message: 'Failed to update product', error: error.message });
+      .json({ success: false, message: messages.PRODUCT.UPDATE_FAIL, error: error.message });
   }
 };
 const deleteProduct = async (req, res) => {
@@ -409,10 +413,12 @@ const deleteProduct = async (req, res) => {
       { $pull: { images: { id: imageId } } } // Remove the image by its ID
     );
 
-    res.status(httpStatusCodes.OK).send({ message: 'Image deleted successfully' });
+    res.status(httpStatusCodes.OK).send({ message: messages.PRODUCT.IMAGE_DELETE_SUCCESS });
   } catch (error) {
     console.error(error);
-    res.status(httpStatusCodes.INTERNAL_SERVER_ERROR).send({ message: 'Error deleting image' });
+    res
+      .status(httpStatusCodes.INTERNAL_SERVER_ERROR)
+      .send({ message: messages.PRODUCT.IMAGE_DELETE_FAIL });
   }
 };
 

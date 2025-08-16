@@ -1,5 +1,7 @@
 const User = require('../../models/userSchema');
 const httpStatusCodes = require('../../constants/httpStatusCodes');
+const messages = require('../../constants/message');
+
 // const getCustomers=async(req, res) => {
 //     // res.send('Retrieve all customers');
 //     try{
@@ -37,11 +39,11 @@ const getCustomers = async (req, res) => {
       customers,
       currentPage: page,
       totalPages,
-      searchQuery: search, // ✅ THIS FIXES THE ERROR
+      searchQuery: search,
       currentPath: '/customer',
     });
   } catch (err) {
-    res.status(httpStatusCodes.INTERNAL_SERVER_ERROR).send('Error loading customers');
+    res.status(httpStatusCodes.INTERNAL_SERVER_ERROR).send(messages.CUSTOMER.CUSTOMERS_FETCH_ERROR);
   }
 };
 
@@ -57,7 +59,7 @@ const postCustomerBlock = async (req, res) => {
     if (!user) {
       return res
         .status(httpStatusCodes.NOT_FOUND)
-        .json({ success: false, message: 'User not found' });
+        .json({ success: false, message: messages.CUSTOMER.USER_NOT_FOUND });
     }
     // res.json({success:true,message:'User Blocked Succssfully'});
     res.status(httpStatusCodes.OK).redirect('/admin/customers');
@@ -76,7 +78,7 @@ const postCustomerUnblock = async (req, res) => {
     if (!user) {
       return res
         .status(httpStatusCodes.NOT_FOUND)
-        .json({ success: false, message: 'User not found' });
+        .json({ success: false, message: messages.CUSTOMER.USER_NOT_FOUND });
     }
     // res.json({success:true,message:'User Unblocked Succssfully'});
     res.status(httpStatusCodes.OK).redirect('/admin/customers');

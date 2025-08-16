@@ -1,16 +1,15 @@
 const User = require('../../models/userSchema');
 const Address = require('../../models/addressSchema');
 const httpStatusCodes = require('../../constants/httpStatusCodes');
+const messages = require('../../constants/message');
 const getAddress = async (req, res) => {
   try {
-    console.log('clicked');
     console.log('res', req.user._id);
     const user = await User.findById({ _id: req.user._id }).populate('address');
     console.log('user', user);
     if (!user) {
       return res.status(httpStatusCodes.NOT_FOUND).json({ message: 'User not found' });
     }
-    console.log('addy', user.address);
     res.status(httpStatusCodes.OK).render('address/address', { user: user });
   } catch (error) {
     res
@@ -50,7 +49,7 @@ const postAddAddress = async (req, res) => {
     ) {
       return res
         .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'All fields are required' });
+        .json({ success: false, message: messages.COMMON.ALL_FIELDS_REQUIRED });
     }
 
     // Regex for phone number (adjust if necessary)
@@ -58,7 +57,7 @@ const postAddAddress = async (req, res) => {
     if (!phoneRegex.test(trimmedPhoneNo)) {
       return res
         .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'Invalid phone number' });
+        .json({ success: false, message: messages.ADDRESS.INVALID_PHONE });
     }
 
     // Regex for Indian postal code
@@ -66,7 +65,7 @@ const postAddAddress = async (req, res) => {
     if (!postalCodeRegex.test(trimmedPostalCode)) {
       return res.status(httpStatusCodes.BAD_REQUEST).json({
         success: false,
-        message: 'Invalid postal code. Must be a 6-digit Indian postal code.',
+        message: messages.ADDRESS.INVALID_POSTAL,
       });
     }
 
@@ -74,7 +73,7 @@ const postAddAddress = async (req, res) => {
     if (!user) {
       return res
         .status(httpStatusCodes.NOT_FOUND)
-        .json({ success: false, message: 'User not found' });
+        .json({ success: false, message: messages.COMMON.USER_NOT_FOUND });
     }
 
     const newAddrs = {
@@ -91,9 +90,7 @@ const postAddAddress = async (req, res) => {
     user.address.push(newAddress._id);
     await user.save();
 
-    res
-      .status(httpStatusCodes.OK)
-      .json({ success: true, message: 'New address added successfully' });
+    res.status(httpStatusCodes.OK).json({ success: true, message: messages.ADDRESS.ADD_SUCCESS });
   } catch (error) {
     res.status(httpStatusCodes.BAD_REQUEST).json({ success: false, message: error.message });
   }
@@ -106,7 +103,7 @@ const getEditAddress = async (req, res) => {
     if (!address) {
       return res
         .status(httpStatusCodes.NOT_FOUND)
-        .json({ success: false, message: 'address not found' });
+        .json({ success: false, message: messages.ADDRESS.ADDRESS_NOT_FOUND });
     }
     res.render('address/edit-address', { address: address });
   } catch (error) {
@@ -134,14 +131,14 @@ const patchEditAddress = async (req, res) => {
     if (!address) {
       return res
         .status(httpStatusCodes.NOT_FOUND)
-        .json({ success: false, message: 'Address not found' });
+        .json({ success: false, message: messages.ADDRESS.ADDRESS_NOT_FOUND });
     }
 
     // Check if the user is authorized to edit this address
     if (address.user.toString() !== userId.toString()) {
       return res
         .status(httpStatusCodes.FORBIDDEN)
-        .json({ success: false, message: 'You are not authorized to edit this address' });
+        .json({ success: false, message: messages.ADDRESS.UNAUTHORIZED_EDIT });
     }
 
     // Check for empty fields
@@ -155,7 +152,7 @@ const patchEditAddress = async (req, res) => {
     ) {
       return res
         .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'All fields are required' });
+        .json({ success: false, message: messages.COMMON.ALL_FIELDS_REQUIRED });
     }
 
     // Regex for phone number (adjust if necessary)
@@ -163,7 +160,7 @@ const patchEditAddress = async (req, res) => {
     if (!phoneRegex.test(trimmedPhoneNo)) {
       return res
         .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'Invalid phone number' });
+        .json({ success: false, message: messages.ADDRESS.INVALID_PHONE });
     }
 
     // Regex for Indian postal code
@@ -171,7 +168,7 @@ const patchEditAddress = async (req, res) => {
     if (!postalCodeRegex.test(trimmedPostalCode)) {
       return res.status(httpStatusCodes.BAD_REQUEST).json({
         success: false,
-        message: 'Invalid postal code. Must be a 6-digit Indian postal code.',
+        message: messages.ADDRESS.INVALID_POSTAL,
       });
     }
 
@@ -188,7 +185,7 @@ const patchEditAddress = async (req, res) => {
     // Update the address in the database
     await Address.findByIdAndUpdate(addressId, updatedAddress, { new: true });
 
-    res.status(200).json({ success: true, message: 'Address successfully updated' });
+    res.status(200).json({ success: true, message: messages.ADDRESS.UPDATE_SUCCESS });
   } catch (error) {
     return res.status(httpStatusCodes.BAD_REQUEST).json({ success: false, message: error.message });
   }
@@ -203,7 +200,7 @@ const deleteAddress = async (req, res) => {
     if (!addressId || !userId) {
       return res
         .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'Invalid address ID or user ID' });
+        .json({ success: false, message: messages.ADDRESS.INVALID_ID });
     }
 
     // Find and delete the address
@@ -212,15 +209,16 @@ const deleteAddress = async (req, res) => {
     if (!address) {
       return res
         .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'Address not found or does not belong to the user' });
+        .json({ success: false, message: messages.ADDRESS.DELETE_FAIL });
     }
 
-    res.status(httpStatusCodes.OK).json({ success: true, message: 'Address successfully deleted' });
+    res
+      .status(httpStatusCodes.OK)
+      .json({ success: true, message: messages.ADDRESS.DELETE_SUCCESS });
   } catch (error) {
-    console.error('Error deleting address:', error); // Log the error for debugging
     res
       .status(httpStatusCodes.INTERNAL_SERVER_ERROR)
-      .json({ success: false, message: 'Server error' });
+      .json({ success: false, message: messages.ERROR.SERVER_ERROR });
   }
 };
 

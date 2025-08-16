@@ -1,6 +1,7 @@
 const Coupon = require('../../models/couponSchema');
 const httpStatusCodes = require('../../constants/httpStatusCodes');
-const getCoupons = async (req, res) => {
+const messages = require('../../constants/message');
+const getCoupons = async (_req, res) => {
   try {
     const coupons = await Coupon.find({});
     res.render('admincoupon/coupon', { coupons: coupons, currentPath: '/coupon' });
@@ -47,7 +48,7 @@ const editCoupon = async (req, res) => {
     ) {
       return res
         .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'Please fill all fields' });
+        .json({ success: false, message: messages.COUPON.REQUIRED_FIELDS });
     }
 
     // Validate coupon code format
@@ -55,7 +56,7 @@ const editCoupon = async (req, res) => {
     if (!couponCodeRegex.test(couponCode)) {
       return res.status(httpStatusCodes.BAD_REQUEST).json({
         success: false,
-        message: 'Invalid coupon code. Only uppercase letters and numbers allowed.',
+        message: messages.COUPON.INVALID_CODE,
       });
     }
 
@@ -64,30 +65,30 @@ const editCoupon = async (req, res) => {
     if (existingCoupon) {
       return res
         .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'Coupon code already exists' });
+        .json({ success: false, message: messages.COUPON.CODE_EXISTS });
     }
 
     // Validate numeric values
     if (isNaN(discountValue) || discountValue < 0) {
       return res.status(httpStatusCodes.BAD_REQUEST).json({
         success: false,
-        message: 'Discount value must be a valid number and cannot be negative',
+        message: messages.COUPON.INVALID_DISCOUNT,
       });
     }
     if (discountValue > 60) {
       return res
         .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'Discount percentage must be less than 60' });
+        .json({ success: false, message: messages.COUPON.DISCOUNT_TOO_HIGH });
     }
     if (isNaN(minPurchaseAmount) || minPurchaseAmount < 400) {
       return res
         .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'Minimum purchase amount cannot be less than 400' });
+        .json({ success: false, message: messages.COUPON.INVALID_MIN_PURCHASE });
     }
     if (usageLimit < 0) {
       return res
         .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'Usage limit should be greater than zero' });
+        .json({ success: false, message: messages.COUPON.INVALID_USAGE_LIMIT });
     }
 
     // Validate discount type (only percentage allowed)
@@ -95,7 +96,7 @@ const editCoupon = async (req, res) => {
     if (!validDiscountTypes.includes(discountType)) {
       return res
         .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'Invalid discount type. Only "percentage" is allowed.' });
+        .json({ success: false, message: messages.COUPON.INVALID_DISCOUNT_TYPE });
     }
 
     // Parse and validate start and end dates
@@ -105,7 +106,7 @@ const editCoupon = async (req, res) => {
     if (isNaN(parsedStartDate.getTime()) || isNaN(parsedEndDate.getTime())) {
       return res
         .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'Invalid date format' });
+        .json({ success: false, message: messages.COUPON.INVALID_DATE });
     }
 
     // Ensure that endDate is in the future
@@ -113,14 +114,14 @@ const editCoupon = async (req, res) => {
     if (parsedEndDate <= now) {
       return res
         .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'End date must be in the future' });
+        .json({ success: false, message: messages.COUPON.END_DATE_PAST });
     }
 
     // Ensure that endDate is after startDate
     if (parsedEndDate <= parsedStartDate) {
       return res
         .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'End date must be after start date' });
+        .json({ success: false, message: messages.COUPON.END_DATE_BEFORE_START });
     }
 
     // Update the coupon
@@ -141,7 +142,7 @@ const editCoupon = async (req, res) => {
     // Respond with success message
     res
       .status(httpStatusCodes.OK)
-      .json({ success: true, message: 'Coupon updated successfully', coupon: updatedCoupon });
+      .json({ success: true, message: messages.COUPON.UPDATE_SUCCESS, coupon: updatedCoupon });
   } catch (error) {
     res.status(httpStatusCodes.BAD_REQUEST).json({ success: false, message: error.message });
   }
@@ -176,41 +177,41 @@ const addCoupon = async (req, res) => {
     ) {
       return res
         .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'Please fill all fieldss' });
+        .json({ success: false, message: messages.COUPON.REQUIRED_FIELDS });
     }
     const couponCodeRegex = /^[A-Z0-9]{6,12}(-[A-Z0-9]{6,12})?$/;
     if (!couponCodeRegex.test(couponCode)) {
       return res
         .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'Invalid coupon code and only alpha cap and num' });
+        .json({ success: false, message: messages.COUPON.INVALID_CODE_SIMPLE });
     }
     const coupon = await Coupon.findOne({ couponCode });
     if (coupon) {
       return res
         .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'Coupon code already exists' });
+        .json({ success: false, message: messages.COUPON.CODE_EXISTS });
     }
     if (isNaN(discountValue) || discountValue < 0) {
       return res.status(httpStatusCodes.BAD_REQUEST).json({
         success: false,
-        message: 'Discount value must be a valid number and cannot be negative',
+        message: messages.COUPON.INVALID_DISCOUNT,
       });
     }
     if (discountValue > 60) {
       return res
         .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'Discount Percentage Must be less than 60' });
+        .json({ success: false, message: messages.COUPON.DISCOUNT_TOO_HIGH });
     }
     if (isNaN(minPurchaseAmount) || minPurchaseAmount < 400) {
       return res
         .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'Minimum purchase amount cannot be less than 400' });
+        .json({ success: false, message: messages.COUPON.INVALID_MIN_PURCHASE });
     }
 
     if (usageLimit < 0) {
       return res
         .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'the limit should be greter zero' });
+        .json({ success: false, message: messages.COUPON.INVALID_USAGE_LIMIT });
     }
     const parsedStartDate = new Date(startDate);
     const parsedEndDate = new Date(endDate);
@@ -219,7 +220,7 @@ const addCoupon = async (req, res) => {
     if (isNaN(parsedStartDate.getTime()) || isNaN(parsedEndDate.getTime())) {
       return res
         .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'Invalid date format' });
+        .json({ success: false, message: messages.COUPON.INVALID_DATE });
     }
 
     // Ensure that endDate is in the future
@@ -227,20 +228,20 @@ const addCoupon = async (req, res) => {
     if (parsedEndDate <= now) {
       return res
         .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'End date must be in the future' });
+        .json({ success: false, message: messages.COUPON.END_DATE_PAST });
     }
 
     // Ensure that endDate is after startDate or equal to today
     if (parsedEndDate < parsedStartDate) {
       return res
         .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'End date must be after start date' });
+        .json({ success: false, message: messages.COUPON.END_DATE_BEFORE_START });
     }
     const validDiscountTypes = ['percentage'];
     if (!validDiscountTypes.includes(discountType)) {
       return res
         .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'Invalid discount type' });
+        .json({ success: false, message: messages.COUPON.INVALID_DATE });
     }
 
     const newCoupon = new Coupon({
@@ -253,7 +254,7 @@ const addCoupon = async (req, res) => {
       usageLimit: usageLimit,
     });
     await newCoupon.save();
-    res.status(httpStatusCodes.OK).json({ success: true, message: 'coupon added successfuly' });
+    res.status(httpStatusCodes.OK).json({ success: true, message: messages.COUPON.ADD_SUCCESS });
   } catch (error) {
     res.status(httpStatusCodes.BAD_REQUEST).json({ success: false, message: error.message });
   }
@@ -266,18 +267,16 @@ const deleteCoupon = async (req, res) => {
     if (!coupon) {
       return res
         .status(httpStatusCodes.NOT_FOUND)
-        .json({ success: false, message: 'Coupon not found' });
+        .json({ success: false, message: messages.COUPON.NOT_FOUND });
     }
 
     await Coupon.findByIdAndDelete(couponId);
 
-    res.status(httpStatusCodes.OK).json({ success: true, message: 'Coupon deleted successfully' });
+    res.status(httpStatusCodes.OK).json({ success: true, message: messages.COUPON.DELETE_SUCCESS });
   } catch (error) {
-    console.error('Error deleting coupon:', error);
-
     res
       .status(httpStatusCodes.INTERNAL_SERVER_ERROR)
-      .json({ success: false, message: 'Internal server error' });
+      .json({ success: false, message: messages.ERROR.SERVER_ERROR });
   }
 };
 module.exports = {

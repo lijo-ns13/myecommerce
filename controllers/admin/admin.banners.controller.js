@@ -1,12 +1,12 @@
 const path = require('path');
 const Banner = require('../../models/bannerSchema');
 const httpStatusCodes = require('../../constants/httpStatusCodes');
+const messages = require('../../constants/message');
 const getBanners = async (_req, res) => {
   try {
     const banners = await Banner.find({});
     res.render('admin/banner', { banners });
   } catch (error) {
-    console.log('Error fetching banners:', error.message);
     res.status(httpStatusCodes.INTERNAL_SERVER_ERROR).send('Server Error');
   }
 };
@@ -18,7 +18,7 @@ const addBanner = async (req, res) => {
     if (!image) {
       return res
         .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'Image is required' });
+        .json({ success: false, message: messages.BANNER.IMAGE_REQUIRED });
     }
 
     const banner = new Banner({
@@ -28,9 +28,10 @@ const addBanner = async (req, res) => {
     });
 
     await banner.save();
-    res.status(httpStatusCodes.OK).json({ success: true, message: 'Banner created successfully' });
+    res
+      .status(httpStatusCodes.CREATED)
+      .json({ success: true, message: messages.BANNER.CREATE_SUCCESS });
   } catch (error) {
-    console.log('Error on adding banner', error.message);
     res.status(httpStatusCodes.BAD_REQUEST).json({ success: false, message: error.message });
   }
 };
@@ -42,13 +43,12 @@ const deleteBanner = async (req, res) => {
     if (!banner) {
       return res
         .status(httpStatusCodes.NOT_FOUND)
-        .json({ success: false, message: 'Banner not found' });
+        .json({ success: false, message: messages.BANNER.NOT_FOUND });
     }
 
     await Banner.findByIdAndDelete(bannerId);
-    res.status(httpStatusCodes.OK).json({ success: true, message: 'Banner deleted successfully' });
+    res.status(httpStatusCodes.OK).json({ success: true, message: messages.BANNER.DELETE_SUCCESS });
   } catch (error) {
-    console.log('Error on deleting banner', error.message);
     res.status(httpStatusCodes.BAD_REQUEST).json({ success: false, message: error.message });
   }
 };

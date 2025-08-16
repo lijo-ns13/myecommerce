@@ -5,7 +5,7 @@ const bcrypt = require('bcrypt');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 const httpStatusCodes = require('../../constants/httpStatusCodes');
-
+const messages = require('../../constants/message');
 const transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com',
   port: 465,
@@ -30,7 +30,7 @@ const postSignin = async (req, res) => {
     if (!email || !password) {
       return res
         .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'Please fill in all fields' });
+        .json({ success: false, message: messages.AUTH.FILL_ALL_FIELDS });
     }
     const regex =
       /^(("[\w-\s]+")|([\w-]+(?:\.[\w-]+)*)|("[\w-\s]+")([\w-]+(?:\.[\w-]+)*))(@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$)|(@\[?((25[0-5]\.|2[0-4][0-9]\.|1[0-9]{2}\.|[0-9]{1,2}\.))((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\.){2}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\]?$)/i;
@@ -38,19 +38,19 @@ const postSignin = async (req, res) => {
     if (!result) {
       return res
         .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'Invalid email' });
+        .json({ success: false, message: messages.AUTH.INVALID_EMAIL });
     }
     const user = await userModel.findOne({ email }).select('+password +isBlocked');
 
     if (user.isBlocked) {
       return res
         .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'Your account temporary blocked' });
+        .json({ success: false, message: messages.AUTH.BLOCKED });
     }
     if (!user || !(await bcrypt.compare(password, user.password))) {
       return res
         .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'User not found or password not matching' });
+        .json({ success: false, message: messages.AUTH.INVALID_CREDENTIALS });
     }
 
     const token = JWT.sign(
@@ -67,11 +67,11 @@ const postSignin = async (req, res) => {
     res.cookie('token', token, cookieOptions);
 
     console.log('login');
-    res.json({ success: true, message: 'login successful', role: user.role });
+    res.json({ success: true, message: messages.AUTH.LOGIN_SUCCESS, role: user.role });
   } catch (error) {
     return res
       .status(httpStatusCodes.BAD_REQUEST)
-      .json({ success: false, message: 'please provide valid credentials' });
+      .json({ success: false, message: messages.AUTH.LOGIN_FAIL });
   }
 };
 
@@ -87,37 +87,37 @@ const postSignup = async (req, res) => {
     if (!name || !email || !password || !confirmPassword) {
       return res
         .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'Please fill in all fields' });
+        .json({ success: false, message: messages.AUTH.FILL_ALL_FIELDS });
     }
     if (!name.length >= 4) {
       return res
         .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'atleast 4 characters required for name' });
+        .json({ success: false, message: messages.AUTH.NAME_SHORT });
     }
     if (password !== confirmPassword) {
       return res
         .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'Passwords do not match' });
+        .json({ success: false, message: messages.AUTH.PASSWORD_MISMATCH });
     }
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!regex.test(email)) {
       return res
         .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'Invalid email' });
+        .json({ success: false, message: messages.AUTH.INVALID_EMAIL });
     }
 
     const validUsername = /^[A-Za-z\s'-]{2,50}$/;
     if (!validUsername.test(name)) {
       return res
         .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'Invalid name' });
+        .json({ success: false, message: messages.AUTH.INVALID_NAME });
     }
 
     const existingUser = await userModel.findOne({ email });
     if (existingUser) {
       return res
         .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'Email already exists' });
+        .json({ success: false, message: messages.AUTH.EMAIL_EXISTS });
     }
     // res.status(200).json({success:true})
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -144,19 +144,19 @@ const postSignup = async (req, res) => {
         console.log('OTP email sent:', info.response);
         return res
           .status(httpStatusCodes.OK)
-          .json({ success: true, message: 'OTP sent successfully' });
+          .json({ success: true, message: messages.AUTH.OTP_SENT });
       })
       .catch((error) => {
         console.error('Error sending OTP:', error);
         return res
           .status(httpStatusCodes.INTERNAL_SERVER_ERROR)
-          .json({ success: false, message: 'Failed to send OTP' });
+          .json({ success: false, message: messages.AUTH.OTP_FAILED });
       });
   } catch (error) {
     console.error('Signup error:', error);
     return res
       .status(httpStatusCodes.INTERNAL_SERVER_ERROR)
-      .json({ success: false, message: 'Something went wrong' });
+      .json({ success: false, message: messages.AUTH.GENERAL_ERROR });
   }
 };
 
@@ -169,14 +169,14 @@ const postForgotpassword = async (req, res) => {
   if (!regex.test(email)) {
     return res
       .status(httpStatusCodes.BAD_REQUEST)
-      .json({ success: false, message: 'Invalid email' });
+      .json({ success: false, message: messages.AUTH.INVALID_EMAIL });
   }
 
   const user = await userModel.findOne({ email });
   if (!user) {
     return res
       .status(httpStatusCodes.BAD_REQUEST)
-      .json({ success: false, message: 'User not found' });
+      .json({ success: false, message: messages.COMMON.USER_NOT_FOUND });
   }
   const forgotToken = user.getForgotPasswordToken();
   await user.save({ validateBeforeSave: false });
@@ -224,20 +224,18 @@ const postPasswordreset = async (req, res) => {
     if (!user) {
       return res
         .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'Invalid token or expired' });
+        .json({ success: false, message: messages.AUTH.TOKEN_INVALID });
     }
     if (req.body.password !== req.body.confirmPassword) {
       return res
         .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'password and confirm password not same' });
+        .json({ success: false, message: messages.AUTH.PASSWORD_CONFIRM_FAIL });
     }
     user.forgotPasswordExpiry = undefined;
     user.forgotPasswordToken = undefined;
     user.password = req.body.password;
     await user.save();
-    res
-      .status(httpStatusCodes.OK)
-      .json({ success: true, message: 'Password changed successfully' });
+    res.status(httpStatusCodes.OK).json({ success: true, message: messages.AUTH.PASSWORD_CHANGED });
   } catch (error) {
     res.status(httpStatusCodes.BAD_REQUEST).json({ success: false, message: error.message });
   }
@@ -262,7 +260,7 @@ const postResend = async (req, res) => {
         console.log(error);
         return res
           .status(httpStatusCodes.INTERNAL_SERVER_ERROR)
-          .json({ success: false, message: 'Failed to resend OTP' });
+          .json({ success: false, message: messages.AUTH.OTP_FAILED });
       }
       res.status(httpStatusCodes.OK).render('otp');
     });
@@ -278,17 +276,17 @@ const postVerify = async (req, res) => {
     if (Date.now() > otpExpirationTime) {
       return res
         .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'otp expired' });
+        .json({ success: false, message: messages.AUTH.OTP_EXPIRED });
     }
 
     const userInfo = new userModel(temperaluserData);
     await userInfo.save();
 
-    res
-      .status(httpStatusCodes.OK)
-      .json({ success: true, message: 'You have been successfully registered' });
+    res.status(httpStatusCodes.OK).json({ success: true, message: messages.AUTH.REGISTER_SUCCESS });
   } else {
-    res.status(httpStatusCodes.BAD_REQUEST).json({ success: false, message: 'otp is incorrect' });
+    res
+      .status(httpStatusCodes.BAD_REQUEST)
+      .json({ success: false, message: messages.AUTH.OTP_INCORRECT });
   }
 };
 const getLogout = (_req, res) => {
