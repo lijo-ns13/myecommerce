@@ -1,84 +1,60 @@
-const express = require("express");
-const userModel = require("../models/userSchema");
-const Products = require("../models/productSchema");
-const Product = require("../models/productSchema");
-const JWT = require("jsonwebtoken");
-const bcrypt = require("bcryptjs");
-const dotenv = require("dotenv").config();
-const cookieParser = require("cookie-parser");
-const Category = require("../models/categorySchema");
-const Cart = require("../models/cartSchema");
-const User = require("../models/userSchema");
-
-const { jwtAuth } = require("../middlewares/auth");
-
-const { getProductsWithOffers } = require("../services/productService");
-
+const Products = require('../../models/productSchema');
+const Product = require('../../models/productSchema');
+const Category = require('../../models/categorySchema');
+const Cart = require('../../models/cartSchema');
+const User = require('../../models/userSchema');
+const httpStatusCodes = require('../../constants/httpStatusCodes');
+const { getProductsWithOffers } = require('../../services/productService');
+const messages = require('../../constants/message');
 const getLand = async (req, res) => {
   const products = await Products.find({ isListed: true }).limit(6);
   // const products=await Products.find({});
   // res.json(products);
-  console.log("rq.user", req.user);
   currentUserId = req.user ? req.user._id : null;
-  console.log("req.user._id", currentUserId);
   const categories = await Category.find({});
   // console.log('products',products)
   const cart = await Cart.find({});
-  console.log("cart", cart);
   const userWishlist = currentUserId
-    ? await User.findById(currentUserId).populate("wishlist")
+    ? await User.findById(currentUserId).populate('wishlist')
     : null;
   const wishlist = userWishlist ? userWishlist.wishlist : [];
-  console.log("wishlist/land", wishlist);
-  res.render("land", {
-    products: products,
-    currentUserId,
-    wishlist,
-    categories,
-  });
+  res.render('land', { products: products, currentUserId, wishlist, categories });
 };
 
 const getProductDetailed = async (req, res) => {
   const productId = req.params.productId;
   const user = req.user && req.user._id ? req.user._id : null;
-  console.log("req.userssssssssssssss", req.user);
-  console.log("userIddddddddddddddddd", user);
   const product = await Products.findById(productId)
     .populate({
-      path: "reviews",
-      select: "rating comment date isDeleted",
+      path: 'reviews',
+      select: 'rating comment date isDeleted',
       populate: {
-        path: "user",
-        select: "name _id ",
+        path: 'user',
+        select: 'name _id ',
       },
     })
     .populate({
-      path: "category",
-      select: "name _id",
+      path: 'category',
+      select: 'name _id',
     });
-  console.log("productreviews", product.reviews);
+  console.log('productreviews', product.reviews);
 
   let ratings = product.reviews.map((review) => review.rating);
   let totalRatingCount = ratings.length;
   let rating = ratings.reduce((acc, cur) => acc + cur, 0);
   let avgRating = rating / totalRatingCount;
-  if (typeof avgRating === "number" && !isNaN(avgRating)) {
+  if (typeof avgRating === 'number' && !isNaN(avgRating)) {
     avgRating = avgRating.toFixed(2);
   } else {
     avgRating = 0;
   }
-  console.log("avgRating", avgRating);
-  console.log("ratinnnnnnnnnnnnnngafasfasfd", ratings);
   const productOne = await Products.findById(productId);
-  console.log("rq.user", req.user);
   currentUserId = req.user ? req.user._id : null;
-  console.log("currentUserId", currentUserId);
 
   // console.log('products',products)
   const cart = await Cart.find({});
-  console.log("cart", cart);
   const userWishlist = currentUserId
-    ? await User.findById(currentUserId).populate("wishlist")
+    ? await User.findById(currentUserId).populate('wishlist')
     : null;
   const wishlist = userWishlist ? userWishlist.wishlist : [];
 
@@ -91,22 +67,10 @@ const getProductDetailed = async (req, res) => {
   const userId = (req.user && req.user._id) || null;
 
   const checkPurchase =
-    userId &&
-    product.purchasedByUserIds &&
-    product.purchasedByUserIds.includes(userId);
-  console.log("checkpurchase", checkPurchase);
-  console.log("userid", userId);
-  console.log("purchasedByUserIds", product.purchasedByUserIds);
+    userId && product.purchasedByUserIds && product.purchasedByUserIds.includes(userId);
   const categoryId = product.category;
-  console.log(categoryId);
 
-  const relatedProducts = await Products.find({
-    category: categoryId,
-    isListed: true,
-  });
-  console.log(relatedProducts);
-
-  console.log("cart", cart);
+  const relatedProducts = await Products.find({ category: categoryId, isListed: true });
   // let cartLength;
   // if(req.user){
   //     cartLength = cart.length > 0 && cart[0].products ? cart[0].products.length : 0 ;
@@ -117,7 +81,7 @@ const getProductDetailed = async (req, res) => {
   // console.log(product)
   // res.json(product)
   if (check) {
-    res.render("product-detailed", {
+    res.render('product-detailed', {
       product: product,
       relatedProducts: relatedProducts,
       isOffer: true,
@@ -129,7 +93,7 @@ const getProductDetailed = async (req, res) => {
       avgRating,
     });
   } else {
-    res.render("product-detailed", {
+    res.render('product-detailed', {
       product: product,
       relatedProducts: relatedProducts,
       isOffer: false,
@@ -144,16 +108,13 @@ const getProductDetailed = async (req, res) => {
 };
 
 const getFullProducts = async (req, res) => {
-  const { query = "", category = "", sort = "" } = req.query;
+  const { query = '', category = '', sort = '' } = req.query;
 
   try {
-    console.log("rq.user", req.user);
     currentUserId = req.user ? req.user._id : null;
-    console.log("req.user._id", currentUserId);
     const cart = await Cart.find({});
-    console.log("cart", cart);
     const userWishlist = currentUserId
-      ? await User.findById(currentUserId).populate("wishlist")
+      ? await User.findById(currentUserId).populate('wishlist')
       : null;
     const wishlist = userWishlist ? userWishlist.wishlist : [];
     // Prepare filter object
@@ -162,8 +123,8 @@ const getFullProducts = async (req, res) => {
     // Prepare search filter
     if (query) {
       filter.$or = [
-        { product: { $regex: query, $options: "i" } }, // Case-insensitive search on product name
-        { description: { $regex: query, $options: "i" } }, // Case-insensitive search on description
+        { product: { $regex: query, $options: 'i' } }, // Case-insensitive search on product name
+        { description: { $regex: query, $options: 'i' } }, // Case-insensitive search on description
       ];
     }
 
@@ -190,7 +151,7 @@ const getFullProducts = async (req, res) => {
     const products = await Product.find(filter).sort(sortOption);
 
     // Pass data to the view
-    res.render("fullproducts", {
+    res.render('fullproducts', {
       products,
       categories,
       searchQuery: query,
@@ -199,11 +160,10 @@ const getFullProducts = async (req, res) => {
       wishlist,
     });
   } catch (error) {
-    console.error("Error fetching products or categories:", error);
-    res.status(500).send("Internal Server Error");
+    res.status(httpStatusCodes.INTERNAL_SERVER_ERROR).send(messages.ERROR.SERVER_ERROR);
   }
 };
-const getOffer = async (req, res) => {
+const getOffer = async (_req, res) => {
   const productsWithOffers = await getProductsWithOffers();
   res.json(productsWithOffers);
 };
