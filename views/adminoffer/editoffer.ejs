@@ -1,40 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Offer</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-    <style>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Edit Offer</title>
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+            rel="stylesheet">
+        <link
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+            rel="stylesheet">
+        <style>
         body {
             background-color: #f8f9fa;
         }
-        .sidebar {
-            height: 100vh;
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: 100;
-            width: 250px;
-            background-color: #343a40;
-            color: #fff;
-            overflow-y: auto;
-            transition: all 0.3s;
-        }
-        .sidebar .nav-link {
-            color: #adb5bd;
-            transition: all 0.3s;
-            border-radius: 5px;
-            margin: 5px 0;
-        }
-        .sidebar .nav-link:hover, .sidebar .nav-link.active {
-            color: #fff;
-            background-color: #495057;
-        }
-        .sidebar .nav-link.active {
-            background-color: #007bff;
-        }
+      
         .content {
             margin-left: 250px;
             padding: 2rem;
@@ -63,141 +43,153 @@
             border-radius: 0.5rem;
         }
     </style>
-</head>
-<body>
-    <div class="sidebar p-3">
-        <h4 class="mb-4 text-center">Dashboard</h4>
-        <ul class="nav flex-column">
-            <li class="nav-item">
-                <a class="nav-link " href="/admin/dashboard"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link " href="/admin/products"><i class="fas fa-box me-2"></i>Products</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/orders"><i class="fas fa-shopping-cart me-2"></i>Orders</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/category"><i class="fas fa-tags me-2"></i>Category</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/customers"><i class="fas fa-users me-2"></i>Customers</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/coupons"><i class="fas fa-ticket-alt me-2"></i>Coupons</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/banners"><i class="fas fa-image me-2"></i>Banners</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link active" href="/admin/offers"><i class="fas fa-gift me-2"></i>Offers</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/inventory"><i class="fas fa-warehouse me-2"></i>Inventory</a>
-            </li>
-            <li class="nav-item mt-auto">
-                <a class="nav-link text-danger" href="/auth/logout"><i class="fas fa-sign-out-alt me-2"></i>Logout</a>
-            </li>
-        </ul>
-    </div>
+    </head>
+    <body>
 
-    <div class="content">
-        <h1 class="mb-4">Edit Offer</h1>
-        
-        <form id="editOfferForm" action="/admin/offers/edit-offer/<%= offer._id %>" method="post">
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <label for="offerName" class="form-label">Offer Name</label>
-                    <input type="text" class="form-control" id="offerName" name="offerName" value="<%= offer.offerName %>" required>
-                </div>
-                <div class="col-md-6">
-                    <label for="offerType" class="form-label">Offer Type</label>
-                    <select class="form-select" id="offerType" name="offerType" required>
-                        <option value="category" <%= offer.offerType === 'category' ? 'selected' : '' %>>Category</option>
-                        <option value="product" <%= offer.offerType === 'product' ? 'selected' : '' %>>Product</option>
-                    </select>
-                </div>
-            </div>
+        <div class="content">
+            <h1 class="mb-4">Edit Offer</h1>
 
-            <div class="mb-3" id="categorySelection" style="display:none;">
-                <label class="form-label">Select Categories</label>
-                <div class="row">
-                    <% categories.forEach(function(category) { %>
+            <form id="editOfferForm"
+                action="/admin/offers/edit-offer/<%= offer._id %>"
+                method="post">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="offerName" class="form-label">Offer
+                            Name</label>
+                        <input type="text" class="form-control" id="offerName"
+                            name="offerName" value="<%= offer.offerName %>"
+                            required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="offerType" class="form-label">Offer
+                            Type</label>
+                        <select class="form-select" id="offerType"
+                            name="offerType" required>
+                            <option value="category" <%=offer.offerType ===
+                                'category' ? 'selected' : ''
+                                %>>Category</option>
+                            <option value="product" <%=offer.offerType ===
+                                'product' ? 'selected' : '' %>>Product</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mb-3" id="categorySelection" style="display:none;">
+                    <label class="form-label">Select Categories</label>
+                    <div class="row">
+                        <% categories.forEach(function(category) { %>
                         <div class="col-md-4 mb-2">
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="category-<%= category._id %>" name="categorySelection" value="<%= category._id %>" 
-                                    <%= offer.categoryIds && offer.categoryIds.includes(category._id.toString()) ? 'checked' : '' %> >
-                                <label class="form-check-label" for="category-<%= category._id %>"><%= category.name %></label>
+                                <input class="form-check-input" type="checkbox"
+                                    id="category-<%= category._id %>"
+                                    name="categorySelection"
+                                    value="<%= category._id %>"
+                                    <%=offer.categoryIds &&
+                                    offer.categoryIds.includes(category._id.toString())
+                                    ? 'checked' : '' %> >
+                                <label class="form-check-label"
+                                    for="category-<%= category._id %>"><%=
+                                    category.name %></label>
                             </div>
                         </div>
-                    <% }); %>
+                        <% }); %>
+                    </div>
                 </div>
-            </div>
-            
-            <div class="mb-3" id="productSelection" style="display:block;">
-                <label class="form-label">Select Products</label>
-                <div class="row">
-                    <% products.forEach(function(product) { %>
+
+                <div class="mb-3" id="productSelection" style="display:block;">
+                    <label class="form-label">Select Products</label>
+                    <div class="row">
+                        <% products.forEach(function(product) { %>
                         <div class="col-md-4 mb-2">
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="product-<%= product._id %>" name="productSelection" value="<%= product._id %>"
-                                    <%= offer.productIds && offer.productIds.includes(product._id.toString()) ? 'checked' : '' %> >
-                                <label class="form-check-label" for="product-<%= product._id %>"><%= product.product %></label>
+                                <input class="form-check-input" type="checkbox"
+                                    id="product-<%= product._id %>"
+                                    name="productSelection"
+                                    value="<%= product._id %>"
+                                    <%=offer.productIds &&
+                                    offer.productIds.includes(product._id.toString())
+                                    ? 'checked' : '' %> >
+                                <label class="form-check-label"
+                                    for="product-<%= product._id %>"><%=
+                                    product.product %></label>
                             </div>
                         </div>
-                    <% }); %>
+                        <% }); %>
+                    </div>
                 </div>
-            </div>
-            
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <label for="discountType" class="form-label">Discount Type</label>
-                    <select class="form-select" id="discountType" name="discountType" required>
-                        <option value="percentage" <%= offer.discountType === 'percentage' ? 'selected' : '' %>>Percentage</option>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="discountType" class="form-label">Discount
+                            Type</label>
+                        <select class="form-select" id="discountType"
+                            name="discountType" required>
+                            <option value="percentage" <%=offer.discountType ===
+                                'percentage' ? 'selected' : ''
+                                %>>Percentage</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="discountValue" class="form-label">Discount
+                            %</label>
+                        <input type="number" class="form-control"
+                            id="discountValue" name="discountValue"
+                            value="<%= offer.discountValue %>" required min="1"
+                            max="100">
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="startDate" class="form-label">Start
+                            Date</label>
+                        <input type="date" class="form-control" id="startDate"
+                            name="startDate"
+                            value="<%= offer.startDate.toISOString().split('T')[0] %>"
+                            required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="endDate" class="form-label">End Date</label>
+                        <input type="date" class="form-control" id="endDate"
+                            name="endDate"
+                            value="<%= offer.endDate.toISOString().split('T')[0] %>"
+                            required>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="offerStatus" class="form-label">Offer
+                        Status</label>
+                    <select class="form-select" id="offerStatus"
+                        name="offerStatus" required>
+                        <option value="active" <%=offer.offerStatus === 'active'
+                            ? 'selected' : '' %>>Active</option>
+                        <option value="inactive" <%=offer.offerStatus ===
+                            'inactive' ? 'selected' : '' %>>Inactive</option>
                     </select>
                 </div>
-                <div class="col-md-6">
-                    <label for="discountValue" class="form-label">Discount %</label>
-                    <input type="number" class="form-control" id="discountValue" name="discountValue" value="<%= offer.discountValue %>" required min="1" max="100">
+
+                <div class="mb-3">
+                    <label for="offerDescription" class="form-label">Offer
+                        Description</label>
+                    <textarea class="form-control" id="offerDescription"
+                        name="offerDescription" rows="3"
+                        required><%= offer.offerDescription %></textarea>
                 </div>
-            </div>
 
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <label for="startDate" class="form-label">Start Date</label>
-                    <input type="date" class="form-control" id="startDate" name="startDate" value="<%= offer.startDate.toISOString().split('T')[0] %>" required>
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fas fa-save me-2"></i>Update Offer
+                    </button>
                 </div>
-                <div class="col-md-6">
-                    <label for="endDate" class="form-label">End Date</label>
-                    <input type="date" class="form-control" id="endDate" name="endDate" value="<%= offer.endDate.toISOString().split('T')[0] %>" required>
-                </div>
-            </div>
+            </form>
+            <div id="error" class="mt-3"></div>
+        </div>
 
-            <div class="mb-3">
-                <label for="offerStatus" class="form-label">Offer Status</label>
-                <select class="form-select" id="offerStatus" name="offerStatus" required>
-                    <option value="active" <%= offer.offerStatus === 'active' ? 'selected' : '' %>>Active</option>
-                    <option value="inactive" <%= offer.offerStatus === 'inactive' ? 'selected' : '' %>>Inactive</option>
-                </select>
-            </div>
-
-            <div class="mb-3">
-                <label for="offerDescription" class="form-label">Offer Description</label>
-                <textarea class="form-control" id="offerDescription" name="offerDescription" rows="3" required><%= offer.offerDescription %></textarea>
-            </div>
-
-            <div class="text-center">
-                <button type="submit" class="btn btn-primary btn-lg">
-                    <i class="fas fa-save me-2"></i>Update Offer
-                </button>
-            </div>
-        </form>
-        <div id="error" class="mt-3"></div>
-    </div>
-
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script
+            src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+        <script>
         $(document).ready(function() {
             // Toggle category and product selection based on offer type
             $('#offerType').change(function() {
@@ -228,5 +220,5 @@
             });
         });
     </script>
-</body>
+    </body>
 </html>

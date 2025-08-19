@@ -1,47 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Customer Management</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <style>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Customer Management</title>
+        <!-- Bootstrap CSS -->
+        <link
+            href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+            rel="stylesheet">
+        <style>
         body {
             margin: 0;
             padding: 0;
             display: flex;
         }
-        .sidebar {
-            height: 100vh;
-            width: 250px;
-            background-color: #212529;
-            color: #fff;
-            position: fixed;
-            top: 0;
-            left: 0;
-            overflow-y: auto;
-            border-right: 1px solid #444;
-            border-radius: 0 10px 10px 0;
-            box-shadow: 2px 0 5px rgba(0,0,0,0.5);
-        }
-        .sidebar .nav-link {
-            color: #ddd;
-            transition: background-color 0.3s, color 0.3s;
-            padding: 10px 20px;
-        }
-        .sidebar .nav-link:hover {
-            color: #fff;
-            background-color: #495057;
-        }
-        .sidebar .nav-link.active {
-            background-color: #007bff;
-            color: #fff;
-        }
-        .sidebar .p-3 h4 {
-            font-size: 1.5rem;
-            font-weight: 500;
-        }
+        
         .main-content {
             margin-left: 250px;
             padding: 20px;
@@ -71,68 +44,133 @@
             }
         }
     </style>
-</head>
-<body>
-    <div class="sidebar">
-        <div class="p-3">
-            <h4>Dashboard</h4>
-        </div>
-        <ul class="nav flex-column p-3">
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/dashboard">Dashboard</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/products">Products</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/orders">Orders</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link active" href="/admin/customers">Customers</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/category">Category</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/coupons">Coupons</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/banners">Banners</a>
-            </li>
-            <li class="nav-item"></li>
-                <a class="nav-link" href="/admin/inventory">Inventory</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/offers">Offers</a>
-            </li>
-            <li class="nav-item mt-auto">
-                <a class="nav-link text-danger" href="/auth/logout">Logout</a>
-            </li>
-        </ul>
-    </div>
+    </head>
+    <body>
 
-    <main class="main-content">
-        <h1 class="my-4">Customers</h1>
-        <div class="row">
-            <% for (const customer of customers) { %>
-                <div class="col-md-4">
-                    <div class="customer-card">
-                        <h5><%= customer.name %></h5>
-                        <p><%= customer.email %></p>
-                        <form action="/admin/customers/<%= customer.isBlocked ? 'unblock-user' : 'block-user' %>/<%= customer._id %>" method="post">
-                            <button type="submit" class="btn btn-<%= customer.isBlocked ? 'success' : 'danger' %> btn-custom">
-                                <%= customer.isBlocked ? 'Unblock' : 'Block' %>
-                            </button>
-                        </form>
+        <main class="main-content position-relative border-radius-lg">
+            <div class="container-fluid py-4">
+                <div class="row mb-3 align-items-center">
+                    <div class="col-md-6 col-sm-12">
+                        <h4>Customer Management</h4>
+                    </div>
+                    <div class="col-md-6 col-sm-12">
+                        <input
+                            type="text"
+                            id="searchInput"
+                            class="form-control"
+                            placeholder="Search by name or email" />
                     </div>
                 </div>
-            <% } %>
-        </div>
-    </main>
 
-    <!-- Bootstrap JS and dependencies -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-</body>
+                <div class="row" id="customerList">
+                    <% customers.forEach((customer) => { %>
+                    <div class="col-xl-3 col-md-6 col-sm-12 mb-4 customer-item">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <img
+                                    src="https://api.dicebear.com/7.x/initials/svg?seed=<%= customer.name %>"
+                                    alt="Customer Avatar"
+                                    class="rounded-circle mb-3"
+                                    style="width: 80px; height: 80px" />
+                                <h6 class="mb-1"><%= customer.name %></h6>
+                                <p class="text-secondary mb-1"><%=
+                                    customer.email %></p>
+                                <p class="text-sm mb-2">
+                                    Status:
+                                    <% if (customer.isBlocked) { %>
+                                    <span
+                                        class="badge badge-danger">Blocked</span>
+                                    <% } else { %>
+                                    <span
+                                        class="badge badge-success">Active</span>
+                                    <% } %>
+                                </p>
+                                <% if (customer.isBlocked) { %>
+                                <form method="POST"
+                                    action="/admin/customers/unblock-user/<%= customer._id %>">
+                                    <button type="submit"
+                                        class="btn btn-sm btn-success">Unblock</button>
+                                </form>
+                                <% } else { %>
+                                <form method="POST"
+                                    action="/admin/customers/block-user/<%= customer._id %>">
+                                    <button type="submit"
+                                        class="btn btn-sm btn-danger">Block</button>
+                                </form>
+                                <% } %>
+
+                            </div>
+                        </div>
+                    </div>
+                    <% }) %>
+                </div>
+
+                <!-- Pagination -->
+                <nav aria-label="Page navigation">
+                    <ul class="pagination justify-content-center mt-4">
+                        <% if (currentPage > 1) { %>
+                        <li class="page-item">
+                            <a class="page-link"
+                                href="?page=<%= currentPage - 1 %><%= searchQuery ? '&search=' + searchQuery : '' %>">Previous</a>
+                        </li>
+                        <% } else { %>
+                        <li class="page-item disabled"><span
+                                class="page-link">Previous</span></li>
+                        <% } %>
+
+                        <% for (let i = 1; i <= totalPages; i++) { %>
+                        <li
+                            class="page-item <%= i === currentPage ? 'active' : '' %>">
+                            <a class="page-link"
+                                href="?page=<%= i %><%= searchQuery ? '&search=' + searchQuery : '' %>"><%=
+                                i %></a>
+                        </li>
+                        <% } %>
+
+                        <% if (currentPage < totalPages) { %>
+                        <li class="page-item">
+                            <a class="page-link"
+                                href="?page=<%= currentPage + 1 %><%= searchQuery ? '&search=' + searchQuery : '' %>">Next</a>
+                        </li>
+                        <% } else { %>
+                        <li class="page-item disabled"><span
+                                class="page-link">Next</span></li>
+                        <% } %>
+                    </ul>
+                </nav>
+            </div>
+        </main>
+        <script>
+  // Debounced search
+  let debounceTimer;
+  const searchInput = document.getElementById("searchInput");
+
+  searchInput.addEventListener("input", () => {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => {
+      const searchQuery = searchInput.value.trim();
+      const url = new URL(window.location.href);
+      url.searchParams.set("search", searchQuery);
+      url.searchParams.set("page", 1); // reset to first page
+      window.location.href = url.toString();
+    }, 500); // 500ms debounce
+  });
+
+  // Preserve search input after reload
+  window.addEventListener("DOMContentLoaded", () => {
+    const params = new URLSearchParams(window.location.search);
+    const search = params.get("search");
+    if (search) {
+      searchInput.value = search;
+    }
+  });
+</script>
+
+        <!-- Bootstrap JS and dependencies -->
+        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+        <script
+            src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+        <script
+            src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    </body>
 </html>

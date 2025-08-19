@@ -1,46 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Orders</title>
-  <!-- Add Bootstrap CSS for styling -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-  <style>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Admin Orders</title>
+        <!-- Add Bootstrap CSS for styling -->
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+            rel="stylesheet">
+        <link rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+            rel="stylesheet">
+        <link
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+            rel="stylesheet">
+        <style>
     body {
         background-color: #f8f9fa;
         color: #212529;
         margin: 0;
         padding: 0;
     }
-    .sidebar {
-            height: 100vh;
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: 100;
-            width: 250px;
-            background-color: #343a40;
-            color: #fff;
-            overflow-y: auto;
-            transition: all 0.3s;
-        }
-        .sidebar .nav-link {
-            color: #adb5bd;
-            transition: all 0.3s;
-            border-radius: 5px;
-            margin: 5px 0;
-        }
-        .sidebar .nav-link:hover, .sidebar .nav-link.active {
-            color: #fff;
-            background-color: #495057;
-        }
-        .sidebar .nav-link.active {
-            background-color: #007bff;
-        }
+   
     .content {
         margin-left: 250px;
         padding: 30px;
@@ -61,103 +44,80 @@
         background-color: #0056b3;
     }
   </style>
-</head>
-<body>
-    <div class="sidebar p-3">
-        <h4 class="mb-4 text-center">Dashboard</h4>
-        <ul class="nav flex-column">
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/dashboard"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link " href="/admin/products"><i class="fas fa-box me-2"></i>Products</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link active" href="/admin/orders"><i class="fas fa-shopping-cart me-2"></i>Orders</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/category"><i class="fas fa-tags me-2"></i>Category</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/customers"><i class="fas fa-users me-2"></i>Customers</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/coupons"><i class="fas fa-ticket-alt me-2"></i>Coupons</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/banners"><i class="fas fa-image me-2"></i>Banners</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/offers"><i class="fas fa-gift me-2"></i>Offers</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/inventory"><i class="fas fa-warehouse me-2"></i>Inventory</a>
-            </li>
-            <li class="nav-item mt-auto">
-                <a class="nav-link text-danger" href="/auth/logout"><i class="fas fa-sign-out-alt me-2"></i>Logout</a>
-            </li>
-        </ul>
-    </div>
+    </head>
+    <body>
 
-  <div class="content">
-    <h2>Order Management</h2>
+        <div class="content">
+            <h2>Order Management</h2>
 
-    <!-- Orders Table -->
-    <table class="table table-striped table-hover">
-        <thead>
-            <tr>
-                <th scope="col">Order ID</th>
-                <th scope="col">User Name</th>
-                <th scope="col">Total Price</th>
-                <th scope="col">Status</th>
-                <th scope="col">Order Date</th>
-                <th scope="col">Payment Method</th>
-                <th scope="col">Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            <% orders.forEach((order) => { %>
-            <tr>
-                <td><%= order.genOrderId %></td>
-                <td><%= order.userId ? order.userId.name : 'No User' %></td>
-                <td>₹<%= order.totalPrice %></td>
-                <td><%= order.status %></td>
-                <td><%= new Date(order.orderDate).toLocaleDateString() %></td>
+            <!-- Orders Table -->
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th scope="col">Order ID</th>
+                        <th scope="col">User Name</th>
+                        <th scope="col">Total Price</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Order Date</th>
+                        <th scope="col">Payment Method</th>
+                        <th scope="col">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% orders.forEach((order) => { %>
+                    <tr>
+                        <td><%= order.genOrderId %></td>
+                        <td><%= order.userId ? order.userId.name : 'No User'
+                            %></td>
+                        <td>₹<%= order.totalPrice %></td>
+                        <td><%= order.status %></td>
+                        <td><%= new Date(order.orderDate).toLocaleDateString()
+                            %></td>
 
-                <td><%= order.paymentDetails.paymentMethod %></td>
-                <td>
-                    <a class="btn btn-custom btn-sm" href="/admin/orders/<%= order._id %>">
-                        <i class="fas fa-eye"></i> View & Edit
-                    </a>
-                </td>
-            </tr>
-            <% }) %>
-        </tbody>
-    </table>
+                        <td><%= order.paymentDetails.paymentMethod %></td>
+                        <td>
+                            <a class="btn btn-custom btn-sm"
+                                href="/admin/orders/<%= order._id %>">
+                                <i class="fas fa-eye"></i> View & Edit
+                            </a>
+                        </td>
+                    </tr>
+                    <% }) %>
+                </tbody>
+            </table>
 
-    <!-- Pagination Controls -->
-    <nav aria-label="Page navigation">
-        <ul class="pagination">
-            <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
-                <a class="page-link" href="?page=<%= currentPage - 1 %>&limit=10" aria-label="Previous">
-                    <span aria-hidden="true">&laquo;</span>
-                </a>
-            </li>
-            <% for (let i = 1; i <= totalPages; i++) { %>
-                <li class="page-item <%= currentPage === i ? 'active' : '' %>">
-                    <a class="page-link" href="?page=<%= i %>&limit=10"><%= i %></a>
-                </li>
-            <% } %>
-            <li class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
-                <a class="page-link" href="?page=<%= currentPage + 1 %>&limit=10" aria-label="Next">
-                    <span aria-hidden="true">&raquo;</span>
-                </a>
-            </li>
-        </ul>
-    </nav>
-</div>
+            <!-- Pagination Controls -->
+            <nav aria-label="Page navigation">
+                <ul class="pagination">
+                    <li
+                        class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
+                        <a class="page-link"
+                            href="?page=<%= currentPage - 1 %>&limit=10"
+                            aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    <% for (let i = 1; i <= totalPages; i++) { %>
+                    <li
+                        class="page-item <%= currentPage === i ? 'active' : '' %>">
+                        <a class="page-link" href="?page=<%= i %>&limit=10"><%=
+                            i %></a>
+                    </li>
+                    <% } %>
+                    <li
+                        class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
+                        <a class="page-link"
+                            href="?page=<%= currentPage + 1 %>&limit=10"
+                            aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
 
-  <!-- Bootstrap JS for interactive components -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
+        <!-- Bootstrap JS for interactive components -->
+        <script
+            src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    </body>
 </html>

@@ -107,41 +107,7 @@
             margin: 0.5rem 0;
         }
 
-        .sidebar {
-            height: 100vh;
-            width: 250px;
-            background-color: #212529;
-            color: #fff;
-            position: fixed;
-            top: 0;
-            left: 0;
-            overflow-y: auto;
-            border-right: 1px solid #444;
-            border-radius: 0 10px 10px 0;
-            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
-        }
-
-        .sidebar .nav-link {
-            color: #ddd;
-            transition: background-color 0.3s, color 0.3s;
-            padding: 10px 20px;
-        }
-
-        .sidebar .nav-link:hover {
-            color: #fff;
-            background-color: #495057;
-        }
-
-        .sidebar .nav-link.active {
-            background-color: #007bff;
-            color: #fff;
-        }
-
-        .sidebar .p-3 h4 {
-            font-size: 1.5rem;
-            font-weight: 500;
-        }
-
+      
         .main-content {
             margin-left: 250px;
             padding: 20px;
@@ -221,52 +187,6 @@
     </head>
 
     <body>
-
-        <div class="sidebar p-3">
-            <h4 class="mb-4 text-center">Dashboard</h4>
-            <ul class="nav flex-column">
-                <li class="nav-item">
-                    <a class="nav-link" href="/admin/dashboard"><i
-                            class="fas fa-tachometer-alt me-2"></i>Dashboard</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link active" href="/admin/products"><i
-                            class="fas fa-box me-2"></i>Products</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/admin/orders"><i
-                            class="fas fa-shopping-cart me-2"></i>Orders</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/admin/category"><i
-                            class="fas fa-tags me-2"></i>Category</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/admin/customers"><i
-                            class="fas fa-users me-2"></i>Customers</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/admin/coupons"><i
-                            class="fas fa-ticket-alt me-2"></i>Coupons</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/admin/banners"><i
-                            class="fas fa-image me-2"></i>Banners</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/admin/offers"><i
-                            class="fas fa-gift me-2"></i>Offers</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/admin/inventory"><i
-                            class="fas fa-warehouse me-2"></i>Inventory</a>
-                </li>
-                <li class="nav-item mt-auto">
-                    <a class="nav-link text-danger" href="/auth/logout"><i
-                            class="fas fa-sign-out-alt me-2"></i>Logout</a>
-                </li>
-            </ul>
-        </div>
 
         <div class="container mt-5 main-content">
             <!-- Order ID -->
