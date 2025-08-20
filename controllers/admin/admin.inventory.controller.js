@@ -7,7 +7,11 @@ const getInventory = async (_req, res) => {
     const products = await Product.find({}, 'product sizes'); // Only fetch product name and sizes
 
     // Render the admin inventory page with the product data
-    res.render('admininventory/inventory', { products, currentPath: '/inventory' });
+    res.render('admininventory/inventory', {
+      products,
+      currentPath: '/inventory',
+      layout: 'layouts/adminLayout',
+    });
   } catch (error) {
     res.status(httpStatusCodes.INTERNAL_SERVER_ERROR).send(messages.INVENTORY.FETCH_ERROR);
   }

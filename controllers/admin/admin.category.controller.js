@@ -4,12 +4,20 @@ const messages = require('../../constants/message');
 const getCategory = async (req, res) => {
   const categories = await Category.find();
 
-  res.render('category', { categories: categories, currentPath: '/category' });
+  res.render('category', {
+    categories: categories,
+    currentPath: '/category',
+    layout: 'layouts/adminLayout',
+  });
 };
 const getCategoryUpdate = async (req, res) => {
   const id = req.params.id;
   const category = await Category.findById(id);
-  res.render('update-category', { category, currentPath: '/category' });
+  res.render('update-category', {
+    category,
+    currentPath: '/category',
+    layout: 'layouts/adminLayout',
+  });
 };
 const patchCategoryUpdate = async (req, res) => {
   const categoryId = req.params.id;
@@ -90,7 +98,7 @@ const postCategoryUnblock = async (req, res) => {
   }
 };
 const getAddCategory = (req, res) => {
-  res.render('add-category', { currentPath: '/category' });
+  res.render('add-category', { currentPath: '/category', layout: 'layouts/adminLayout' });
 };
 const postAddCategory = async (req, res) => {
   try {

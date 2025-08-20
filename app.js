@@ -37,7 +37,8 @@ const app = express();
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(expressLayouts);
-app.set('layout', 'layouts/adminLayout');
+// app.set('layout', 'layouts/adminLayout');
+app.set('layout', false);
 app.use(noCache);
 app.use(cookieParser());
 
@@ -47,7 +48,11 @@ app.use(methodOverride('_method'));
 app.use(express.static('public'));
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
+app.use((req, res, next) => {
+  // Remove '/admin' prefix so you can compare easily
+  res.locals.currentPath = req.path.replace('/admin', '');
+  next();
+});
 app.use(express.static('uploads'));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(

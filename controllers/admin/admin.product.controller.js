@@ -22,19 +22,28 @@ const getProduct = async (req, res) => {
     currentPage: page,
     totalPages: totalPages,
     currentPath: '/product',
+    layout: 'layouts/adminLayout',
   });
 };
 const getViewProduct = async (_req, res) => {
   const products = await Product.find({});
   // res.json(products)
-  res.render('viewproducts', { products: products, currentPath: '/product' });
+  res.render('viewproducts', {
+    products: products,
+    currentPath: '/product',
+    layout: 'layouts/adminLayout',
+  });
 };
 const getAddProduct = async (_req, res) => {
   try {
     const categories = await Category.find({});
     res
       .status(httpStatusCodes.OK)
-      .render('add-product', { categories: categories, currentPath: '/product' });
+      .render('add-product', {
+        categories: categories,
+        currentPath: '/product',
+        layout: 'layouts/adminLayout',
+      });
   } catch (error) {
     res
       .status(httpStatusCodes.INTERNAL_SERVER_ERROR)
@@ -251,7 +260,12 @@ const getProductEdit = async (req, res) => {
     const productId = req.params.id;
     const categories = await Category.find({});
     const product = await Product.findById(productId);
-    res.render('pro/updateproduct', { product, categories, currentPath: '/product' });
+    res.render('pro/updateproduct', {
+      product,
+      categories,
+      currentPath: '/product',
+      layout: 'layouts/adminLayout',
+    });
   } catch (error) {
     console.error(error);
     res.status(httpStatusCodes.INTERNAL_SERVER_ERROR).send(messages.ERROR.SERVER_ERROR);

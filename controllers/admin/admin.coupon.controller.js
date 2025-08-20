@@ -4,7 +4,11 @@ const messages = require('../../constants/message');
 const getCoupons = async (_req, res) => {
   try {
     const coupons = await Coupon.find({});
-    res.render('admincoupon/coupon', { coupons: coupons, currentPath: '/coupon' });
+    res.render('admincoupon/coupon', {
+      coupons: coupons,
+      currentPath: '/coupon',
+      layout: 'layouts/adminLayout',
+    });
   } catch (error) {
     res.status(httpStatusCodes.BAD_REQUEST).json({ success: false, message: error.message });
   }
@@ -18,7 +22,11 @@ const getEditCoupon = async (req, res) => {
         .status(httpStatusCodes.BAD_REQUEST)
         .json({ success: false, message: 'Coupon not found' });
     }
-    res.render('admincoupon/editcoupon', { coupon: coupon, currentPath: '/coupon' });
+    res.render('admincoupon/editcoupon', {
+      coupon: coupon,
+      currentPath: '/coupon',
+      layout: 'layouts/adminLayout',
+    });
   } catch (error) {
     res.status(httpStatusCodes.BAD_REQUEST).json({ success: false, message: error.message });
   }
@@ -149,7 +157,7 @@ const editCoupon = async (req, res) => {
 };
 const getAddCoupon = async (_req, res) => {
   try {
-    res.render('admincoupon/addcoupon', { currentPath: '/coupon' });
+    res.render('admincoupon/addcoupon', { currentPath: '/coupon', layout: 'layouts/adminLayout' });
   } catch (error) {
     res.status(httpStatusCodes.BAD_REQUEST).json({ success: false, message: error.message });
   }

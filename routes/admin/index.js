@@ -10,10 +10,9 @@ const adminInventoryRouter = require('./admin.invetentory.routes');
 const adminOffersRouter = require('./admin.offers.routes');
 const adminOrdersRouter = require('./admin.orders.routes');
 const adminProductRouter = require('./admin.product.routes');
-router.use((req, res, next) => {
-  res.locals.layout = 'layouts/adminLayout'; // use views/layouts/adminLayout.ejs
-  next();
-});
+
+// router.use(expressLayouts);
+// router.set('layout', 'layouts/adminLayout');
 router.use('/banners', adminBannerRouter);
 router.use('/category', adminCategoryRouter);
 router.use('/', admincouponRouter);

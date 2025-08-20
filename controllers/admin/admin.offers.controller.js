@@ -43,7 +43,12 @@ const getOffers = async (req, res) => {
     //   return res.status(400).json({ success: false, message: 'Offers not found' });
     // }
     const products = await Product.find();
-    res.render('adminoffer/offer', { offers, products, currentPath: '/offer' });
+    res.render('adminoffer/offer', {
+      offers,
+      products,
+      currentPath: '/offer',
+      layout: 'layouts/adminLayout',
+    });
   } catch (error) {
     res
       .status(httpStatusCodes.INTERNAL_SERVER_ERROR)
@@ -54,7 +59,12 @@ const getAddOffer = async (req, res) => {
   try {
     const categories = await Category.find({});
     const products = await Product.find({}); // Fetch all products as well
-    res.render('adminoffer/addoffer', { categories, products, currentPath: '/offer' }); // Pass products to the template
+    res.render('adminoffer/addoffer', {
+      categories,
+      products,
+      currentPath: '/offer',
+      layout: 'layouts/adminLayout',
+    }); // Pass products to the template
   } catch (error) {
     res
       .status(httpStatusCodes.INTERNAL_SERVER_ERROR)
@@ -270,6 +280,7 @@ const getEditOffer = async (req, res) => {
       categories, // Pass categories to the template
       products, // Pass products to the template
       currentPath: '/offer',
+      layout: 'layouts/adminLayout',
     });
   } catch (error) {
     console.error('Error fetching offer for editing:', error.message);

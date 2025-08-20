@@ -41,6 +41,7 @@ const getCustomers = async (req, res) => {
       totalPages,
       searchQuery: search,
       currentPath: '/customer',
+      layout: 'layouts/adminLayout',
     });
   } catch (err) {
     res.status(httpStatusCodes.INTERNAL_SERVER_ERROR).send(messages.CUSTOMER.CUSTOMERS_FETCH_ERROR);

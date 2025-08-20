@@ -31,6 +31,7 @@ const getOrders = async (req, res) => {
       currentPage: page,
       totalPages,
       currentPath: 'order',
+      layout: 'layouts/adminLayout',
     });
   } catch (error) {
     res
@@ -50,7 +51,7 @@ const getEditOrder = async (req, res) => {
         .json({ success: false, message: messages.COMMON.ORDER_NOT_FOUND });
     }
 
-    res.render('adminorders/edit', { order, currentPath: '/order' });
+    res.render('adminorders/edit', { order, currentPath: '/order', layout: 'layouts/adminLayout' });
   } catch (error) {
     res
       .status(httpStatusCodes.INTERNAL_SERVER_ERROR)
@@ -259,7 +260,11 @@ const getOrderDetailedPage = async (req, res) => {
         .json({ success: false, message: 'Order not found' });
     }
 
-    res.render('adminorders/orderDetailedPage', { order: order, currentPath: '/order' });
+    res.render('adminorders/orderDetailedPage', {
+      order: order,
+      currentPath: '/order',
+      layout: 'layouts/adminLayout',
+    });
   } catch (error) {
     console.log('error order detailed page', error.message);
     res.status(httpStatusCodes.BAD_REQUEST).json({ success: false, message: error.message });
