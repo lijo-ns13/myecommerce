@@ -9,7 +9,7 @@ services:
       - '8080:8080' # Map host port 8080 to container port 8080
     environment:
       NODE_ENV: production
-      MONGO_URI: 'mongodb+srv://lijons13:Lijons2002@cluster0.rth430h.mongodb.net/myecommerce?retryWrites=true&w=majority' # Replace with your Atlas URI
+      MONGO_URI: ${MONGODB_URL}
       PORT: 8080
     networks:
       - app-network
