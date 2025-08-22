@@ -154,5 +154,8 @@ module.exports = {
     CATEGORY_NOT_FOUND: 'Category not found',
     CART_NOT_FOUND: 'Cart not found',
     SIZE_NOT_FOUND: 'Size not found',
+    MIN_CHAR: 'Minimum 3 character required',
+    MAX_CHAR: 'Maximum 15 character required',
+    MIN_MAX_CHAR: (field, min, max) => `${field} must be between ${min} and ${max} characters`,
   },
 };

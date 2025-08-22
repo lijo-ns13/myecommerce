@@ -1,0 +1,19 @@
+version: '3.9'
+
+services:
+  app:
+    image: lijons/stridnest:latest # Your Docker Hub image
+    container_name: my_ecommerce_app
+    restart: always
+    ports:
+      - '8080:8080' # Map host port 8080 to container port 8080
+    environment:
+      NODE_ENV: production
+      MONGO_URI: 'mongodb+srv://lijons13:Lijons2002@cluster0.rth430h.mongodb.net/myecommerce?retryWrites=true&w=majority' # Replace with your Atlas URI
+      PORT: 8080
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

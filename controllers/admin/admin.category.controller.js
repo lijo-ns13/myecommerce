@@ -21,6 +21,22 @@ const getCategoryUpdate = async (req, res) => {
 };
 const patchCategoryUpdate = async (req, res) => {
   const categoryId = req.params.id;
+  const { name, description } = req.body;
+  if (!name || !description) {
+    return res
+      .status(httpStatusCodes.BAD_REQUEST)
+      .json({ success: false, message: messages.COMMON.ALL_FIELDS_REQUIRED });
+  }
+  if ((name.trim().length > 15) | (name.trim().length < 3)) {
+    return res
+      .status(httpStatusCodes.BAD_REQUEST)
+      .json({ success: false, message: messages.COMMON.MIN_MAX_CHAR('name', 3, 15) });
+  }
+  if (description.trim().length > 20 || description.trim().length < 3) {
+    return res
+      .status(httpStatusCodes.BAD_REQUEST)
+      .json({ success: false, message: messages.COMMON.MIN_MAX_CHAR('description', 3, 20) });
+  }
   const category = await Category.findByIdAndUpdate(categoryId, req.body, { new: true });
   if (!category) {
     return res.status(httpStatusCodes.NOT_FOUND).send({ message: messages.CATEGORY.NOT_FOUND });
@@ -29,20 +45,6 @@ const patchCategoryUpdate = async (req, res) => {
     .status(httpStatusCodes.OK)
     .json({ success: true, message: messages.CATEGORY.UPDATE_SUCCESS, category: category });
 };
-// const deleteCategoryDelete=async(req,res)=>{
-//     try{
-//         const categoryId=req.params.id;
-//     const category=await Category.findByIdAndDelete(categoryId);
-//     if(!category){
-//         return res.status(404).render('category/error',{success:false,message:'category not found'})
-//     }
-//     // res.status(200).render('category/success',{success:true,message:'successfully deleted'})
-//     res.status(200).json({success:true,message:'Deleted Successfully'})
-//     }catch (error) {
-//       console.error('Error:', error); // Log the full error
-//       res.status(500).json({ success: false, message: error.message });
-//   }
-// }
 const postCategoryBlock = async (req, res) => {
   try {
     const categoryId = req.params.id;
@@ -65,7 +67,6 @@ const postCategoryBlock = async (req, res) => {
     res
       .status(httpStatusCodes.OK)
       .json({ success: true, message: messages.CATEGORY.BLOCK_SUCCESS });
-    // res.status(200).redirect('/admin/category')
   } catch (error) {
     res.status(httpStatusCodes.BAD_REQUEST).json({ success: false, message: error.message });
   }
@@ -92,21 +93,31 @@ const postCategoryUnblock = async (req, res) => {
     res
       .status(httpStatusCodes.OK)
       .json({ success: true, message: messages.CATEGORY.UNBLOCK_SUCCESS });
-    // res.status(200).redirect('/admin/category')
   } catch (error) {
     res.status(httpStatusCodes.BAD_REQUEST).json({ success: false, message: error.message });
   }
 };
-const getAddCategory = (req, res) => {
+const getAddCategory = (_req, res) => {
   res.render('add-category', { currentPath: '/category', layout: 'layouts/adminLayout' });
 };
 const postAddCategory = async (req, res) => {
   try {
     const { name, description } = req.body;
+
     if (!name || !description) {
       return res
         .status(httpStatusCodes.BAD_REQUEST)
         .json({ success: false, message: messages.CATEGORY.REQUIRED_FIELDS });
+    }
+    if ((name.trim().length > 15) | (name.trim().length < 3)) {
+      return res
+        .status(httpStatusCodes.BAD_REQUEST)
+        .json({ success: false, message: messages.COMMON.MIN_MAX_CHAR('name', 3, 15) });
+    }
+    if (description.trim().length > 20 || description.trim().length < 3) {
+      return res
+        .status(httpStatusCodes.BAD_REQUEST)
+        .json({ success: false, message: messages.COMMON.MIN_MAX_CHAR('description', 3, 20) });
     }
     const categoryExist = await Category.findOne({ name });
     if (categoryExist) {
