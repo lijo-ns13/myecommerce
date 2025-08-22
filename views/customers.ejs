@@ -9,44 +9,42 @@
             href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
             rel="stylesheet">
         <style>
-        body {
-            margin: 0;
-            padding: 0;
-            display: flex;
-        }
-        
-        .main-content {
-            margin-left: 250px;
-            padding: 20px;
-            width: calc(100% - 250px);
-        }
-        .customer-card {
-            margin-bottom: 1rem;
-            padding: 1rem;
-            border: 1px solid #dee2e6;
-            border-radius: .25rem;
-            background-color: #fff;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .btn-custom {
-            margin: 0.2rem;
-        }
-        @media (max-width: 768px) {
-            .sidebar {
-                width: 100%;
-                position: static;
-                border-right: none;
-                box-shadow: none;
-            }
-            .main-content {
-                margin-left: 0;
-                width: 100%;
-            }
-        }
-    </style>
+    body {
+      margin: 0;
+      padding: 0;
+      display: flex;
+    }
+    .main-content {
+      margin-left: 250px;
+      padding: 20px;
+      width: calc(100% - 250px);
+    }
+    .customer-card {
+      margin-bottom: 1rem;
+      padding: 1rem;
+      border: 1px solid #dee2e6;
+      border-radius: .25rem;
+      background-color: #fff;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .btn-custom {
+      margin: 0.2rem;
+    }
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 100%;
+        position: static;
+        border-right: none;
+        box-shadow: none;
+      }
+      .main-content {
+        margin-left: 0;
+        width: 100%;
+      }
+    }
+  </style>
     </head>
     <body>
-
         <main class="main-content position-relative border-radius-lg">
             <div class="container-fluid py-4">
                 <div class="row mb-3 align-items-center">
@@ -54,11 +52,8 @@
                         <h4>Customer Management</h4>
                     </div>
                     <div class="col-md-6 col-sm-12">
-                        <input
-                            type="text"
-                            id="searchInput"
-                            class="form-control"
-                            placeholder="Search by name or email" />
+                        <input type="text" id="searchInput" class="form-control"
+                            placeholder="Search by name or email." />
                     </div>
                 </div>
 
@@ -85,20 +80,28 @@
                                         class="badge badge-success">Active</span>
                                     <% } %>
                                 </p>
+
                                 <% if (customer.isBlocked) { %>
-                                <form method="POST"
-                                    action="/admin/customers/unblock-user/<%= customer._id %>">
+                                <form
+                                    method="POST"
+                                    action="/admin/customers/unblock-user/<%= customer._id %>"
+                                    class="block-unblock-form">
                                     <button type="submit"
-                                        class="btn btn-sm btn-success">Unblock</button>
+                                        class="btn btn-sm btn-success">
+                                        Unblock
+                                    </button>
                                 </form>
                                 <% } else { %>
-                                <form method="POST"
-                                    action="/admin/customers/block-user/<%= customer._id %>">
+                                <form
+                                    method="POST"
+                                    action="/admin/customers/block-user/<%= customer._id %>"
+                                    class="block-unblock-form">
                                     <button type="submit"
-                                        class="btn btn-sm btn-danger">Block</button>
+                                        class="btn btn-sm btn-danger">
+                                        Block
+                                    </button>
                                 </form>
                                 <% } %>
-
                             </div>
                         </div>
                     </div>
@@ -140,31 +143,71 @@
                 </nav>
             </div>
         </main>
+
         <script>
-  // Debounced search
-  let debounceTimer;
-  const searchInput = document.getElementById("searchInput");
+    // Debounced search
+    let debounceTimer;
+    const searchInput = document.getElementById("searchInput");
 
-  searchInput.addEventListener("input", () => {
-    clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(() => {
-      const searchQuery = searchInput.value.trim();
-      const url = new URL(window.location.href);
-      url.searchParams.set("search", searchQuery);
-      url.searchParams.set("page", 1); // reset to first page
-      window.location.href = url.toString();
-    }, 500); // 500ms debounce
-  });
+    searchInput.addEventListener("input", () => {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        const searchQuery = searchInput.value.trim();
+        const url = new URL(window.location.href);
+        url.searchParams.set("search", searchQuery);
+        url.searchParams.set("page", 1); // reset to first page
+        window.location.href = url.toString();
+      }, 500);
+    });
 
-  // Preserve search input after reload
-  window.addEventListener("DOMContentLoaded", () => {
-    const params = new URLSearchParams(window.location.search);
-    const search = params.get("search");
-    if (search) {
-      searchInput.value = search;
-    }
-  });
-</script>
+     // ✅ Event Delegation for block/unblock
+      document
+        .getElementById("customerList")
+        .addEventListener("submit", async (e) => {
+          if (!e.target.classList.contains("block-unblock-form")) return;
+          e.preventDefault();
+
+          const form = e.target;
+          const url = form.action;
+          const method = form.method || "POST";
+
+          try {
+            const res = await fetch(url, {
+              method,
+              headers: { "X-Requested-With": "XMLHttpRequest" },
+            });
+
+            if (!res.ok) throw new Error("Request failed");
+            const data = await res.json();
+
+            if (data.success) {
+              const cardBody = form.closest(".card-body");
+              const statusBadge = cardBody.querySelector(".badge");
+
+              if (data.isBlocked) {
+                statusBadge.className = "badge badge-danger";
+                statusBadge.textContent = "Blocked";
+                form.outerHTML = `
+                  <form method="POST" action="/admin/customers/unblock-user/${data.userId}" class="block-unblock-form">
+                    <button type="submit" class="btn btn-sm btn-success">Unblock</button>
+                  </form>
+                `;
+              } else {
+                statusBadge.className = "badge badge-success";
+                statusBadge.textContent = "Active";
+                form.outerHTML = `
+                  <form method="POST" action="/admin/customers/block-user/${data.userId}" class="block-unblock-form">
+                    <button type="submit" class="btn btn-sm btn-danger">Block</button>
+                  </form>
+                `;
+              }
+            }
+          } catch (err) {
+            console.error(err);
+            alert("Something went wrong!");
+          }
+        });
+  </script>
 
         <!-- Bootstrap JS and dependencies -->
         <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>

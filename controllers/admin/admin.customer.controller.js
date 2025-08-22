@@ -18,14 +18,17 @@ const getCustomers = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = 8;
 
-    const query = search
-      ? {
-          $or: [
-            { name: { $regex: search, $options: 'i' } },
-            { email: { $regex: search, $options: 'i' } },
-          ],
-        }
-      : {};
+    const query = {
+      role: 'user',
+      ...(search
+        ? {
+            $or: [
+              { name: { $regex: search, $options: 'i' } },
+              { email: { $regex: search, $options: 'i' } },
+            ],
+          }
+        : {}),
+    };
 
     const totalCustomers = await User.countDocuments(query);
     const totalPages = Math.ceil(totalCustomers / limit);
@@ -62,8 +65,13 @@ const postCustomerBlock = async (req, res) => {
         .status(httpStatusCodes.NOT_FOUND)
         .json({ success: false, message: messages.CUSTOMER.USER_NOT_FOUND });
     }
-    // res.json({success:true,message:'User Blocked Succssfully'});
-    res.status(httpStatusCodes.OK).redirect('/admin/customers');
+    res.json({
+      success: true,
+      message: 'User Blocked Successfully',
+      userId: user._id,
+      isBlocked: user.isBlocked,
+    });
+    // res.status(httpStatusCodes.OK).redirect('/admin/customers');
   } catch (error) {
     res.status(httpStatusCodes.BAD_REQUEST).json({ success: false, message: error.message });
   }
@@ -81,8 +89,13 @@ const postCustomerUnblock = async (req, res) => {
         .status(httpStatusCodes.NOT_FOUND)
         .json({ success: false, message: messages.CUSTOMER.USER_NOT_FOUND });
     }
-    // res.json({success:true,message:'User Unblocked Succssfully'});
-    res.status(httpStatusCodes.OK).redirect('/admin/customers');
+    res.json({
+      success: true,
+      message: 'User Unblocked Successfully',
+      userId: user._id,
+      isBlocked: user.isBlocked,
+    });
+    // res.status(httpStatusCodes.OK).redirect('/admin/customers');
   } catch (error) {
     res.status(httpStatusCodes.BAD_REQUEST).json({ success: false, message: error.message });
   }
