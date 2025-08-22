@@ -157,5 +157,7 @@ module.exports = {
     MIN_CHAR: 'Minimum 3 character required',
     MAX_CHAR: 'Maximum 15 character required',
     MIN_MAX_CHAR: (field, min, max) => `${field} must be between ${min} and ${max} characters`,
+    REQUIRED: (field) => `${field} is required`,
+    INVALID: (field) => `${field} is invalid`,
   },
 };

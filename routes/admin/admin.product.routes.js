@@ -17,7 +17,13 @@ if (!fs.existsSync(uploadsDir)) {
 }
 
 // Multer setup for file uploads
-const upload = multer({ dest: 'public/uploads/' });
+const upload = multer({
+  dest: 'public/uploads/',
+  limits: {
+    fieldSize: 25 * 1024 * 1024, // 25 MB for text fields like base64
+    fileSize: 5 * 1024 * 1024, // 5 MB per uploaded file
+  },
+});
 
 router.use(jwtAuth, adminProtected);
 

@@ -37,13 +37,11 @@ const getViewProduct = async (_req, res) => {
 const getAddProduct = async (_req, res) => {
   try {
     const categories = await Category.find({});
-    res
-      .status(httpStatusCodes.OK)
-      .render('add-product', {
-        categories: categories,
-        currentPath: '/product',
-        layout: 'layouts/adminLayout',
-      });
+    res.status(httpStatusCodes.OK).render('add-product', {
+      categories: categories,
+      currentPath: '/product',
+      layout: 'layouts/adminLayout',
+    });
   } catch (error) {
     res
       .status(httpStatusCodes.INTERNAL_SERVER_ERROR)
@@ -91,8 +89,8 @@ const postAddProduct = async (req, res) => {
     // Initialize images array
     let images = [];
 
-    // Process uploaded files (regular images)
-    if (req.files) {
+    // Process uploaded files
+    if (req.files && req.files.length > 0) {
       images = req.files.map((file) => ({
         id: file.filename,
         secured_url: `/uploads/${file.filename}`,
@@ -102,88 +100,122 @@ const postAddProduct = async (req, res) => {
     // Process cropped images
     if (croppedImages) {
       const croppedImagesArray = JSON.parse(croppedImages);
-
-      // Clear out existing images if there are cropped images
-      images = [];
+      images = []; // Override normal files if cropped images exist
 
       for (const imgData of croppedImagesArray) {
         const filename = generateUniqueFilename();
         const filePath = await saveBase64Image(imgData, filename);
 
-        const fileExtension = path.extname(filePath).slice(1); // Extract file extension
+        const fileExtension = path.extname(filePath).slice(1);
         images.push({
           id: filename,
           secured_url: `/uploads/${filename}.${fileExtension}`,
         });
       }
     }
-    if (!product || !brand || !description || !price || !category || !croppedImages) {
-      return res
-        .status(httpStatusCodes.BAD_REQUEST)
-        .json({ status: false, message: messages.PRODUCT.FILL_ALL_FIELDS });
-    }
-    const productRegex = /^[a-zA-Z0-9 _'-]{2,100}$/;
 
+    // ====== VALIDATIONS ======
+
+    if (!product || !brand || !description || !price || !category) {
+      return res.status(httpStatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: messages.PRODUCT.FILL_ALL_FIELDS,
+      });
+    }
+
+    // Product name validation
+    const productRegex = /^[a-zA-Z0-9 _'-]{3,100}$/;
     if (!productRegex.test(product)) {
-      return res
-        .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: messages.PRODUCT.PRODUCT_NAME_INVALID });
+      return res.status(httpStatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: messages.COMMON.INVALID('product'),
+      });
     }
-    if (product.length < 4) {
-      return res
-        .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: messages.PRODUCT.PRODUCT_NAME_SHORT });
+    if (product.length < 3 || product.length > 60) {
+      return res.status(httpStatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: messages.COMMON.MIN_MAX_CHAR('product', 3, 100),
+      });
     }
+
+    // Brand validation
     const brandRegex = /^[a-zA-Z0-9][a-zA-Z0-9 &-]{1,48}[a-zA-Z0-9]$/;
     if (!brandRegex.test(brand)) {
-      return res
-        .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: messages.PRODUCT.BRAND_NAME_INVALID });
+      return res.status(httpStatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: messages.COMMON.INVALID('brand'),
+      });
     }
-    if (brand.length < 4) {
-      return res
-        .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: messages.PRODUCT.BRAND_NAME_SHORT });
+    if (brand.length < 3 || brand.length > 50) {
+      return res.status(httpStatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: messages.COMMON.MIN_MAX_CHAR('brand', 3, 50),
+      });
     }
-    if (description.length < 8) {
-      return res
-        .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: messages.PRODUCT.DESCRIPTION_SHORT });
+
+    // Description validation
+    if (description.length < 8 || description.length > 500) {
+      return res.status(httpStatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: messages.COMMON.MIN_MAX_CHAR('description', 8, 500),
+      });
     }
-    if (Number(price) < 0) {
-      return res
-        .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: message.PRODUCT.PRICE_INVALID });
+
+    // Price validation
+    if (isNaN(price) || Number(price) < 1) {
+      return res.status(httpStatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: messages.COMMON.INVALID('price'),
+      });
     }
-    const sizes = req.body.sizes.map((sizeObj) => ({
-      size: Number(sizeObj.size),
-      stock: Number(sizeObj.stock),
-    }));
-    if (!sizes || sizes.length == 0) {
-      return res
-        .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: messages.PRODUCT.SIZE_REQUIRED });
+
+    // Images validation
+    if (!images || images.length === 0) {
+      return res.status(httpStatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: messages.COMMON.REQUIRED('Image'),
+      });
+    }
+
+    // Sizes validation
+    let sizes = [];
+    if (req.body.sizes) {
+      sizes = req.body.sizes.map((sizeObj) => ({
+        size: Number(sizeObj.size),
+        stock: Number(sizeObj.stock),
+      }));
+    }
+
+    if (!sizes || sizes.length === 0) {
+      return res.status(httpStatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: messages.COMMON.REQUIRED('size'),
+      });
     }
 
     let errors = [];
-
-    // Validate sizes and stock
     for (const size of sizes) {
-      if (size.size <= 0) {
-        errors.push(messages.PRODUCT.SIZE_POSITIVE);
+      if (isNaN(size.stock)) {
+        errors.push('stock must be a valid number');
+      } else if (size.stock < 1 || size.stock > 1000) {
+        errors.push('stock must be between 1 and 1000');
       }
-      if (size.stock < 0) {
-        errors.push(messages.PRODUCT.STOCK_POSITIVE);
+
+      if (isNaN(size.size)) {
+        errors.push('size must be a valid number');
+      } else if (size.size < 2 || size.size > 12) {
+        errors.push('size must be between 2 and 12');
       }
     }
 
     if (errors.length > 0) {
-      return res
-        .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: errors.join(', ') });
+      return res.status(httpStatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: errors.join(', '),
+      });
     }
 
-    // Create and save the product with images (only cropped images)
+    // ====== SAVE PRODUCT ======
     const newProduct = new Product({
       product,
       brand,
@@ -196,15 +228,18 @@ const postAddProduct = async (req, res) => {
     });
 
     await newProduct.save();
-    res
-      .status(httpStatusCodes.CREATED)
-      .json({ success: true, message: messages.PRODUCT.ADD_SUCCESS });
-    // res.status(200).render('pro/addproductsuccess')
+
+    res.status(httpStatusCodes.CREATED).json({
+      success: true,
+      message: messages.PRODUCT.ADD_SUCCESS,
+    });
   } catch (error) {
     console.error('Error adding product:', error);
-    res
-      .status(httpStatusCodes.INTERNAL_SERVER_ERROR)
-      .json({ success: false, message: messages.PRODUCT.ADD_FAIL, error: error.message });
+    res.status(httpStatusCodes.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: messages.PRODUCT.ADD_FAIL,
+      error: error.message,
+    });
   }
 };
 
