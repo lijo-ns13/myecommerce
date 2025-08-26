@@ -67,7 +67,15 @@
                         <i class="fas fa-plus me-2"></i>Add Product*
                     </a>
                 </div>
-
+                <!-- Search Bar -->
+                <div class="mb-3">
+                    <input
+                        type="text"
+                        id="searchInput"
+                        class="form-control"
+                        placeholder="Search products..."
+                        value="<%= search || '' %>">
+                </div>
                 <% if (products.length > 0) { %>
                 <div class="card">
                     <div class="card-body">
@@ -162,12 +170,15 @@
                         <% for (let i = 1; i <= totalPages; i++) { %>
                         <li
                             class="page-item <%= i === currentPage ? 'active' : '' %>">
-                            <a class="page-link" href="?page=<%= i %>"><%= i
-                                %></a>
+                            <a class="page-link"
+                                href="?page=<%= i %>&search=<%= search || '' %>">
+                                <%= i %>
+                            </a>
                         </li>
                         <% } %>
                     </ul>
                 </nav>
+
                 <% } else { %>
                 <div class="alert alert-info" role="alert">
                     <i class="fas fa-info-circle me-2"></i> No products
@@ -225,5 +236,25 @@
           });
         });
     </script>
+        <script>
+  // Simple debounce utility
+  function debounce(func, delay) {
+    let timer;
+    return function(...args) {
+      clearTimeout(timer);
+      timer = setTimeout(() => func.apply(this, args), delay);
+    };
+  }
+
+  const searchInput = document.getElementById("searchInput");
+
+  // Trigger search after user stops typing
+  searchInput.addEventListener("keyup", debounce(() => {
+    const searchTerm = searchInput.value.trim();
+    const url = `?search=${encodeURIComponent(searchTerm)}&page=1`; // reset to page 1 on new search
+    window.location.href = url; // reload with search param
+  }, 500)); // 500ms delay
+</script>
+
     </body>
 </html>

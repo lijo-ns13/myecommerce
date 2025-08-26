@@ -2,14 +2,39 @@ const Category = require('../../models/categorySchema');
 const httpStatusCodes = require('../../constants/httpStatusCodes');
 const messages = require('../../constants/message');
 const getCategory = async (req, res) => {
-  const categories = await Category.find();
+  try {
+    // Pagination defaults
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 5;
+    const skip = (page - 1) * limit;
 
-  res.render('category', {
-    categories: categories,
-    currentPath: '/category',
-    layout: 'layouts/adminLayout',
-  });
+    // Search
+    const search = req.query.search || '';
+    const query = search ? { name: { $regex: search, $options: 'i' } } : {};
+
+    // Fetch categories with pagination
+    const [categories, totalCategories] = await Promise.all([
+      Category.find(query).skip(skip).limit(limit),
+      Category.countDocuments(query),
+    ]);
+
+    const totalPages = Math.ceil(totalCategories / limit);
+
+    res.render('category', {
+      categories,
+      currentPath: '/category',
+      layout: 'layouts/adminLayout',
+      currentPage: page,
+      totalPages,
+      search,
+      limit, // ✅ pass limit to EJS
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Server Error');
+  }
 };
+
 const getCategoryUpdate = async (req, res) => {
   const id = req.params.id;
   const category = await Category.findById(id);
