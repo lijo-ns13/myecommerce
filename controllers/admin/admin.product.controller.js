@@ -7,24 +7,34 @@ const Category = require('../../models/categorySchema');
 const uploadsDir = path.join(__dirname, '../../uploads');
 const httpStatusCodes = require('../../constants/httpStatusCodes');
 const messages = require('../../constants/message');
-const message = require('../../constants/message');
-const getProduct = async (req, res) => {
-  const page = parseInt(req.query.page) || 1; // Get the current page from query params, default to 1
-  const limit = 10; // Number of products per page
-  const skip = (page - 1) * limit; // Calculate the number of products to skip
 
-  const products = await Product.find({}).populate('category').skip(skip).limit(limit);
-  const totalProducts = await Product.countDocuments({}); // Get total product count
-  const totalPages = Math.ceil(totalProducts / limit); // Calculate total pages
+const getProduct = async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = 10;
+  const skip = (page - 1) * limit;
+
+  const search = req.query.search ? req.query.search.trim() : '';
+
+  // Build query
+  const query = search
+    ? { product: { $regex: search, $options: 'i' } } // case-insensitive search
+    : {};
+
+  const products = await Product.find(query).populate('category').skip(skip).limit(limit);
+
+  const totalProducts = await Product.countDocuments(query);
+  const totalPages = Math.ceil(totalProducts / limit);
 
   res.render('pro/products', {
-    products: products,
+    products,
     currentPage: page,
-    totalPages: totalPages,
+    totalPages,
     currentPath: '/product',
+    search,
     layout: 'layouts/adminLayout',
   });
 };
+
 const getViewProduct = async (_req, res) => {
   const products = await Product.find({});
   // res.json(products)
