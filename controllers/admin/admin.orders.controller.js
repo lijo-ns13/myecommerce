@@ -7,16 +7,29 @@ const nodemailer = require('nodemailer');
 const messages = require('../../constants/message');
 const getOrders = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1; // Current page number
-    const limit = parseInt(req.query.limit) || 10; // Number of orders per page
-    const skip = (page - 1) * limit; // Calculate skip value
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
 
-    const totalOrders = await Order.countDocuments(); // Total number of orders
-    const totalPages = Math.ceil(totalOrders / limit); // Total number of pages
+    const search = req.query.search ? req.query.search.trim() : '';
+    const status = req.query.status ? req.query.status.trim() : '';
 
-    const orders = await Order.find({})
-      .skip(skip) // Skip the orders based on the current page
-      .limit(limit) // Limit the number of orders returned
+    // Build query
+    const query = {};
+
+    // 📦 Status filter
+    if (status && status !== 'all') {
+      query.status = status;
+    }
+
+    // Get total count for pagination
+    const totalOrders = await Order.countDocuments(query);
+    const totalPages = Math.ceil(totalOrders / limit);
+
+    // Fetch orders with population
+    const orders = await Order.find(query)
+      .skip(skip)
+      .limit(limit)
       .populate({
         path: 'userId',
         select: 'name',
@@ -24,19 +37,20 @@ const getOrders = async (req, res) => {
       .populate({
         path: 'products.productId',
         select: 'product',
-      });
+      })
+      .sort({ createdAt: -1 });
 
     res.render('adminorders/orders', {
       orders,
       currentPage: page,
       totalPages,
       currentPath: 'order',
+      search,
+      status,
       layout: 'layouts/adminLayout',
     });
   } catch (error) {
-    res
-      .status(httpStatusCodes.INTERNAL_SERVER_ERROR)
-      .json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
