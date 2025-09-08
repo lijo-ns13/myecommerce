@@ -1,23 +1,24 @@
-# Use official Node.js LTS image
-FROM node:18-slim
+
+# Use a small official Node.js LTS image
+FROM node:18-alpine
 
 # Set working directory
 WORKDIR /usr/src/app
 
-# Copy only package.json and package-lock.json first (better caching)
+# Copy only package.json and package-lock.json first
 COPY package*.json ./
 
 # Install only production dependencies
-RUN npm install --omit=dev
+RUN npm ci --omit=dev
 
-# Copy the rest of the source code
+# Copy only the rest of the app
 COPY . .
 
-# Expose port (Cloud Run injects PORT env var)
+# Expose the port the app will run on
 EXPOSE 8080
 
-# Set environment variable for production
+# Set production environment
 ENV NODE_ENV=production
 
-# Start the app
+# Run the app
 CMD ["node", "server.js"]
