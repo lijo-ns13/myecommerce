@@ -239,6 +239,14 @@ const postPasswordreset = async (req, res) => {
         .status(httpStatusCodes.BAD_REQUEST)
         .json({ success: false, message: messages.AUTH.PASSWORD_CONFIRM_FAIL });
     }
+    const strongPasswordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    if (!strongPasswordRegex.test(password)) {
+      return res.status(httpStatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: messages.AUTH.WEAK_PASSWORD,
+      });
+    }
     user.forgotPasswordExpiry = undefined;
     user.forgotPasswordToken = undefined;
     user.password = req.body.password;
