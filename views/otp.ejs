@@ -1,193 +1,307 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Sign-up Form</title>
-  
-  <!-- FontAwesome for icons -->
-  <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
-  
-  <!-- Animate.css for animations -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.css" />
-  
-  <!-- Google Fonts for better typography -->
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
-  
-  <!-- Custom CSS -->
-  <style>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Verify OTP</title>
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet" />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet" />
+    <style>
+    :root {
+      --primary-color: #4f46e5;
+      --primary-dark: #4338ca;
+      --error-color: #ef4444;
+      --success-color: #22c55e;
+    }
+
     body {
-      font-family: 'Montserrat', sans-serif;
-      background-color: #f0f2f5;
+      background: #f5f7fb;
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+        Ubuntu, Cantarell, sans-serif;
+    }
+
+    .otp-container {
+      min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
-      margin: 0;
+      padding: 1rem;
     }
-    
-    .container {
-      background-color: #fff;
-      border-radius: 8px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-      padding: 30px;
+
+    .otp-box {
       max-width: 400px;
       width: 100%;
+      background: white;
+      padding: 2.5rem;
+      border-radius: 24px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
     }
 
-    h1.brand {
+    .otp-header {
       text-align: center;
-      color: #333;
-      margin-bottom: 30px;
+      margin-bottom: 1.5rem;
     }
 
-    h1.brand span {
-      color: #007bff;
+    .otp-header h2 {
+      margin-bottom: 0.5rem;
+    }
+
+    .form-floating {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-floating > .form-control {
+      padding: 1rem;
+      height: 3.5rem;
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      transition: all 0.2s ease;
+    }
+
+    .form-floating > .form-control:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+    }
+
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border-radius: 12px;
       font-weight: 600;
+      transition: all 0.2s ease;
     }
 
-    .wrapper {
-      animation-duration: 1s;
-    }
-
-    .contact form {
-      display: flex;
-      flex-direction: column;
-    }
-
-    label {
-      font-size: 14px;
-      color: #555;
-      margin-bottom: 5px;
-    }
-
-    input[type="text"] {
-      padding: 10px;
-      font-size: 16px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      margin-bottom: 20px;
-      transition: border 0.3s ease;
-    }
-
-    input[type="text"]:focus {
-      border-color: #007bff;
-      outline: none;
-    }
-
-    button {
-      padding: 10px;
-      background-color: #007bff;
-      color: #fff;
+    .btn-primary {
+      background: var(--primary-color);
       border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-      font-size: 16px;
-      margin-top: 10px;
     }
 
-    button:hover {
-      background-color: #0056b3;
+    .btn-primary:hover {
+      background: var(--primary-dark);
+      transform: translateY(-1px);
     }
 
-    .full {
+    .btn-outline-primary {
+      border-color: var(--primary-color);
+      color: var(--primary-color);
+    }
+
+    .btn-outline-primary:hover {
+      background: var(--primary-color);
+      color: white;
+    }
+
+    .timer-text {
       text-align: center;
+      color: #6b7280;
+      margin-bottom: 1rem;
     }
 
     #error {
-      color: red;
-      font-size: 14px;
-      margin-bottom: 10px;
+      color: var(--error-color);
+      background: #fef2f2;
+      border: 1px solid #fee2e2;
+      padding: 1rem;
+      border-radius: 12px;
+      margin-bottom: 1.5rem;
+      display: none;
     }
 
-    #timer {
-      font-size: 14px;
-      text-align: center;
-      margin-bottom: 20px;
-      color: #555;
+    #error.show {
+      display: block;
+      animation: shake 0.5s ease-in-out;
     }
 
+    .success-message {
+      color: var(--success-color);
+      background: #f0fdf4;
+      border: 1px solid #dcfce7;
+      padding: 1rem;
+      border-radius: 12px;
+      margin-bottom: 1.5rem;
+      display: none;
+    }
+
+    .success-message.show {
+      display: block;
+      animation: slideDown 0.3s ease-out;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
   </style>
-</head>
-<body>
-  <div class="container">
-    <h1 class="brand"><span>Welcome User</span> Sign-up</h1>
-    <div class="wrapper animated bounceInLeft">
-      <div class="contact">
-        <div id="error"></div>
-        
-        <!-- Countdown Timer -->
-        <div id="timer">OTP expires in: <span id="countdown">60</span> seconds</div>
-        
-        <form id="otpForm">
-          <p>
-            <label>Enter OTP</label>
-            <input type="text" name="otp" required id="otp" placeholder="Enter OTP">
-          </p>
-          
-          <p class="full">
-            <button type="submit">Submit</button>
-          </p>
+  </head>
+  <body>
+    <div class="otp-container">
+      <div class="otp-box">
+        <div class="otp-header">
+          <h2>Verify OTP</h2>
+          <p class="text-muted">Enter the OTP sent to your email address.</p>
+        </div>
+
+        <div id="error">
+          <i class="fas fa-exclamation-circle me-2"></i>
+          <span class="error-text"></span>
+        </div>
+
+        <div class="success-message">
+          <i class="fas fa-check-circle me-2"></i>
+          <span>OTP verified! Redirecting...</span>
+        </div>
+
+        <form id="otpForm" novalidate>
+          <div class="form-floating">
+            <input
+              type="text"
+              class="form-control"
+              id="otp"
+              placeholder="Enter OTP"
+              required />
+            <label for="otp">OTP</label>
+          </div>
+
+          <div class="timer-text">
+            OTP expires in <span id="countdown">60</span> seconds
+          </div>
+
+          <button type="submit" class="btn btn-primary w-100 mb-3">
+            <span class="spinner-border spinner-border-sm me-2 d-none"
+              role="status"></span>
+            Verify OTP
+          </button>
         </form>
-        <br>
-        <form method="POST" action="resend">
-          <p class="full">
-            <button type="submit" id="resendBtn" disabled>Resend OTP</button>
-          </p>
-        </form>
+
+        <button id="resendBtn" class="btn btn-outline-primary w-100" disabled>
+          Resend OTP
+        </button>
       </div>
     </div>
-  </div>
 
-  <script>
-    document.getElementById('otpForm').addEventListener('submit', login);
+    <script>
+    function showError(message) {
+      const errorDiv = document.getElementById('error');
+      const errorText = errorDiv.querySelector('.error-text');
+      errorText.textContent = message;
+      errorDiv.classList.add('show');
+    }
 
-    async function login(event) {
+    function showSuccess() {
+      const successDiv = document.querySelector('.success-message');
+      successDiv.classList.add('show');
+    }
+
+    function resetButton() {
+      const submitBtn = document.querySelector('button[type="submit"]');
+      const spinner = submitBtn.querySelector('.spinner-border');
+      submitBtn.disabled = false;
+      spinner.classList.add('d-none');
+    }
+
+    document.getElementById('otpForm').addEventListener('submit', async (event) => {
       event.preventDefault();
-      const url = "/auth/verify";
-      const otp = document.getElementById('otp').value;
 
-      const options = {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ otp })
-      };
+      const submitBtn = event.target.querySelector('button[type="submit"]');
+      const spinner = submitBtn.querySelector('.spinner-border');
+      submitBtn.disabled = true;
+      spinner.classList.remove('d-none');
+
+      const errorDiv = document.getElementById('error');
+      const successDiv = document.querySelector('.success-message');
+      errorDiv.classList.remove('show');
+      successDiv.classList.remove('show');
+
+      const otp = document.getElementById('otp').value.trim();
+      if (!otp) {
+        showError("Please enter the OTP.");
+        resetButton();
+        return;
+      }
 
       try {
-        const response = await fetch(url, options);
+        const response = await fetch("/auth/verify", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ otp })
+        });
         const result = await response.json();
-        console.log('result', result);
 
         if (response.ok) {
+          showSuccess();
           document.getElementById('otp').value = '';
-          window.location.href = '/auth/signin';
+          setTimeout(() => {
+            window.location.href = "/auth/signin";
+          }, 1500);
         } else {
-          document.getElementById('error').innerText = result.message;
+          showError(result.message || "Invalid OTP.");
         }
       } catch (error) {
-        document.getElementById('error').innerText = 'An error occurred. Please try again.';
+        showError("An error occurred. Please try again.");
+      } finally {
+        resetButton();
       }
-    }
+    });
 
     // Timer functionality
     let timeLeft = 60;
     const countdownElement = document.getElementById('countdown');
     const resendBtn = document.getElementById('resendBtn');
-
     const countdownTimer = setInterval(() => {
       if (timeLeft <= 0) {
         clearInterval(countdownTimer);
-        resendBtn.disabled = false;  // Enable the resend button after 60 seconds
+        resendBtn.disabled = false;
         countdownElement.innerText = "0";
       } else {
         timeLeft--;
         countdownElement.innerText = timeLeft;
       }
     }, 1000);
+
+    // Resend OTP logic
+    resendBtn.addEventListener('click', async () => {
+      resendBtn.disabled = true;
+      timeLeft = 60;
+      countdownElement.innerText = timeLeft;
+      const newTimer = setInterval(() => {
+        if (timeLeft <= 0) {
+          clearInterval(newTimer);
+          resendBtn.disabled = false;
+          countdownElement.innerText = "0";
+        } else {
+          timeLeft--;
+          countdownElement.innerText = timeLeft;
+        }
+      }, 1000);
+
+      try {
+        const response = await fetch("/auth/resend-otp", {
+          method: "POST"
+        });
+        const result = await response.json();
+        if (!response.ok) {
+          showError(result.message || "Failed to resend OTP.");
+        }
+      } catch {
+        showError("An error occurred while resending OTP.");
+      }
+    });
   </script>
-</body>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
 </html>
