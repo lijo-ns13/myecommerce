@@ -99,6 +99,14 @@ const postSignup = async (req, res) => {
         .status(httpStatusCodes.BAD_REQUEST)
         .json({ success: false, message: messages.AUTH.PASSWORD_MISMATCH });
     }
+    const strongPasswordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    if (!strongPasswordRegex.test(password)) {
+      return res.status(httpStatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: messages.AUTH.WEAK_PASSWORD,
+      });
+    }
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!regex.test(email)) {
       return res
