@@ -1,166 +1,172 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Update Category</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            background-color: #f8f9fa;
-        }
-        .sidebar {
-            height: 100vh;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 250px;
-            background-color: #343a40;
-            padding-top: 20px;
-        }
-        .sidebar a {
-            padding: 15px 20px;
-            text-decoration: none;
-            font-size: 18px;
-            color: #fff;
-            display: block;
-        }
-        .sidebar a:hover {
-            background-color: #007bff;
-            color: white;
-        }
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Update Category</title>
+
+        <!-- Bootstrap CSS -->
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+            rel="stylesheet" />
+        <!-- Font Awesome -->
+        <link
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+            rel="stylesheet" />
+
+        <style>
+      body {
+        background-color: #f8f9fa;
+      }
+
+      .content {
+    margin-left: 180px; /* keep sidebar space */
+    padding: 30px;
+    transition: all 0.3s;
+    min-height: 100vh; /* ensure full height for vertical centering */
+    display: flex;
+    justify-content: center; /* horizontal center */
+    align-items: center; /* vertical center */
+}
+.form-wrapper {
+    width: 100%;
+    max-width: 600px; /* form doesn’t stretch too wide */
+}
+
+
+      .card {
+        border-radius: 12px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+      }
+
+      h1 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+      }
+
+      .form-label {
+        font-weight: 500;
+      }
+
+      @media (max-width: 768px) {
         .content {
-            margin-left: 260px;
-            padding: 20px;
+          margin-left: 0;
+          width: 100%;
+          padding: 15px;
         }
-        .form-container {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        h1 {
-            margin-bottom: 20px;
-        }
+      }
     </style>
-</head>
-<body>
-    <div class="sidebar p-3">
-        <h4 class="mb-4 text-center">Dashboard</h4>
-        <ul class="nav flex-column">
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/dashboard"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link active" href="/admin/products"><i class="fas fa-box me-2"></i>Products</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/orders"><i class="fas fa-shopping-cart me-2"></i>Orders</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/category"><i class="fas fa-tags me-2"></i>Category</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/customers"><i class="fas fa-users me-2"></i>Customers</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/coupons"><i class="fas fa-ticket-alt me-2"></i>Coupons</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/banners"><i class="fas fa-image me-2"></i>Banners</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/offers"><i class="fas fa-gift me-2"></i>Offers</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/inventory"><i class="fas fa-warehouse me-2"></i>Inventory</a>
-            </li>
-            <li class="nav-item mt-auto">
-                <a class="nav-link text-danger" href="/auth/logout"><i class="fas fa-sign-out-alt me-2"></i>Logout</a>
-            </li>
-        </ul>
-    </div>
+    </head>
+    <body>
+        <!-- Page Content -->
+        <div class="content">
+            <div class="form-wrapper">
+                <div
+                    class="d-flex justify-content-between align-items-center mb-4">
+                    <h1 class="h3 mb-0">
+                        <i class="fas fa-edit me-2 text-primary"></i> Update
+                        Category
+                    </h1>
+                </div>
 
+                <div class="card p-4">
+                    <form id="updateForm" class="needs-validation" novalidate>
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Category
+                                Name</label>
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="name"
+                                name="name"
+                                value="<%= category.name %>"
+                                required />
+                            <div class="invalid-feedback">
+                                Please provide a valid category name.
+                            </div>
+                        </div>
 
-    <!-- Page Content -->
-    <div class="content">
-        <div class="container">
-            <div class="form-container">
-                <h1 class="text-center">Update Category</h1>
-                <form id="updateForm" class="needs-validation" novalidate>
-                    <div class="mb-3">
-                        <label for="name" class="form-label">Category Name</label>
-                        <input type="text" class="form-control" id="name" name="name" value="<%= category.name %>" required>
-                        <div class="invalid-feedback">
-                            Please provide a valid category name.
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Category
+                                Description</label>
+                            <textarea
+                                class="form-control"
+                                id="description"
+                                name="description"
+                                rows="3"
+                                required><%= category.description %></textarea>
+                            <div class="invalid-feedback">
+                                Please provide a valid category description.
+                            </div>
                         </div>
-                    </div>
-                    <div class="mb-3">
-                        <label for="description" class="form-label">Category Description</label>
-                        <textarea class="form-control" id="description" name="description" rows="3" required><%= category.description %></textarea>
-                        <div class="invalid-feedback">
-                            Please provide a valid category description.
-                        </div>
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100">Update</button>
-                </form>
-                <p id="error" class="text-danger mt-3"></p>
+
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-save me-1"></i> Update Category
+                        </button>
+                    </form>
+
+                    <p id="error" class="text-danger fw-semibold mt-3"></p>
+                </div>
             </div>
         </div>
-    </div>
 
-    <!-- Bootstrap JS and dependencies -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Bootstrap validation script
-        (function () {
-            'use strict'
-            var forms = document.querySelectorAll('.needs-validation')
-            Array.prototype.slice.call(forms)
-                .forEach(function (form) {
-                    form.addEventListener('submit', function (event) {
-                        if (!form.checkValidity()) {
-                            event.preventDefault()
-                            event.stopPropagation()
-                        }
-                        form.classList.add('was-validated')
-                    }, false)
-                })
-        })()
+        <!-- Bootstrap JS -->
+        <script
+            src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-        document.getElementById('updateForm').addEventListener('submit', update);
-        
-        async function update(event) {
-            event.preventDefault();
-            const categoryId = "<%= category._id %>";
-            const url = `/admin/category/update/${categoryId}?_method=PATCH`;
-            const name = document.getElementById('name').value;
-            const description = document.getElementById('description').value;
-    
-            const options = {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ name, description })
-            };
-    
-            try {
-                const response = await fetch(url, options);
-                const result = await response.json();
-                console.log('result', result);
-    
-                if (response.ok) {
-                    alert('Updated successfully');
-                    window.location.href = '/admin/category';
-                } else {
-                    document.getElementById('error').innerText = result.message;
-                }
-            } catch (error) {
-                document.getElementById('error').innerText = 'An error occurred. Please try again.';
-            }
+        <script>
+      // Bootstrap validation
+      (function () {
+        "use strict";
+        var forms = document.querySelectorAll(".needs-validation");
+        Array.prototype.slice.call(forms).forEach(function (form) {
+          form.addEventListener(
+            "submit",
+            function (event) {
+              if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+              }
+              form.classList.add("was-validated");
+            },
+            false
+          );
+        });
+      })();
+
+      document.getElementById("updateForm").addEventListener("submit", update);
+
+      async function update(event) {
+        event.preventDefault();
+        const categoryId = "<%= category._id %>";
+        const url = `/admin/category/update/${categoryId}?_method=PATCH`;
+        const name = document.getElementById("name").value;
+        const description = document.getElementById("description").value;
+
+        const options = {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ name, description }),
+        };
+
+        try {
+          const response = await fetch(url, options);
+          const result = await response.json();
+
+          if (response.ok) {
+            alert("Category updated successfully!");
+            window.location.href = "/admin/category";
+          } else {
+            document.getElementById("error").innerText = result.message;
+          }
+        } catch (error) {
+          document.getElementById("error").innerText =
+            "An error occurred. Please try again.";
         }
+      }
     </script>
-</body>
+    </body>
 </html>
