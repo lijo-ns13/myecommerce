@@ -1,18 +1,37 @@
 const Coupon = require('../../models/couponSchema');
 const httpStatusCodes = require('../../constants/httpStatusCodes');
 const messages = require('../../constants/message');
-const getCoupons = async (_req, res) => {
+
+const getCoupons = async (req, res) => {
   try {
-    const coupons = await Coupon.find({});
+    // Get page and limit from query params, default to page 1, limit 10
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 1;
+    const skip = (page - 1) * limit;
+
+    // Get total count for pagination info
+    const totalCoupons = await Coupon.countDocuments({});
+    const totalPages = Math.ceil(totalCoupons / limit);
+
+    // Fetch paginated data
+    const coupons = await Coupon.find({}).skip(skip).limit(limit).sort({ createdAt: -1 }); // Optional: sort by created date
+
     res.render('admincoupon/coupon', {
       coupons: coupons,
       currentPath: '/coupon',
       layout: 'layouts/adminLayout',
+      currentPage: page,
+      totalPages: totalPages,
+      limit: limit,
     });
   } catch (error) {
-    res.status(httpStatusCodes.BAD_REQUEST).json({ success: false, message: error.message });
+    res.status(httpStatusCodes.BAD_REQUEST).json({
+      success: false,
+      message: error.message,
+    });
   }
 };
+
 const getEditCoupon = async (req, res) => {
   try {
     const couponId = req.params.id;

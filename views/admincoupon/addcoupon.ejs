@@ -1,85 +1,127 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Add Coupon</title>
-        <link rel="stylesheet"
-            href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-        <link rel="stylesheet"
-            href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
         <link
-            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
-            rel="stylesheet">
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+            rel="stylesheet" />
+        <link
+            href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css"
+            rel="stylesheet" />
         <link
             href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
-            rel="stylesheet">
+            rel="stylesheet" />
         <style>
+      body {
+        background-color: #f8f9fa;
+        color: #212529;
+      }
 
-        body {
-            background-color: #000;
-            color: #fff;
-            margin: 0;
-            padding: 0;
-            display: flex;
-        }
-      
-        .main-content {
-            margin-left: 250px; /* Space for the sidebar */
-            padding: 20px;
-            flex-grow: 1;
-        }
-        .main-content h1 {
-            color: #fff;
-        }
-        #error {
-            color: #dc3545; /* Bootstrap danger color */
-        }
+      .main-content {
+        padding: 30px;
+        max-width: 800px;
+        margin: 0 auto;
+      }
+
+      .page-title {
+        font-weight: 600;
+        margin-bottom: 20px;
+      }
+
+      .card {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0px 4px 12px rgba(0,0,0,0.05);
+      }
+
+      .form-control {
+        border-radius: 6px;
+      }
+
+      #error {
+        margin-top: 10px;
+        color: #dc3545; /* Bootstrap danger red */
+        font-size: 0.9rem;
+      }
     </style>
     </head>
     <body>
-
         <div class="main-content">
-            <h1>Add Coupon</h1>
-            <form id="addCouponForm">
-                <div class="mb-3">
-                    <input type="text" name="couponCode" id="couponCode"
-                        class="form-control" placeholder="Coupon Code">
-                </div>
-                <label>Discount Type:</label>
-                <div class="mb-3">
-                    <div>
-                        <input type="radio" id="percentage" name="discountType"
-                            value="percentage">
-                        <label for="percentage"
-                            class="form-check-label">Percentage</label>
+            <h2 class="page-title">Add Coupon</h2>
+
+            <div class="card p-4">
+                <form id="addCouponForm">
+                    <div class="mb-3">
+                        <label for="couponCode" class="form-label">Coupon
+                            Code</label>
+                        <input type="text" name="couponCode" id="couponCode"
+                            class="form-control"
+                            placeholder="Enter coupon code" />
                     </div>
-                </div>
-                <div class="mb-3">
-                    <input type="number" name="discountValue" id="discountValue"
-                        class="form-control" placeholder="Discount Percentage">
-                </div>
-                <div class="mb-3">
-                    <input type="date" name="startDate" id="startDate"
-                        class="form-control">
-                </div>
-                <div class="mb-3">
-                    <input type="date" name="endDate" id="endDate"
-                        class="form-control">
-                </div>
-                <div class="mb-3">
-                    <input type="number" name="minPurchaseAmount"
-                        id="minPurchaseAmount" class="form-control"
-                        placeholder="Minimum Purchase Amount">
-                </div>
-                <div class="mb-3">
-                    <input type="number" name="usageLimit" id="usageLimit"
-                        class="form-control" placeholder="Usage Limit">
-                </div>
-                <button type="submit" class="btn btn-primary">Add
-                    Coupon</button>
-            </form>
-            <div id="error"></div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Discount Type</label>
+                        <div class="form-check">
+                            <input type="radio" id="percentage"
+                                name="discountType" value="percentage"
+                                class="form-check-input" />
+                            <label for="percentage"
+                                class="form-check-label">Percentage</label>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="discountValue" class="form-label">Discount
+                            Value (%)</label>
+                        <input type="number" name="discountValue"
+                            id="discountValue"
+                            class="form-control"
+                            placeholder="Enter discount percentage" />
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="startDate" class="form-label">Start
+                                Date</label>
+                            <input type="date" name="startDate" id="startDate"
+                                class="form-control" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="endDate" class="form-label">End
+                                Date</label>
+                            <input type="date" name="endDate" id="endDate"
+                                class="form-control" />
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="minPurchaseAmount"
+                            class="form-label">Minimum Purchase Amount</label>
+                        <input type="number" name="minPurchaseAmount"
+                            id="minPurchaseAmount"
+                            class="form-control"
+                            placeholder="Enter minimum purchase amount" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="usageLimit" class="form-label">Usage
+                            Limit</label>
+                        <input type="number" name="usageLimit" id="usageLimit"
+                            class="form-control"
+                            placeholder="Enter usage limit" />
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Add Coupon
+                    </button>
+                    <a href="/admin/coupons"
+                        class="btn btn-secondary ms-2">Cancel</a>
+
+                    <div id="error"></div>
+                </form>
+            </div>
         </div>
 
         <!-- Bootstrap JS and SweetAlert2 -->
@@ -87,37 +129,37 @@
         <script
             src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
         <script>
-        $(document).ready(function () {
-            $('#addCouponForm').on('submit', function (e) {
-                e.preventDefault(); // Prevent the default form submission
+      $(document).ready(function () {
+        $('#addCouponForm').on('submit', function (e) {
+          e.preventDefault();
 
-                const formData = $(this).serialize(); // Serialize the form data
+          const formData = $(this).serialize();
 
-                $.ajax({
-                    url: '/admin/coupon/add-coupon',
-                    type: 'POST',
-                    data: formData,
-                    dataType: 'json',
-                    success: function (response) {
-                        if (response.success) {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Coupon added successfully!',
-                                showConfirmButton: false,
-                                timer: 1500
-                            }).then(() => {
-                                window.location.href = '/admin/coupons'; // Redirect after success
-                            });
-                        } else {
-                            $('#error').text(response.message || 'An error occurred.'); // Show error message
-                        }
-                    },
-                    error: function (jqXHR) {
-                        $('#error').text(jqXHR.responseJSON.message || 'An unexpected error occurred.'); // Handle AJAX error
-                    }
+          $.ajax({
+            url: '/admin/coupon/add-coupon',
+            type: 'POST',
+            data: formData,
+            dataType: 'json',
+            success: function (response) {
+              if (response.success) {
+                Swal.fire({
+                  icon: 'success',
+                  title: 'Coupon added successfully!',
+                  showConfirmButton: false,
+                  timer: 1500
+                }).then(() => {
+                  window.location.href = '/admin/coupons';
                 });
-            });
+              } else {
+                $('#error').text(response.message || 'An error occurred.');
+              }
+            },
+            error: function (jqXHR) {
+              $('#error').text(jqXHR.responseJSON?.message || 'An unexpected error occurred.');
+            }
+          });
         });
+      });
     </script>
     </body>
 </html>

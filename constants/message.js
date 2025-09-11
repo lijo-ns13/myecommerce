@@ -52,6 +52,8 @@ module.exports = {
     PASSWORD_CHANGED: 'Password changed successfully',
     GENERAL_ERROR: 'Something went wrong',
     FAILURE: 'Failure',
+    WEAK_PASSWORD:
+      'Password must be at least 8 characters long and include uppercase, lowercase, number, and special character.',
   },
   PRODUCT: {
     ADD_SUCCESS: 'Product added successfully!',

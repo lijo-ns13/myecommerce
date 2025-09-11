@@ -38,6 +38,12 @@ const getCustomers = async (req, res) => {
       .skip((page - 1) * limit)
       .limit(limit);
 
+    if (req.xhr || req.query.ajax) {
+      // ✅ return partial HTML for AJAX
+      return res.render('partials/customerList', { customers });
+    }
+
+    // ✅ normal full page render
     res.render('customers', {
       customers,
       currentPage: page,

@@ -99,6 +99,14 @@ const postSignup = async (req, res) => {
         .status(httpStatusCodes.BAD_REQUEST)
         .json({ success: false, message: messages.AUTH.PASSWORD_MISMATCH });
     }
+    const strongPasswordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    if (!strongPasswordRegex.test(password)) {
+      return res.status(httpStatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: messages.AUTH.WEAK_PASSWORD,
+      });
+    }
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!regex.test(email)) {
       return res
@@ -231,6 +239,14 @@ const postPasswordreset = async (req, res) => {
         .status(httpStatusCodes.BAD_REQUEST)
         .json({ success: false, message: messages.AUTH.PASSWORD_CONFIRM_FAIL });
     }
+    const strongPasswordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    if (!strongPasswordRegex.test(password)) {
+      return res.status(httpStatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: messages.AUTH.WEAK_PASSWORD,
+      });
+    }
     user.forgotPasswordExpiry = undefined;
     user.forgotPasswordToken = undefined;
     user.password = req.body.password;
@@ -247,27 +263,36 @@ const getOtp = (_req, res) => {
 const postResend = async (req, res) => {
   try {
     otp = Math.floor(1000 + Math.random() * 9000);
-    console.log(otp);
-    otpExpirationTime = Date.now() + 1 * 60 * 1000;
+    console.log('Generated OTP:', otp);
+    otpExpirationTime = Date.now() + 1 * 60 * 1000; // 1 minute expiry
+
     const mailOptions = {
+      from: process.env.NODEMAILER_USEREMAIL, // Add this line
       to: oremail,
-      subject: 'The Resend OTP for registration',
-      html: `<h3>OTP for account verification is</h3><h1 style='font-weight:bold;'>${otp}</h1>`,
+      subject: 'Resend OTP for Registration',
+      html: `<h3>Your OTP for account verification is:</h3><h1 style='font-weight:bold;'>${otp}</h1>`,
     };
 
-    transporter.sendMail(mailOptions, (error) => {
+    transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
-        console.log(error);
+        console.error('Error sending OTP:', error);
         return res
           .status(httpStatusCodes.INTERNAL_SERVER_ERROR)
-          .json({ success: false, message: messages.AUTH.OTP_FAILED });
+          .render('otp', { msg: 'Failed to send OTP. Please try again.' });
       }
-      res.status(httpStatusCodes.OK).render('otp');
+      console.log('OTP email sent:', info.response);
+      return res
+        .status(httpStatusCodes.OK)
+        .render('otp', { msg: 'OTP has been resent. Please check your email.' });
     });
   } catch (error) {
-    res.status(httpStatusCodes.INTERNAL_SERVER_ERROR).json({ success: false, message: 'Failure' });
+    console.error('Resend OTP error:', error);
+    return res
+      .status(httpStatusCodes.INTERNAL_SERVER_ERROR)
+      .render('otp', { msg: 'An unexpected error occurred.' });
   }
 };
+
 const postVerify = async (req, res) => {
   const { otp: providedOtp } = req.body;
   console.log('otp', otp);

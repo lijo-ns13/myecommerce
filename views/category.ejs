@@ -1,183 +1,203 @@
-
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Categories Management</title>
-        <link rel="stylesheet"
-            href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-        <link
-            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
-            rel="stylesheet">
-        <link rel="stylesheet"
-            href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Categories Management</title>
+    <!-- Bootstrap 5 -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet" />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+      rel="stylesheet" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" />
 
-        <style>
+    <style>
       body {
-        background-color: #f0f2f5;
-        font-family: 'Arial', sans-serif;
+        background-color: #f8f9fc;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
       }
+
       .main-content {
-        margin-left: 250px;
-        padding: 20px;
-        width: calc(100% - 250px);
+        margin-left: 180px;
+            padding: 30px;
+            transition: all 0.3s;
       }
+
       .card {
         border: none;
-        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-        border-radius: 0.5rem;
+        border-radius: 0.75rem;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08);
       }
+
       .card-header {
-        background-color: #f8f9fa;
-        border-bottom: 1px solid #e3e6f0;
+        background-color: #fff;
+        border-bottom: 1px solid #e9ecef;
+        padding: 1rem 1.25rem;
       }
+
       .table th {
+        background-color: #f1f3f9;
         font-weight: 600;
-        background-color: #f8f9fa;
+        text-transform: uppercase;
+        font-size: 0.85rem;
       }
+
+      .badge-success {
+        background-color: #28a745;
+      }
+      .badge-danger {
+        background-color: #dc3545;
+      }
+
       .btn-custom {
-        margin: 0.2rem;
+        margin: 0.15rem;
       }
-      .category-actions {
-        white-space: nowrap;
+
+      /* Search box */
+      .search-box input {
+        border-radius: 0.5rem 0 0 0.5rem;
       }
-      .search-box {
-        max-width: 300px;
+      .search-box .input-group-text {
+        border-radius: 0 0.5rem 0.5rem 0;
+        background-color: #fff;
       }
+
+      /* Responsive adjustments */
       @media (max-width: 768px) {
-        .sidebar {
-          width: 100%;
-          position: static;
-          height: auto;
+        .toolbar {
+          flex-direction: column;
+          align-items: stretch;
         }
-        .main-content {
-          margin-left: 0;
+        .search-box {
+          margin-bottom: 10px;
+          width: 100%;
+        }
+        .btn-add {
           width: 100%;
         }
       }
     </style>
-    </head>
-    <body>
-        <div class="main-content">
-            <div
-                class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3">
-                <h1 class="h2">Categories Management</h1>
-                <div class="btn-toolbar mb-2 mb-md-0">
-                    <!-- Search Input -->
-                    <div class="input-group search-box me-2">
-                        <input type="text" id="searchInput" class="form-control"
-                            placeholder="Search categories..."
-                            value="<%= search %>">
-                        <div class="input-group-append">
-                            <span class="input-group-text"><i
-                                    class="fas fa-search"></i></span>
-                        </div>
-                    </div>
+  </head>
+  <body>
+    <div class="main-content">
+      <div
+        class="d-flex justify-content-between align-items-center flex-wrap toolbar mb-4">
+        <h2 class="h4 fw-bold mb-3 mb-md-0">Categories Management</h2>
 
-                    <a href="/admin/category/add-category"
-                        class="btn btn-primary"><i class="fas fa-plus"></i> Add
-                        Category</a>
-                </div>
-            </div>
+        <div class="d-flex flex-wrap gap-2">
+          <!-- Search Input -->
+          <div class="input-group search-box">
+            <input
+              type="text"
+              id="searchInput"
+              class="form-control"
+              placeholder="Search categories..."
+              value="<%= search %>" />
+            <span class="input-group-text">
+              <i class="fas fa-search"></i>
+            </span>
+          </div>
 
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">Category List</h5>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-hover" id="categoriesTable">
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Category Name</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <% categories.forEach((category, index) => { %>
-                                <tr>
-                                    <td>
-                                        <%= (currentPage - 1) * limit + (index +
-                                        1) %>
-                                    </td>
-                                    <td>
-                                        <%= category.name %>
-                                    </td>
-                                    <td>
-                                        <span
-                                            class="badge <%= category.isBlocked ? 'badge-danger' : 'badge-success' %>">
-                                            <%= category.isBlocked ? 'Blocked' :
-                                            'Active' %>
-                                        </span>
-                                    </td>
-                                    <td class="category-actions">
-                                        <a
-                                            href="/admin/category/update/<%= category._id %>"
-                                            class="btn btn-warning btn-sm btn-custom">
-                                            <i class="fas fa-edit"></i> Update
-                                        </a>
-                                        <button
-                                            class="btn <%= category.isBlocked ? 'btn-success' : 'btn-danger' %> btn-sm btn-custom"
-                                            onclick="toggleBlockStatus('<%= category._id %>', <%= category.isBlocked %>)">
-                                            <i
-                                                class="fas <%= category.isBlocked ? 'fa-unlock' : 'fa-lock' %>"></i>
-                                            <%= category.isBlocked ? 'Unblock' :
-                                            'Block' %>
-                                        </button>
-                                    </td>
-                                </tr>
-                                <% }) %>
-                            </tbody>
-                        </table>
-
-                        <!-- Pagination -->
-                        <nav aria-label="Category pagination">
-                            <ul class="pagination justify-content-center mt-3">
-                                <% if (currentPage > 1) { %>
-                                <li class="page-item">
-                                    <a class="page-link"
-                                        href="/admin/category?page=<%= currentPage - 1 %>&limit=<%= limit %>&search=<%= search %>">
-                                        Previous
-                                    </a>
-                                </li>
-                                <% } %>
-
-                                <% for(let i = 1; i <= totalPages; i++) { %>
-                                <li
-                                    class="page-item <%= i === currentPage ? 'active' : '' %>">
-                                    <a class="page-link"
-                                        href="/admin/category?page=<%= i %>&limit=<%= limit %>&search=<%= search %>">
-                                        <%= i %>
-                                    </a>
-                                </li>
-                                <% } %>
-
-                                <% if (currentPage < totalPages) { %>
-                                <li class="page-item">
-                                    <a class="page-link"
-                                        href="/admin/category?page=<%= currentPage + 1 %>&limit=<%= limit %>&search=<%= search %>">
-                                        Next
-                                    </a>
-                                </li>
-                                <% } %>
-                            </ul>
-                        </nav>
-                    </div>
-                </div>
-            </div>
+          <a href="/admin/category/add-category"
+            class="btn btn-primary btn-add">
+            <i class="fas fa-plus"></i> Add Category
+          </a>
         </div>
+      </div>
 
-        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-        <script
-            src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
-        <script
-            src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">Category List</h5>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Category Name</th>
+                  <th>Status</th>
+                  <th class="text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% categories.forEach((category, index) => { %>
+                <tr>
+                  <td><%= (currentPage - 1) * limit + (index + 1) %></td>
+                  <td><%= category.name %></td>
+                  <td>
+                    <span
+                      class="badge <%= category.isBlocked ? 'badge-danger' : 'badge-success' %>">
+                      <%= category.isBlocked ? 'Blocked' : 'Active' %>
+                    </span>
+                  </td>
+                  <td class="text-end">
+                    <a
+                      href="/admin/category/update/<%= category._id %>"
+                      class="btn btn-warning btn-sm btn-custom">
+                      <i class="fas fa-edit"></i> Update
+                    </a>
+                    <button
+                      class="btn <%= category.isBlocked ? 'btn-success' : 'btn-danger' %> btn-sm btn-custom"
+                      onclick="toggleBlockStatus('<%= category._id %>', <%= category.isBlocked %>)">
+                      <i
+                        class="fas <%= category.isBlocked ? 'fa-unlock' : 'fa-lock' %>"></i>
+                      <%= category.isBlocked ? 'Unblock' : 'Block' %>
+                    </button>
+                  </td>
+                </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
 
-        <script>
+          <!-- Pagination -->
+          <nav aria-label="Category pagination">
+            <ul class="pagination justify-content-center mt-3">
+              <% if (currentPage > 1) { %>
+              <li class="page-item">
+                <a
+                  class="page-link"
+                  href="/admin/category?page=<%= currentPage - 1 %>&limit=<%= limit %>&search=<%= search %>">
+                  Previous
+                </a>
+              </li>
+              <% } %>
+
+              <% for(let i = 1; i <= totalPages; i++) { %>
+              <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                <a
+                  class="page-link"
+                  href="/admin/category?page=<%= i %>&limit=<%= limit %>&search=<%= search %>">
+                  <%= i %>
+                </a>
+              </li>
+              <% } %>
+
+              <% if (currentPage < totalPages) { %>
+              <li class="page-item">
+                <a
+                  class="page-link"
+                  href="/admin/category?page=<%= currentPage + 1 %>&limit=<%= limit %>&search=<%= search %>">
+                  Next
+                </a>
+              </li>
+              <% } %>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </div>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
       // Debounce helper
       function debounce(fn, delay) {
         let timer;
@@ -187,53 +207,55 @@
         };
       }
 
-      const searchInput = document.getElementById('searchInput');
+      const searchInput = document.getElementById("searchInput");
 
       const handleSearch = debounce(function () {
         const searchValue = searchInput.value.trim();
-        // Redirect to page 1 with search applied
-        window.location.href =
-          `/admin/category?page=1&limit=<%= limit %>&search=${encodeURIComponent(searchValue)}`;
+        window.location.href = `/admin/category?page=1&limit=<%= limit %>&search=${encodeURIComponent(
+          searchValue
+        )}`;
       }, 500);
 
-      searchInput.addEventListener('keyup', handleSearch);
+      searchInput.addEventListener("keyup", handleSearch);
 
       // Toggle Block / Unblock
       function toggleBlockStatus(categoryId, isBlocked) {
-        const url = `/admin/category/${isBlocked ? 'unblock' : 'block'}/${categoryId}`;
+        const url = `/admin/category/${isBlocked ? "unblock" : "block"}/${categoryId}`;
 
         Swal.fire({
-          title: `Are you sure you want to ${isBlocked ? 'unblock' : 'block'} this category?`,
+          title: `Are you sure you want to ${
+            isBlocked ? "unblock" : "block"
+          } this category?`,
           text: "This action can be reversed later.",
-          icon: 'warning',
+          icon: "warning",
           showCancelButton: true,
-          confirmButtonColor: '#3085d6',
-          cancelButtonColor: '#d33',
-          confirmButtonText: 'Yes, proceed!'
+          confirmButtonColor: "#3085d6",
+          cancelButtonColor: "#d33",
+          confirmButtonText: "Yes, proceed!",
         }).then((result) => {
           if (result.isConfirmed) {
-            fetch(url, { method: 'POST' })
-              .then(response => {
+            fetch(url, { method: "POST" })
+              .then((response) => {
                 if (response.ok) return response.json();
-                throw new Error('Failed to update category');
+                throw new Error("Failed to update category");
               })
-              .then(data => {
+              .then((data) => {
                 Swal.fire({
-                  title: 'Success!',
+                  title: "Success!",
                   text: data.message,
-                  icon: 'success'
+                  icon: "success",
                 }).then(() => location.reload());
               })
-              .catch(error => {
+              .catch((error) => {
                 Swal.fire({
-                  title: 'Error',
+                  title: "Error",
                   text: error.message,
-                  icon: 'error'
+                  icon: "error",
                 });
               });
           }
         });
       }
     </script>
-    </body>
+  </body>
 </html>
