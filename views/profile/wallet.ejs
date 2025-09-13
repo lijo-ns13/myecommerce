@@ -335,8 +335,9 @@
                 <h2 class="mb-4">Your Wallet</h2>
                 <div class="wallet-card">
                     <div class="wallet-balance">
-                        Wallet Balance: <span>$<%= wallet.balance.toFixed(2)
-                            %></span>
+                        Wallet Balance: <span>$<%= wallet && typeof
+                            wallet.balance === 'number' ?
+                            wallet.balance.toFixed(2) : "0.00" %></span>
                     </div>
 
                     <h3 class="mb-3">Transaction History</h3>
