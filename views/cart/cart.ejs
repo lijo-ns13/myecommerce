@@ -386,7 +386,7 @@
                             <% if (cart.finalTotalPrice < 100) { %>
                             <div class="alert-shipping">
                                 <i class="fas fa-truck mr-2"></i>
-                                Add $<%= (100 - cart.finalTotalPrice).toFixed(2)
+                                Add ₹<%= (100 - cart.finalTotalPrice).toFixed(2)
                                 %> more to get FREE shipping!
                             </div>
                             <% } %>
@@ -407,7 +407,7 @@
                                     <div class="product-details mb-3">
                                         <p class="mb-1">Size: <%= product.size
                                             %></p>
-                                        <p class="mb-1">Price: $<%=
+                                        <p class="mb-1">Price: ₹<%=
                                             product.productId.finalPrice.toFixed(2)
                                             %></p>
                                         <% if (product.productId.discount > 0) {
@@ -443,7 +443,7 @@
                                 </div>
                                 <div class="col-md-3 text-right">
                                     <p class="font-weight-bold mb-3">
-                                        $<%= (product.productId.finalPrice *
+                                        ₹<%= (product.productId.finalPrice *
                                         product.quantity).toFixed(2) %>
                                     </p>
                                     <form
@@ -471,17 +471,17 @@
                     <div class="summary-item">
                         <span>Subtotal (<%= cart.products.length %>
                             items)</span>
-                        <span>$<%= cart.finalPrice.toFixed(2) %></span>
+                        <span>₹<%= cart.finalPrice.toFixed(2) %></span>
                     </div>
                     <div class="summary-item">
                         <span>Shipping</span>
                         <span><%= cart.finalTotalPrice >= 100 ? 'FREE' :
-                            '$10.00' %></span>
+                            '₹10.00' %></span>
                     </div>
 
                     <div class="summary-total">
                         <span>Total</span>
-                        <span>$<%= cart.finalPrice %></span>
+                        <span>₹<%= cart.finalPrice %></span>
                     </div>
                     <a href="/checkout" class="btn btn-checkout">
                         Proceed to Checkout

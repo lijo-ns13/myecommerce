@@ -255,10 +255,10 @@
                                 alt="<%= product.productId.product %>">
                             <div class="cart-item-details">
                                 <h5><%= product.productId.product %></h5>
-                                <p>Price: $<%= product.productId.finalPrice
+                                <p>Price: ₹<%= product.productId.finalPrice
                                     %></p>
                                 <p>Quantity: <%= product.quantity %></p>
-                                <p>Subtotal: $<%= (product.productId.finalPrice
+                                <p>Subtotal: ₹<%= (product.productId.finalPrice
                                     * product.quantity).toFixed(2) %></p>
                             </div>
                         </div>
@@ -375,19 +375,19 @@
                         0) { %>
                         <div class="order-summary-item">
                             <span>Subtotal:</span>
-                            <span>$<%= cart.totalPrice.toFixed(2) %></span>
+                            <span>₹<%= cart.totalPrice.toFixed(2) %></span>
                         </div>
                         <% if (cart.totalPrice !== cart.finalPrice) { %>
                         <div class="order-summary-item">
                             <span>Discount:</span>
-                            <span>-$<%= (cart.totalPrice -
+                            <span>₹<%= (cart.totalPrice -
                                 cart.finalPrice).toFixed(2) %></span>
                         </div>
                         <% } %>
                         <% if (cart.deliveryCharge > 0) { %>
                         <div class="order-summary-item">
                             <span>Delivery Charge:</span>
-                            <span>$<%= cart.deliveryCharge.toFixed(2) %></span>
+                            <span>₹<%= cart.deliveryCharge.toFixed(2) %></span>
                         </div>
                         <% } else { %>
                         <div class="order-summary-item">
@@ -397,7 +397,7 @@
                         <% } %>
                         <div class="order-summary-item order-total">
                             <span>Total:</span>
-                            <span>$<%= cart.finalPrice.toFixed(2) %></span>
+                            <span>₹<%= cart.finalPrice.toFixed(2) %></span>
                         </div>
                         <% } else { %>
                         <p>No items in cart</p>
