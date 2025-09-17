@@ -9,7 +9,7 @@ router.use(jwtAuth, adminProtected);
 
 router.get('/sales/graph', adminDashboardController.getSalesGraph);
 router.get('/orders/counts', adminDashboardController.getOrdersCount);
-router.get('/orders/stats', adminDashboardController.getOrdersCount);
+router.get('/orders/stats', adminDashboardController.getOrdersStats);
 // router.get('/dashboard',adminController.getDashboard)
 router.get('/dashboard', adminDashboardController.getDashboard);
 router.get('/sales/report', adminDashboardController.getSalesGraph);

@@ -468,9 +468,9 @@ body {
                         <div class="product-details">
                             <div class="price-container">
                                 <% if (product.offerApplied) { %>
-                                <span class="original-price">$<%=
+                                <span class="original-price">₹<%=
                                     product.price.toFixed(2) %></span>
-                                <span class="final-price">$<%=
+                                <span class="final-price">₹<%=
                                     product.finalPrice.toFixed(2) %></span>
                                 <%
                                 const discountPercentage = ((product.price -
@@ -479,7 +479,7 @@ body {
                                 <span class="discount-percentage"><%=
                                     discountPercentage.toFixed(0) %>% off</span>
                                 <% } else { %>
-                                <span class="final-price">$<%=
+                                <span class="final-price">₹<%=
                                     product.price.toFixed(2) %></span>
                                 <% } %>
                             </div>

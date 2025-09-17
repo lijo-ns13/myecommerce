@@ -168,11 +168,11 @@
                             <p class="mb-1">Qty: <%= product.productQuantity
                                 %></p>
                             <p class="mb-1">Unit: <%= new
-                                Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(product.productPrice)
+                                Intl.NumberFormat('en-IN',{style:'currency',currency:'INR'}).format(product.productPrice)
                                 %></p>
                             <p class="fw-bold">Subtotal:
                                 <%= new
-                                Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(product.productPrice
+                                Intl.NumberFormat('en-IN',{style:'currency',currency:'INR'}).format(product.productPrice
                                 * product.productQuantity) %>
                             </p>
                         </div>
