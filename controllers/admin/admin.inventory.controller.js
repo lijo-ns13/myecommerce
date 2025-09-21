@@ -1,21 +1,43 @@
 const Product = require('../../models/productSchema');
 const httpStatusCodes = require('../../constants/httpStatusCodes');
 const messages = require('../../constants/message');
-const getInventory = async (_req, res) => {
+const getInventory = async (req, res) => {
   try {
-    // Fetch all products
-    const products = await Product.find({}, 'product sizes'); // Only fetch product name and sizes
+    // Get page and limit from query parameters with defaults
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = parseInt(req.query.limit, 10) || 10;
+    const skip = (page - 1) * limit;
 
-    // Render the admin inventory page with the product data
+    // Get total count of products for pagination info
+    const totalProducts = await Product.countDocuments();
+
+    // Fetch products with pagination
+    const products = await Product.find({}, 'product sizes').skip(skip).limit(limit);
+
+    // Calculate total pages
+    const totalPages = Math.ceil(totalProducts / limit);
+
+    // Render the inventory page with pagination data
     res.render('admininventory/inventory', {
       products,
       currentPath: '/inventory',
       layout: 'layouts/adminLayout',
+      pagination: {
+        totalProducts,
+        totalPages,
+        currentPage: page,
+        hasNextPage: page < totalPages,
+        hasPrevPage: page > 1,
+        nextPage: page < totalPages ? page + 1 : null,
+        prevPage: page > 1 ? page - 1 : null,
+      },
     });
   } catch (error) {
+    console.error('Error fetching inventory:', error);
     res.status(httpStatusCodes.INTERNAL_SERVER_ERROR).send(messages.INVENTORY.FETCH_ERROR);
   }
 };
+
 const postInventoryUpdate = async (req, res) => {
   try {
     const { productId, size, changeInStock } = req.body;
