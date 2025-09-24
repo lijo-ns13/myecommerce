@@ -31,7 +31,7 @@ const getCategory = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    res.status(500).send('Server Error');
+    res.status(httpStatusCodes.INTERNAL_SERVER_ERROR).send('Server Error');
   }
 };
 
