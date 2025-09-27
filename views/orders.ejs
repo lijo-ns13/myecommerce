@@ -28,6 +28,10 @@
             flex-direction: column;
             overflow: hidden;
         }
+.pagination a {
+    min-width: 40px;
+    text-align: center;
+}
 
         @media (min-width: 768px) {
             .profile-container {
@@ -369,7 +373,7 @@
                                 { month: 'short', day: 'numeric' }) %>
                                 <% } else if(order.status === 'cancelled') { %>
                                 Cancelled: <%= new
-                                Date(order.updatedDate).toLocaleDateString('en-IN',
+                                Date(order.updatedAt).toLocaleDateString('en-IN',
                                 { month: 'short', day: 'numeric' }) %>
                                 <% } else if(order.status === 'refund') { %>
                                 Refund: <%= new
@@ -385,6 +389,31 @@
 
                     <% } %>
                 </div>
+                <!-- Pagination Controls -->
+                <% if (totalPages > 1) { %>
+                <div class="d-flex justify-content-center mt-4">
+                    <!-- Previous Button -->
+                    <% if (currentPage > 1) { %>
+                    <a href="?page=<%= currentPage - 1 %>&limit=<%= limit %>"
+                        class="btn btn-sm btn-primary mr-2">Prev</a>
+                    <% } %>
+
+                    <!-- Page Numbers -->
+                    <% for(let i = 1; i <= totalPages; i++) { %>
+                    <a href="?page=<%= i %>&limit=<%= limit %>"
+                        class="btn btn-sm <%= i === currentPage ? 'btn-dark' : 'btn-light' %> mx-1">
+                        <%= i %>
+                    </a>
+                    <% } %>
+
+                    <!-- Next Button -->
+                    <% if (currentPage < totalPages) { %>
+                    <a href="?page=<%= currentPage + 1 %>&limit=<%= limit %>"
+                        class="btn btn-sm btn-primary ml-2">Next</a>
+                    <% } %>
+                </div>
+                <% } %>
+
             </div>
         </div>
 

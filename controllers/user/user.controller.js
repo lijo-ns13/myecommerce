@@ -108,8 +108,9 @@ const getProductDetailed = async (req, res) => {
 };
 
 const getFullProducts = async (req, res) => {
-  const { query = '', category = '', sort = '' } = req.query;
-
+  const { query = '', category = '', sort = '', page = 1, limit = 18 } = req.query;
+  const currentPage = parseInt(page, 10) || 1;
+  const pageSize = parseInt(limit, 10) || 18;
   try {
     currentUserId = req.user ? req.user._id : null;
     const cart = await Cart.find({});
@@ -146,10 +147,13 @@ const getFullProducts = async (req, res) => {
 
     // Fetch categories for dropdown
     const categories = await Category.find();
-
+    const totalProducts = await Product.countDocuments(filter);
     // Fetch products based on filter and sort
-    const products = await Product.find(filter).sort(sortOption);
-
+    const products = await Product.find(filter)
+      .sort(sortOption)
+      .skip((currentPage - 1) * pageSize)
+      .limit(pageSize);
+    const totalPages = Math.ceil(totalProducts / pageSize);
     // Pass data to the view
     res.render('fullproducts', {
       products,
@@ -158,6 +162,9 @@ const getFullProducts = async (req, res) => {
       selectedCategory: category,
       selectedSort: sort,
       wishlist,
+      currentPage,
+      totalPages,
+      pageSize,
     });
   } catch (error) {
     res.status(httpStatusCodes.INTERNAL_SERVER_ERROR).send(messages.ERROR.SERVER_ERROR);

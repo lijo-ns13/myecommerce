@@ -501,6 +501,37 @@ body {
                 </div>
                 <% } %>
             </div>
+            <!-- Pagination -->
+            <div class="d-flex justify-content-center mt-4">
+                <nav aria-label="Page navigation">
+                    <ul class="pagination">
+                        <!-- Previous button -->
+                        <li
+                            class="page-item <%= currentPage <= 1 ? 'disabled' : '' %>">
+                            <a class="page-link"
+                                href="?query=<%= searchQuery %>&category=<%= selectedCategory %>&sort=<%= selectedSort %>&page=<%= currentPage - 1 %>&limit=<%= pageSize %>">Previous</a>
+                        </li>
+
+                        <!-- Page numbers -->
+                        <% for (let i = 1; i <= totalPages; i++) { %>
+                        <li
+                            class="page-item <%= currentPage === i ? 'active' : '' %>">
+                            <a class="page-link"
+                                href="?query=<%= searchQuery %>&category=<%= selectedCategory %>&sort=<%= selectedSort %>&page=<%= i %>&limit=<%= pageSize %>"><%=
+                                i %></a>
+                        </li>
+                        <% } %>
+
+                        <!-- Next button -->
+                        <li
+                            class="page-item <%= currentPage >= totalPages ? 'disabled' : '' %>">
+                            <a class="page-link"
+                                href="?query=<%= searchQuery %>&category=<%= selectedCategory %>&sort=<%= selectedSort %>&page=<%= currentPage + 1 %>&limit=<%= pageSize %>">Next</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+
         </div>
 
         <!-- Bootstrap JS and dependencies -->

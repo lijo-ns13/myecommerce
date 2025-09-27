@@ -240,8 +240,27 @@ const getWallet = async (req, res) => {
       wallet.transactions = [];
     }
 
+    // Pagination logic
+    const page = parseInt(req.query.page) || 1; // default to page 1
+    const limit = parseInt(req.query.limit) || 10; // default 10 transactions per page
+    const startIndex = (page - 1) * limit;
+    const endIndex = page * limit;
+
+    const totalTransactions = wallet.transactions.length;
+    const paginatedTransactions = wallet.transactions
+      .slice() // make a shallow copy
+      .reverse() // newest first
+      .slice(startIndex, endIndex);
+
+    const totalPages = Math.ceil(totalTransactions / limit);
+
     // Render the wallet page
-    res.render('profile/wallet', { wallet });
+    res.render('profile/wallet', {
+      wallet,
+      transactions: paginatedTransactions,
+      currentPage: page,
+      totalPages,
+    });
   } catch (error) {
     console.error('Error fetching wallet:', error);
     res.status(500).json({

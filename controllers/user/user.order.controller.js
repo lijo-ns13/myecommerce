@@ -8,20 +8,35 @@ const path = require('path');
 const getOrders = async (req, res) => {
   try {
     const userId = req.user._id;
-    const orders = await Order.find({ userId: userId });
-    if (!orders) {
-      return res
-        .status(httpStatusCodes.NOT_FOUND)
-        .json({ success: false, message: 'order not found' });
+
+    // Get page & limit from query, default to page 1, 10 orders per page
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    // Fetch total count for pagination
+    const totalOrders = await Order.countDocuments({ userId });
+
+    // Fetch orders with skip & limit, sorted by newest first
+    const orders = await Order.find({ userId }).sort({ createdAt: -1 }).skip(skip).limit(limit);
+
+    if (!orders || orders.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'No orders found',
+      });
     }
 
-    // Pass data to the EJS template
+    // Pass paginated data to EJS template
     res.render('orders', {
       orders,
+      currentPage: page,
+      totalPages: Math.ceil(totalOrders / limit),
+      limit,
     });
   } catch (err) {
     console.error(err);
-    res.status(httpStatusCodes.INTERNAL_SERVER_ERROR).send('Server Error');
+    res.status(500).send('Server Error');
   }
 };
 
@@ -116,12 +131,10 @@ const postOrderCancel = async (req, res) => {
         user.walletId = newWallet._id;
         await user.save();
       }
-      return res
-        .status(httpStatusCodes.OK)
-        .json({
-          success: true,
-          message: 'Order cancelled successfully and amount credited to wallet',
-        });
+      return res.status(httpStatusCodes.OK).json({
+        success: true,
+        message: 'Order cancelled successfully and amount credited to wallet',
+      });
     }
 
     res
@@ -381,13 +394,11 @@ const postCancelSingleProduct = async (req, res) => {
 
     // Ensure there are more than one product in the order
     if (order.products.length <= 1) {
-      return res
-        .status(httpStatusCodes.BAD_REQUEST)
-        .json({
-          success: false,
-          message:
-            'You can’t cancel a single product in a single item. Please cancel the entire order.',
-        });
+      return res.status(httpStatusCodes.BAD_REQUEST).json({
+        success: false,
+        message:
+          'You can’t cancel a single product in a single item. Please cancel the entire order.',
+      });
     }
 
     // Fetch the product being canceled
@@ -469,12 +480,10 @@ const postCancelSingleProduct = async (req, res) => {
     // Save the order after all updates
     await order.save();
 
-    res
-      .status(httpStatusCodes.OK)
-      .json({
-        success: true,
-        message: 'Successfully cancelled product and processed refund if applicable',
-      });
+    res.status(httpStatusCodes.OK).json({
+      success: true,
+      message: 'Successfully cancelled product and processed refund if applicable',
+    });
   } catch (error) {
     console.log('Error on cancel single product:', error.message);
     res.status(httpStatusCodes.BAD_REQUEST).json({ success: false, message: error.message });
