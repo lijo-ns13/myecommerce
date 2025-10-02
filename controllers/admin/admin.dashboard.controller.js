@@ -84,11 +84,11 @@ async function generatePdfContent(doc, salesData, orders, type, startDate, endDa
     doc.fontSize(12).fillColor('#333333');
 
     const summaryData = [
-      { label: 'Total Revenue', value: `$${totalSales.toFixed(2)}` },
-      { label: 'Total Discount', value: `$${totalDiscount.toFixed(2)}` },
-      { label: 'Net Revenue', value: `$${(totalSales - totalDiscount).toFixed(2)}` },
+      { label: 'Total Revenue', value: `₹${totalSales.toFixed(2)}` },
+      { label: 'Total Discount', value: `₹${totalDiscount.toFixed(2)}` },
+      { label: 'Net Revenue', value: `₹${(totalSales - totalDiscount).toFixed(2)}` },
       { label: 'Total Orders', value: totalOrders },
-      { label: 'Average Order Value', value: `$${averageOrderValue.toFixed(2)}` },
+      { label: 'Average Order Value', value: `₹${averageOrderValue.toFixed(2)}` },
     ];
 
     const summaryColumnWidth = 200;
@@ -185,9 +185,9 @@ async function generatePdfContent(doc, salesData, orders, type, startDate, endDa
       const rowData = [
         order._id.toString().substring(0, 8),
         userName,
-        `$${order.totalPrice.toFixed(2)}`,
-        `$${order.discount ? order.discount.toFixed(2) : '0.00'}`,
-        `$${netPrice.toFixed(2)}`,
+        `₹${order.totalPrice.toFixed(2)}`,
+        `₹${order.discount ? order.discount.toFixed(2) : '0.00'}`,
+        `₹${netPrice.toFixed(2)}`,
         new Date(order.orderDate).toLocaleDateString(),
         order.status,
       ];
