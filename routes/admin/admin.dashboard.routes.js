@@ -12,7 +12,7 @@ router.get('/orders/counts', adminDashboardController.getOrdersCount);
 router.get('/orders/stats', adminDashboardController.getOrdersStats);
 // router.get('/dashboard',adminController.getDashboard)
 router.get('/dashboard', adminDashboardController.getDashboard);
-router.get('/sales/report', adminDashboardController.getSalesGraph);
+router.get('/sales/report', adminDashboardController.getSalesReport);
 router.get('/sales/report/pdf', adminDashboardController.getSalesReportPDF);
 
 module.exports = router;

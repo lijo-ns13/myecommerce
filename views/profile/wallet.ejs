@@ -335,32 +335,35 @@
                 <h2 class="mb-4">Your Wallet</h2>
                 <div class="wallet-card">
                     <div class="wallet-balance">
-                        Wallet Balance: <span>$<%= wallet && typeof
+                        Wallet Balance: <span>₹<%= wallet && typeof
                             wallet.balance === 'number' ?
                             wallet.balance.toFixed(2) : "0.00" %></span>
                     </div>
 
                     <h3 class="mb-3">Transaction History</h3>
 
-                    <% if (wallet.transactions && wallet.transactions.length >
-                    0) { %>
+                    <% if (transactions && transactions.length > 0) { %>
                     <table>
                         <thead>
                             <tr>
                                 <th>Date</th>
-                                <th>Description</th>
+                                <th>TrnsactionID</th>
                                 <th>Type</th>
                                 <th>Amount</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <% wallet.transactions.forEach(transaction => { %>
+                            <% transactions.forEach(transaction => { %>
                             <tr>
                                 <td><%= new
                                     Date(transaction.date).toLocaleDateString()
                                     %></td>
-                                <td><%= transaction.description ||
-                                    'No description' %></td>
+                                <td>
+                                    TXN-<%=
+                                    transaction._id.toString().slice(0,
+                                    8).toUpperCase() %>
+
+                                </td>
                                 <td
                                     class="<%= transaction.type === 'credit' ? 'credit' : 'debit' %>">
                                     <%= transaction.type.charAt(0).toUpperCase()
@@ -368,17 +371,50 @@
                                 </td>
                                 <td
                                     class="<%= transaction.type === 'credit' ? 'credit' : 'debit' %>">
-                                    $<%= transaction.amount.toFixed(2) %>
+                                    ₹<%= transaction.amount.toFixed(2) %>
                                 </td>
                             </tr>
                             <% }) %>
                         </tbody>
                     </table>
+
+                    <!-- Pagination -->
+                    <nav aria-label="Transaction Pagination" class="mt-3">
+                        <ul class="pagination justify-content-center">
+                            <li
+                                class="page-item <%= currentPage <= 1 ? 'disabled' : '' %>">
+                                <a class="page-link"
+                                    href="?page=<%= currentPage - 1 %>&limit=10"
+                                    aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+
+                            <% for(let i = 1; i <= totalPages; i++) { %>
+                            <li
+                                class="page-item <%= currentPage === i ? 'active' : '' %>">
+                                <a class="page-link"
+                                    href="?page=<%= i %>&limit=10"><%= i %></a>
+                            </li>
+                            <% } %>
+
+                            <li
+                                class="page-item <%= currentPage >= totalPages ? 'disabled' : '' %>">
+                                <a class="page-link"
+                                    href="?page=<%= currentPage + 1 %>&limit=10"
+                                    aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+
                     <% } else { %>
                     <div class="no-transactions">
                         No transactions found.
                     </div>
                     <% } %>
+
                 </div>
             </div>
         </div>

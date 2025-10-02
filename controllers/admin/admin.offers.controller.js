@@ -1,6 +1,7 @@
 const Product = require('../../models/productSchema');
 const Offer = require('../../models/offerSchema');
 const Cart = require('../../models/cartSchema');
+const Category = require('../../models/categorySchema');
 const httpStatusCodes = require('../../constants/httpStatusCodes');
 // Function to apply offer to products
 async function applyOfferToProducts(products, offer, discountValue, discountType) {
