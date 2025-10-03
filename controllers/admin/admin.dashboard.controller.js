@@ -42,6 +42,29 @@ function getDateRange(type) {
 
   return { start, end };
 }
+function drawTableRow(doc, y, row, columnWidth, isHeader = false) {
+  const padding = 2; // space inside each cell
+
+  row.forEach((text, i) => {
+    doc.font(isHeader ? 'Helvetica-Bold' : 'Helvetica');
+
+    let fontSize = 12; // starting font size
+    doc.fontSize(fontSize);
+
+    // Make sure text fits in the column
+    while (doc.widthOfString(text.toString()) > columnWidth - 2 * padding && fontSize > 6) {
+      fontSize -= 0.5; // reduce font size
+      doc.fontSize(fontSize);
+    }
+
+    doc.text(text.toString(), 50 + i * columnWidth + padding, y, {
+      width: columnWidth - 2 * padding,
+      align: 'left',
+    });
+
+    doc.fontSize(12); // reset font size for next cell
+  });
+}
 
 async function generatePdfContent(doc, salesData, orders, type, startDate, endDate) {
   try {
@@ -129,9 +152,9 @@ async function generatePdfContent(doc, salesData, orders, type, startDate, endDa
       const netRevenue = sale.totalSales - sale.totalDiscount;
       const rowData = [
         sale._id,
-        `$${sale.totalSales.toFixed(2)}`,
-        `$${sale.totalDiscount.toFixed(2)}`,
-        `$${netRevenue.toFixed(2)}`,
+        `₹ ${sale.totalSales.toFixed(2)}`,
+        `₹ ${sale.totalDiscount.toFixed(2)}`,
+        `₹ ${netRevenue.toFixed(2)}`,
         sale.orderCount.toString(),
       ];
 
@@ -185,9 +208,9 @@ async function generatePdfContent(doc, salesData, orders, type, startDate, endDa
       const rowData = [
         order._id.toString().substring(0, 8),
         userName,
-        `₹${order.totalPrice.toFixed(2)}`,
-        `₹${order.discount ? order.discount.toFixed(2) : '0.00'}`,
-        `₹${netPrice.toFixed(2)}`,
+        `₹ ${order.totalPrice.toFixed(2)}`,
+        `₹ ${order.discount ? order.discount.toFixed(2) : '0.00'}`,
+        `₹ ${netPrice.toFixed(2)}`,
         new Date(order.orderDate).toLocaleDateString(),
         order.status,
       ];
@@ -202,11 +225,18 @@ async function generatePdfContent(doc, salesData, orders, type, startDate, endDa
       .fillColor('#666666')
       .text(
         `Generated on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}`,
-        {
-          align: 'center',
-          bottom: 30,
-        }
+        0, // x
+        doc.page.height - 30, // y = 30px from bottom
+        { width: doc.page.width, align: 'center' } // center alignment
       );
+
+    // .text(
+    //   `Generated on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}`,
+    //   {
+    //     align: 'center',
+    //     bottom: 30,
+    //   }
+    // );
   } catch (error) {
     console.error('Error generating PDF content:', error);
     doc
