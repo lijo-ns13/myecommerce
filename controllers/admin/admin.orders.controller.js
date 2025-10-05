@@ -218,7 +218,8 @@ const postEditOrder = async (req, res) => {
       const refundAmount = order.totalPrice;
 
       if (walletId) {
-        wallet = await Wallet.findById(walletId);
+        // wallet = await Wallet.findById(walletId);
+        wallet = await Wallet.findOne({ userId });
       }
 
       if (!wallet) {
@@ -251,11 +252,19 @@ const postEditOrder = async (req, res) => {
         'Amount Refunded Successfully',
         `The refunded amount of $${refundAmount} has been credited to your wallet. Enjoy!`
       );
-
+      return res.status(httpStatusCodes.OK).json({
+        success: true,
+        message: `Refund of ₹${refundAmount} successfully added to user's wallet.`,
+      });
       // return res.status(200).json({ success: true, message: 'Refund processed successfully' });
     }
+    return res.status(httpStatusCodes.OK).json({
+      success: true,
+      message: `Order status updated to "${status}" successfully.`,
+      newStatus: status,
+    });
 
-    res.status(httpStatusCodes.OK).redirect(`/admin/orders/${orderId}`); // Redirect back to orders page
+    // res.status(httpStatusCodes.OK).redirect(`/admin/orders/${orderId}`); // Redirect back to orders page
   } catch (error) {
     res
       .status(httpStatusCodes.INTERNAL_SERVER_ERROR)
