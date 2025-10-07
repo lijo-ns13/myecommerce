@@ -45,31 +45,55 @@ const getCategoryUpdate = async (req, res) => {
   });
 };
 const patchCategoryUpdate = async (req, res) => {
-  const categoryId = req.params.id;
-  const { name, description } = req.body;
-  if (!name || !description) {
-    return res
-      .status(httpStatusCodes.BAD_REQUEST)
-      .json({ success: false, message: messages.COMMON.ALL_FIELDS_REQUIRED });
+  try {
+    const categoryId = req.params.id;
+    const { name, description } = req.body;
+
+    if (!name || !description) {
+      return res.status(httpStatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: messages.COMMON.ALL_FIELDS_REQUIRED,
+      });
+    }
+
+    if (name.trim().length < 3 || name.trim().length > 20) {
+      return res.status(httpStatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: messages.COMMON.MIN_MAX_CHAR('name', 3, 20),
+      });
+    }
+
+    if (description.trim().length < 3 || description.trim().length > 40) {
+      return res.status(httpStatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: messages.COMMON.MIN_MAX_CHAR('description', 3, 40),
+      });
+    }
+
+    const updateData = { name: name.trim(), description: description.trim() };
+
+    const category = await Category.findByIdAndUpdate(categoryId, updateData, { new: true });
+
+    if (!category) {
+      return res.status(httpStatusCodes.NOT_FOUND).json({
+        success: false,
+        message: messages.CATEGORY.NOT_FOUND,
+      });
+    }
+
+    res.status(httpStatusCodes.OK).json({
+      success: true,
+      message: messages.CATEGORY.UPDATE_SUCCESS,
+      category,
+    });
+  } catch (error) {
+    res.status(httpStatusCodes.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: error.message,
+    });
   }
-  if ((name.trim().length > 15) | (name.trim().length < 3)) {
-    return res
-      .status(httpStatusCodes.BAD_REQUEST)
-      .json({ success: false, message: messages.COMMON.MIN_MAX_CHAR('name', 3, 15) });
-  }
-  if (description.trim().length > 20 || description.trim().length < 3) {
-    return res
-      .status(httpStatusCodes.BAD_REQUEST)
-      .json({ success: false, message: messages.COMMON.MIN_MAX_CHAR('description', 3, 20) });
-  }
-  const category = await Category.findByIdAndUpdate(categoryId, req.body, { new: true });
-  if (!category) {
-    return res.status(httpStatusCodes.NOT_FOUND).send({ message: messages.CATEGORY.NOT_FOUND });
-  }
-  res
-    .status(httpStatusCodes.OK)
-    .json({ success: true, message: messages.CATEGORY.UPDATE_SUCCESS, category: category });
 };
+
 const postCategoryBlock = async (req, res) => {
   try {
     const categoryId = req.params.id;
@@ -130,35 +154,54 @@ const postAddCategory = async (req, res) => {
     const { name, description } = req.body;
 
     if (!name || !description) {
-      return res
-        .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: messages.CATEGORY.REQUIRED_FIELDS });
+      return res.status(httpStatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: messages.CATEGORY.REQUIRED_FIELDS,
+      });
     }
-    if ((name.trim().length > 15) | (name.trim().length < 3)) {
-      return res
-        .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: messages.COMMON.MIN_MAX_CHAR('name', 3, 15) });
+
+    if (name.trim().length < 3 || name.trim().length > 20) {
+      return res.status(httpStatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: messages.COMMON.MIN_MAX_CHAR('name', 3, 20),
+      });
     }
-    if (description.trim().length > 20 || description.trim().length < 3) {
-      return res
-        .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: messages.COMMON.MIN_MAX_CHAR('description', 3, 20) });
+
+    if (description.trim().length < 3 || description.trim().length > 50) {
+      return res.status(httpStatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: messages.COMMON.MIN_MAX_CHAR('description', 3, 50),
+      });
     }
-    const categoryExist = await Category.findOne({ name });
+
+    const categoryExist = await Category.findOne({ name: name.trim() });
     if (categoryExist) {
-      return res
-        .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: messages.CATEGORY.ALREADY_EXISTS });
+      return res.status(httpStatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: messages.CATEGORY.ALREADY_EXISTS,
+      });
     }
-    const newCategory = new Category(req.body);
+
+    const newCategory = new Category({
+      name: name.trim(),
+      description: description.trim(),
+    });
+
     await newCategory.save();
-    res
-      .status(httpStatusCodes.CREATED)
-      .json({ success: true, message: messages.CATEGORY.ADD_SUCCESS });
+
+    res.status(httpStatusCodes.CREATED).json({
+      success: true,
+      message: messages.CATEGORY.ADD_SUCCESS,
+    });
   } catch (error) {
-    res.status(httpStatusCodes.BAD_REQUEST).json({ success: false, message: error.message });
+    console.error(error);
+    res.status(httpStatusCodes.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: error.message,
+    });
   }
 };
+
 module.exports = {
   getCategory,
   getCategoryUpdate,
