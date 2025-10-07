@@ -3,32 +3,73 @@ const Offer = require('../../models/offerSchema');
 const Cart = require('../../models/cartSchema');
 const Category = require('../../models/categorySchema');
 const httpStatusCodes = require('../../constants/httpStatusCodes');
-// Function to apply offer to products
-async function applyOfferToProducts(products, offer, discountValue, discountType) {
+// Apply the best active offer for a single product
+async function applyBestOfferToProduct(product) {
+  const now = new Date();
+
+  const offers = await Offer.find({
+    offerStatus: 'active',
+    startDate: { $lte: now },
+    endDate: { $gte: now },
+    $or: [{ productIds: product._id }, { categoryIds: product.category }],
+  });
+
+  if (!offers.length) {
+    product.finalPrice = product.price;
+    product.offerApplied = false;
+    product.offers = [];
+    await product.save();
+    return;
+  }
+
+  let maxDiscount = 0;
+  let bestOfferIds = [];
+
+  offers.forEach((offer) => {
+    const discountAmount =
+      offer.discountType === 'percentage'
+        ? (product.price * offer.discountValue) / 100
+        : offer.discountValue;
+
+    if (discountAmount > maxDiscount) {
+      maxDiscount = discountAmount;
+      bestOfferIds = [offer._id];
+    } else if (discountAmount === maxDiscount) {
+      bestOfferIds.push(offer._id);
+    }
+  });
+
+  product.finalPrice = Math.floor(product.price - maxDiscount);
+  product.offerApplied = true;
+  product.offers = bestOfferIds;
+  await product.save();
+}
+
+// Apply best offers to a list of products and update carts
+async function applyOffersToProductsAndUpdateCarts(products) {
   await Promise.all(
     products.map(async (product) => {
-      const discountAmount =
-        discountType === 'percentage' ? (product.price * discountValue) / 100 : discountValue;
-      const newPrice = product.price - discountAmount;
-      if (newPrice < product.finalPrice) {
-        product.finalPrice = Math.floor(newPrice);
-      }
-      product.offerApplied = true;
-      product.offers.push(offer._id); // Add the offer ID to the product's offers array
-      await product.save(); // Save the updated product
+      await applyBestOfferToProduct(product);
 
-      // Update cart final price if necessary
+      // Update carts containing this product
       const cartItems = await Cart.find({ 'products.productId': product._id });
       for (const cart of cartItems) {
         let totalPrice = 0;
         let finalTotalPrice = 0;
+
+        // Create a map of productId => product for efficient lookup
+        const productIds = cart.products.map((p) => p.productId);
+        const productDocs = await Product.find({ _id: { $in: productIds } });
+        const productMap = new Map(productDocs.map((p) => [p._id.toString(), p]));
+
         for (const item of cart.products) {
-          if (item.productId.equals(product._id)) {
-            totalPrice += product.price * item.quantity;
-            finalTotalPrice += product.finalPrice * item.quantity;
+          const p = productMap.get(item.productId.toString());
+          if (p) {
+            totalPrice += p.price * item.quantity;
+            finalTotalPrice += p.finalPrice * item.quantity;
           }
         }
-        // Update the cart prices
+
         await Cart.updateOne(
           { _id: cart._id },
           { $set: { finalTotalPrice, finalPrice: finalTotalPrice } }
@@ -37,6 +78,215 @@ async function applyOfferToProducts(products, offer, discountValue, discountType
     })
   );
 }
+
+// ------------------- OFFER CONTROLLERS -------------------
+
+// Add a new offer
+const addOffer = async (req, res) => {
+  try {
+    const {
+      offerName,
+      offerType,
+      discountType,
+      discountValue,
+      startDate,
+      endDate,
+      offerStatus,
+      offerDescription,
+      productSelection = [],
+      categorySelection = [],
+    } = req.body;
+
+    // Basic validations
+    if (
+      !offerName ||
+      !offerType ||
+      !discountType ||
+      !discountValue ||
+      !startDate ||
+      !endDate ||
+      !offerStatus ||
+      !offerDescription
+    ) {
+      return res
+        .status(httpStatusCodes.BAD_REQUEST)
+        .json({ success: false, message: 'All fields are required.' });
+    }
+    if (!/^[A-Z0-9]+$/.test(offerName)) {
+      return res.status(httpStatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: 'Only capital letters and numbers are allowed for Offer Name.',
+      });
+    }
+    if (discountValue <= 0 || discountValue >= 60) {
+      return res
+        .status(httpStatusCodes.BAD_REQUEST)
+        .json({ success: false, message: 'Discount Value must be between 1 and 59.' });
+    }
+
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    if (start >= end)
+      return res
+        .status(httpStatusCodes.BAD_REQUEST)
+        .json({ success: false, message: 'End date must be after start date.' });
+
+    const existingOffers = await Offer.find({ offerName });
+    if (existingOffers.length > 0) {
+      return res
+        .status(httpStatusCodes.BAD_REQUEST)
+        .json({ success: false, message: 'An offer with this name already exists.' });
+    }
+
+    const categoryIds = Array.isArray(categorySelection)
+      ? categorySelection
+      : categorySelection
+        ? [categorySelection]
+        : [];
+    const productIds = Array.isArray(productSelection)
+      ? productSelection
+      : productSelection
+        ? [productSelection]
+        : [];
+
+    if (offerType === 'category' && categoryIds.length === 0) {
+      return res
+        .status(httpStatusCodes.BAD_REQUEST)
+        .json({ success: false, message: 'Please select at least one category' });
+    }
+    if (offerType === 'product' && productIds.length === 0) {
+      return res
+        .status(httpStatusCodes.BAD_REQUEST)
+        .json({ success: false, message: 'Please select at least one product' });
+    }
+
+    // Create new offer
+    const offer = new Offer({
+      offerName,
+      offerType,
+      discountType,
+      discountValue,
+      startDate: start,
+      endDate: end,
+      offerStatus,
+      offerDescription,
+      ...(offerType === 'category' ? { categoryIds } : { productIds }),
+    });
+
+    await offer.save();
+
+    // Fetch affected products and apply best offer
+    let affectedProducts = [];
+    if (offerType === 'category') {
+      affectedProducts = await Product.find({ category: { $in: categoryIds } });
+    } else if (offerType === 'product') {
+      affectedProducts = await Product.find({ _id: { $in: productIds } });
+    }
+    await applyOffersToProductsAndUpdateCarts(affectedProducts);
+
+    res
+      .status(httpStatusCodes.CREATED)
+      .json({ success: true, message: 'Offer created successfully' });
+  } catch (error) {
+    console.error('Add offer error:', error);
+    res
+      .status(httpStatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: error.message });
+  }
+};
+
+// Edit an existing offer
+const editOffer = async (req, res) => {
+  try {
+    const offerId = req.params.id;
+    const {
+      offerName,
+      offerType,
+      discountType,
+      discountValue,
+      startDate,
+      endDate,
+      offerStatus,
+      offerDescription,
+      categorySelection = [],
+      productSelection = [],
+    } = req.body;
+
+    const offer = await Offer.findById(offerId);
+    if (!offer)
+      return res
+        .status(httpStatusCodes.NOT_FOUND)
+        .json({ success: false, message: 'Offer not found' });
+
+    // Update offer fields
+    offer.offerName = offerName;
+    offer.offerType = offerType;
+    offer.discountType = discountType;
+    offer.discountValue = discountValue;
+    offer.startDate = new Date(startDate);
+    offer.endDate = new Date(endDate);
+    offer.offerStatus = offerStatus;
+    offer.offerDescription = offerDescription;
+
+    if (offerType === 'category') {
+      offer.categoryIds = categorySelection;
+      offer.productIds = [];
+    } else {
+      offer.productIds = productSelection;
+      offer.categoryIds = [];
+    }
+
+    await offer.save();
+
+    // Fetch affected products and apply best offer
+    let affectedProducts = [];
+    if (offerType === 'category') {
+      affectedProducts = await Product.find({ category: { $in: categorySelection } });
+    } else {
+      affectedProducts = await Product.find({ _id: { $in: productSelection } });
+    }
+    await applyOffersToProductsAndUpdateCarts(affectedProducts);
+
+    res.status(httpStatusCodes.OK).redirect('/admin/offers');
+  } catch (error) {
+    console.error('Edit offer error:', error);
+    res
+      .status(httpStatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: error.message });
+  }
+};
+
+// Delete an offer
+const deleteOffer = async (req, res) => {
+  try {
+    const offerId = req.params.offerId;
+    const offer = await Offer.findById(offerId);
+    if (!offer)
+      return res
+        .status(httpStatusCodes.NOT_FOUND)
+        .json({ success: false, message: 'Offer not found' });
+
+    // Find products affected by this offer
+    const affectedProducts = await Product.find({ offers: offerId });
+
+    // Remove this offer from products
+    await Product.updateMany({ offers: offerId }, { $pull: { offers: offerId } });
+
+    // Delete the offer
+    await Offer.findByIdAndDelete(offerId);
+
+    // Reapply best offers to affected products
+    await applyOffersToProductsAndUpdateCarts(affectedProducts);
+
+    res.status(httpStatusCodes.OK).json({ success: true, message: 'Offer deleted successfully' });
+  } catch (error) {
+    console.error('Delete offer error:', error);
+    res
+      .status(httpStatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: 'An error occurred while deleting the offer.' });
+  }
+};
+
 const getOffers = async (req, res) => {
   try {
     const offers = await Offer.find({}).populate('categoryIds');
@@ -72,191 +322,191 @@ const getAddOffer = async (req, res) => {
       .json({ success: false, message: error.message });
   }
 };
-const addOffer = async (req, res) => {
-  try {
-    const {
-      offerName,
-      offerType,
-      discountType,
-      discountValue,
-      startDate,
-      endDate,
-      offerStatus,
-      offerDescription,
-      productSelection = [],
-      categorySelection = [],
-    } = req.body;
+// const addOffer = async (req, res) => {
+//   try {
+//     const {
+//       offerName,
+//       offerType,
+//       discountType,
+//       discountValue,
+//       startDate,
+//       endDate,
+//       offerStatus,
+//       offerDescription,
+//       productSelection = [],
+//       categorySelection = [],
+//     } = req.body;
 
-    console.log(req.body, 'req.body');
+//     console.log(req.body, 'req.body');
 
-    // Validation checks
-    if (!offerName) {
-      return res
-        .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'OfferName is required' });
-    }
-    if (!offerType) {
-      return res
-        .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'OfferType is required' });
-    }
-    if (!discountType) {
-      return res
-        .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'DiscountType is required' });
-    }
-    if (!discountValue) {
-      return res
-        .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'DiscountValue is required' });
-    }
-    if (!startDate || !endDate) {
-      return res
-        .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'Start and End Date are required' });
-    }
-    if (!offerStatus) {
-      return res
-        .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'OfferStatus is required' });
-    }
-    if (!offerDescription) {
-      return res
-        .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'OfferDescription is required' });
-    }
+//     // Validation checks
+//     if (!offerName) {
+//       return res
+//         .status(httpStatusCodes.BAD_REQUEST)
+//         .json({ success: false, message: 'OfferName is required' });
+//     }
+//     if (!offerType) {
+//       return res
+//         .status(httpStatusCodes.BAD_REQUEST)
+//         .json({ success: false, message: 'OfferType is required' });
+//     }
+//     if (!discountType) {
+//       return res
+//         .status(httpStatusCodes.BAD_REQUEST)
+//         .json({ success: false, message: 'DiscountType is required' });
+//     }
+//     if (!discountValue) {
+//       return res
+//         .status(httpStatusCodes.BAD_REQUEST)
+//         .json({ success: false, message: 'DiscountValue is required' });
+//     }
+//     if (!startDate || !endDate) {
+//       return res
+//         .status(httpStatusCodes.BAD_REQUEST)
+//         .json({ success: false, message: 'Start and End Date are required' });
+//     }
+//     if (!offerStatus) {
+//       return res
+//         .status(httpStatusCodes.BAD_REQUEST)
+//         .json({ success: false, message: 'OfferStatus is required' });
+//     }
+//     if (!offerDescription) {
+//       return res
+//         .status(httpStatusCodes.BAD_REQUEST)
+//         .json({ success: false, message: 'OfferDescription is required' });
+//     }
 
-    const regex = /^[A-Z0-9]+$/;
-    if (!regex.test(offerName)) {
-      return res
-        .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'Only capital letters and numbers are allowed' });
-    }
+//     const regex = /^[A-Z0-9]+$/;
+//     if (!regex.test(offerName)) {
+//       return res
+//         .status(httpStatusCodes.BAD_REQUEST)
+//         .json({ success: false, message: 'Only capital letters and numbers are allowed' });
+//     }
 
-    // Check if the offer type is valid
-    const validOfferTypes = ['category', 'product'];
-    if (!validOfferTypes.includes(offerType)) {
-      return res
-        .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'Invalid offer type' });
-    }
+//     // Check if the offer type is valid
+//     const validOfferTypes = ['category', 'product'];
+//     if (!validOfferTypes.includes(offerType)) {
+//       return res
+//         .status(httpStatusCodes.BAD_REQUEST)
+//         .json({ success: false, message: 'Invalid offer type' });
+//     }
 
-    // Validate discount value
-    if (discountValue >= 60) {
-      return res
-        .status(400)
-        .json({ success: false, message: 'Discount Value must be less than 60' });
-    }
-    if (discountValue <= 0) {
-      return res
-        .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'Discount Value must be greater than 0' });
-    }
+//     // Validate discount value
+//     if (discountValue >= 60) {
+//       return res
+//         .status(400)
+//         .json({ success: false, message: 'Discount Value must be less than 60' });
+//     }
+//     if (discountValue <= 0) {
+//       return res
+//         .status(httpStatusCodes.BAD_REQUEST)
+//         .json({ success: false, message: 'Discount Value must be greater than 0' });
+//     }
 
-    // Validate startDate and endDate
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-    if (start >= end) {
-      return res
-        .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'End date must be after start date' });
-    }
-    if (isNaN(start) || isNaN(end)) {
-      return res
-        .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'Invalid date format' });
-    }
+//     // Validate startDate and endDate
+//     const start = new Date(startDate);
+//     const end = new Date(endDate);
+//     if (start >= end) {
+//       return res
+//         .status(httpStatusCodes.BAD_REQUEST)
+//         .json({ success: false, message: 'End date must be after start date' });
+//     }
+//     if (isNaN(start) || isNaN(end)) {
+//       return res
+//         .status(httpStatusCodes.BAD_REQUEST)
+//         .json({ success: false, message: 'Invalid date format' });
+//     }
 
-    const validStatuses = ['active', 'inactive'];
-    if (!validStatuses.includes(offerStatus)) {
-      return res
-        .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'Invalid offer status' });
-    }
+//     const validStatuses = ['active', 'inactive'];
+//     if (!validStatuses.includes(offerStatus)) {
+//       return res
+//         .status(httpStatusCodes.BAD_REQUEST)
+//         .json({ success: false, message: 'Invalid offer status' });
+//     }
 
-    const existingOffers = await Offer.find({ offerName: offerName });
-    if (existingOffers.length > 0) {
-      return res
-        .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'An offer with this name already exists.' });
-    }
+//     const existingOffers = await Offer.find({ offerName: offerName });
+//     if (existingOffers.length > 0) {
+//       return res
+//         .status(httpStatusCodes.BAD_REQUEST)
+//         .json({ success: false, message: 'An offer with this name already exists.' });
+//     }
 
-    // Ensure that categorySelection and productSelection are arrays
-    const categoryIds = Array.isArray(categorySelection)
-      ? categorySelection
-      : categorySelection
-        ? [categorySelection]
-        : [];
-    const productIds = Array.isArray(productSelection)
-      ? productSelection
-      : productSelection
-        ? [productSelection]
-        : [];
+//     // Ensure that categorySelection and productSelection are arrays
+//     const categoryIds = Array.isArray(categorySelection)
+//       ? categorySelection
+//       : categorySelection
+//         ? [categorySelection]
+//         : [];
+//     const productIds = Array.isArray(productSelection)
+//       ? productSelection
+//       : productSelection
+//         ? [productSelection]
+//         : [];
 
-    // Validate category or product selection
-    if (offerType === 'category' && categoryIds.length === 0) {
-      return res
-        .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'Please select at least one category' });
-    }
-    if (offerType === 'product' && productIds.length === 0) {
-      return res
-        .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'Please select at least one product' });
-    }
+//     // Validate category or product selection
+//     if (offerType === 'category' && categoryIds.length === 0) {
+//       return res
+//         .status(httpStatusCodes.BAD_REQUEST)
+//         .json({ success: false, message: 'Please select at least one category' });
+//     }
+//     if (offerType === 'product' && productIds.length === 0) {
+//       return res
+//         .status(httpStatusCodes.BAD_REQUEST)
+//         .json({ success: false, message: 'Please select at least one product' });
+//     }
 
-    // Check for overlapping offers if offerType is 'category'
-    const overlappingOffers = await Offer.find({
-      offerType: offerType,
-      startDate: { $lt: endDate },
-      endDate: { $gt: startDate },
-      ...(offerType === 'category'
-        ? { categoryIds: { $in: categoryIds } }
-        : { productIds: { $in: productIds } }),
-      offerStatus: 'active',
-    });
-    if (overlappingOffers.length > 0) {
-      return res.status(httpStatusCodes.BAD_REQUEST).json({
-        success: false,
-        message:
-          'An overlapping offer already exists for the selected category or product during this date range.',
-      });
-    }
+//     // Check for overlapping offers if offerType is 'category'
+//     const overlappingOffers = await Offer.find({
+//       offerType: offerType,
+//       startDate: { $lt: endDate },
+//       endDate: { $gt: startDate },
+//       ...(offerType === 'category'
+//         ? { categoryIds: { $in: categoryIds } }
+//         : { productIds: { $in: productIds } }),
+//       offerStatus: 'active',
+//     });
+//     if (overlappingOffers.length > 0) {
+//       return res.status(httpStatusCodes.BAD_REQUEST).json({
+//         success: false,
+//         message:
+//           'An overlapping offer already exists for the selected category or product during this date range.',
+//       });
+//     }
 
-    // Create new offer
-    const offer = new Offer({
-      offerName,
-      offerType,
-      discountType,
-      discountValue,
-      startDate: start,
-      endDate: end,
-      offerStatus,
-      offerDescription,
-      ...(offerType === 'category' ? { categoryIds: categoryIds } : { productIds: productIds }),
-    });
+//     // Create new offer
+//     const offer = new Offer({
+//       offerName,
+//       offerType,
+//       discountType,
+//       discountValue,
+//       startDate: start,
+//       endDate: end,
+//       offerStatus,
+//       offerDescription,
+//       ...(offerType === 'category' ? { categoryIds: categoryIds } : { productIds: productIds }),
+//     });
 
-    // Handle applying the offer to products based on the selection
-    if (offerType === 'category' && categoryIds.length > 0) {
-      // Fetch products that belong to the selected categories
-      const products = await Product.find({ category: { $in: categoryIds } });
-      await applyOfferToProducts(products, offer, discountValue, discountType);
-    } else if (offerType === 'product' && productIds.length > 0) {
-      // Fetch selected products
-      const products = await Product.find({ _id: { $in: productIds } });
-      await applyOfferToProducts(products, offer, discountValue, discountType);
-    }
+//     // Handle applying the offer to products based on the selection
+//     if (offerType === 'category' && categoryIds.length > 0) {
+//       // Fetch products that belong to the selected categories
+//       const products = await Product.find({ category: { $in: categoryIds } });
+//       await applyOfferToProducts(products, offer, discountValue, discountType);
+//     } else if (offerType === 'product' && productIds.length > 0) {
+//       // Fetch selected products
+//       const products = await Product.find({ _id: { $in: productIds } });
+//       await applyOfferToProducts(products, offer, discountValue, discountType);
+//     }
 
-    // Save the offer
-    await offer.save();
-    res
-      .status(httpStatusCodes.CREATED)
-      .json({ success: true, message: 'Offer created successfully' });
-  } catch (error) {
-    console.log('add offer error', error.message);
-    res.status(httpStatusCodes.BAD_REQUEST).json({ success: false, message: error.message });
-  }
-};
+//     // Save the offer
+//     await offer.save();
+//     res
+//       .status(httpStatusCodes.CREATED)
+//       .json({ success: true, message: 'Offer created successfully' });
+//   } catch (error) {
+//     console.log('add offer error', error.message);
+//     res.status(httpStatusCodes.BAD_REQUEST).json({ success: false, message: error.message });
+//   }
+// };
 const getEditOffer = async (req, res) => {
   try {
     const offerId = req.params.id;
@@ -290,198 +540,200 @@ const getEditOffer = async (req, res) => {
       .json({ success: false, message: error.message });
   }
 };
-const editOffer = async (req, res) => {
-  const offerId = req.params.id;
+// const editOffer = async (req, res) => {
+//   const offerId = req.params.id;
 
-  // Destructure the incoming request body
-  const {
-    offerName,
-    offerType,
-    discountType,
-    discountValue,
-    startDate,
-    endDate,
-    offerStatus,
-    offerDescription,
-    categorySelection = [],
-    productSelection = [],
-  } = req.body;
+//   // Destructure the incoming request body
+//   const {
+//     offerName,
+//     offerType,
+//     discountType,
+//     discountValue,
+//     startDate,
+//     endDate,
+//     offerStatus,
+//     offerDescription,
+//     categorySelection = [],
+//     productSelection = [],
+//   } = req.body;
 
-  try {
-    // Input validation
-    if (
-      !offerName ||
-      !offerType ||
-      !discountType ||
-      !discountValue ||
-      !startDate ||
-      !endDate ||
-      !offerStatus ||
-      !offerDescription
-    ) {
-      return res
-        .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'All fields are required.' });
-    }
+//   try {
+//     // Input validation
+//     if (
+//       !offerName ||
+//       !offerType ||
+//       !discountType ||
+//       !discountValue ||
+//       !startDate ||
+//       !endDate ||
+//       !offerStatus ||
+//       !offerDescription
+//     ) {
+//       return res
+//         .status(httpStatusCodes.BAD_REQUEST)
+//         .json({ success: false, message: 'All fields are required.' });
+//     }
 
-    // Offer Name validation
-    const regex = /^[A-Z0-9]+$/;
-    if (!regex.test(offerName)) {
-      return res.status(httpStatusCodes.BAD_REQUEST).json({
-        success: false,
-        message: 'Only capital letters and numbers are allowed for Offer Name.',
-      });
-    }
+//     // Offer Name validation
+//     const regex = /^[A-Z0-9]+$/;
+//     if (!regex.test(offerName)) {
+//       return res.status(httpStatusCodes.BAD_REQUEST).json({
+//         success: false,
+//         message: 'Only capital letters and numbers are allowed for Offer Name.',
+//       });
+//     }
 
-    // Discount Value validation
-    if (discountValue >= 60 || discountValue <= 0) {
-      return res
-        .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'Discount Value must be between 1 and 59.' });
-    }
+//     // Discount Value validation
+//     if (discountValue >= 60 || discountValue <= 0) {
+//       return res
+//         .status(httpStatusCodes.BAD_REQUEST)
+//         .json({ success: false, message: 'Discount Value must be between 1 and 59.' });
+//     }
 
-    // Date validation
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-    if (isNaN(start) || isNaN(end) || start >= end) {
-      return res.status(httpStatusCodes.BAD_REQUEST).json({
-        success: false,
-        message: 'Invalid date range: Start date must be before End date.',
-      });
-    }
+//     // Date validation
+//     const start = new Date(startDate);
+//     const end = new Date(endDate);
+//     if (isNaN(start) || isNaN(end) || start >= end) {
+//       return res.status(httpStatusCodes.BAD_REQUEST).json({
+//         success: false,
+//         message: 'Invalid date range: Start date must be before End date.',
+//       });
+//     }
 
-    // Find existing offer
-    const existingOffer = await Offer.findById(offerId);
-    if (!existingOffer) {
-      return res
-        .status(httpStatusCodes.NOT_FOUND)
-        .json({ success: false, message: 'Offer not found' });
-    }
+//     // Find existing offer
+//     const existingOffer = await Offer.findById(offerId);
+//     if (!existingOffer) {
+//       return res
+//         .status(httpStatusCodes.NOT_FOUND)
+//         .json({ success: false, message: 'Offer not found' });
+//     }
 
-    // Update offer details
-    existingOffer.offerName = offerName;
-    existingOffer.offerType = offerType; // Changed to match previous naming
-    existingOffer.discountType = discountType;
-    existingOffer.discountValue = discountValue;
-    existingOffer.startDate = start;
-    existingOffer.endDate = end;
-    existingOffer.offerStatus = offerStatus;
-    existingOffer.offerDescription = offerDescription;
+//     // Update offer details
+//     existingOffer.offerName = offerName;
+//     existingOffer.offerType = offerType; // Changed to match previous naming
+//     existingOffer.discountType = discountType;
+//     existingOffer.discountValue = discountValue;
+//     existingOffer.startDate = start;
+//     existingOffer.endDate = end;
+//     existingOffer.offerStatus = offerStatus;
+//     existingOffer.offerDescription = offerDescription;
 
-    // Set selections based on offer type
-    if (offerType === 'category') {
-      existingOffer.categoryIds = categorySelection; // Only categories
-      existingOffer.productIds = []; // Clear product selection
-    } else if (offerType === 'product') {
-      existingOffer.productIds = productSelection; // Only products
-      existingOffer.categoryIds = []; // Clear category selection
-    }
+//     // Set selections based on offer type
+//     if (offerType === 'category') {
+//       existingOffer.categoryIds = categorySelection; // Only categories
+//       existingOffer.productIds = []; // Clear product selection
+//     } else if (offerType === 'product') {
+//       existingOffer.productIds = productSelection; // Only products
+//       existingOffer.categoryIds = []; // Clear category selection
+//     }
 
-    // Save the updated offer
-    await existingOffer.save();
+//     // Save the updated offer
+//     await existingOffer.save();
 
-    // Apply the offer to products if it's a category-based offer
-    if (offerType === 'category') {
-      const productsToUpdate = await Product.find({ category: { $in: categorySelection } });
-      await applyOfferToProducts(productsToUpdate, existingOffer, discountValue, discountType);
-    }
+//     // Apply the offer to products if it's a category-based offer
+//     if (offerType === 'category') {
+//       const productsToUpdate = await Product.find({ category: { $in: categorySelection } });
+//       await applyOfferToProducts(productsToUpdate, existingOffer, discountValue, discountType);
+//     }
 
-    // Optionally, apply the offer to products if it's a product-based offer
-    if (offerType === 'product') {
-      const productsToUpdate = await Product.find({ _id: { $in: productSelection } });
-      await applyOfferToProducts(productsToUpdate, existingOffer, discountValue, discountType);
-    }
+//     // Optionally, apply the offer to products if it's a product-based offer
+//     if (offerType === 'product') {
+//       const productsToUpdate = await Product.find({ _id: { $in: productSelection } });
+//       await applyOfferToProducts(productsToUpdate, existingOffer, discountValue, discountType);
+//     }
 
-    // Redirect or respond with success
-    res.status(httpStatusCodes.OK).redirect('/admin/offers'); // Redirecting to offers list after successful edit
-  } catch (error) {
-    console.error('Error updating offer:', error.message);
-    res
-      .status(httpStatusCodes.INTERNAL_SERVER_ERROR)
-      .json({ success: false, message: error.message });
-  }
-};
-const deleteOffer = async (req, res) => {
-  const offerId = req.params.offerId;
+//     // Redirect or respond with success
+//     res.status(httpStatusCodes.OK).redirect('/admin/offers'); // Redirecting to offers list after successful edit
+//   } catch (error) {
+//     console.error('Error updating offer:', error.message);
+//     res
+//       .status(httpStatusCodes.INTERNAL_SERVER_ERROR)
+//       .json({ success: false, message: error.message });
+//   }
+// };
+// const deleteOffer = async (req, res) => {
+//   const offerId = req.params.offerId;
 
-  try {
-    // Step 1: Find the offer by ID
-    const offer = await Offer.findById(offerId);
-    if (!offer) {
-      return res
-        .status(httpStatusCodes.NOT_FOUND)
-        .json({ success: false, message: 'Offer not found' });
-    }
+//   try {
+//     // Step 1: Find the offer by ID
+//     const offer = await Offer.findById(offerId);
+//     if (!offer) {
+//       return res
+//         .status(httpStatusCodes.NOT_FOUND)
+//         .json({ success: false, message: 'Offer not found' });
+//     }
 
-    // Step 2: Find products associated with the offer
-    const products = await Product.find({ offers: offerId });
-    console.log('Products associated with the offer before deletion:', products);
+//     // Step 2: Find products associated with the offer
+//     const products = await Product.find({ offers: offerId });
+//     console.log('Products associated with the offer before deletion:', products);
 
-    // Step 3: Remove the offer from the products
-    await Product.updateMany(
-      { offers: offerId },
-      { $pull: { offers: offerId } } // Remove the offerId from the offers array
-    );
+//     // Step 3: Remove the offer from the products
+//     await Product.updateMany(
+//       { offers: offerId },
+//       { $pull: { offers: offerId } } // Remove the offerId from the offers array
+//     );
 
-    // Step 4: Reset finalPrice and offerApplied for each product
-    for (const product of products) {
-      await Product.updateOne(
-        { _id: product._id },
-        {
-          $set: {
-            finalPrice: product.price, // Reset finalPrice to the original price
-            offerApplied: false, // Reset offerApplied to false
-          },
-        }
-      );
-    }
+//     // Step 4: Reset finalPrice and offerApplied for each product
+//     for (const product of products) {
+//       await Product.updateOne(
+//         { _id: product._id },
+//         {
+//           $set: {
+//             finalPrice: product.price, // Reset finalPrice to the original price
+//             offerApplied: false, // Reset offerApplied to false
+//           },
+//         }
+//       );
+//       const affectedProducts = await Product.find({ offers: offerId });
+//       await applyOfferToProducts(affectedProducts);
+//     }
 
-    // Step 5: Update cart final prices if necessary
-    const productIds = products.map((product) => product._id);
-    const cartItems = await Cart.find({ 'products.productId': { $in: productIds } });
+//     // Step 5: Update cart final prices if necessary
+//     const productIds = products.map((product) => product._id);
+//     const cartItems = await Cart.find({ 'products.productId': { $in: productIds } });
 
-    for (const cart of cartItems) {
-      let totalPrice = 0;
-      let finalTotalPrice = 0;
-      for (const item of cart.products) {
-        const updatedProduct = products.find((p) => {
-          console.log('p.id', typeof p._id, typeof item.productId);
-          return p._id.equals(item.productId);
-        });
-        console.log('updateproduct', updatedProduct);
-        if (updatedProduct) {
-          const quantity = item.quantity;
-          totalPrice += updatedProduct.price * quantity; // Original price
-          finalTotalPrice += updatedProduct.price * quantity; // Updated final price
-        }
-      }
-      // Update the cart prices
-      console.log(
-        'Updating cart ID:',
-        cart._id,
-        'Total Price:',
-        totalPrice,
-        'Final Total Price:',
-        finalTotalPrice
-      );
-      await Cart.updateOne(
-        { _id: cart._id },
-        { $set: { finalTotalPrice, finalPrice: totalPrice } }
-      );
-    }
-    // Step 6: Delete the offer
-    await Offer.findByIdAndDelete(offerId);
+//     for (const cart of cartItems) {
+//       let totalPrice = 0;
+//       let finalTotalPrice = 0;
+//       for (const item of cart.products) {
+//         const updatedProduct = products.find((p) => {
+//           console.log('p.id', typeof p._id, typeof item.productId);
+//           return p._id.equals(item.productId);
+//         });
+//         console.log('updateproduct', updatedProduct);
+//         if (updatedProduct) {
+//           const quantity = item.quantity;
+//           totalPrice += updatedProduct.price * quantity; // Original price
+//           finalTotalPrice += updatedProduct.price * quantity; // Updated final price
+//         }
+//       }
+//       // Update the cart prices
+//       console.log(
+//         'Updating cart ID:',
+//         cart._id,
+//         'Total Price:',
+//         totalPrice,
+//         'Final Total Price:',
+//         finalTotalPrice
+//       );
+//       await Cart.updateOne(
+//         { _id: cart._id },
+//         { $set: { finalTotalPrice, finalPrice: totalPrice } }
+//       );
+//     }
+//     // Step 6: Delete the offer
+//     await Offer.findByIdAndDelete(offerId);
 
-    return res
-      .status(httpStatusCodes.OK)
-      .json({ success: true, message: 'Offer deleted successfully' });
-  } catch (error) {
-    console.error('Error deleting offer:', error);
-    return res
-      .status(httpStatusCodes.INTERNAL_SERVER_ERROR)
-      .json({ success: false, message: 'An error occurred while deleting the offer.' });
-  }
-};
+//     return res
+//       .status(httpStatusCodes.OK)
+//       .json({ success: true, message: 'Offer deleted successfully' });
+//   } catch (error) {
+//     console.error('Error deleting offer:', error);
+//     return res
+//       .status(httpStatusCodes.INTERNAL_SERVER_ERROR)
+//       .json({ success: false, message: 'An error occurred while deleting the offer.' });
+//   }
+// };
 module.exports = {
   getOffers,
   getAddOffer,
