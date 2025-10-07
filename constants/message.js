@@ -114,7 +114,7 @@ module.exports = {
     CODE_EXISTS: 'Coupon code already exists',
     REQUIRED_FIELDS: 'Please fill all fields',
     INVALID_CODE: 'Invalid coupon code. Only uppercase letters and numbers allowed.',
-    INVALID_CODE_SIMPLE: 'Invalid coupon code and only alpha cap and num',
+    INVALID_CODE_SIMPLE: 'Invalid coupon code and requied mix of capital alphabets and  numbers',
     INVALID_DISCOUNT: 'Discount value must be a valid number and cannot be negative',
     DISCOUNT_TOO_HIGH: 'Discount percentage must be less than 60',
     INVALID_MIN_PURCHASE: 'Minimum purchase amount cannot be less than 400',

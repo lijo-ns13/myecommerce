@@ -444,8 +444,8 @@
                 if (couponData) {
                     const { couponCode, totalPrice, discount, discountPercentage } = JSON.parse(couponData);
                     discountMessage.innerHTML = `
-                        <p>Coupon applied! Final Price: $${totalPrice.toFixed(2)}</p>
-                        <p>Discount: $${discount.toFixed(2)} (${discountPercentage}%)</p>
+                        <p>Coupon applied! Final Price: ₹${totalPrice.toFixed(2)}</p>
+                        <p>Discount: ₹${discount.toFixed(2)} (${discountPercentage}%)</p>
                     `;
                     // copyCouponButton.style.display = 'block'; // Show the "Copy Coupon" button
                     removeCouponButton.style.display = 'block'; // Show the "Remove Coupon" button
