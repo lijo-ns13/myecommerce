@@ -61,7 +61,7 @@ const postOrderCancel = async (req, res) => {
     }
 
     // Ensure the order can be cancelled
-    const cancellableStatuses = ['pending', 'processing'];
+    const cancellableStatuses = ['pending', 'processing', 'shipped'];
     if (!cancellableStatuses.includes(order.status)) {
       return res
         .status(httpStatusCodes.BAD_REQUEST)
@@ -384,7 +384,7 @@ const postCancelSingleProduct = async (req, res) => {
   try {
     const { orderId, productId, productSize, productQuantity } = req.params;
 
-    // Fetch the order by ID
+    // 1️⃣ Fetch the order
     const order = await Order.findById(orderId);
     if (!order) {
       return res
@@ -392,103 +392,339 @@ const postCancelSingleProduct = async (req, res) => {
         .json({ success: false, message: 'Order not found' });
     }
 
-    // Ensure there are more than one product in the order
+    // 2️⃣ Ensure more than one product exists
     if (order.products.length <= 1) {
       return res.status(httpStatusCodes.BAD_REQUEST).json({
         success: false,
         message:
-          'You can’t cancel a single product in a single item. Please cancel the entire order.',
+          'You can’t cancel a single product in a single-item order. Cancel the entire order instead.',
       });
     }
 
-    // Fetch the product being canceled
+    // 3️⃣ Fetch the product
     const product = await Product.findById(productId);
     if (!product) {
       return res
         .status(httpStatusCodes.NOT_FOUND)
         .json({ success: false, message: 'Product not found' });
     }
-    if (
-      order.paymentDetails.paymentMethod === 'razorpay' ||
-      order.paymentDetails.paymentMethod === 'wallet'
-    ) {
+
+    // 4️⃣ Check order status
+    const cancellableStatuses = ['pending', 'processing', 'shipped'];
+    if (!cancellableStatuses.includes(order.status)) {
+      return res.status(httpStatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: 'This product cannot be cancelled after delivery.',
+      });
+    }
+
+    // 5️⃣ Find the product in orderedProducts
+    const orderedProduct = order.orderedProducts.find(
+      (p) =>
+        p.productId.toString() === productId.toString() &&
+        p.productSize.toString() === productSize.toString()
+    );
+
+    if (!orderedProduct) {
       return res
         .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'You cant cancel this order only after deliver' });
-    }
-    const productPrice = product.price; // Get the price of the product
-    order.originalPrice -= productPrice; // Adjust original price
-
-    let finalPrice = 0;
-
-    // Calculate finalPrice for ordered products
-    for (const orderedProduct of order.orderedProducts) {
-      if (
-        orderedProduct.productId.toString() === productId.toString() &&
-        orderedProduct.productSize.toString() === productSize.toString()
-      ) {
-        finalPrice += orderedProduct.productPrice; // Sum the price of matching products
-      }
+        .json({ success: false, message: 'Product not found in this order' });
     }
 
-    order.totalPrice -= finalPrice; // Adjust the total price
+    // 6️⃣ Calculate refund amount properly (price * quantity)
+    const refundAmount = orderedProduct.productPrice * orderedProduct.productQuantity;
 
-    // Remove the product from the products array based on productId and size
+    // 7️⃣ Update order pricing
+    order.originalPrice -= refundAmount;
+    order.totalPrice -= refundAmount;
+
+    // Optional: Adjust discount proportionally if order has discount
+    if (order.isDiscount && order.discount) {
+      const totalBefore = order.originalPrice + refundAmount; // original total before cancel
+      const discountRatio = order.discount / totalBefore; // e.g., 10% of original
+      const discountReduction = refundAmount * discountRatio;
+      order.discount -= discountReduction;
+      order.totalPrice -= discountReduction; // subtract discount portion from totalPrice
+    }
+
+    // 8️⃣ Remove product from order arrays
     order.products = order.products.filter(
-      (orderProduct) =>
-        !(
-          orderProduct.productId.toString() === productId.toString() &&
-          orderProduct.size.toString() === productSize.toString()
-        )
+      (p) => !(p.productId.toString() === productId && p.size.toString() === productSize)
     );
-
-    // Remove the product from orderedProducts based on productId and productSize
     order.orderedProducts = order.orderedProducts.filter(
-      (orderedProduct) =>
-        !(
-          orderedProduct.productId.toString() === productId.toString() &&
-          orderedProduct.productSize.toString() === productSize.toString()
-        )
+      (p) => !(p.productId.toString() === productId && p.productSize.toString() === productSize)
     );
 
-    // Update the product's stock
-    const sizeToUpdate = product.sizes.find(
-      (size) => size.size.toString() === productSize.toString()
-    );
+    // 9️⃣ Update product stock
+    const sizeToUpdate = product.sizes.find((s) => s.size.toString() === productSize.toString());
     if (sizeToUpdate) {
-      sizeToUpdate.stock += parseInt(productQuantity, 10); // Increment stock by the quantity of the canceled product
+      sizeToUpdate.stock += parseInt(productQuantity, 10);
+      await product.save();
     }
 
-    // Save the updated product stock
-    await product.save();
+    // 🔟 Refund logic for Razorpay or Wallet
+    if (['razorpay', 'wallet'].includes(order.paymentDetails.paymentMethod)) {
+      let wallet = await Wallet.findOne({ userId: order.userId });
 
-    // Check if payment method is Razorpay and initiate refund to wallet
-    if (order.paymentDetails.paymentMethod === 'razorpay') {
-      const refundAmount = finalPrice; // Amount to be refunded
-      const user = await User.findById(order.userId); // Fetch the user to update wallet
-
-      if (user) {
-        user.walletBalance += refundAmount; // Add refund amount to user's wallet
-        await user.save(); // Save the updated wallet balance
+      if (!wallet) {
+        wallet = new Wallet({
+          userId: order.userId,
+          balance: refundAmount,
+          transactions: [
+            {
+              amount: refundAmount,
+              type: 'credit',
+              description: `Refund for cancelled product in order ${order._id}`,
+            },
+          ],
+        });
       } else {
-        return res
-          .status(httpStatusCodes.NOT_FOUND)
-          .json({ success: false, message: 'User not found for wallet refund' });
+        wallet.balance += refundAmount;
+        wallet.transactions.push({
+          amount: refundAmount,
+          type: 'credit',
+          description: `Refund for cancelled product in order ${order._id}`,
+        });
       }
+
+      await wallet.save();
     }
 
-    // Save the order after all updates
+    // 1️⃣1️⃣ Save updated order
     await order.save();
 
     res.status(httpStatusCodes.OK).json({
       success: true,
-      message: 'Successfully cancelled product and processed refund if applicable',
+      message: 'Successfully cancelled product and refunded to wallet if applicable',
     });
   } catch (error) {
-    console.log('Error on cancel single product:', error.message);
+    console.error('Error on cancel single product:', error);
     res.status(httpStatusCodes.BAD_REQUEST).json({ success: false, message: error.message });
   }
 };
+
+// const postCancelSingleProduct = async (req, res) => {
+//   try {
+//     const { orderId, productId, productSize, productQuantity } = req.params;
+
+//     // 1️⃣ Fetch the order
+//     const order = await Order.findById(orderId);
+//     if (!order) {
+//       return res
+//         .status(httpStatusCodes.NOT_FOUND)
+//         .json({ success: false, message: 'Order not found' });
+//     }
+
+//     // 2️⃣ Ensure more than one product exists
+//     if (order.products.length <= 1) {
+//       return res.status(httpStatusCodes.BAD_REQUEST).json({
+//         success: false,
+//         message:
+//           'You can’t cancel a single product in a single-item order. Cancel the entire order instead.',
+//       });
+//     }
+
+//     // 3️⃣ Fetch the product
+//     const product = await Product.findById(productId);
+//     if (!product) {
+//       return res
+//         .status(httpStatusCodes.NOT_FOUND)
+//         .json({ success: false, message: 'Product not found' });
+//     }
+
+//     // 4️⃣ Check order status before allowing cancel
+//     const cancellableStatuses = ['pending', 'processing', 'shipped']; // delivered cannot be canceled
+//     if (!cancellableStatuses.includes(order.status)) {
+//       return res.status(httpStatusCodes.BAD_REQUEST).json({
+//         success: false,
+//         message: 'This product cannot be cancelled after delivery.',
+//       });
+//     }
+
+//     // 5️⃣ Calculate final price of this product in the order
+//     const orderedProduct = order.orderedProducts.find(
+//       (p) =>
+//         p.productId.toString() === productId.toString() &&
+//         p.productSize.toString() === productSize.toString()
+//     );
+
+//     if (!orderedProduct) {
+//       return res
+//         .status(httpStatusCodes.BAD_REQUEST)
+//         .json({ success: false, message: 'Product not found in this order' });
+//     }
+
+//     const finalPrice = orderedProduct.productPrice;
+//     order.originalPrice -= finalPrice;
+//     order.totalPrice -= finalPrice;
+
+//     // 6️⃣ Remove the product from order arrays
+//     order.products = order.products.filter(
+//       (p) => !(p.productId.toString() === productId && p.size.toString() === productSize)
+//     );
+//     order.orderedProducts = order.orderedProducts.filter(
+//       (p) => !(p.productId.toString() === productId && p.productSize.toString() === productSize)
+//     );
+
+//     // 7️⃣ Update product stock
+//     const sizeToUpdate = product.sizes.find((s) => s.size.toString() === productSize.toString());
+//     if (sizeToUpdate) {
+//       sizeToUpdate.stock += parseInt(productQuantity, 10);
+//       await product.save();
+//     }
+
+//     // 8️⃣ Refund logic for razorpay or wallet payments
+//     if (['razorpay', 'wallet'].includes(order.paymentDetails.paymentMethod)) {
+//       let wallet = await Wallet.findOne({ userId: order.userId });
+
+//       if (!wallet) {
+//         // create new wallet if not exists
+//         wallet = new Wallet({
+//           userId: order.userId,
+//           balance: finalPrice,
+//           transactions: [
+//             {
+//               amount: finalPrice,
+//               type: 'credit',
+//               description: `Refund for cancelled product in order ${order._id}`,
+//             },
+//           ],
+//         });
+//       } else {
+//         // add money to existing wallet
+//         wallet.balance += finalPrice;
+//         wallet.transactions.push({
+//           amount: finalPrice,
+//           type: 'credit',
+//           description: `Refund for cancelled product in order ${order._id}`,
+//         });
+//       }
+
+//       await wallet.save();
+//     }
+
+//     // 9️⃣ Save the updated order
+//     await order.save();
+
+//     res.status(httpStatusCodes.OK).json({
+//       success: true,
+//       message: 'Successfully cancelled product and refunded to wallet if applicable',
+//     });
+//   } catch (error) {
+//     console.error('Error on cancel single product:', error);
+//     res.status(httpStatusCodes.BAD_REQUEST).json({ success: false, message: error.message });
+//   }
+// };
+
+// const postCancelSingleProduct = async (req, res) => {
+//   try {
+//     const { orderId, productId, productSize, productQuantity } = req.params;
+
+//     // Fetch the order by ID
+//     const order = await Order.findById(orderId);
+//     if (!order) {
+//       return res
+//         .status(httpStatusCodes.NOT_FOUND)
+//         .json({ success: false, message: 'Order not found' });
+//     }
+
+//     // Ensure there are more than one product in the order
+//     if (order.products.length <= 1) {
+//       return res.status(httpStatusCodes.BAD_REQUEST).json({
+//         success: false,
+//         message:
+//           'You can’t cancel a single product in a single item. Please cancel the entire order.',
+//       });
+//     }
+
+//     // Fetch the product being canceled
+//     const product = await Product.findById(productId);
+//     if (!product) {
+//       return res
+//         .status(httpStatusCodes.NOT_FOUND)
+//         .json({ success: false, message: 'Product not found' });
+//     }
+//     if (
+//       order.paymentDetails.paymentMethod === 'razorpay' ||
+//       order.paymentDetails.paymentMethod === 'wallet'
+//     ) {
+//       return res
+//         .status(httpStatusCodes.BAD_REQUEST)
+//         .json({ success: false, message: 'You cant cancel this order only after deliver' });
+//     }
+//     const productPrice = product.price; // Get the price of the product
+//     order.originalPrice -= productPrice; // Adjust original price
+
+//     let finalPrice = 0;
+
+//     // Calculate finalPrice for ordered products
+//     for (const orderedProduct of order.orderedProducts) {
+//       if (
+//         orderedProduct.productId.toString() === productId.toString() &&
+//         orderedProduct.productSize.toString() === productSize.toString()
+//       ) {
+//         finalPrice += orderedProduct.productPrice; // Sum the price of matching products
+//       }
+//     }
+
+//     order.totalPrice -= finalPrice; // Adjust the total price
+
+//     // Remove the product from the products array based on productId and size
+//     order.products = order.products.filter(
+//       (orderProduct) =>
+//         !(
+//           orderProduct.productId.toString() === productId.toString() &&
+//           orderProduct.size.toString() === productSize.toString()
+//         )
+//     );
+
+//     // Remove the product from orderedProducts based on productId and productSize
+//     order.orderedProducts = order.orderedProducts.filter(
+//       (orderedProduct) =>
+//         !(
+//           orderedProduct.productId.toString() === productId.toString() &&
+//           orderedProduct.productSize.toString() === productSize.toString()
+//         )
+//     );
+
+//     // Update the product's stock
+//     const sizeToUpdate = product.sizes.find(
+//       (size) => size.size.toString() === productSize.toString()
+//     );
+//     if (sizeToUpdate) {
+//       sizeToUpdate.stock += parseInt(productQuantity, 10); // Increment stock by the quantity of the canceled product
+//     }
+
+//     // Save the updated product stock
+//     await product.save();
+
+//     // Check if payment method is Razorpay and initiate refund to wallet
+//     if (order.paymentDetails.paymentMethod === 'razorpay') {
+//       const refundAmount = finalPrice; // Amount to be refunded
+//       const user = await User.findById(order.userId); // Fetch the user to update wallet
+
+//       if (user) {
+//         user.walletBalance += refundAmount; // Add refund amount to user's wallet
+//         await user.save(); // Save the updated wallet balance
+//       } else {
+//         return res
+//           .status(httpStatusCodes.NOT_FOUND)
+//           .json({ success: false, message: 'User not found for wallet refund' });
+//       }
+//     }
+
+//     // Save the order after all updates
+//     await order.save();
+
+//     res.status(httpStatusCodes.OK).json({
+//       success: true,
+//       message: 'Successfully cancelled product and processed refund if applicable',
+//     });
+//   } catch (error) {
+//     console.log('Error on cancel single product:', error.message);
+//     res.status(httpStatusCodes.BAD_REQUEST).json({ success: false, message: error.message });
+//   }
+// };
 
 module.exports = {
   getOrders,

@@ -178,7 +178,7 @@ const postUpdateQuantity = async (req, res) => {
       if (product.quantity + 1 > sizeDetails.stock) {
         return res
           .status(httpStatusCodes.BAD_REQUEST)
-          .json({ success: false, message: messages.CART.QUANTITY_STOCK_LIMI });
+          .json({ success: false, message: messages.CART.QUANTITY_STOCK_LIMIT });
       }
       product.quantity += 1;
     } else if (action === 'decrease') {

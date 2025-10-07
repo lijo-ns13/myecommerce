@@ -8,7 +8,7 @@ const categorySchema = new Schema({
     unique: true,
     trim: true,
     minlength: [3, 'Minimum 3 characters required'],
-    maxlength: [15, 'Maximum 15 characters allowed'],
+    maxlength: [20, 'Maximum 20 characters allowed'],
   },
   description: String,
   isBlocked: {

@@ -312,12 +312,18 @@
                                 %></span>
                         </div>
                     </div>
-
-                    <% if (order.status === 'pending' || order.status ===
-                    'processing') { %>
+                    <% const cancellableStatuses = ['pending', 'processing',
+                    'shipped']; %>
+                    <% if (cancellableStatuses.includes(order.status)) { %>
                     <button id="cancelOrderBtn"
                         class="btn btn-danger w-100 mt-4">Cancel Order</button>
                     <% } %>
+
+                    <!-- <% if (order.status === 'pending' || order.status ===
+                    'processing') { %>
+                    <button id="cancelOrderBtn"
+                        class="btn btn-danger w-100 mt-4">Cancel Order</button>
+                    <% } %> -->
 
                     <% if(order.status === 'delivered' ) { %>
                     <button id="returnOrderBtn"
