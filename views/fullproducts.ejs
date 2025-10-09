@@ -225,6 +225,15 @@ body {
         .text-muted {
             color: #95a5a6;
         }
+.custom-select {
+    border-radius: 10px;
+    border: 1px solid #e0e0e0;
+    padding: 5px 5px;
+    appearance: none;
+    background-image: url("data:image/svg+xml,...");
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+}
 
         @media (max-width: 768px) {
             .product-grid {
@@ -244,11 +253,7 @@ body {
     flex: 1; /* Makes the search input take available space */
 }
 
-.custom-select {
-    border-radius: 20px; /* Adjusted for a softer appearance */
-    border: 1px solid #e0e0e0;
-    padding: 10px; /* Reduce padding for a more compact feel */
-}
+
 
 .btn-primary {
     flex-shrink: 0; /* Prevents button from shrinking */
@@ -413,14 +418,18 @@ body {
                         <div class="form-group mb-2 flex-grow-1 me-md-2">
                             <select id="category" name="category"
                                 class="custom-select">
-                                <option value>All Categories</option>
+                                <option value <%=selectedCategory === '' ?
+                                    'selected' : '' %>>All Categories</option>
                                 <% categories.forEach(category => { %>
                                 <option value="<%= category._id %>"
-                                    <%=selectedCategory === category._id ?
-                                    'selected' : '' %>><%= category.name
-                                    %></option>
+                                    <%=selectedCategory ===
+                                    category._id.toString() ? 'selected' : ''
+                                    %>>
+                                    <%= category.name %>
+                                </option>
                                 <% }); %>
                             </select>
+
                         </div>
 
                         <div class="form-group mb-2 flex-grow-1 me-md-2">

@@ -113,6 +113,8 @@ const getFullProducts = async (req, res) => {
   const pageSize = parseInt(limit, 10) || 18;
   try {
     currentUserId = req.user ? req.user._id : null;
+    // Normalize category: always a string or empty
+    const selectedCategory = category ? category.toString() : '';
     const cart = await Cart.find({});
     const userWishlist = currentUserId
       ? await User.findById(currentUserId).populate('wishlist')
@@ -159,7 +161,7 @@ const getFullProducts = async (req, res) => {
       products,
       categories,
       searchQuery: query,
-      selectedCategory: category,
+      selectedCategory,
       selectedSort: sort,
       wishlist,
       currentPage,
