@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const { jwtAuth, userProtected } = require('../../middlewares/auth');
+const { jwtAuth, userProtected, checkBlockedUser } = require('../../middlewares/auth');
 const wishlistController = require('../../controllers/user/user.wishlist.controller');
 
-router.use(jwtAuth, userProtected);
+router.use(jwtAuth, userProtected, checkBlockedUser);
 
 router.get('/', wishlistController.getWishlist);
 router.post('/add/:productId', wishlistController.postWishlistAdd);

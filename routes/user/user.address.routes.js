@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const { jwtAuth, userProtected } = require('../../middlewares/auth');
+const { jwtAuth, userProtected, checkBlockedUser } = require('../../middlewares/auth');
 const addressController = require('../../controllers/user/user.address.controller');
-router.use(jwtAuth, userProtected);
+router.use(jwtAuth, userProtected, checkBlockedUser);
 router.get('/', addressController.getAddress);
 router.get('/add-address', addressController.getAddAddress);
 router.post('/add-address', addressController.postAddAddress);

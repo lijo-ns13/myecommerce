@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
 
-const { jwtAuth, userProtected } = require('../../middlewares/auth');
+const { jwtAuth, userProtected, checkBlockedUser } = require('../../middlewares/auth');
 const reviewController = require('../../controllers/user/user.review.controller');
 
-router.use(jwtAuth, userProtected);
+router.use(jwtAuth, userProtected, checkBlockedUser);
 
 router.get('/add/:productId', reviewController.getAddReview);
 router.post('/add/:productId', reviewController.addReview);
