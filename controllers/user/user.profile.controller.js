@@ -1,8 +1,20 @@
 const User = require('../../models/userSchema');
 const Wallet = require('../../models/walletSchema');
+const messages = require('../../constants/message');
 const nodemailer = require('nodemailer');
 const bcrypt = require('bcryptjs');
 const httpStatusCodes = require('../../constants/httpStatusCodes');
+const sendEmail = require('../../utils/mailer'); // adjust path
+
+const transporter = nodemailer.createTransport({
+  host: 'smtp.gmail.com',
+  port: 465,
+  secure: true,
+  auth: {
+    user: process.env.NODEMAILER_USEREMAIL,
+    pass: process.env.NODEMAILER_USERPASS,
+  },
+});
 const getProfile = async (req, res) => {
   try {
     const userId = req.user._id;
@@ -28,111 +40,79 @@ const getVerifyOtp = (req, res) => {
   res.render('profile/otp-verification');
 };
 const postEditProfile = async (req, res) => {
-  console.log('clicked');
   try {
-    const userId = req.user._id; // Assuming req.user is set by authentication middleware
+    const userId = req.user._id;
     const { name, email } = req.body;
 
-    // Input validation
     if (!name || !email) {
-      return res
-        .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'Please fill in all fields' });
+      return res.status(400).json({
+        success: false,
+        message: 'Please fill all fields',
+      });
     }
 
-    if (name.length < 4) {
-      return res
-        .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'Name should be at least 4 characters long' });
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      return res
-        .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'Invalid email address' });
-    }
-
-    const validNameRegex = /^[A-Za-z\s'-]{2,50}$/;
-    if (!validNameRegex.test(name)) {
-      return res
-        .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'Invalid name format' });
-    }
-
-    const user = await User.findById(userId).select('+password otp otpExpires email');
-    console.log('user', user);
+    const user = await User.findById(userId);
     if (!user) {
-      return res
-        .status(httpStatusCodes.NOT_FOUND)
-        .json({ success: false, message: 'User not found' });
+      return res.status(404).json({
+        success: false,
+        message: 'User not found',
+      });
     }
 
-    console.log(user.email, typeof user.email, 'useremail');
-    console.log(typeof email, email, 'email');
-
+    // If email not changed, just update name
     if (email === user.email) {
-      // If email hasn't changed, just update the name
       user.name = name;
       await user.save();
-      return res
-        .status(httpStatusCodes.OK)
-        .json({ success: true, message: 'Profile updated successfully' });
-    } else {
-      const checkExistEmail = await User.findOne({ email: email });
-      if (checkExistEmail) {
-        return res
-          .status(httpStatusCodes.BAD_REQUEST)
-          .json({ success: false, message: 'Email Already exists' });
-      }
-      // If email has changed, generate and send OTP
-      const otp = Math.floor(100000 + Math.random() * 900000).toString(); // Generate a 6-digit OTP
-      const otpExpires = Date.now() + 10 * 60 * 1000; // Set OTP expiration time (10 minutes)
-
-      // Update the user with the new email and OTP details
-      user.newName = name;
-      user.newEmail = email;
-      user.otp = otp;
-      user.otpExpires = otpExpires;
-      await user.save();
-
-      // Send OTP via email (adjust your email sending code as necessary)
-      const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-          user: 'lijons13@gmail.com',
-          pass: 'cbyb zggu etpz yhsu',
-        },
+      return res.status(200).json({
+        success: true,
+        message: 'Profile updated successfully',
+        requiresOtp: false,
       });
+    }
 
-      const mailOptions = {
-        from: 'lijons13@gmail.com',
-        to: email,
-        subject: 'Email Verification OTP',
-        text: `Your OTP for email verification is: ${otp}. It will expire in 10 minutes.`,
-      };
+    // Email changed → generate OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otpExpires = Date.now() + 10 * 60 * 1000;
 
-      try {
-        await transporter.sendMail(mailOptions);
-        return res.status(httpStatusCodes.OK).json({
-          success: true,
-          requiresOtp: true,
-          message: 'OTP sent to your email. Please verify.',
-        });
-      } catch (error) {
-        console.error('Error sending OTP email:', error);
-        return res
-          .status(httpStatusCodes.INTERNAL_SERVER_ERROR)
-          .json({ success: false, message: 'Failed to send OTP email' });
-      }
+    user.newName = name;
+    user.newEmail = email;
+    user.otp = otp;
+    user.otpExpires = otpExpires;
+    await user.save();
+
+    // Send OTP email
+    const mailOptions = {
+      from: process.env.NODEMAILER_USEREMAIL,
+      to: email,
+      subject: 'Verify Your New Email',
+      html: `<h3>OTP for account verification:</h3>
+             <h1 style="font-weight:bold;">${otp}</h1>`,
+    };
+
+    try {
+      await transporter.sendMail(mailOptions);
+      console.log('OTP email sent successfully');
+      return res.status(200).json({
+        success: true,
+        requiresOtp: true,
+        message: 'OTP sent to your new email address.',
+      });
+    } catch (mailError) {
+      console.error('Error sending OTP:', mailError);
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to send OTP email.',
+      });
     }
   } catch (err) {
-    console.error(err);
-    res
-      .status(httpStatusCodes.INTERNAL_SERVER_ERROR)
-      .json({ success: false, message: 'Server Error' });
+    console.error('Error in postEditProfile:', err);
+    return res.status(500).json({
+      success: false,
+      message: 'Server Error',
+    });
   }
 };
+
 const postVerifyOtp = async (req, res) => {
   try {
     const { otp } = req.body;
