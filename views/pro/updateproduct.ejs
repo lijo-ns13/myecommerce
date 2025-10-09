@@ -314,10 +314,10 @@ document.querySelectorAll('.remove-image-btn').forEach(button => {
 
         // Ensure cropped images are added before submitting
         document.getElementById('productForm').addEventListener('submit', function(event) {
-            if (croppedImagesArray.length === 0) {
-                alert('Please crop at least one image before submitting.');
-                event.preventDefault();
-            }
+            if (productImagesInput.files.length > 0 && croppedImagesArray.length === 0) {
+        alert('Please crop at least one image before submitting.');
+        event.preventDefault();
+    }
         });
     </script>
     </body>
