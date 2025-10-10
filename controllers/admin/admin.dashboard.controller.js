@@ -8,6 +8,7 @@ const { getDailyOrderCounts } = require('../../services/orderService');
 // const SalesReport = require('../../services/salesReport');
 const SalesReport = require('../../services/salesReport');
 const httpStatusCodes = require('../../constants/httpStatusCodes');
+
 // First, define the getDateRange function
 function getDateRange(type) {
   const now = new Date();
@@ -42,54 +43,162 @@ function getDateRange(type) {
 
   return { start, end };
 }
-function drawTableRow(doc, y, row, columnWidth, isHeader = false) {
-  const padding = 2; // space inside each cell
 
-  row.forEach((text, i) => {
-    doc.font(isHeader ? 'Helvetica-Bold' : 'Helvetica');
+function drawTable(doc, tableData, headers, startX, startY, columnWidths, isHeaderRow = true) {
+  const rowHeight = 20;
+  const padding = 4;
+  let currentY = startY;
 
-    let fontSize = 12; // starting font size
-    doc.fontSize(fontSize);
+  // Define column positions
+  const colPositions = [startX];
+  columnWidths.forEach((width) => {
+    colPositions.push(colPositions[colPositions.length - 1] + width);
+  });
 
-    // Make sure text fits in the column
-    while (doc.widthOfString(text.toString()) > columnWidth - 2 * padding && fontSize > 6) {
-      fontSize -= 0.5; // reduce font size
-      doc.fontSize(fontSize);
-    }
+  // Draw header row
+  if (isHeaderRow && headers) {
+    // Top border
+    doc
+      .moveTo(startX, currentY)
+      .lineTo(colPositions[colPositions.length - 1], currentY)
+      .stroke('#cccccc');
 
-    doc.text(text.toString(), 50 + i * columnWidth + padding, y, {
-      width: columnWidth - 2 * padding,
-      align: 'left',
+    // Header cells
+    headers.forEach((header, i) => {
+      doc.font('Helvetica-Bold').fontSize(10).fillColor('#1c4587');
+      const headerX = colPositions[i] + padding;
+      doc.text(header, headerX, currentY + padding, {
+        width: columnWidths[i] - 2 * padding,
+        align: 'center',
+      });
+
+      // Right border
+      doc
+        .moveTo(colPositions[i + 1], currentY)
+        .lineTo(colPositions[i + 1], currentY + rowHeight)
+        .stroke('#cccccc');
     });
 
-    doc.fontSize(12); // reset font size for next cell
+    // Bottom border for header
+    currentY += rowHeight;
+    doc
+      .moveTo(startX, currentY)
+      .lineTo(colPositions[colPositions.length - 1], currentY)
+      .stroke('#1c4587'); // Thicker for header bottom
+  }
+
+  // Draw data rows
+  tableData.forEach((row) => {
+    // Top border for each row
+    doc
+      .moveTo(startX, currentY)
+      .lineTo(colPositions[colPositions.length - 1], currentY)
+      .stroke('#cccccc');
+
+    // Row cells
+    row.forEach((cell, i) => {
+      doc.font('Helvetica').fontSize(9).fillColor('#333333');
+      let fontSize = 9;
+      while (doc.widthOfString(cell.toString()) > columnWidths[i] - 2 * padding && fontSize > 6) {
+        fontSize -= 0.5;
+        doc.fontSize(fontSize);
+      }
+
+      const text = cell.toString();
+      const x = colPositions[i] + padding; // Left align data
+      doc.text(text, x, currentY + padding, {
+        width: columnWidths[i] - 2 * padding,
+        align: 'left',
+      });
+
+      doc.fontSize(9); // Reset
+
+      // Right border
+      doc
+        .moveTo(colPositions[i + 1], currentY)
+        .lineTo(colPositions[i + 1], currentY + rowHeight)
+        .stroke('#cccccc');
+    });
+
+    // Bottom border
+    currentY += rowHeight;
+    doc
+      .moveTo(startX, currentY)
+      .lineTo(colPositions[colPositions.length - 1], currentY)
+      .stroke('#cccccc');
   });
+
+  return currentY; // Return the end Y for next content
+}
+
+function addFooter(doc) {
+  const footerY = doc.page.height - 40;
+  doc
+    .font('Helvetica')
+    .fontSize(8)
+    .fillColor('#999999')
+    .text(
+      `Generated on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()} | Confidential - For Internal Use Only`,
+      50,
+      footerY,
+      { width: doc.page.width - 100, align: 'center' }
+    );
+
+  // Footer line
+  doc
+    .moveTo(50, footerY + 10)
+    .lineTo(doc.page.width - 50, footerY + 10)
+    .stroke('#dddddd');
 }
 
 async function generatePdfContent(doc, salesData, orders, type, startDate, endDate) {
   try {
-    // Set up document
+    // Page margins
+    const margin = 50;
+    const pageWidth = doc.page.width - 2 * margin;
+
+    // Cover page setup
     doc
       .font('Helvetica-Bold')
-      .fontSize(24)
+      .fontSize(28)
       .fillColor('#1c4587')
-      .text('Sales Report', { align: 'center' })
-      .moveDown(0.5);
+      .text('Sales Report', margin, 150, { align: 'center', width: pageWidth });
 
-    // Add logo (if exists)
+    // Subtitle
+    const reportTitle = getReportTitle(type, startDate, endDate);
+    doc
+      .font('Helvetica')
+      .fontSize(14)
+      .fillColor('#666666')
+      .text(reportTitle, margin, 200, { align: 'center', width: pageWidth });
+
+    // Logo (centered at top)
     try {
       const logoPath = path.join(__dirname, '..', 'public', 'images', 'logo.png');
       if (fs.existsSync(logoPath)) {
-        doc.image(logoPath, 50, 50, { width: 50 });
+        const logoWidth = 80;
+        const logoX = (doc.page.width - logoWidth) / 2;
+        doc.image(logoPath, logoX, 80, { width: logoWidth });
       }
     } catch (logoError) {
       console.warn('Logo not found or could not be loaded:', logoError.message);
     }
-    doc.moveDown();
 
-    // Get report title
-    const reportTitle = getReportTitle(type, startDate, endDate);
-    doc.fontSize(16).fillColor('#666666').text(reportTitle, { align: 'center' }).moveDown();
+    // Company info or empty space
+    doc
+      .font('Helvetica')
+      .fontSize(10)
+      .fillColor('#999999')
+      .text('Professional Sales Analytics', margin, 300, { align: 'center', width: pageWidth });
+    doc.addPage();
+
+    // Executive Summary Section
+    doc
+      .font('Helvetica-Bold')
+      .fontSize(18)
+      .fillColor('#1c4587')
+      .text('Executive Summary', margin, margin);
+    let currentY = doc.y + 10;
 
     // Calculate totals
     let totalSales = salesData.reduce((total, sale) => total + sale.totalSales, 0);
@@ -97,78 +206,110 @@ async function generatePdfContent(doc, salesData, orders, type, startDate, endDa
     let totalOrders = salesData.reduce((total, sale) => total + sale.orderCount, 0);
     let averageOrderValue = totalOrders > 0 ? totalSales / totalOrders : 0;
 
-    // Add summary section
-    doc
-      .fontSize(14)
-      .fillColor('#1c4587')
-      .text('Executive Summary', { underline: true })
-      .moveDown(0.5);
-
-    doc.fontSize(12).fillColor('#333333');
-
     const summaryData = [
-      { label: 'Total Revenue', value: `₹${totalSales.toFixed(2)}` },
-      { label: 'Total Discount', value: `₹${totalDiscount.toFixed(2)}` },
-      { label: 'Net Revenue', value: `₹${(totalSales - totalDiscount).toFixed(2)}` },
-      { label: 'Total Orders', value: totalOrders },
-      { label: 'Average Order Value', value: `₹${averageOrderValue.toFixed(2)}` },
+      ['Metric', 'Value'],
+      [
+        'Total Revenue',
+        `₹${totalSales.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      ],
+      [
+        'Total Discount',
+        `₹${totalDiscount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      ],
+      [
+        'Net Revenue',
+        `₹${(totalSales - totalDiscount).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      ],
+      ['Total Orders', totalOrders.toLocaleString()],
+      [
+        'Average Order Value',
+        `₹${averageOrderValue.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      ],
     ];
 
-    const summaryColumnWidth = 200;
-    summaryData.forEach((item, index) => {
-      doc.text(item.label, 50 + (index % 2) * summaryColumnWidth, doc.y);
-      doc.text(item.value, 150 + (index % 2) * summaryColumnWidth, doc.y, { align: 'right' });
-      if (index % 2 === 1 || index === summaryData.length - 1) doc.moveDown();
-    });
+    const summaryColumnWidths = [(pageWidth / 3) * 2, pageWidth / 3];
+    currentY = drawTable(
+      doc,
+      summaryData.slice(1),
+      summaryData[0],
+      margin,
+      currentY,
+      summaryColumnWidths
+    );
 
-    doc.moveDown();
-
-    // Add sales data table
-    doc.addPage();
-    doc
-      .fontSize(16)
-      .fillColor('#1c4587')
-      .text('Detailed Sales Statistics', { underline: true })
-      .moveDown(0.5);
-
-    // Define table layout
-    const tableTop = doc.y;
-    const tableHeaders = ['Date', 'Total Sales', 'Total Discount', 'Net Revenue', 'Order Count'];
-    const columnWidth = (doc.page.width - 100) / tableHeaders.length;
-
-    // Draw table headers
-    drawTableRow(doc, tableTop, tableHeaders, columnWidth, true);
-    let tableY = tableTop + 20;
-
-    // Draw table rows
-    for (const sale of salesData) {
-      if (tableY > doc.page.height - 100) {
-        doc.addPage();
-        tableY = 50;
-        drawTableRow(doc, tableY, tableHeaders, columnWidth, true);
-        tableY += 20;
-      }
-
-      const netRevenue = sale.totalSales - sale.totalDiscount;
-      const rowData = [
-        sale._id,
-        `₹ ${sale.totalSales.toFixed(2)}`,
-        `₹ ${sale.totalDiscount.toFixed(2)}`,
-        `₹ ${netRevenue.toFixed(2)}`,
-        sale.orderCount.toString(),
-      ];
-
-      drawTableRow(doc, tableY, rowData, columnWidth);
-      tableY += 20;
+    if (currentY > doc.page.height - 100) {
+      doc.addPage();
+      currentY = margin;
     }
 
-    // Add orders table on new page
-    doc.addPage();
     doc
-      .fontSize(16)
+      .moveTo(margin, currentY + 5)
+      .lineTo(doc.page.width - margin, currentY + 5)
+      .stroke('#1c4587');
+    currentY += 20;
+    doc
+      .font('Helvetica')
+      .fontSize(10)
+      .fillColor('#666666')
+      .text('All figures are in Indian Rupees (INR).', margin, currentY);
+    currentY += 40;
+
+    // Detailed Sales Statistics Section
+    doc
+      .font('Helvetica-Bold')
+      .fontSize(18)
       .fillColor('#1c4587')
-      .text('Individual Order Details', { underline: true })
-      .moveDown(0.5);
+      .text('Detailed Sales Statistics', margin, currentY);
+    currentY += 30;
+
+    const salesHeaders = [
+      'Date',
+      'Total Sales (₹)',
+      'Total Discount (₹)',
+      'Net Revenue (₹)',
+      'Order Count',
+    ];
+    const salesRows = salesData.map((sale) => {
+      const netRevenue = sale.totalSales - sale.totalDiscount;
+      return [
+        new Date(sale._id).toLocaleDateString(),
+        sale.totalSales.toLocaleString('en-IN', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }),
+        sale.totalDiscount.toLocaleString('en-IN', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }),
+        netRevenue.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+        sale.orderCount.toLocaleString(),
+      ];
+    });
+
+    const salesColumnWidths = [
+      pageWidth * 0.2,
+      pageWidth * 0.2,
+      pageWidth * 0.2,
+      pageWidth * 0.2,
+      pageWidth * 0.2,
+    ];
+    currentY = drawTable(doc, salesRows, salesHeaders, margin, currentY, salesColumnWidths);
+
+    // Handle multi-page for sales table if needed (drawTable handles pagination internally by returning Y, but for simplicity, check before drawing)
+    if (currentY > doc.page.height - 150) {
+      doc.addPage();
+      currentY = margin;
+    }
+
+    currentY += 20;
+
+    // Individual Order Details Section
+    doc
+      .font('Helvetica-Bold')
+      .fontSize(18)
+      .fillColor('#1c4587')
+      .text('Individual Order Details', margin, currentY);
+    currentY += 30;
 
     // Fetch all users
     const users = await User.find({});
@@ -177,74 +318,58 @@ async function generatePdfContent(doc, salesData, orders, type, startDate, endDa
       return map;
     }, {});
 
-    // Define orders table layout
     const orderHeaders = [
       'Order ID',
-      'User Name',
-      'Total Price',
-      'Discount',
-      'Net Price',
+      'Customer Name',
+      'Total Price (₹)',
+      'Discount (₹)',
+      'Net Price (₹)',
       'Order Date',
       'Status',
     ];
-    const orderColumnWidth = (doc.page.width - 100) / orderHeaders.length;
-
-    // Draw orders table headers
-    let orderTableY = doc.y;
-    drawTableRow(doc, orderTableY, orderHeaders, orderColumnWidth, true);
-    orderTableY += 20;
-
-    // Draw orders table rows
-    for (const order of orders) {
-      if (orderTableY > doc.page.height - 100) {
-        doc.addPage();
-        orderTableY = 50;
-        drawTableRow(doc, orderTableY, orderHeaders, orderColumnWidth, true);
-        orderTableY += 20;
-      }
-
+    const orderRows = orders.map((order) => {
       const userName = userMap[order.userId] || 'Unknown User';
       const netPrice = order.totalPrice - (order.discount || 0);
-      const rowData = [
-        order._id.toString().substring(0, 8),
+      return [
+        order._id.toString().substring(0, 8) + '...',
         userName,
-        `₹ ${order.totalPrice.toFixed(2)}`,
-        `₹ ${order.discount ? order.discount.toFixed(2) : '0.00'}`,
-        `₹ ${netPrice.toFixed(2)}`,
+        order.totalPrice.toLocaleString('en-IN', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }),
+        (order.discount || 0).toLocaleString('en-IN', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }),
+        netPrice.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
         new Date(order.orderDate).toLocaleDateString(),
         order.status,
       ];
+    });
 
-      drawTableRow(doc, orderTableY, rowData, orderColumnWidth);
-      orderTableY += 20;
-    }
+    const orderColumnWidths = [
+      pageWidth * 0.1,
+      pageWidth * 0.2,
+      pageWidth * 0.15,
+      pageWidth * 0.15,
+      pageWidth * 0.15,
+      pageWidth * 0.1,
+      pageWidth * 0.1,
+    ];
+    currentY = drawTable(doc, orderRows, orderHeaders, margin, currentY, orderColumnWidths);
 
-    // Add footer
-    doc
-      .fontSize(10)
-      .fillColor('#666666')
-      .text(
-        `Generated on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}`,
-        0, // x
-        doc.page.height - 30, // y = 30px from bottom
-        { width: doc.page.width, align: 'center' } // center alignment
-      );
-
-    // .text(
-    //   `Generated on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}`,
-    //   {
-    //     align: 'center',
-    //     bottom: 30,
-    //   }
-    // );
+    // Add footer to last page
+    addFooter(doc);
   } catch (error) {
     console.error('Error generating PDF content:', error);
     doc
+      .font('Helvetica')
       .fontSize(12)
       .fillColor('red')
       .text('An error occurred while generating the report. Please try again later.', 50, 50);
   }
 }
+
 function getReportTitle(type, startDate, endDate) {
   const currentDate = new Date();
 
@@ -268,6 +393,7 @@ function getReportTitle(type, startDate, endDate) {
       return 'Sales Report';
   }
 }
+
 const getSalesGraph = async (req, res) => {
   try {
     const { type } = req.query;
@@ -322,6 +448,7 @@ const getSalesGraph = async (req, res) => {
     res.status(httpStatusCodes.INTERNAL_SERVER_ERROR).json({ error: 'Internal server error' });
   }
 };
+
 const getOrdersCount = async (req, res) => {
   try {
     const { timeUnit, startDate, endDate } = req.query;
@@ -393,6 +520,7 @@ const getOrdersCount = async (req, res) => {
       .json({ error: 'Error fetching order counts' });
   }
 };
+
 const getOrdersStats = async (req, res) => {
   try {
     const orders = await Order.find({});
@@ -413,6 +541,7 @@ const getOrdersStats = async (req, res) => {
       .json({ message: 'Error fetching order stats', error });
   }
 };
+
 const getDashboard = async (req, res) => {
   try {
     const orders = await Order.find({});
@@ -544,6 +673,7 @@ const getDashboard = async (req, res) => {
     res.status(httpStatusCodes.INTERNAL_SERVER_ERROR).send('Internal Server Error'); // Send a response in case of error
   }
 };
+
 const getSalesReport = async (req, res) => {
   const { type, startDate, endDate } = req.query;
 
@@ -575,6 +705,7 @@ const getSalesReport = async (req, res) => {
     res.status(httpStatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Server error' });
   }
 };
+
 const getSalesReportPDF = async (req, res) => {
   const { type, startDate, endDate } = req.query;
 
@@ -637,15 +768,24 @@ const getSalesReportPDF = async (req, res) => {
       });
     }
 
-    // Create PDF document
-    const doc = new PDFDocument({ margin: 50 });
+    // Create PDF document with improved layout
+    const doc = new PDFDocument({
+      size: 'A4',
+      margins: { top: 72, bottom: 72, left: 72, right: 72 },
+    });
 
     // Set response headers
     res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', 'attachment; filename=sales-report.pdf');
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="sales-report-${type}-${new Date().toISOString().split('T')[0]}.pdf"`
+    );
 
     // Pipe the PDF document to the response
     doc.pipe(res);
+
+    // Set default styles
+    doc.font('Helvetica').fontSize(10).fillColor('#333333');
 
     // Generate PDF content
     await generatePdfContent(doc, salesData, orders, type, start, end);
@@ -659,6 +799,7 @@ const getSalesReportPDF = async (req, res) => {
       .json({ message: 'Server error', error: error.message });
   }
 };
+
 module.exports = {
   getSalesGraph,
   getOrdersCount,
