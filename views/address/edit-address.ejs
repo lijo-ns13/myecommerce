@@ -1,17 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Address Edit Page</title>
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <!-- SweetAlert2 CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-    <style>
-        .navbar-nav .nav-icon {
-            vertical-align: middle;
-        }
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Address Edit Page</title>
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet"
+            href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+        <!-- SweetAlert2 CSS -->
+        <link rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+        <style>
         .rounded-circle {
             border-radius: 50% !important;
         }
@@ -24,120 +23,253 @@
         .list-unstyled a {
             color: #fff;
         }
+        
+		
+		
+        .navbar {
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+        }
+
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .navbar-nav {
+            display: flex;
+            align-items: center;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .nav-item {
+            margin: 0 10px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: #333;
+            font-size: 18px;
+        }
+
+        .nav-link i {
+            font-size: 24px;
+            margin-right: 5px;
+        }
+
+        .rounded-circle {
+            width: 30px;
+            height: 30px;
+        }
+
+        @media (max-width: 767px) {
+            .navbar-nav {
+                flex-direction: row;
+                justify-content: center;
+                margin-top: 1rem;
+            }
+
+            .nav-item {
+                margin: 0 5px;
+            }
+
+            .nav-link {
+                font-size: 16px;
+            }
+
+            .nav-link i {
+                font-size: 20px;
+            }
+
+        }
+		
     </style>
-</head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="/"><img src="/img/logo.png" alt="Logo" height="40"></a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav mr-auto">
-                <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
-                <li class="nav-item"><a class="nav-link" href="/products">Products</a></li>
-                <li class="nav-item"><a class="nav-link" href="/about">About</a></li>
-            </ul>
-            <ul class="navbar-nav">
-                <li class="nav-item"><a class="nav-link" href="/auth/signin"><img src="/img/log-in.png" alt="Login" height="30"></a></li>
-                <li class="nav-item"><a class="nav-link" href="/cart"><img src="/img/cart.png" alt="Cart" height="30"></a></li>
-                <li class="nav-item"><a class="nav-link" href="/user/wishlist"><img src="/img/wishlist.png" alt="Wishlist" height="30"></a></li>
-                <li class="nav-item"><a class="nav-link" href="/user/profile"><img src="/img/userprofile.jpg" alt="User Profile" height="30"></a></li>
-            </ul>
+    </head>
+    <body>
+
+        <nav class="navbar navbar-expand-lg navbar-light bg-light py-3 w-100">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="/">
+                    <img src="/img/logo.png" alt="Logo"
+                        class="d-inline-block align-text-top"
+                        style="height: 40px;">
+                </a>
+                <button class="navbar-toggler" type="button"
+                    data-toggle="collapse" data-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false"
+                    aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ml-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/products">Products</a>
+                        </li>
+
+                    </ul>
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/auth/signin">
+                                <img src="/img/log-in.png" alt="Login"
+                                    class="nav-icon" style="height: 24px;">
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/user/wishlist">
+                                <img src="/img/wishlist.png" alt="Wishlist"
+                                    class="nav-icon" style="height: 24px;">
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/cart">
+                                <img src="/img/cart.png" alt="Cart"
+                                    class="nav-icon" style="height: 24px;">
+                                <span
+                                    class="badge badge-pill badge-danger"></span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/user/profile">
+                                <img src="/img/userprofile.jpg"
+                                    alt="User Profile"
+                                    class="nav-icon rounded-circle"
+                                    style="height: 24px;">
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <h1 class="text-center my-4">Address Edit Page</h1>
+        <div class="container">
+            <div id="error"></div>
+            <form id="updateForm">
+                <input type="hidden" name="id" id="addressId"
+                    value="<%= address._id %>">
+                <div class="form-group">
+                    <label for="phoneNo">Phone Number</label>
+                    <input type="tel" class="form-control" name="phoneNo"
+                        id="phoneNo" value="<%=address.phoneNo%>">
+                </div>
+                <div class="form-group">
+                    <label for="street">Street</label>
+                    <input type="text" class="form-control" name="street"
+                        id="street" value="<%= address.street %>">
+                </div>
+                <div class="form-group">
+                    <label for="city">City</label>
+                    <input type="text" class="form-control" name="city"
+                        id="city" value="<%= address.city %>">
+                </div>
+                <div class="form-group">
+                    <label for="state">State</label>
+                    <input type="text" class="form-control" name="state"
+                        id="state" value="<%= address.state %>">
+                </div>
+                <div class="form-group">
+                    <label for="postalCode">Postal Code</label>
+                    <input type="text" class="form-control" name="postalCode"
+                        id="postalCode" value="<%= address.postalCode %>">
+                </div>
+                <div class="form-group">
+                    <label for="country">Country</label>
+                    <input type="text" class="form-control" name="country"
+                        id="country" value="<%= address.country %>">
+                </div>
+                <button type="submit" class="btn btn-primary">Update</button>
+            </form>
         </div>
-    </nav>
 
-    <h1 class="text-center my-4">Address Edit Page</h1>
-    <div class="container">
-        <div id="error"></div>
-        <form id="updateForm">
-            <input type="hidden" name="id" id="addressId" value="<%= address._id %>">
-            <div class="form-group">
-                <label for="phoneNo">Phone Number</label>
-                <input type="tel" class="form-control" name="phoneNo" id="phoneNo" value="<%=address.phoneNo%>">
-            </div>
-            <div class="form-group">
-                <label for="street">Street</label>
-                <input type="text" class="form-control" name="street" id="street" value="<%= address.street %>">
-            </div>
-            <div class="form-group">
-                <label for="city">City</label>
-                <input type="text" class="form-control" name="city" id="city" value="<%= address.city %>">
-            </div>
-            <div class="form-group">
-                <label for="state">State</label>
-                <input type="text" class="form-control" name="state" id="state" value="<%= address.state %>">
-            </div>
-            <div class="form-group">
-                <label for="postalCode">Postal Code</label>
-                <input type="text" class="form-control" name="postalCode" id="postalCode" value="<%= address.postalCode %>">
-            </div>
-            <div class="form-group">
-                <label for="country">Country</label>
-                <input type="text" class="form-control" name="country" id="country" value="<%= address.country %>">
-            </div>
-            <button type="submit" class="btn btn-primary">Update</button>
-        </form>
-    </div>
+        <!-- Footer -->
+        <footer class="bg-dark text-white mt-5">
+            <div class="container py-4">
+                <div class="row">
+                    <!-- About Section -->
+                    <div class="col-md-4">
+                        <h5>About Us</h5>
+                        <p>At our shoe e-commerce store, we provide the best
+                            quality footwear for every occasion. Explore our
+                            collection to find the perfect pair of shoes for
+                            you.</p>
+                    </div>
 
-    <!-- Footer -->
-    <footer class="bg-dark text-white mt-5">
-        <div class="container py-4">
-            <div class="row">
-                <!-- About Section -->
-                <div class="col-md-4">
-                    <h5>About Us</h5>
-                    <p>At our shoe e-commerce store, we provide the best quality footwear for every occasion. Explore our collection to find the perfect pair of shoes for you.</p>
+                    <!-- Quick Links -->
+                    <div class="col-md-2">
+                        <h5>Quick Links</h5>
+                        <ul class="list-unstyled">
+                            <li><a href="/" class="text-white">Home</a></li>
+                            <li><a href="/products"
+                                    class="text-white">Products</a></li>
+                            <li><a href="/about"
+                                    class="text-white">About</a></li>
+                            <li><a href="/contact"
+                                    class="text-white">Contact</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Support -->
+                    <div class="col-md-2">
+                        <h5>Support</h5>
+                        <ul class="list-unstyled">
+                            <li><a href="/faq" class="text-white">FAQ</a></li>
+                            <li><a href="/returns"
+                                    class="text-white">Returns</a></li>
+                            <li><a href="/shipping"
+                                    class="text-white">Shipping</a></li>
+                            <li><a href="/privacy-policy"
+                                    class="text-white">Privacy Policy</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Follow Us -->
+                    <div class="col-md-4">
+                        <h5>Follow Us</h5>
+                        <div class="d-flex">
+                            <a href="https://facebook.com"
+                                class="text-white mr-3"><img
+                                    src="img/facebook-icon.png" alt="Facebook"
+                                    style="width: 24px;"></a>
+                            <a href="https://twitter.com"
+                                class="text-white mr-3"><img
+                                    src="img/twitter-icon.png" alt="Twitter"
+                                    style="width: 24px;"></a>
+                            <a href="https://instagram.com"
+                                class="text-white mr-3"><img
+                                    src="img/instagram-icon.png" alt="Instagram"
+                                    style="width: 24px;"></a>
+                            <a href="https://linkedin.com"
+                                class="text-white"><img
+                                    src="img/linkedin-icon.png" alt="LinkedIn"
+                                    style="width: 24px;"></a>
+                        </div>
+                    </div>
                 </div>
-
-                <!-- Quick Links -->
-                <div class="col-md-2">
-                    <h5>Quick Links</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="/" class="text-white">Home</a></li>
-                        <li><a href="/products" class="text-white">Products</a></li>
-                        <li><a href="/about" class="text-white">About</a></li>
-                        <li><a href="/contact" class="text-white">Contact</a></li>
-                    </ul>
-                </div>
-
-                <!-- Support -->
-                <div class="col-md-2">
-                    <h5>Support</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="/faq" class="text-white">FAQ</a></li>
-                        <li><a href="/returns" class="text-white">Returns</a></li>
-                        <li><a href="/shipping" class="text-white">Shipping</a></li>
-                        <li><a href="/privacy-policy" class="text-white">Privacy Policy</a></li>
-                    </ul>
-                </div>
-
-                <!-- Follow Us -->
-                <div class="col-md-4">
-                    <h5>Follow Us</h5>
-                    <div class="d-flex">
-                        <a href="https://facebook.com" class="text-white mr-3"><img src="img/facebook-icon.png" alt="Facebook" style="width: 24px;"></a>
-                        <a href="https://twitter.com" class="text-white mr-3"><img src="img/twitter-icon.png" alt="Twitter" style="width: 24px;"></a>
-                        <a href="https://instagram.com" class="text-white mr-3"><img src="img/instagram-icon.png" alt="Instagram" style="width: 24px;"></a>
-                        <a href="https://linkedin.com" class="text-white"><img src="img/linkedin-icon.png" alt="LinkedIn" style="width: 24px;"></a>
+                <div class="row mt-4">
+                    <div class="col text-center">
+                        <p>&copy; 2024 YourCompanyName. All Rights Reserved.</p>
                     </div>
                 </div>
             </div>
-            <div class="row mt-4">
-                <div class="col text-center">
-                    <p>&copy; 2024 YourCompanyName. All Rights Reserved.</p>
-                </div>
-            </div>
-        </div>
-    </footer>
+        </footer>
 
-    <!-- Bootstrap JS and dependencies -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <!-- SweetAlert2 JS -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
-    <script>
+        <!-- Bootstrap JS and dependencies -->
+        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+        <script
+            src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+        <script
+            src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+        <!-- SweetAlert2 JS -->
+        <script
+            src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+        <script>
         document.getElementById('updateForm').addEventListener('submit', update);
 
         async function update(event) {
@@ -194,5 +326,5 @@
             }
         }
     </script>
-</body>
+    </body>
 </html>

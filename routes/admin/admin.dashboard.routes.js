@@ -14,5 +14,6 @@ router.get('/orders/stats', adminDashboardController.getOrdersStats);
 router.get('/dashboard', adminDashboardController.getDashboard);
 router.get('/sales/report', adminDashboardController.getSalesReport);
 router.get('/sales/report/pdf', adminDashboardController.getSalesReportPDF);
-
+router.get('/sales/report/xml', adminDashboardController.getSalesReportXML);
+router.get('/sales/report/csv', adminDashboardController.getSalesReportCSV);
 module.exports = router;

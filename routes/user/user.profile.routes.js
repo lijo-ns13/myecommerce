@@ -2,9 +2,9 @@ const express = require('express');
 const router = express.Router();
 
 const userProfileController = require('../../controllers/user/user.profile.controller');
-const { jwtAuth, userProtected } = require('../../middlewares/auth');
+const { jwtAuth, userProtected, checkBlockedUser } = require('../../middlewares/auth');
 
-router.use(jwtAuth, userProtected);
+router.use(jwtAuth, userProtected, checkBlockedUser);
 
 router.get('/', userProfileController.getProfile);
 router.get('/edit', userProfileController.getEditProfile);

@@ -69,7 +69,17 @@ const patchCategoryUpdate = async (req, res) => {
         message: messages.COMMON.MIN_MAX_CHAR('description', 3, 40),
       });
     }
+    const existingCategory = await Category.findOne({
+      _id: { $ne: categoryId },
+      name: { $regex: new RegExp(`^${name.trim()}$`, 'i') },
+    });
 
+    if (existingCategory) {
+      return res.status(httpStatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: messages.CATEGORY.ALREADY_EXISTS,
+      });
+    }
     const updateData = { name: name.trim(), description: description.trim() };
 
     const category = await Category.findByIdAndUpdate(categoryId, updateData, { new: true });
@@ -174,7 +184,10 @@ const postAddCategory = async (req, res) => {
       });
     }
 
-    const categoryExist = await Category.findOne({ name: name.trim() });
+    const categoryExist = await Category.findOne({
+      name: { $regex: new RegExp(`^${name.trim()}$`, 'i') },
+    });
+
     if (categoryExist) {
       return res.status(httpStatusCodes.BAD_REQUEST).json({
         success: false,

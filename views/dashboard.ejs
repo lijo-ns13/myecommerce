@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -16,13 +18,13 @@
             rel="stylesheet">
         <style>
         body {
-            background-color: #000;
-            color: #fff;
+            background-color: #ffffff;
+            color: #080808;
             margin: 0;
             padding: 0;
         }
         .bg-white {
-        background-color: white; /* White background for the report box */
+        background-color: rgb(0, 0, 0); /* White background for the report box */
     }
        
         .content {
@@ -30,7 +32,7 @@
             padding: 20px;
         }
         .content h2 {
-            color: #fff;
+            color: #000000;
         }
         .chart-container {
             width: 100%;
@@ -38,10 +40,10 @@
             margin: 20px auto; /* Center the charts */
         }
         .card {
-            background-color: #343a40; /* Dark background for cards */
-            color: #fff; /* White text color */
+            background-color: #f3f3f3; /* Dark background for cards */
+            color: #000000; /* White text color */
             border: none; /* Remove borders for a cleaner look */
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); /* Add subtle shadow for depth */
+            box-shadow: 0 2px 5px rgba(255, 255, 255, 0.3); /* Add subtle shadow for depth */
         }
         .card-title {
             font-weight: bold; /* Make titles bold */
@@ -50,15 +52,15 @@
             text-align: center;
             margin-top: 20px;
             padding: 10px;
-            color: #ddd;
+            color: #000000;
         }
         .top-selling {
-    background-color: #ffffff; /* White background for the box */
+    background-color: #000000; /* White background for the box */
     border-radius: 10px; /* Rounded corners */
     padding: 15px; /* Padding inside the box */
     margin-bottom: 20px; /* Space below the box */
     text-align: center; /* Center align text */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Soft shadow for the box */
+    box-shadow: 0 4px 8px rgb(255, 255, 255); /* Soft shadow for the box */
 }
 
 .top-selling h2 {
@@ -73,7 +75,7 @@
 
 .top-selling li {
     padding: 10px; /* Padding for each item */
-    border-bottom: 1px solid #eaeaea; /* Light border between items */
+    border-bottom: 1px solid #000000; /* Light border between items */
 }
 
 .top-selling li:last-child {
@@ -81,7 +83,7 @@
 }
 
 .top-selling li:hover {
-    background-color: #f1f1f1; /* Change background on hover for effect */
+    background-color: #f2f2f2; /* Change background on hover for effect */
 }
 .chart-container { position: relative; height: 400px; width: 100%; }
     </style>
@@ -256,6 +258,10 @@
                     class="btn btn-primary mt-3">Generate Report</button>
                 <button id="downloadPdf"
                     class="btn btn-secondary mt-3 d-none">Download PDF</button>
+                <button id="downloadCsv"
+                    class="btn btn-success mt-3 d-none">Download CSV</button>
+                <button id="downloadXml"
+                    class="btn btn-info mt-3 d-none">Download XML</button>
 
                 <div id="salesReport" class="mt-3"></div>
             </div>
@@ -311,8 +317,10 @@ document.getElementById('generateReport').addEventListener('click', function() {
             // Display the sales report
             salesReportDiv.innerHTML = generateSalesReportHtml(data);
 
-            // Show the download PDF button
+            // Show the download buttons
             document.getElementById('downloadPdf').classList.remove('d-none');
+            document.getElementById('downloadCsv').classList.remove('d-none');
+            document.getElementById('downloadXml').classList.remove('d-none');
             console.log('dataaaaaaaaaaaaaaaaaaaa',data)
         })
         .catch(error => console.error('Error fetching report:', error));
@@ -409,6 +417,26 @@ document.getElementById('downloadPdf').addEventListener('click', function() {
 
     // Make a request to generate the PDF
     window.open(`/admin/sales/report/pdf?type=${reportType}&startDate=${startDate}&endDate=${endDate}`, '_blank');
+});
+
+// Add event listener for downloading CSV
+document.getElementById('downloadCsv').addEventListener('click', function() {
+    const reportType = document.getElementById('reportType').value;
+    const startDate = reportType === 'custom' ? document.getElementById('startDate').value : null;
+    const endDate = reportType === 'custom' ? document.getElementById('endDate').value : null;
+
+    // Make a request to generate the CSV
+    window.open(`/admin/sales/report/csv?type=${reportType}&startDate=${startDate}&endDate=${endDate}`, '_blank');
+});
+
+// Add event listener for downloading XML
+document.getElementById('downloadXml').addEventListener('click', function() {
+    const reportType = document.getElementById('reportType').value;
+    const startDate = reportType === 'custom' ? document.getElementById('startDate').value : null;
+    const endDate = reportType === 'custom' ? document.getElementById('endDate').value : null;
+
+    // Make a request to generate the XML
+    window.open(`/admin/sales/report/xml?type=${reportType}&startDate=${startDate}&endDate=${endDate}`, '_blank');
 });
 
     </script>

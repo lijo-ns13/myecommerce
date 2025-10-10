@@ -1,6 +1,6 @@
 const express = require('express');
 const cookieParser = require('cookie-parser');
-const { jwtAuth } = require('../../middlewares/auth');
+const { jwtAuth, checkBlockedUser } = require('../../middlewares/auth');
 
 const router = express.Router();
 router.use(cookieParser());

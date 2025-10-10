@@ -12,7 +12,7 @@
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
         body {
-            font-family: 'Poppins', sans-serif;
+            font-family: 'Inter', sans-serif;
             background-color: #f4f4f4;
             color: #333;
         }
@@ -196,28 +196,68 @@
             }
         }
 
-        /* Responsive navbar styles */
-        @media (max-width: 991px) {
+      
+        .navbar {
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+        }
+
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .navbar-nav {
+            display: flex;
+            align-items: center;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .nav-item {
+            margin: 0 10px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: #333;
+            font-size: 18px;
+        }
+
+        .nav-link i {
+            font-size: 24px;
+            margin-right: 5px;
+        }
+
+        .rounded-circle {
+            width: 30px;
+            height: 30px;
+        }
+
+        @media (max-width: 767px) {
             .navbar-nav {
                 flex-direction: row;
                 justify-content: center;
+                margin-top: 1rem;
             }
 
-            .navbar-nav .nav-item {
-                margin: 0 10px;
+            .nav-item {
+                margin: 0 5px;
             }
+
+            .nav-link {
+                font-size: 16px;
+            }
+
+            .nav-link i {
+                font-size: 20px;
+            }
+
         }
-
-        @media (max-width: 576px) {
-            .navbar-brand img {
-                height: 30px;
-            }
-
-            .nav-link img {
-                height: 20px;
-            }
-        }
-
         /* Responsive footer styles */
         @media (max-width: 768px) {
             footer h5 {
@@ -257,27 +297,25 @@
                         <li class="nav-item">
                             <a class="nav-link" href="/products">Products</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/about">About</a>
-                        </li>
+
                     </ul>
                     <ul class="navbar-nav">
                         <li class="nav-item">
                             <a class="nav-link" href="/auth/signin">
                                 <img src="/img/log-in.png" alt="Login"
-                                    style="height: 24px;">
+                                    class="nav-icon" style="height: 24px;">
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="/user/wishlist">
                                 <img src="/img/wishlist.png" alt="Wishlist"
-                                    style="height: 24px;">
+                                    class="nav-icon" style="height: 24px;">
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="/cart">
                                 <img src="/img/cart.png" alt="Cart"
-                                    style="height: 24px;">
+                                    class="nav-icon" style="height: 24px;">
                                 <span
                                     class="badge badge-pill badge-danger"></span>
                             </a>
@@ -285,7 +323,8 @@
                         <li class="nav-item">
                             <a class="nav-link" href="/user/profile">
                                 <img src="/img/userprofile.jpg"
-                                    alt="User Profile" class="rounded-circle"
+                                    alt="User Profile"
+                                    class="nav-icon rounded-circle"
                                     style="height: 24px;">
                             </a>
                         </li>

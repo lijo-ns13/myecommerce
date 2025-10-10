@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const { jwtAuth, userProtected } = require('../../middlewares/auth');
+const { jwtAuth, userProtected, checkBlockedUser } = require('../../middlewares/auth');
 const orderController = require('../../controllers/user/user.order.controller');
-router.use(jwtAuth, userProtected);
+router.use(jwtAuth, userProtected, checkBlockedUser);
 
 router.get('/', orderController.getOrders);
 router.get('/:orderId', orderController.getOrderDetailed);

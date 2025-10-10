@@ -3,72 +3,209 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Admin Orders</title>
+        <title>Order Management</title>
+        <!-- Bootstrap 5 CSS -->
         <link
             href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-            rel="stylesheet" />
+            rel="stylesheet"
+            integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM"
+            crossorigin="anonymous" />
+        <!-- Font Awesome for icons -->
         <link
             href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+            rel="stylesheet"
+            integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA=="
+            crossorigin="anonymous" />
+        <!-- Google Fonts for Inter -->
+        <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
             rel="stylesheet" />
         <style>
-    body {
-      background-color: #f8f9fa;
-    }
-    .content {
-      margin-left: 250px;
-      padding: 20px;
-    }
-    .table th {
-      background-color: #0d6efd;
-      color: #fff;
-      text-transform: uppercase;
-      font-size: 0.85rem;
-    }
-    .status-badge {
-      font-size: 0.75rem;
-      padding: 0.4em 0.8em;
-      border-radius: 50px;
-    }
-    .status-pending { background-color: #ffc107; color: #212529; }
-    .status-processing { background-color: #17a2b8; color: #fff; }
-    .status-shipped { background-color: #0dcaf0; color: #fff; }
-    .status-delivered { background-color: #28a745; color: #fff; }
-    .status-cancelled { background-color: #dc3545; color: #fff; }
-    .btn-custom {
-      background-color: #0d6efd;
-      color: #fff;
-    }
-    .btn-custom:hover {
-      background-color: #084298;
-    }
-  </style>
+      body {
+        font-family: 'Inter', sans-serif;
+        background-color: #f4f6f8;
+        color: #333;
+      }
+      .content {
+        margin-left: 200px; /* Adjusted for sidebar */
+        padding: 40px 20px;
+        min-height: 100vh;
+        transition: margin-left 0.3s ease;
+      }
+      .card {
+        border: none;
+        border-radius: 12px;
+        background: #ffffff;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+      .table {
+        margin-bottom: 0;
+        border-collapse: separate;
+        border-spacing: 0;
+      }
+      .table th {
+        background-color: #007bff;
+        color: #fff;
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        padding: 12px;
+        border: none;
+      }
+      .table td {
+        padding: 12px;
+        vertical-align: middle;
+        border: none;
+        background: #fff;
+      }
+      .table tr {
+        transition: background-color 0.2s ease;
+      }
+      .table tr:hover {
+        background-color: #f8f9fa;
+      }
+      .status-badge {
+        font-size: 0.8rem;
+        padding: 6px 12px;
+        border-radius: 12px;
+        font-weight: 500;
+      }
+      .status-pending {
+        background-color: #ffc107;
+        color: #212529;
+      }
+      .status-processing {
+        background-color: #17a2b8;
+        color: #fff;
+      }
+      .status-shipped {
+        background-color: #0dcaf0;
+        color: #fff;
+      }
+      .status-delivered {
+        background-color: #28a745;
+        color: #fff;
+      }
+      .status-cancelled,
+      .status-rejected_return,
+      .status-payment_failed,
+      .status-failed {
+        background-color: #dc3545;
+        color: #fff;
+      }
+      .status-pending_return,
+      .status-processing_return,
+      .status-initiated_return {
+        background-color: #fd7e14;
+        color: #fff;
+      }
+      .status-returned,
+      .status-refunded {
+        background-color: #6c757d;
+        color: #fff;
+      }
+      .status-out_of_stock,
+      .status-on_hold {
+        background-color: #adb5bd;
+        color: #fff;
+      }
+      .btn-custom {
+        border-radius: 8px;
+        font-weight: 500;
+        padding: 6px 12px;
+        background-color: #007bff;
+        color: #fff;
+        transition: background-color 0.2s ease;
+      }
+      .btn-custom:hover {
+        background-color: #0056b3;
+      }
+      .search-container,
+      .filter-container {
+        max-width: 300px;
+      }
+      .form-control,
+      .form-select {
+        border-radius: 8px;
+        border: 1px solid #ced4da;
+        padding: 10px;
+        box-shadow: none;
+        font-size: 0.9rem;
+      }
+      .form-control:focus,
+      .form-select:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+      }
+      .pagination .page-link {
+        border-radius: 6px;
+        margin: 0 3px;
+        color: #007bff;
+        border: 1px solid #dee2e6;
+        font-size: 0.9rem;
+      }
+      .pagination .page-item.active .page-link {
+        background-color: #007bff;
+        border-color: #007bff;
+        color: #fff;
+      }
+      .pagination .page-item.disabled .page-link {
+        color: #6c757d;
+      }
+      @media (max-width: 768px) {
+        .content {
+          margin-left: 0;
+          padding: 20px;
+        }
+        .search-container,
+        .filter-container {
+          max-width: 100%;
+        }
+        .table {
+          font-size: 0.85rem;
+        }
+        .table th,
+        .table td {
+          padding: 8px;
+        }
+        .btn-custom {
+          padding: 4px 8px;
+          font-size: 0.85rem;
+        }
+      }
+    </style>
     </head>
     <body>
         <div class="content">
-            <h2 class="fw-bold mb-4">Order Management</h2>
+            <h2 class="fw-bold mb-5 text-dark">Order Management</h2>
 
             <!-- Search + Filter -->
-            <div class="d-flex flex-wrap gap-3 mb-4">
+            <div class="d-flex flex-wrap gap-3 mb-5">
+                <!-- Commented out as in original code -->
                 <!-- <input
-                    type="text"
-                    id="searchInput"
-                    class="form-control w-50"
-                    placeholder="Search by Order ID / Phone..."
-                    value="<%= search || '' %>" /> -->
-
-                <select id="statusFilter" class="form-select w-25">
-                    <option value="all" <%=!status || status === 'all' ?
-                        'selected' : '' %>>All Status</option>
-                    <% [
-                    'pending','processing','shipped','delivered',
-                    'pending_return','processing_return','initiated_return',
-                    'rejected_return','returned','refunded','cancelled',
-                    'payment_failed','out_of_stock','on_hold','failed'
-                    ].forEach(s => { %>
-                    <option value="<%= s %>" <%=status === s ? 'selected' : ''
-                        %>><%= s %></option>
-                    <% }) %>
-                </select>
+          type="text"
+          id="searchInput"
+          class="form-control search-container"
+          placeholder="Search by Order ID / Phone..."
+          value="<%= search || '' %>"
+        /> -->
+                <div class="filter-container">
+                    <select id="statusFilter" class="form-select">
+                        <option value="all" <%=!status || status === 'all' ?
+                            'selected' : '' %>>All Status</option>
+                        <% [
+                        'pending', 'processing', 'shipped', 'delivered',
+                        'pending_return', 'processing_return',
+                        'initiated_return',
+                        'rejected_return', 'returned', 'refunded', 'cancelled',
+                        'payment_failed', 'out_of_stock', 'on_hold', 'failed'
+                        ].forEach(s => { %>
+                        <option value="<%= s %>" <%=status === s ? 'selected' :
+                            '' %>><%= s.replace(/_/g, " ").toUpperCase()
+                            %></option>
+                        <% }) %>
+                    </select>
+                </div>
             </div>
 
             <!-- Orders Table -->
@@ -93,9 +230,9 @@
                                     %></td>
                                 <td><%= order.userId ? order.userId.name :
                                     'Guest' %></td>
-                                <td><%= new
-                                    Intl.NumberFormat('en-IN',{style:'currency',currency:'INR'}).format(order.totalPrice)
-                                    %></td>
+                                <td><%= new Intl.NumberFormat('en-IN', { style:
+                                    'currency', currency: 'INR'
+                                    }).format(order.totalPrice) %></td>
                                 <td>
                                     <span
                                         class="status-badge status-<%= order.status %>">
@@ -103,8 +240,8 @@
                                         " ").toUpperCase() %>
                                     </span>
                                 </td>
-                                <td><%= new
-                                    Intl.DateTimeFormat('en-GB',{dateStyle:'medium'}).format(new
+                                <td><%= new Intl.DateTimeFormat('en-GB', {
+                                    dateStyle: 'medium' }).format(new
                                     Date(order.orderDate)) %></td>
                                 <td><%= order.paymentDetails.paymentMethod
                                     %></td>
@@ -122,24 +259,27 @@
             </div>
 
             <!-- Pagination -->
-            <nav aria-label="Page navigation" class="mt-4">
+            <nav aria-label="Page navigation" class="mt-5">
                 <ul class="pagination justify-content-center">
                     <li
                         class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
-                        <a class="page-link"
+                        <a
+                            class="page-link"
                             href="?page=<%= currentPage - 1 %>&limit=10&search=<%= search || '' %>&status=<%= status || 'all' %>">&laquo;</a>
                     </li>
                     <% for (let i = 1; i <= totalPages; i++) { %>
                     <li
                         class="page-item <%= currentPage === i ? 'active' : '' %>">
-                        <a class="page-link"
+                        <a
+                            class="page-link"
                             href="?page=<%= i %>&limit=10&search=<%= search || '' %>&status=<%= status || 'all' %>"><%=
                             i %></a>
                     </li>
                     <% } %>
                     <li
                         class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
-                        <a class="page-link"
+                        <a
+                            class="page-link"
                             href="?page=<%= currentPage + 1 %>&limit=10&search=<%= search || '' %>&status=<%= status || 'all' %>">&raquo;</a>
                     </li>
                 </ul>
@@ -147,30 +287,33 @@
         </div>
 
         <script
-            src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+            src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+            crossorigin="anonymous"></script>
         <script>
-    function debounce(func, delay) {
-      let timer;
-      return function (...args) {
-        clearTimeout(timer);
-        timer = setTimeout(() => func.apply(this, args), delay);
-      };
-    }
+      // Debounced filter application for search and status
+      function debounce(func, delay) {
+        let timer;
+        return function (...args) {
+          clearTimeout(timer);
+          timer = setTimeout(() => func.apply(this, args), delay);
+        };
+      }
 
-    const searchInput = document.getElementById("searchInput");
-    const statusFilter = document.getElementById("statusFilter");
+      const searchInput = document.getElementById("searchInput");
+      const statusFilter = document.getElementById("statusFilter");
 
-    function applyFilters() {
-      const search = searchInput ? searchInput.value.trim() : "";
-      const status = statusFilter.value;
-      const url = `?search=${encodeURIComponent(search)}&status=${status}&page=1&limit=10`;
-      window.location.href = url;
-    }
+      function applyFilters() {
+        const search = searchInput ? searchInput.value.trim() : "";
+        const status = statusFilter.value;
+        const url = `?search=${encodeURIComponent(search)}&status=${status}&page=1&limit=10`;
+        window.location.href = url;
+      }
 
-    if (searchInput) {
-      searchInput.addEventListener("keyup", debounce(applyFilters, 500));
-    }
-    statusFilter.addEventListener("change", applyFilters);
-  </script>
+      if (searchInput) {
+        searchInput.addEventListener("keyup", debounce(applyFilters, 500));
+      }
+      statusFilter.addEventListener("change", applyFilters);
+    </script>
     </body>
 </html>

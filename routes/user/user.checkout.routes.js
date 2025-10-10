@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
 
-const { jwtAuth, userProtected } = require('../../middlewares/auth');
+const { jwtAuth, userProtected, checkBlockedUser } = require('../../middlewares/auth');
 const checkoutController = require('../../controllers/user/user.checkout.controller');
-router.use(jwtAuth, userProtected);
+router.use(jwtAuth, userProtected, checkBlockedUser);
 
 router.get('/', checkoutController.getCheckout);
 router.post('/', checkoutController.postCheckout);
