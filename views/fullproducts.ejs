@@ -37,6 +37,76 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.04);
         }
 
+        footer {
+            background-color: #333;
+            color: white;
+            padding: 40px 0;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+
+        .footer-section {
+            flex: 1;
+            margin-right: 20px;
+            min-width: 200px;
+        }
+
+        .footer-section h3 {
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+            color: var(--accent-color);
+        }
+
+        .footer-section ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .footer-section ul li {
+            margin-bottom: 10px;
+        }
+
+        .footer-section ul li a {
+            color: #ccc;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-section ul li a:hover {
+            color: white;
+        }
+
+        
+
+        @media (max-width: 768px) {
+            
+
+            .footer-section {
+                flex: 100%;
+                margin-bottom: 30px;
+            }
+        }
+      
+.social-icons {
+  display: flex;
+  align-items: center;
+}
+
+.social-icons a {
+  color: white;
+  font-size: 1.5rem;
+  margin-right: 15px;
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.social-icons a:hover {
+  color: var(--accent-color);
+  transform: scale(1.2);
+}
 
         @keyframes bounce {
             0%, 100% { transform: translateY(0); }
@@ -565,7 +635,51 @@ body {
             </div>
 
         </div>
+        <!-- Footer -->
+        <footer>
+            <div class="container">
+                <div class="footer-content">
+                    <div class="footer-section">
+                        <h3>About Us</h3>
+                        <p>Trendy Kicks is your ultimate destination for stylish
+                            and comfortable footwear. We bring you the latest
+                            trends and timeless classics.</p>
+                    </div>
+                    <div class="footer-section">
+                        <h3>Quick Links</h3>
+                        <ul>
+                            <li><a href="/">Home</a></li>
+                            <li><a href="/products">Products</a></li>
+                            <!-- <li><a href="/about">About Us</a></li> -->
+                            <li><a href="/contact">Contact</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-section">
+                        <h3>Contact Us</h3>
+                        <p>Email: info@trendykicks.com</p>
+                        <p>Phone: (123) 456-7890</p>
+                        <p>Address: 123 Shoe Street, Fashion City, FC 12345</p>
+                    </div>
+                    <div class="footer-section">
+                        <h3>Follow Us</h3>
+                        <div class="social-icons">
+                            <a href="#" class="text-light"><i
+                                    class="fab fa-facebook"></i></a>
+                            <a href="#" class="text-light"><i
+                                    class="fab fa-twitter"></i></a>
+                            <a href="#" class="text-light"><i
+                                    class="fab fa-instagram"></i></a>
+                            <a href="#" class="text-light"><i
+                                    class="fab fa-pinterest"></i></a>
+                        </div>
 
+                    </div>
+                </div>
+                <hr>
+                <p class="text-center mt-4">© 2024 Trendy Kicks. All rights
+                    reserve</p>
+            </div>
+        </footer>
         <!-- Bootstrap JS and dependencies -->
         <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
         <script
