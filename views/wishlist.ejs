@@ -335,56 +335,94 @@ h1 {
         });
     
         // Add to cart logic
-        $('.addToCartForm').on('submit', function(e) {
-            e.preventDefault(); // Prevent default form submission
-            
-            const size = $(this).find('.selectedSize').val(); // Get the selected size
-            const productId = $(this).find('input[name="productId"]').val(); // Get product ID
-            
-            if (!size) { // Check if size is selected
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Size Required',
-                    text: 'Please select a size before adding the product to your cart.',
-                    confirmButtonText: 'OK'
-                });
-                return;
-            }
-    
-            // Submit form using Fetch API
-            fetch('/cart/add', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ productId, size })
+$('.addToCartForm').on('submit', function (e) {
+  e.preventDefault(); // Prevent default form submission
+
+  const size = $(this).find('.selectedSize').val(); // Get the selected size
+  const productId = $(this).find('input[name="productId"]').val(); // Get product ID
+
+  if (!size) {
+    // Check if size is selected
+    Swal.fire({
+      icon: 'warning',
+      title: 'Size Required',
+      text: 'Please select a size before adding the product to your cart.',
+      confirmButtonText: 'OK',
+    });
+    return;
+  }
+
+  // Submit form to add to cart
+  fetch('/cart/add', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ productId, size }),
+  })
+    .then((response) => {
+      if (response.ok) {
+        return response.json().then((data) => {
+          // Show success message for cart addition
+          Swal.fire({
+            icon: 'success',
+            title: 'Added to Cart',
+            text: data.message || 'Item added to cart successfully.',
+            confirmButtonText: 'OK',
+          }).then(() => {
+            // Remove the product from wishlist
+            fetch(`/user/wishlist/remove/${productId}`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
             })
-            .then(response => {
-                if (response.ok) {
-                    return response.json().then(data => {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Added to Cart',
-                            text: data.message || 'Item added to cart successfully.',
-                            confirmButtonText: 'OK'
-                        });
-                    });
+              .then((removeResponse) => {
+                if (removeResponse.ok) {
+                  return removeResponse.json().then((removeData) => {
+                    // Remove the item from the DOM
+                    $(`form[action="/user/wishlist/remove/${productId}"]`)
+                      .closest('.product-item')
+                      .remove();
+                    // Optionally show a message for wishlist removal
+                    // Swal.fire({
+                    //   icon: 'success',
+                    //   title: 'Removed from Wishlist',
+                    //   text: removeData.message || 'Item removed from wishlist successfully.',
+                    //   confirmButtonText: 'OK',
+                    // });
+                  });
                 } else {
-                    return response.json().then(data => {
-                        throw new Error(data.message || 'Something went wrong');
-                    });
+                  return removeResponse.json().then((removeData) => {
+                    throw new Error(removeData.message || 'Failed to remove from wishlist');
+                  });
                 }
-            })
-            .catch(error => {
+              })
+              .catch((error) => {
                 Swal.fire({
-                    icon: 'error',
-                    title: '',
-                    text: error.message || 'There was a problem adding the product to your cart. Please try again later.',
-                    confirmButtonText: 'OK'
+                  icon: 'error',
+                  title: 'Error',
+                  text: error.message || 'There was a problem removing the item from your wishlist.',
+                  confirmButtonText: 'OK',
                 });
-            });
+              });
+          });
         });
-    
+      } else {
+        return response.json().then((data) => {
+          throw new Error(data.message || 'Something went wrong');
+        });
+      }
+    })
+    .catch((error) => {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error.message || 'There was a problem adding the product to your cart.',
+        confirmButtonText: 'OK',
+      });
+    });
+});
         // Handle wishlist item removal
         // Handle wishlist item removal
 $('.remove-button').on('click', function(e) {
