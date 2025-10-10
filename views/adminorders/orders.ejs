@@ -1,176 +1,427 @@
+<!-- views/admin/orders.ejs -->
 <!DOCTYPE html>
 <html lang="en">
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Admin Orders</title>
+        <title>Order Management</title>
+        <!-- Bootstrap 5 CSS -->
         <link
             href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-            rel="stylesheet" />
+            rel="stylesheet"
+            integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM"
+            crossorigin="anonymous" />
+        <!-- Font Awesome for Icons -->
         <link
+            rel="stylesheet"
             href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+            integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA=="
+            crossorigin="anonymous" />
+        <!-- Toastify CSS -->
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css" />
+        <!-- Google Fonts (Inter) -->
+        <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
             rel="stylesheet" />
         <style>
-    body {
-      background-color: #f8f9fa;
-    }
-    .content {
-      margin-left: 250px;
-      padding: 20px;
-    }
-    .table th {
-      background-color: #0d6efd;
-      color: #fff;
-      text-transform: uppercase;
-      font-size: 0.85rem;
-    }
-    .status-badge {
-      font-size: 0.75rem;
-      padding: 0.4em 0.8em;
-      border-radius: 50px;
-    }
-    .status-pending { background-color: #ffc107; color: #212529; }
-    .status-processing { background-color: #17a2b8; color: #fff; }
-    .status-shipped { background-color: #0dcaf0; color: #fff; }
-    .status-delivered { background-color: #28a745; color: #fff; }
-    .status-cancelled { background-color: #dc3545; color: #fff; }
-    .btn-custom {
-      background-color: #0d6efd;
-      color: #fff;
-    }
-    .btn-custom:hover {
-      background-color: #084298;
-    }
-  </style>
+      :root {
+        --primary-color: #007bff;
+        --success-color: #28a745;
+        --danger-color: #dc3545;
+        --warning-color: #ffc107;
+        --info-color: #17a2b8;
+        --background-color: #f4f6f9;
+        --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        --transition: all 0.3s ease;
+      }
+
+      body {
+        font-family: 'Inter', sans-serif;
+        background-color: var(--background-color);
+        min-height: 100vh;
+      }
+
+      /* Content */
+      .content {
+        margin-left: 250px; /* Space for existing sidebar */
+        padding: 30px;
+        transition: var(--transition);
+      }
+
+      /* Header */
+      .header-section {
+        margin-bottom: 2rem;
+      }
+
+      .header-section h2 {
+        font-size: 1.8rem;
+        font-weight: 600;
+        color: #2d3748;
+      }
+
+      .filter-container {
+        gap: 1rem;
+        flex-wrap: wrap;
+      }
+
+      .filter-container .input-group {
+        max-width: 500px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        border-radius: 8px;
+      }
+
+      .filter-container .form-control {
+        border: none;
+        border-radius: 8px 0 0 8px;
+        padding: 10px 15px;
+        font-size: 0.95rem;
+      }
+
+      .filter-container .btn-search {
+        border: none;
+        background-color: var(--primary-color);
+        color: #fff;
+        border-radius: 0 8px 8px 0;
+        transition: var(--transition);
+      }
+
+      .filter-container .btn-search:hover {
+        background-color: #0056b3;
+      }
+
+      .filter-container .form-select {
+        max-width: 200px;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      }
+
+      /* Card and Table */
+      .card {
+        border: none;
+        border-radius: 12px;
+        box-shadow: var(--card-shadow);
+        overflow: hidden;
+      }
+
+      .table {
+        margin-bottom: 0;
+      }
+
+      .table th {
+        background-color: var(--primary-color);
+        color: #fff;
+        font-size: 0.9rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        padding: 12px;
+      }
+
+      .table td {
+        padding: 12px;
+        vertical-align: middle;
+        font-size: 0.95rem;
+        color: #2d3748;
+      }
+
+      .status-badge {
+        font-size: 0.8rem;
+        padding: 6px 12px;
+        border-radius: 12px;
+        text-transform: capitalize;
+      }
+
+      .status-pending { background-color: var(--warning-color); color: #212529; }
+      .status-processing { background-color: var(--info-color); color: #fff; }
+      .status-shipped { background-color: #0dcaf0; color: #fff; }
+      .status-delivered { background-color: var(--success-color); color: #fff; }
+      .status-cancelled,
+      .status-rejected_return,
+      .status-failed,
+      .status-payment_failed,
+      .status-out_of_stock { background-color: var(--danger-color); color: #fff; }
+      .status-pending_return,
+      .status-processing_return,
+      .status-initiated_return,
+      .status-returned,
+      .status-refunded,
+      .status-on_hold { background-color: #6b7280; color: #fff; }
+
+      .btn-custom {
+        font-size: 0.9rem;
+        padding: 6px 12px;
+        border-radius: 8px;
+        transition: var(--transition);
+      }
+
+      .btn-custom:hover {
+        background-color: #0056b3;
+      }
+
+      /* Pagination */
+      .pagination .page-link {
+        border-radius: 6px;
+        margin: 0 3px;
+        color: var(--primary-color);
+        transition: var(--transition);
+      }
+
+      .pagination .page-item.active .page-link {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        color: #fff;
+      }
+
+      .pagination .page-link:hover {
+        background-color: #e9ecef;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 992px) {
+        .content {
+          margin-left: 0; /* Adjust for collapsed sidebar */
+          padding: 20px;
+        }
+
+        .header-section h2 {
+          font-size: 1.5rem;
+        }
+
+        .filter-container .input-group,
+        .filter-container .form-select {
+          max-width: 100%;
+        }
+      }
+
+      @media (max-width: 576px) {
+        .content {
+          padding: 15px;
+        }
+
+        .table-responsive {
+          font-size: 0.85rem;
+        }
+
+        .table th,
+        .table td {
+          padding: 8px;
+        }
+
+        .status-badge {
+          font-size: 0.75rem;
+          padding: 4px 8px;
+        }
+
+        .btn-custom {
+          font-size: 0.85rem;
+          padding: 5px 10px;
+        }
+
+        .pagination .page-link {
+          font-size: 0.9rem;
+          padding: 6px 12px;
+        }
+      }
+    </style>
     </head>
     <body>
         <div class="content">
-            <h2 class="fw-bold mb-4">Order Management</h2>
-
-            <!-- Search + Filter -->
-            <div class="d-flex flex-wrap gap-3 mb-4">
-                <!-- <input
-                    type="text"
-                    id="searchInput"
-                    class="form-control w-50"
-                    placeholder="Search by Order ID / Phone..."
-                    value="<%= search || '' %>" /> -->
-
-                <select id="statusFilter" class="form-select w-25">
-                    <option value="all" <%=!status || status === 'all' ?
-                        'selected' : '' %>>All Status</option>
-                    <% [
-                    'pending','processing','shipped','delivered',
-                    'pending_return','processing_return','initiated_return',
-                    'rejected_return','returned','refunded','cancelled',
-                    'payment_failed','out_of_stock','on_hold','failed'
-                    ].forEach(s => { %>
-                    <option value="<%= s %>" <%=status === s ? 'selected' : ''
-                        %>><%= s %></option>
-                    <% }) %>
-                </select>
-            </div>
-
-            <!-- Orders Table -->
-            <div class="card shadow-sm">
-                <div class="card-body p-0">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead>
-                            <tr>
-                                <th>Order ID</th>
-                                <th>User</th>
-                                <th>Total</th>
-                                <th>Status</th>
-                                <th>Order Date</th>
-                                <th>Payment</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <% orders.forEach((order) => { %>
-                            <tr>
-                                <td class="fw-medium"><%= order.genOrderId
-                                    %></td>
-                                <td><%= order.userId ? order.userId.name :
-                                    'Guest' %></td>
-                                <td><%= new
-                                    Intl.NumberFormat('en-IN',{style:'currency',currency:'INR'}).format(order.totalPrice)
-                                    %></td>
-                                <td>
-                                    <span
-                                        class="status-badge status-<%= order.status %>">
-                                        <%= order.status.replace(/_/g,
-                                        " ").toUpperCase() %>
-                                    </span>
-                                </td>
-                                <td><%= new
-                                    Intl.DateTimeFormat('en-GB',{dateStyle:'medium'}).format(new
-                                    Date(order.orderDate)) %></td>
-                                <td><%= order.paymentDetails.paymentMethod
-                                    %></td>
-                                <td>
-                                    <a class="btn btn-sm btn-custom"
-                                        href="/admin/orders/<%= order._id %>">
-                                        <i class="fas fa-eye"></i> View
-                                    </a>
-                                </td>
-                            </tr>
+            <div class="container-fluid">
+                <!-- Header -->
+                <div
+                    class="header-section d-flex flex-column flex-md-row justify-content-between align-items-md-center">
+                    <h2>Order Management</h2>
+                    <div
+                        class="filter-container d-flex flex-column flex-md-row">
+                        <div class="input-group">
+                            <input
+                                type="text"
+                                id="searchInput"
+                                class="form-control"
+                                placeholder="Search by Order ID / Phone..."
+                                value="<%= search || '' %>"
+                                aria-label="Search orders" />
+                            <button class="btn btn-search" type="button">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                        <select id="statusFilter" class="form-select"
+                            aria-label="Filter by status">
+                            <option value="all" <%=!status || status === 'all' ?
+                                'selected' : '' %>>All Status</option>
+                            <% [
+                            'pending', 'processing', 'shipped', 'delivered',
+                            'pending_return', 'processing_return',
+                            'initiated_return',
+                            'rejected_return', 'returned', 'refunded',
+                            'cancelled',
+                            'payment_failed', 'out_of_stock', 'on_hold',
+                            'failed'
+                            ].forEach(s => { %>
+                            <option value="<%= s %>" <%=status === s ?
+                                'selected' : '' %>>
+                                <%= s.replace(/_/g, ' ').toUpperCase() %>
+                            </option>
                             <% }) %>
-                        </tbody>
-                    </table>
+                        </select>
+                    </div>
                 </div>
-            </div>
 
-            <!-- Pagination -->
-            <nav aria-label="Page navigation" class="mt-4">
-                <ul class="pagination justify-content-center">
-                    <li
-                        class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
-                        <a class="page-link"
-                            href="?page=<%= currentPage - 1 %>&limit=10&search=<%= search || '' %>&status=<%= status || 'all' %>">&laquo;</a>
-                    </li>
-                    <% for (let i = 1; i <= totalPages; i++) { %>
-                    <li
-                        class="page-item <%= currentPage === i ? 'active' : '' %>">
-                        <a class="page-link"
-                            href="?page=<%= i %>&limit=10&search=<%= search || '' %>&status=<%= status || 'all' %>"><%=
-                            i %></a>
-                    </li>
-                    <% } %>
-                    <li
-                        class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
-                        <a class="page-link"
-                            href="?page=<%= currentPage + 1 %>&limit=10&search=<%= search || '' %>&status=<%= status || 'all' %>">&raquo;</a>
-                    </li>
-                </ul>
-            </nav>
+                <!-- Orders Table -->
+                <div class="card shadow-sm">
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0"
+                                id="orderTable">
+                                <thead>
+                                    <tr>
+                                        <th>Order ID</th>
+                                        <th>User</th>
+                                        <th>Total</th>
+                                        <th>Status</th>
+                                        <th>Order Date</th>
+                                        <th>Payment</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% if (orders.length === 0) { %>
+                                    <tr>
+                                        <td colspan="7"
+                                            class="text-center text-muted">No
+                                            orders found.</td>
+                                    </tr>
+                                    <% } else { %>
+                                    <% orders.forEach((order) => { %>
+                                    <tr>
+                                        <td class="fw-medium"><%=
+                                            order.genOrderId %></td>
+                                        <td><%= order.userId ? order.userId.name
+                                            : 'Guest' %></td>
+                                        <td>
+                                            <%= new Intl.NumberFormat('en-IN', {
+                                            style: 'currency', currency: 'INR'
+                                            }).format(order.totalPrice) %>
+                                        </td>
+                                        <td>
+                                            <span
+                                                class="status-badge status-<%= order.status.toLowerCase() %>">
+                                                <%= order.status.replace(/_/g,
+                                                ' ').toUpperCase() %>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <%= new Intl.DateTimeFormat('en-GB',
+                                            { dateStyle: 'medium' }).format(new
+                                            Date(order.orderDate)) %>
+                                        </td>
+                                        <td><%=
+                                            order.paymentDetails.paymentMethod
+                                            %></td>
+                                        <td>
+                                            <a
+                                                class="btn btn-sm btn-custom"
+                                                href="/admin/orders/<%= order._id %>"
+                                                aria-label="View order <%= order.genOrderId %>">
+                                                <i class="fas fa-eye"></i> View
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    <% }) %>
+                                    <% } %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                <% if (totalPages > 1) { %>
+                <nav aria-label="Page navigation" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        <li
+                            class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
+                            <a
+                                class="page-link"
+                                href="?page=<%= currentPage - 1 %>&limit=10&search=<%= encodeURIComponent(search || '') %>&status=<%= status || 'all' %>"
+                                aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                        <% for (let i = 1; i <= totalPages; i++) { %>
+                        <li
+                            class="page-item <%= currentPage === i ? 'active' : '' %>">
+                            <a
+                                class="page-link"
+                                href="?page=<%= i %>&limit=10&search=<%= encodeURIComponent(search || '') %>&status=<%= status || 'all' %>">
+                                <%= i %>
+                            </a>
+                        </li>
+                        <% } %>
+                        <li
+                            class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
+                            <a
+                                class="page-link"
+                                href="?page=<%= currentPage + 1 %>&limit=10&search=<%= encodeURIComponent(search || '') %>&status=<%= status || 'all' %>"
+                                aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+                <% } %>
+            </div>
         </div>
 
+        <!-- JavaScript Dependencies -->
         <script
             src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
         <script>
-    function debounce(func, delay) {
-      let timer;
-      return function (...args) {
-        clearTimeout(timer);
-        timer = setTimeout(() => func.apply(this, args), delay);
-      };
-    }
+      // Debounce function
+      function debounce(func, delay) {
+        let timer;
+        return function (...args) {
+          clearTimeout(timer);
+          timer = setTimeout(() => func.apply(this, args), delay);
+        };
+      }
 
-    const searchInput = document.getElementById("searchInput");
-    const statusFilter = document.getElementById("statusFilter");
+      // Search and Filter Handler
+      const searchInput = document.getElementById('searchInput');
+      const statusFilter = document.getElementById('statusFilter');
+      const orderTableBody = document.querySelector('#orderTable tbody');
 
-    function applyFilters() {
-      const search = searchInput ? searchInput.value.trim() : "";
-      const status = statusFilter.value;
-      const url = `?search=${encodeURIComponent(search)}&status=${status}&page=1&limit=10`;
-      window.location.href = url;
-    }
+      function applyFilters() {
+        const search = searchInput.value.trim();
+        const status = statusFilter.value;
+        const url = `/admin/orders?search=${encodeURIComponent(search)}&status=${status}&page=1&limit=10&ajax=1`;
 
-    if (searchInput) {
-      searchInput.addEventListener("keyup", debounce(applyFilters, 500));
-    }
-    statusFilter.addEventListener("change", applyFilters);
-  </script>
+        fetch(url, {
+          headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        })
+          .then((response) => {
+            if (!response.ok) throw new Error('Failed to fetch orders');
+            return response.text();
+          })
+          .then((data) => {
+            orderTableBody.innerHTML = data;
+          })
+          .catch((err) => {
+            Toastify({
+              text: err.message || 'Error fetching orders',
+              duration: 3000,
+              gravity: 'top',
+              position: 'right',
+              backgroundColor: '#dc3545',
+            }).showToast();
+          });
+      }
+
+      searchInput.addEventListener('input', debounce(applyFilters, 500));
+      statusFilter.addEventListener('change', applyFilters);
+    </script>
     </body>
 </html>
