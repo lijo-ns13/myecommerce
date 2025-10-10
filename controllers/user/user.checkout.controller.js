@@ -13,6 +13,7 @@ const dotenv = require('dotenv').config();
 const Wallet = require('../../models/walletSchema');
 const crypto = require('crypto');
 const httpStatusCodes = require('../../constants/httpStatusCodes');
+const { CART } = require('../../constants/message');
 const getCheckout = async (req, res) => {
   try {
     const userId = req.user._id; // Assuming user is authenticated and user ID is available from the session or JWT
@@ -68,7 +69,11 @@ const postCheckout = async (req, res) => {
     //     return res.status(400).json({ success: false, message: 'Your cart is empty' });
     // }
     const orderedProducts = [];
-    // Validate stock availability for each product in the cart
+    let originalPrice = 0;
+    let subtotalAfterOffers = 0;
+    let offerTotalDiscount = 0;
+
+    // Validate stock availability for each product in the cart and calculate prices
     for (const product of cart.products) {
       const { productId, size, quantity } = product;
       const productDetails = await Product.findOne({ _id: productId, 'sizes.size': size });
@@ -88,16 +93,41 @@ const postCheckout = async (req, res) => {
       // if (checkCategory.isBlocked) {
       //     return res.status(400).json({ success: false, message: 'Category is blocked' });
       // }
+
+      const offerDiscountPerUnit = productDetails.price - productDetails.finalPrice;
+      const finalUnitPrice = productDetails.finalPrice;
+
+      originalPrice += productDetails.price * quantity;
+      subtotalAfterOffers += finalUnitPrice * quantity;
+      offerTotalDiscount += offerDiscountPerUnit * quantity;
+
       // If all validations pass, push the ordered product details into the orderedProducts array
       orderedProducts.push({
         productName: productDetails.product,
-        productPrice: productDetails.finalPrice,
+        productPrice: productDetails.price,
         productQuantity: quantity,
         productSize: size,
-        productId: productDetails._id,
+        productId: productDetails._id.toString(),
         productImage: productDetails.images[0].secured_url, // Assuming there's at least one image
+        offerDiscountPerUnit,
+        finalUnitPrice,
       });
     }
+
+    let couponDiscount = 0;
+    let couponId = null;
+    let totalPriceAfterCoupon = subtotalAfterOffers;
+
+    if (req.session.couponCode) {
+      const coupon = await Coupon.findOne({ couponCode: req.session.couponCode });
+      if (coupon) {
+        couponDiscount = subtotalAfterOffers - cart.finalPrice;
+        totalPriceAfterCoupon = cart.finalPrice;
+        couponId = coupon._id;
+      }
+    }
+
+    const discount = offerTotalDiscount + couponDiscount;
 
     let address;
     if (selectedAddress === 'new') {
@@ -167,19 +197,23 @@ const postCheckout = async (req, res) => {
     const orderData = {
       userId,
       products: cart.products,
-      totalPrice: cart.finalPrice,
+      totalPrice: totalPriceAfterCoupon,
       shippingAddress: address,
       paymentDetails: {
         paymentMethod,
         transactionId: '11111111111111',
       },
-      originalPrice: cart.totalPrice,
+      originalPrice,
       deliveryDate: deliveryDate,
-      isDiscount: cart.totalPrice !== cart.finalPrice,
-      discount: cart.totalPrice - cart.finalPrice,
+      isDiscount: discount > 0,
+      discount,
       orderedProducts: orderedProducts,
       status: 'pending',
       genOrderId: genOrderId,
+      couponDiscount,
+      couponId,
+      offerTotalDiscount,
+      subtotalAfterOffers,
     };
 
     if (paymentMethod === 'razorpay') {
@@ -189,7 +223,7 @@ const postCheckout = async (req, res) => {
       });
 
       const options = {
-        amount: cart.finalPrice * 100, // amount in paise
+        amount: totalPriceAfterCoupon * 100, // amount in paise
         currency: 'INR',
         receipt: `receipt_order_${new Date().getTime()}`,
       };
@@ -218,13 +252,8 @@ const postCheckout = async (req, res) => {
         razorpayOrderId: order.id,
         amount: order.amount,
       });
-      // Update stock and clear cart
-      for (const product of cart.products) {
-        await Product.findOneAndUpdate(
-          { _id: product.productId, 'sizes.size': product.size },
-          { $inc: { 'sizes.$.stock': -product.quantity } }
-        );
-      }
+
+      req.session.couponCode = null;
       await Cart.deleteOne({ userId });
       return res.json({
         success: true,
@@ -250,6 +279,8 @@ const postCheckout = async (req, res) => {
       }
       await Cart.deleteOne({ userId });
 
+      req.session.couponCode = null;
+      await Cart.deleteOne({ userId });
       return res.status(httpStatusCodes.OK).json({
         success: true,
         orderId: newOrder._id,
@@ -273,9 +304,9 @@ const postCheckout = async (req, res) => {
           { $inc: { 'sizes.$.stock': -product.quantity } }
         );
       }
-      userWallet.balance -= cart.finalPrice;
+      userWallet.balance -= totalPriceAfterCoupon;
       transaction = {
-        amount: cart.finalPrice,
+        amount: totalPriceAfterCoupon,
         type: 'debit',
         description: 'amount debited',
         date: new Date(),
@@ -284,6 +315,8 @@ const postCheckout = async (req, res) => {
       await userWallet.save();
       await Cart.deleteOne({ userId });
 
+      req.session.couponCode = null;
+      await Cart.deleteOne({ userId });
       return res.status(httpStatusCodes.OK).json({
         success: true,
         orderId: newOrder._id,
@@ -402,8 +435,7 @@ const postPaymentSuccess = async (req, res) => {
     // Clear the cart after successful order
     // req.session.cart = null;
 
-    cart = null;
-
+    await Cart.deleteOne({ userId: req.user._id });
     // Send success response
     res.status(httpStatusCodes.OK).send('Order placed successfully!');
   } catch (err) {
@@ -587,7 +619,7 @@ const getOrderConfirmation = async (req, res) => {
     if (!order) {
       return res.status(httpStatusCodes.NOT_FOUND).send('Order not found');
     }
-    req.session.couponData = null;
+    req.session.couponCode = null;
 
     // res.status(200).json({success:true})
     res.render('order/order-confirmation', {

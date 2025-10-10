@@ -5,6 +5,7 @@ const User = require('../../models/userSchema');
 const httpStatusCodes = require('../../constants/httpStatusCodes');
 const PDFDocument = require('pdfkit');
 const path = require('path');
+
 const getOrders = async (req, res) => {
   try {
     const userId = req.user._id;
@@ -20,7 +21,7 @@ const getOrders = async (req, res) => {
     // Fetch orders with skip & limit, sorted by newest first
     const orders = await Order.find({ userId }).sort({ createdAt: -1 }).skip(skip).limit(limit);
 
-    if (!orders || orders.length === 0) {
+    if (!orders) {
       return res.status(404).json({
         success: false,
         message: 'No orders found',
@@ -70,6 +71,15 @@ const postOrderCancel = async (req, res) => {
 
     // Update the order status
     order.status = 'cancelled';
+
+    // Mark all products as cancelled
+    order.products.forEach((product) => {
+      product.status = 'cancelled';
+    });
+    order.orderedProducts.forEach((product) => {
+      product.status = 'cancelled';
+    });
+
     await order.save();
 
     // Rebuild stock levels for the products in the order
@@ -209,138 +219,278 @@ const postReturnOrderId = async (req, res) => {
     res.status(httpStatusCodes.BAD_REQUEST).json({ success: false, message: error.message });
   }
 };
-const generateInvoice = (order, userName) => {
+// Helper function to format currency
+const formatCurrency = (amount) => {
+  return new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+    minimumFractionDigits: 2,
+  }).format(amount);
+};
+
+// Helper function to calculate invoice totals
+const getInvoiceTotals = (order, taxRate = 0) => {
+  // Use only active products for subtotal calculation
+  const subtotal =
+    order.subtotalAfterOffers ||
+    order.orderedProducts
+      .filter((item) => item.status === 'active')
+      .reduce((sum, item) => sum + item.productQuantity * item.finalUnitPrice, 0);
+
+  const totalDiscount =
+    (order.discount || 0) + (order.couponDiscount || 0) + (order.offerTotalDiscount || 0);
+
+  const taxAmount = subtotal * (taxRate / 100);
+
+  // Use stored totalPrice as fallback-safe final total
+  const total = order.totalPrice ?? subtotal - totalDiscount + taxAmount;
+
+  return { subtotal, totalDiscount, taxAmount, total };
+};
+
+// Helper function to truncate long text
+const truncateText = (text, maxLength) => {
+  if (text.length > maxLength) {
+    return text.substring(0, maxLength - 3) + '...';
+  }
+  return text;
+};
+
+const generateInvoice = (order, userName, companyDetails = {}) => {
   return new Promise((resolve, reject) => {
-    const doc = new PDFDocument({ margin: 50 });
+    const doc = new PDFDocument({ margin: 50, size: 'A4' });
     let buffers = [];
 
     doc.on('data', buffers.push.bind(buffers));
     doc.on('end', () => resolve(Buffer.concat(buffers)));
-
-    // Helper functions
-    const drawLine = (startX, startY, endX, endY, color = '#000000') => {
-      doc.strokeColor(color).moveTo(startX, startY).lineTo(endX, endY).stroke();
-    };
-
-    // Text truncation function
-    const truncateText = (text, width) => {
-      let truncated = text;
-      while (doc.widthOfString(truncated) > width) {
-        truncated = truncated.slice(0, -1);
-      }
-      return truncated.length < text.length ? truncated.trim() + '...' : truncated;
-    };
-
-    // Set the path for the logo image
-    const logoPath = path.join(__dirname, '../../public', 'img', 'logo.png');
+    doc.on('error', (err) => reject(err));
 
     // Colors
-    const primaryColor = '#4a86e8';
-    const textColor = '#333333';
+    const primaryColor = '#003087';
+    const textColor = '#1a1a1a';
+    const accentColor = '#e6e6e6';
+    const cancelledColor = '#888888'; // Gray for cancelled items
+    const REGULAR_FONT = 'Helvetica';
+    const BOLD_FONT = 'Helvetica-Bold';
 
-    // Header
+    // Fonts
+    doc.font(REGULAR_FONT);
+
+    // Company Details
+    const defaultCompanyDetails = {
+      name: 'STRIDNEST',
+      address: '123 Business Road, Business City, 12345, India',
+      phone: '+91-8921580213',
+      email: 'info@stridnest.com',
+      taxId: 'GSTIN: 12ABCDE1234F1Z5',
+    };
+    const company = { ...defaultCompanyDetails, ...companyDetails };
+
+    // Header (Company Details, left-aligned)
+    const companyX = 50;
+    const companyWidth = 130;
     doc
-      .image(logoPath, 50, 45, { width: 60 })
-      .fillColor(primaryColor)
-      .fontSize(28)
-      .text('STRIDNEST', 120, 65)
-      .fontSize(10)
-      .text('123 Business Road, Business City, 12345', 120, 95)
-      .text('Phone: 8921580213', 120, 110)
-      .text('Email: info@stridnest.com', 120, 125);
-
-    // Invoice number (moved to the right side)
-    doc.fontSize(12).text(`Invoice Number: INV-${order._id}`, 350, 65, { align: 'right' });
-
-    drawLine(50, 140, doc.page.width - 50, 140, primaryColor);
-
-    // Invoice title
-    doc.fillColor(textColor).fontSize(24).text('INVOICE', 50, 160);
-
-    // Customer and order information
-    doc
-      .fillColor(textColor)
-      .fontSize(12)
-      .text('Bill To:', 50, 200)
-      .fontSize(10)
-      .text(`${userName}`, 50, 215)
-      .text(`${order.shippingAddress.street}`, 50, 230)
-      .text(
-        `${order.shippingAddress.city}, ${order.shippingAddress.state}, ${order.shippingAddress.postalCode}`,
-        50,
-        245
-      )
-      .text(`${order.shippingAddress.country}`, 50, 260)
-      .text(`Phone: ${order.shippingAddress.phoneNo}`, 50, 275);
-
-    doc
-      .fontSize(10)
-      .text('Order Date:', 300, 200)
-      .text('Due Date:', 300, 215)
-      .text('Customer ID:', 300, 230)
-      .text('Order ID', 300, 245);
-    doc
-      .fontSize(10)
-      .text(`${new Date(order.orderDate).toLocaleDateString()}`, 400, 200)
-      .text(`${new Date(order.deliveryDate).toLocaleDateString()}`, 400, 215)
-      .text(`${order.userId}`, 400, 230)
-      .text(`${order.genOrderId}`, 400, 245);
-
-    // Invoice table
-    const invoiceTop = 290;
-    drawLine(50, invoiceTop, doc.page.width - 50, invoiceTop, primaryColor);
-    doc
-      .fillColor(primaryColor)
-      .fontSize(12)
-      .text('Item', 60, invoiceTop + 10)
-      .text('Quantity', 250, invoiceTop + 10)
-      .text('Unit Price (INR)', 350, invoiceTop + 10)
-      .text(`Amount (INR)`, 450, invoiceTop + 10);
-    drawLine(50, invoiceTop + 30, doc.page.width - 50, invoiceTop + 30, primaryColor);
-
-    let position = invoiceTop + 40;
-    doc.fillColor(textColor).fontSize(10);
-    order.orderedProducts.forEach((item, index) => {
-      const truncatedName = truncateText(item.productName, 180); // Adjust width as needed
-      doc
-        .text(truncatedName, 60, position)
-        .text(item.productQuantity.toString(), 250, position)
-        .text(item.productPrice.toFixed(2), 350, position)
-        .text((item.productQuantity * item.productPrice).toFixed(2), 450, position);
-      position += 20;
-      drawLine(50, position, doc.page.width - 50, position, '#e0e0e0');
-      position += 5;
-    });
-    // Before total
-    if (order.isDiscount) {
-      doc
-        .fontSize(12)
-        .text('Discount:', 350, position + 10)
-        .fillColor(primaryColor)
-        .fontSize(14)
-        .text(`${order.discount.toFixed(2)}`, 450, position + 10);
-      position += 20; // Move position for total below discount
-    }
-
-    // Total
-    doc
-      .fontSize(12)
-      .text('Total Amount:', 350, position + 10)
+      .font(BOLD_FONT)
       .fillColor(primaryColor)
       .fontSize(14)
-      .text(`${order.totalPrice.toFixed(2)}`, 450, position + 10);
+      .text(truncateText(company.name, 25), companyX, 30, { width: companyWidth })
+      .font(REGULAR_FONT)
+      .fillColor(textColor)
+      .fontSize(6)
+      .text(truncateText(company.address, 50), companyX, 45, { width: companyWidth })
+      .text(`Phone: ${truncateText(company.phone, 15)}`, companyX, 53, { width: companyWidth })
+      .text(`Email: ${truncateText(company.email, 25)}`, companyX, 61, { width: companyWidth })
+      .text(truncateText(company.taxId, 20), companyX, 69, { width: companyWidth });
 
-    // Footer
-    const footerTop = doc.page.height - 50;
-    drawLine(50, footerTop, doc.page.width - 50, footerTop, primaryColor);
+    // Invoice Metadata (right-aligned)
+    const metadataX = doc.page.width - 110;
+    const metadataWidth = 60;
+    const metadataYStart = 30;
     doc
+      .font(BOLD_FONT)
+      .fillColor(textColor)
+      .fontSize(6)
+      .text(`Invoice # INV-${truncateText(order._id.toString(), 15)}`, metadataX, metadataYStart, {
+        width: metadataWidth,
+        align: 'right',
+      })
+      .text(`Order ID: ${truncateText(order.genOrderId, 15)}`, metadataX, metadataYStart + 16, {
+        width: metadataWidth,
+        align: 'right',
+      })
+      .text(
+        `Date: ${new Date(order.orderDate).toLocaleDateString('en-IN')}`,
+        metadataX,
+        metadataYStart + 32,
+        { width: metadataWidth, align: 'right' }
+      )
+      .text(
+        `Due Date: ${new Date(order.deliveryDate).toLocaleDateString('en-IN')}`,
+        metadataX,
+        metadataYStart + 48,
+        { width: metadataWidth, align: 'right' }
+      );
+
+    // Title
+    doc
+      .font(BOLD_FONT)
+      .fillColor(primaryColor)
+      .fontSize(28)
+      .text('INVOICE', 0, 140, { align: 'center' });
+
+    // Line Separator
+    const drawLine = (startX, startY, endX, endY, color = primaryColor) => {
+      doc.strokeColor(color).lineWidth(1).moveTo(startX, startY).lineTo(endX, endY).stroke();
+    };
+    drawLine(50, 170, doc.page.width - 50, 170);
+
+    // Billing Information
+    doc
+      .font(BOLD_FONT)
+      .fillColor(textColor)
+      .fontSize(12)
+      .text('Bill To:', 50, 190)
+      .font(REGULAR_FONT)
+      .fontSize(10)
+      .text(userName, 50, 210)
+      .text(order.shippingAddress.street, 50, 225)
+      .text(
+        `${order.shippingAddress.city}, ${order.shippingAddress.state} ${order.shippingAddress.postalCode}`,
+        50,
+        240
+      )
+      .text(order.shippingAddress.country, 50, 255)
+      .text(`Phone: ${order.shippingAddress.phoneNo}`, 50, 270);
+
+    // Items Table
+    const tableTop = 300;
+    const tableWidth = doc.page.width - 100;
+    const col1Width = tableWidth * 0.5;
+    const col2Width = tableWidth * 0.15;
+    const col3Width = tableWidth * 0.2;
+    const col4Width = tableWidth * 0.15;
+
+    // Table Header
+    drawLine(50, tableTop, doc.page.width - 50, tableTop);
+    doc
+      .font(BOLD_FONT)
       .fillColor(primaryColor)
       .fontSize(10)
-      .text('Thank you for your business!', 50, footerTop + 10, { align: 'center', width: 500 })
-      .text('For any inquiries, please contact us at support@stridnest.com', 50, footerTop + 25, {
-        align: 'center',
-        width: 500,
+      .text('Description', 50, tableTop + 10, { width: col1Width, align: 'left' })
+      .text('Qty', 50 + col1Width + 10, tableTop + 10, { width: col2Width - 20, align: 'right' })
+      .text('Unit Price', 50 + col1Width + col2Width + 10, tableTop + 10, {
+        width: col3Width - 20,
+        align: 'right',
+      })
+      .text('Amount', 50 + col1Width + col2Width + col3Width + 10, tableTop + 10, {
+        width: col4Width - 20,
+        align: 'right',
       });
+    drawLine(50, tableTop + 25, doc.page.width - 50, tableTop + 25);
+
+    // List Items (Option 2: Show all products, marking cancelled ones)
+    let position = tableTop + 35;
+    doc.font(REGULAR_FONT).fillColor(textColor).fontSize(10);
+    order.orderedProducts.forEach((item) => {
+      const isCancelled = item.status === 'cancelled';
+      const amount = isCancelled ? 0 : item.productQuantity * item.finalUnitPrice;
+      const displayName = isCancelled
+        ? `${truncateText(item.productName, 25)} (Cancelled)`
+        : truncateText(item.productName, 30);
+      doc
+        .fillColor(isCancelled ? cancelledColor : textColor)
+        .text(displayName, 50, position, { width: col1Width - 10, align: 'left' })
+        .text(isCancelled ? '-' : item.productQuantity, 50 + col1Width + 10, position, {
+          width: col2Width - 20,
+          align: 'right',
+        })
+        .text(
+          isCancelled ? '-' : formatCurrency(item.finalUnitPrice),
+          50 + col1Width + col2Width + 10,
+          position,
+          { width: col3Width - 20, align: 'right' }
+        )
+        .text(formatCurrency(amount), 50 + col1Width + col2Width + col3Width + 10, position, {
+          width: col4Width - 20,
+          align: 'right',
+        });
+      position += 20;
+    });
+
+    drawLine(50, position, doc.page.width - 50, position, accentColor);
+
+    // Summary
+    position += 20;
+    const summaryX = doc.page.width - 180;
+    const labelWidth = 80;
+    const valueWidth = 80;
+    const summaryValueX = summaryX + labelWidth + 10;
+
+    const taxRate = 0;
+    const { subtotal, totalDiscount, taxAmount, total } = getInvoiceTotals(order, taxRate);
+
+    doc
+      .font(BOLD_FONT)
+      .fillColor(textColor)
+      .fontSize(10)
+      .text('Subtotal:', summaryX, position, { width: labelWidth, align: 'right' })
+      .font(REGULAR_FONT)
+      .text(formatCurrency(subtotal), summaryValueX, position, {
+        width: valueWidth,
+        align: 'right',
+      });
+    position += 15;
+
+    if (order.isDiscount && totalDiscount > 0) {
+      doc
+        .font(BOLD_FONT)
+        .text('Discount:', summaryX, position, { width: labelWidth, align: 'right' })
+        .font(REGULAR_FONT)
+        .text(`-${formatCurrency(totalDiscount)}`, summaryValueX, position, {
+          width: valueWidth,
+          align: 'right',
+        });
+      position += 15;
+    }
+
+    doc
+      .font(BOLD_FONT)
+      .text(`GST (${taxRate}%):`, summaryX, position, { width: labelWidth, align: 'right' })
+      .font(REGULAR_FONT)
+      .text(formatCurrency(taxAmount), summaryValueX, position, {
+        width: valueWidth,
+        align: 'right',
+      });
+    position += 15;
+
+    doc
+      .font(BOLD_FONT)
+      .fontSize(12)
+      .fillColor(primaryColor)
+      .text('Total:', summaryX, position, { width: labelWidth, align: 'right' })
+      .font(REGULAR_FONT)
+      .text(formatCurrency(total), summaryValueX, position, { width: valueWidth, align: 'right' });
+
+    // Footer
+    const footerTop = doc.page.height - 100;
+    drawLine(50, footerTop, doc.page.width - 50, footerTop);
+    doc
+      .font(REGULAR_FONT)
+      .fillColor(primaryColor)
+      .fontSize(10)
+      .text('Thank you for your business!', 0, footerTop + 15, {
+        align: 'center',
+        width: doc.page.width,
+      })
+      .text(
+        'For inquiries, contact us at support@stridnest.com or +91-8921580213',
+        0,
+        footerTop + 30,
+        {
+          align: 'center',
+          width: doc.page.width,
+        }
+      );
 
     doc.end();
   });
@@ -348,41 +498,32 @@ const generateInvoice = (order, userName) => {
 const getInvoiceDowload = async (req, res) => {
   try {
     const orderId = req.params.orderId;
-    const userId = req.user._id; // Ensure you have user authentication middleware
-    const order = await Order.findById(orderId);
-    const user = await User.findById(userId);
-    const userName = user.name;
-
+    const userId = req.user._id;
+    const order = await Order.findById(orderId).populate('userId');
     if (!order) {
-      return res
-        .status(httpStatusCodes.NOT_FOUND)
-        .json({ success: false, message: 'Order not found' });
+      return res.status(404).json({ success: false, message: 'Order not found' });
     }
 
-    // Optionally check if the user owns the order
-    if (order.userId.toString() !== userId.toString()) {
+    if (order.userId._id.toString() !== userId.toString()) {
       return res
-        .status(httpStatusCodes.FORBIDDEN)
+        .status(403)
         .json({ success: false, message: 'Unauthorized to access this invoice' });
     }
 
-    // Generate the invoice here
+    const userName = order.userId.name;
     const invoiceBuffer = await generateInvoice(order, userName);
 
-    // Set the headers to prompt a file download
-    res.setHeader('Content-Disposition', 'attachment; filename="invoice.pdf"');
+    res.setHeader('Content-Disposition', `attachment; filename="invoice-${order.genOrderId}.pdf"`);
     res.setHeader('Content-Type', 'application/pdf');
-
-    // Send the invoice buffer as a response
     res.send(invoiceBuffer);
   } catch (error) {
-    console.error('Error on downloading invoice:', error);
-    res.status(httpStatusCodes.BAD_REQUEST).json({ success: false, message: error.message });
+    console.error('Error generating invoice:', error);
+    res.status(400).json({ success: false, message: error.message });
   }
 };
 const postCancelSingleProduct = async (req, res) => {
   try {
-    const { orderId, productId, productSize, productQuantity } = req.params;
+    const { orderId, productId, productSize } = req.params; // Removed productQuantity from params, as it's in the order
 
     // 1️⃣ Fetch the order
     const order = await Order.findById(orderId);
@@ -392,8 +533,9 @@ const postCancelSingleProduct = async (req, res) => {
         .json({ success: false, message: 'Order not found' });
     }
 
-    // 2️⃣ Ensure more than one product exists
-    if (order.products.length <= 1) {
+    // 2️⃣ Check if more than one active product exists
+    const activeProducts = order.products.filter((p) => p.status === 'active');
+    if (activeProducts.length <= 1) {
       return res.status(httpStatusCodes.BAD_REQUEST).json({
         success: false,
         message:
@@ -425,63 +567,72 @@ const postCancelSingleProduct = async (req, res) => {
         p.productSize.toString() === productSize.toString()
     );
 
-    if (!orderedProduct) {
+    if (!orderedProduct || orderedProduct.status !== 'active') {
       return res
         .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'Product not found in this order' });
+        .json({ success: false, message: 'Product not found or already cancelled in this order' });
     }
 
-    // 6️⃣ Calculate refund amount properly (price * quantity)
-    const refundAmount = orderedProduct.productPrice * orderedProduct.productQuantity;
-
-    // 7️⃣ Update order pricing
-    order.originalPrice -= refundAmount;
-    order.totalPrice -= refundAmount;
-
-    // Optional: Adjust discount proportionally if order has discount
-    if (order.isDiscount && order.discount) {
-      const totalBefore = order.originalPrice + refundAmount; // original total before cancel
-      const discountRatio = order.discount / totalBefore; // e.g., 10% of original
-      const discountReduction = refundAmount * discountRatio;
-      order.discount -= discountReduction;
-      order.totalPrice -= discountReduction; // subtract discount portion from totalPrice
+    // 6️⃣ Mark as cancelled in orderedProducts and products
+    orderedProduct.status = 'cancelled';
+    const orderProduct = order.products.find(
+      (p) =>
+        p.productId.toString() === productId.toString() &&
+        p.size.toString() === productSize.toString()
+    );
+    if (orderProduct) {
+      orderProduct.status = 'cancelled';
     }
 
-    // 8️⃣ Remove product from order arrays
-    order.products = order.products.filter(
-      (p) => !(p.productId.toString() === productId && p.size.toString() === productSize)
-    );
-    order.orderedProducts = order.orderedProducts.filter(
-      (p) => !(p.productId.toString() === productId && p.productSize.toString() === productSize)
-    );
+    // 7️⃣ Calculate amounts (assuming productPrice is original unit price)
+    const itemOriginalTotal = orderedProduct.productPrice * orderedProduct.productQuantity;
+    const itemOfferDiscount = orderedProduct.offerDiscountPerUnit * orderedProduct.productQuantity;
+    const itemSubtotalAfterOffer = orderedProduct.finalUnitPrice * orderedProduct.productQuantity;
 
-    // 9️⃣ Update product stock
+    // 8️⃣ Prorate coupon discount (only if coupon was applied)
+    let proratedCoupon = 0;
+    if (order.couponDiscount > 0 && order.subtotalAfterOffers > 0) {
+      proratedCoupon = (itemSubtotalAfterOffer / order.subtotalAfterOffers) * order.couponDiscount;
+    }
+
+    // 9️⃣ Calculate refund (net amount after prorated coupon)
+    const refund = itemSubtotalAfterOffer - proratedCoupon;
+
+    // 🔟 Update order fields
+    order.originalPrice -= itemOriginalTotal;
+    order.subtotalAfterOffers -= itemSubtotalAfterOffer;
+    order.offerTotalDiscount -= itemOfferDiscount;
+    order.couponDiscount -= proratedCoupon;
+    order.discount -= itemOfferDiscount + proratedCoupon;
+    order.totalPrice -= refund;
+
+    // 1️⃣1️⃣ Update product stock
     const sizeToUpdate = product.sizes.find((s) => s.size.toString() === productSize.toString());
     if (sizeToUpdate) {
-      sizeToUpdate.stock += parseInt(productQuantity, 10);
+      sizeToUpdate.stock += orderedProduct.productQuantity;
       await product.save();
     }
 
-    // 🔟 Refund logic for Razorpay or Wallet
+    // 1️⃣2️⃣ Refund logic for Razorpay or Wallet
     if (['razorpay', 'wallet'].includes(order.paymentDetails.paymentMethod)) {
       let wallet = await Wallet.findOne({ userId: order.userId });
 
       if (!wallet) {
         wallet = new Wallet({
           userId: order.userId,
-          balance: refundAmount,
+          balance: refund,
           transactions: [
             {
-              amount: refundAmount,
+              amount: refund,
               type: 'credit',
               description: `Refund for cancelled product in order ${order._id}`,
             },
           ],
         });
       } else {
-        wallet.balance += refundAmount;
+        wallet.balance += refund;
         wallet.transactions.push({
-          amount: refundAmount,
+          amount: refund,
           type: 'credit',
           description: `Refund for cancelled product in order ${order._id}`,
         });
@@ -490,7 +641,7 @@ const postCancelSingleProduct = async (req, res) => {
       await wallet.save();
     }
 
-    // 1️⃣1️⃣ Save updated order
+    // 1️⃣3️⃣ Save updated order
     await order.save();
 
     res.status(httpStatusCodes.OK).json({
@@ -502,229 +653,6 @@ const postCancelSingleProduct = async (req, res) => {
     res.status(httpStatusCodes.BAD_REQUEST).json({ success: false, message: error.message });
   }
 };
-
-// const postCancelSingleProduct = async (req, res) => {
-//   try {
-//     const { orderId, productId, productSize, productQuantity } = req.params;
-
-//     // 1️⃣ Fetch the order
-//     const order = await Order.findById(orderId);
-//     if (!order) {
-//       return res
-//         .status(httpStatusCodes.NOT_FOUND)
-//         .json({ success: false, message: 'Order not found' });
-//     }
-
-//     // 2️⃣ Ensure more than one product exists
-//     if (order.products.length <= 1) {
-//       return res.status(httpStatusCodes.BAD_REQUEST).json({
-//         success: false,
-//         message:
-//           'You can’t cancel a single product in a single-item order. Cancel the entire order instead.',
-//       });
-//     }
-
-//     // 3️⃣ Fetch the product
-//     const product = await Product.findById(productId);
-//     if (!product) {
-//       return res
-//         .status(httpStatusCodes.NOT_FOUND)
-//         .json({ success: false, message: 'Product not found' });
-//     }
-
-//     // 4️⃣ Check order status before allowing cancel
-//     const cancellableStatuses = ['pending', 'processing', 'shipped']; // delivered cannot be canceled
-//     if (!cancellableStatuses.includes(order.status)) {
-//       return res.status(httpStatusCodes.BAD_REQUEST).json({
-//         success: false,
-//         message: 'This product cannot be cancelled after delivery.',
-//       });
-//     }
-
-//     // 5️⃣ Calculate final price of this product in the order
-//     const orderedProduct = order.orderedProducts.find(
-//       (p) =>
-//         p.productId.toString() === productId.toString() &&
-//         p.productSize.toString() === productSize.toString()
-//     );
-
-//     if (!orderedProduct) {
-//       return res
-//         .status(httpStatusCodes.BAD_REQUEST)
-//         .json({ success: false, message: 'Product not found in this order' });
-//     }
-
-//     const finalPrice = orderedProduct.productPrice;
-//     order.originalPrice -= finalPrice;
-//     order.totalPrice -= finalPrice;
-
-//     // 6️⃣ Remove the product from order arrays
-//     order.products = order.products.filter(
-//       (p) => !(p.productId.toString() === productId && p.size.toString() === productSize)
-//     );
-//     order.orderedProducts = order.orderedProducts.filter(
-//       (p) => !(p.productId.toString() === productId && p.productSize.toString() === productSize)
-//     );
-
-//     // 7️⃣ Update product stock
-//     const sizeToUpdate = product.sizes.find((s) => s.size.toString() === productSize.toString());
-//     if (sizeToUpdate) {
-//       sizeToUpdate.stock += parseInt(productQuantity, 10);
-//       await product.save();
-//     }
-
-//     // 8️⃣ Refund logic for razorpay or wallet payments
-//     if (['razorpay', 'wallet'].includes(order.paymentDetails.paymentMethod)) {
-//       let wallet = await Wallet.findOne({ userId: order.userId });
-
-//       if (!wallet) {
-//         // create new wallet if not exists
-//         wallet = new Wallet({
-//           userId: order.userId,
-//           balance: finalPrice,
-//           transactions: [
-//             {
-//               amount: finalPrice,
-//               type: 'credit',
-//               description: `Refund for cancelled product in order ${order._id}`,
-//             },
-//           ],
-//         });
-//       } else {
-//         // add money to existing wallet
-//         wallet.balance += finalPrice;
-//         wallet.transactions.push({
-//           amount: finalPrice,
-//           type: 'credit',
-//           description: `Refund for cancelled product in order ${order._id}`,
-//         });
-//       }
-
-//       await wallet.save();
-//     }
-
-//     // 9️⃣ Save the updated order
-//     await order.save();
-
-//     res.status(httpStatusCodes.OK).json({
-//       success: true,
-//       message: 'Successfully cancelled product and refunded to wallet if applicable',
-//     });
-//   } catch (error) {
-//     console.error('Error on cancel single product:', error);
-//     res.status(httpStatusCodes.BAD_REQUEST).json({ success: false, message: error.message });
-//   }
-// };
-
-// const postCancelSingleProduct = async (req, res) => {
-//   try {
-//     const { orderId, productId, productSize, productQuantity } = req.params;
-
-//     // Fetch the order by ID
-//     const order = await Order.findById(orderId);
-//     if (!order) {
-//       return res
-//         .status(httpStatusCodes.NOT_FOUND)
-//         .json({ success: false, message: 'Order not found' });
-//     }
-
-//     // Ensure there are more than one product in the order
-//     if (order.products.length <= 1) {
-//       return res.status(httpStatusCodes.BAD_REQUEST).json({
-//         success: false,
-//         message:
-//           'You can’t cancel a single product in a single item. Please cancel the entire order.',
-//       });
-//     }
-
-//     // Fetch the product being canceled
-//     const product = await Product.findById(productId);
-//     if (!product) {
-//       return res
-//         .status(httpStatusCodes.NOT_FOUND)
-//         .json({ success: false, message: 'Product not found' });
-//     }
-//     if (
-//       order.paymentDetails.paymentMethod === 'razorpay' ||
-//       order.paymentDetails.paymentMethod === 'wallet'
-//     ) {
-//       return res
-//         .status(httpStatusCodes.BAD_REQUEST)
-//         .json({ success: false, message: 'You cant cancel this order only after deliver' });
-//     }
-//     const productPrice = product.price; // Get the price of the product
-//     order.originalPrice -= productPrice; // Adjust original price
-
-//     let finalPrice = 0;
-
-//     // Calculate finalPrice for ordered products
-//     for (const orderedProduct of order.orderedProducts) {
-//       if (
-//         orderedProduct.productId.toString() === productId.toString() &&
-//         orderedProduct.productSize.toString() === productSize.toString()
-//       ) {
-//         finalPrice += orderedProduct.productPrice; // Sum the price of matching products
-//       }
-//     }
-
-//     order.totalPrice -= finalPrice; // Adjust the total price
-
-//     // Remove the product from the products array based on productId and size
-//     order.products = order.products.filter(
-//       (orderProduct) =>
-//         !(
-//           orderProduct.productId.toString() === productId.toString() &&
-//           orderProduct.size.toString() === productSize.toString()
-//         )
-//     );
-
-//     // Remove the product from orderedProducts based on productId and productSize
-//     order.orderedProducts = order.orderedProducts.filter(
-//       (orderedProduct) =>
-//         !(
-//           orderedProduct.productId.toString() === productId.toString() &&
-//           orderedProduct.productSize.toString() === productSize.toString()
-//         )
-//     );
-
-//     // Update the product's stock
-//     const sizeToUpdate = product.sizes.find(
-//       (size) => size.size.toString() === productSize.toString()
-//     );
-//     if (sizeToUpdate) {
-//       sizeToUpdate.stock += parseInt(productQuantity, 10); // Increment stock by the quantity of the canceled product
-//     }
-
-//     // Save the updated product stock
-//     await product.save();
-
-//     // Check if payment method is Razorpay and initiate refund to wallet
-//     if (order.paymentDetails.paymentMethod === 'razorpay') {
-//       const refundAmount = finalPrice; // Amount to be refunded
-//       const user = await User.findById(order.userId); // Fetch the user to update wallet
-
-//       if (user) {
-//         user.walletBalance += refundAmount; // Add refund amount to user's wallet
-//         await user.save(); // Save the updated wallet balance
-//       } else {
-//         return res
-//           .status(httpStatusCodes.NOT_FOUND)
-//           .json({ success: false, message: 'User not found for wallet refund' });
-//       }
-//     }
-
-//     // Save the order after all updates
-//     await order.save();
-
-//     res.status(httpStatusCodes.OK).json({
-//       success: true,
-//       message: 'Successfully cancelled product and processed refund if applicable',
-//     });
-//   } catch (error) {
-//     console.log('Error on cancel single product:', error.message);
-//     res.status(httpStatusCodes.BAD_REQUEST).json({ success: false, message: error.message });
-//   }
-// };
 
 module.exports = {
   getOrders,

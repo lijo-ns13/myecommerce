@@ -309,7 +309,6 @@ const getProductEdit = async (req, res) => {
       product,
       categories,
       currentPath: '/product',
-      layout: 'layouts/adminLayout',
     });
   } catch (error) {
     console.error(error);
