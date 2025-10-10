@@ -1,8 +1,17 @@
-// controllers/customerController.js
 const User = require('../../models/userSchema');
 const httpStatusCodes = require('../../constants/httpStatusCodes');
 const messages = require('../../constants/message');
 
+// const getCustomers=async(req, res) => {
+//     // res.send('Retrieve all customers');
+//     try{
+//         const users=await User.find({role:'user'}).select('+isBlocked')
+//         res.render('customers',{customers:users})
+//     }catch(error){
+//         res.status(400).json({success:false,message:error.message})
+//     }
+
+// }
 const getCustomers = async (req, res) => {
   try {
     const search = req.query.search || '';
@@ -25,33 +34,29 @@ const getCustomers = async (req, res) => {
     const totalPages = Math.ceil(totalCustomers / limit);
 
     const customers = await User.find(query)
-      .select('name email isBlocked createdAt') // Explicitly select fields
+      .select('+isBlocked')
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
-      .limit(limit)
-      .lean(); // Convert to plain JavaScript object for performance
+      .limit(limit);
 
     if (req.xhr || req.query.ajax) {
-      return res.render('partials/customerList', { customers }, { layout: false });
+      // ✅ return partial HTML for AJAX
+      return res.render('partials/customerList', { customers });
     }
 
+    // ✅ normal full page render
     res.render('customers', {
       customers,
       currentPage: page,
       totalPages,
       searchQuery: search,
-      currentPath: '/admin/customers',
+      currentPath: '/customer',
       layout: 'layouts/adminLayout',
     });
   } catch (err) {
-    console.error('Error fetching customers:', err);
-    res.status(httpStatusCodes.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      message: messages.CUSTOMER.CUSTOMERS_FETCH_ERROR,
-    });
+    res.status(httpStatusCodes.INTERNAL_SERVER_ERROR).send(messages.CUSTOMER.CUSTOMERS_FETCH_ERROR);
   }
 };
-
 const postCustomerBlock = async (req, res) => {
   try {
     const userId = req.params.id;
@@ -125,7 +130,6 @@ const postCustomerUnblock = async (req, res) => {
     });
   }
 };
-
 module.exports = {
   getCustomers,
   postCustomerBlock,

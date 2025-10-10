@@ -1,4 +1,3 @@
-<!-- views/customers.ejs -->
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -11,214 +10,101 @@
       rel="stylesheet"
       integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM"
       crossorigin="anonymous" />
-    <!-- Font Awesome for Icons -->
+    <!-- Google Fonts for modern typography -->
     <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-      integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
-      crossorigin="anonymous" />
-    <!-- Toastify CSS -->
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css" />
-    <!-- Google Fonts (Inter) -->
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet" />
     <style>
-      :root {
-        --primary-color: #007bff;
-        --success-color: #28a745;
-        --danger-color: #dc3545;
-        --background-color: #f4f6f9;
-        --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        --transition: all 0.3s ease;
-      }
-
       body {
         font-family: 'Inter', sans-serif;
-        background-color: var(--background-color);
-        min-height: 100vh;
+        background-color: #f4f6f8;
+        color: #333;
       }
-
-      /* Main Content */
       .main-content {
-        margin-left: 180px; /* Space for existing sidebar */
-        padding: 30px;
-        transition: var(--transition);
+        margin-left: 200px; /* Adjusted for sidebar */
+        padding: 40px 20px;
+        min-height: 100vh;
+        transition: margin-left 0.3s ease;
       }
-
-      /* Header */
-      .header-section {
-        margin-bottom: 2rem;
-      }
-
-      .header-section h2 {
-        font-size: 1.8rem;
-        font-weight: 600;
-        color: #2d3748;
-      }
-
-      .search-container {
-        max-width: 500px;
-      }
-
-      .search-container .input-group {
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-        border-radius: 8px;
-      }
-
-      .search-container .form-control {
-        border: none;
-        border-radius: 8px 0 0 8px;
-        padding: 10px 15px;
-        font-size: 0.95rem;
-      }
-
-      .search-container .btn-search {
-        border: none;
-        background-color: var(--primary-color);
-        color: #fff;
-        border-radius: 0 8px 8px 0;
-        transition: var(--transition);
-      }
-
-      .search-container .btn-search:hover {
-        background-color: #0056b3;
-      }
-
-      /* Customer Card */
       .customer-card {
         border: none;
         border-radius: 12px;
-        background: #fff;
-        box-shadow: var(--card-shadow);
+        background: #ffffff;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
         padding: 20px;
-        transition: var(--transition);
-        text-align: center;
       }
-
       .customer-card:hover {
         transform: translateY(-5px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
       }
-
       .customer-card img {
-        width: 60px;
-        height: 60px;
+        width: 64px;
+        height: 64px;
         object-fit: cover;
-        margin: 0 auto 15px;
+        border: 2px solid #e9ecef;
       }
-
-      .customer-card h6 {
+      .customer-card .name {
         font-size: 1.1rem;
         font-weight: 600;
-        color: #2d3748;
-        margin-bottom: 8px;
+        color: #1a1a1a;
       }
-
       .customer-card .email {
         font-size: 0.9rem;
-        color: #6b7280;
-        margin-bottom: 12px;
+        color: #6c757d;
       }
-
-      .customer-card .status-badge {
+      .badge {
         font-size: 0.85rem;
         padding: 6px 12px;
         border-radius: 12px;
       }
-
-      .customer-card .btn-action {
-        position: relative;
-        width: 100%;
-        font-size: 0.9rem;
-        padding: 8px;
+      .btn-block,
+      .btn-unblock {
         border-radius: 8px;
-        transition: var(--transition);
+        font-weight: 500;
+        padding: 8px;
+        transition: background-color 0.2s ease;
       }
-
-      .customer-card .btn-action.loading::after {
-        content: '';
-        position: absolute;
-        border: 2px solid #fff;
-        border-top: 2px solid transparent;
-        border-radius: 50%;
-        width: 16px;
-        height: 16px;
-        animation: spin 1s linear infinite;
-        right: 10px;
-        top: 50%;
-        transform: translateY(-50%);
+      .btn-block:hover,
+      .btn-unblock:hover {
+        opacity: 0.9;
       }
-
-      @keyframes spin {
-        0% {
-          transform: translateY(-50%) rotate(0deg);
-        }
-        100% {
-          transform: translateY(-50%) rotate(360deg);
-        }
+      .search-container {
+        max-width: 400px;
       }
-
-      /* Pagination */
+      .search-container .form-control {
+        border-radius: 8px;
+        border: 1px solid #ced4da;
+        padding: 10px 15px;
+        box-shadow: none;
+      }
+      .search-container .form-control:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+      }
       .pagination .page-link {
         border-radius: 6px;
         margin: 0 3px;
-        color: var(--primary-color);
-        transition: var(--transition);
+        color: #007bff;
+        border: 1px solid #dee2e6;
       }
-
       .pagination .page-item.active .page-link {
-        background-color: var(--primary-color);
-        border-color: var(--primary-color);
-        color: #fff;
+        background-color: #007bff;
+        border-color: #007bff;
       }
-
-      .pagination .page-link:hover {
-        background-color: #e9ecef;
+      .pagination .page-item.disabled .page-link {
+        color: #6c757d;
       }
-
-      /* Responsive Design */
-      @media (max-width: 992px) {
+      @media (max-width: 768px) {
         .main-content {
-          margin-left: 0; /* Adjust for collapsed sidebar */
+          margin-left: 0;
           padding: 20px;
         }
-
-        .header-section h2 {
-          font-size: 1.5rem;
-        }
-
-        .search-container {
-          max-width: 100%;
-        }
-      }
-
-      @media (max-width: 576px) {
-        .main-content {
-          padding: 15px;
-        }
-
         .customer-card {
           padding: 15px;
         }
-
-        .customer-card h6 {
-          font-size: 1rem;
-        }
-
-        .customer-card .email {
-          font-size: 0.85rem;
-        }
-
-        .customer-card .btn-action {
-          font-size: 0.85rem;
-          padding: 6px;
-        }
-
-        .pagination .page-link {
-          font-size: 0.9rem;
-          padding: 6px 12px;
+        .search-container {
+          max-width: 100%;
         }
       }
     </style>
@@ -228,207 +114,197 @@
       <div class="container-fluid">
         <!-- Header -->
         <div
-          class="header-section d-flex flex-column flex-md-row justify-content-between align-items-md-center">
-          <h2>Customer Management</h2>
+          class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5">
+          <h2 class="mb-3 mb-md-0 fw-bold text-dark">Customer Management</h2>
           <div class="search-container">
-            <div class="input-group">
-              <input
-                type="text"
-                id="searchInput"
-                class="form-control"
-                placeholder="Search by name or email"
-                aria-label="Search customers" />
-              <button class="btn btn-search" type="button">
-                <i class="fas fa-search"></i>
-              </button>
-            </div>
+            <input
+              type="text"
+              id="searchInput"
+              class="form-control"
+              placeholder="Search by name or email"
+              value="<%= searchQuery %>" />
           </div>
         </div>
 
         <!-- Customer Grid -->
         <div class="row g-4" id="customerList">
-          <% if (customers.length === 0) { %>
-          <div class="col-12 text-center">
-            <p class="text-muted">No customers found.</p>
-          </div>
-          <% } else { %>
           <% customers.forEach((customer) => { %>
           <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 customer-item">
-            <div class="customer-card">
+            <div class="customer-card text-center h-100">
               <img
-                src="https://api.dicebear.com/7.x/initials/svg?seed=<%= encodeURIComponent(customer.name) %>"
-                alt="<%= customer.name %>'s Avatar"
-                class="rounded-circle" />
-              <h6><%= customer.name %></h6>
-              <p class="email"><%= customer.email %></p>
+                src="https://api.dicebear.com/7.x/initials/svg?seed=<%= customer.name %>"
+                alt="Customer Avatar"
+                class="rounded-circle mb-3" />
+              <h6 class="name mb-1"><%= customer.name %></h6>
+              <p class="email mb-2"><%= customer.email %></p>
               <p class="mb-3">
                 Status:
-                <span
-                  class="badge status-badge <%= customer.isBlocked ? 'bg-danger' : 'bg-success' %>">
-                  <%= customer.isBlocked ? 'Blocked' : 'Active' %>
-                </span>
+                <% if (customer.isBlocked) { %>
+                <span class="badge bg-danger">Blocked</span>
+                <% } else { %>
+                <span class="badge bg-success">Active</span>
+                <% } %>
               </p>
+              <% if (customer.isBlocked) { %>
               <form
                 method="POST"
-                action="/admin/customers/<%= customer.isBlocked ? 'unblock-user' : 'block-user' %>/<%= customer._id %>"
+                action="/admin/customers/unblock-user/<%= customer._id %>"
                 class="block-unblock-form">
                 <button
                   type="submit"
-                  class="btn btn-sm btn-action <%= customer.isBlocked ? 'btn-success' : 'btn-danger' %>"
-                  aria-label="<%= customer.isBlocked ? 'Unblock' : 'Block' %> <%= customer.name %>">
-                  <%= customer.isBlocked ? 'Unblock' : 'Block' %>
+                  class="btn btn-sm btn-success w-100 btn-unblock">
+                  Unblock
                 </button>
               </form>
+              <% } else { %>
+              <form
+                method="POST"
+                action="/admin/customers/block-user/<%= customer._id %>"
+                class="block-unblock-form">
+                <button
+                  type="submit"
+                  class="btn btn-sm btn-danger w-100 btn-block">
+                  Block
+                </button>
+              </form>
+              <% } %>
             </div>
           </div>
           <% }) %>
-          <% } %>
         </div>
 
         <!-- Pagination -->
-        <% if (totalPages > 1) { %>
-        <nav aria-label="Page navigation" class="mt-4">
+        <nav aria-label="Page navigation" class="mt-5">
           <ul class="pagination justify-content-center">
-            <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
+            <% if (currentPage > 1) { %>
+            <li class="page-item">
               <a
                 class="page-link"
-                href="?page=<%= currentPage - 1 %><%= searchQuery ? '&search=' + encodeURIComponent(searchQuery) : '' %>"
-                aria-label="Previous">
-                <span aria-hidden="true">&laquo;</span>
-              </a>
+                href="?page=<%= currentPage - 1 %><%= searchQuery ? '&search=' + searchQuery : '' %>">Previous</a>
             </li>
+            <% } else { %>
+            <li class="page-item disabled">
+              <span class="page-link">Previous</span>
+            </li>
+            <% } %>
+
             <% for (let i = 1; i <= totalPages; i++) { %>
             <li class="page-item <%= i === currentPage ? 'active' : '' %>">
               <a
                 class="page-link"
-                href="?page=<%= i %><%= searchQuery ? '&search=' + encodeURIComponent(searchQuery) : '' %>">
-                <%= i %>
-              </a>
+                href="?page=<%= i %><%= searchQuery ? '&search=' + searchQuery : '' %>"><%=
+                i %></a>
             </li>
             <% } %>
-            <li
-              class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
+
+            <% if (currentPage < totalPages) { %>
+            <li class="page-item">
               <a
                 class="page-link"
-                href="?page=<%= currentPage + 1 %><%= searchQuery ? '&search=' + encodeURIComponent(searchQuery) : '' %>"
-                aria-label="Next">
-                <span aria-hidden="true">&raquo;</span>
-              </a>
+                href="?page=<%= currentPage + 1 %><%= searchQuery ? '&search=' + searchQuery : '' %>">Next</a>
             </li>
+            <% } else { %>
+            <li class="page-item disabled">
+              <span class="page-link">Next</span>
+            </li>
+            <% } %>
           </ul>
         </nav>
-        <% } %>
       </div>
     </main>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <!-- JavaScript Dependencies -->
-    <script
-      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <script>
-      // Debounced Search
+      // Debounced search for customer list
       let debounceTimer;
-      const searchInput = document.getElementById('searchInput');
-      const customerList = document.getElementById('customerList');
+      const searchInput = document.getElementById("searchInput");
+      const customerList = document.getElementById("customerList");
 
-      searchInput.addEventListener('input', () => {
+      searchInput.addEventListener("input", () => {
         clearTimeout(debounceTimer);
         debounceTimer = setTimeout(async () => {
           const searchQuery = searchInput.value.trim();
           try {
             const res = await fetch(
-              `/admin/customers?search=${encodeURIComponent(searchQuery)}&ajax=1`,
-              {
-                headers: { 'X-Requested-With': 'XMLHttpRequest' },
-              }
+              `/admin/customers?search=${encodeURIComponent(searchQuery)}&ajax=1`
             );
-            if (!res.ok) throw new Error('Failed to fetch customers');
             const data = await res.text();
             customerList.innerHTML = data;
           } catch (err) {
-            Toastify({
-              text: 'Error fetching customers',
-              duration: 3000,
-              gravity: 'top',
-              position: 'right',
-              backgroundColor: '#dc3545',
-            }).showToast();
+            console.error("Error fetching search results:", err);
           }
         }, 500);
       });
 
-      // Block/Unblock Handler
-      customerList.addEventListener('submit', async (e) => {
-        if (!e.target.classList.contains('block-unblock-form')) return;
-        e.preventDefault();
+      // Handle block/unblock form submissions
+      document
+        .getElementById("customerList")
+        .addEventListener("submit", async (e) => {
+          if (!e.target.classList.contains("block-unblock-form")) return;
+          e.preventDefault();
 
-        const form = e.target;
-        const url = form.action;
-        const button = form.querySelector('.btn-action');
-        const originalText = button.textContent;
+          const form = e.target;
+          const url = form.action;
+          const method = form.method || "POST";
 
-        // Show loading state
-        button.disabled = true;
-        button.classList.add('loading');
-        button.textContent = 'Processing...';
+          try {
+            const res = await fetch(url, {
+              method,
+              headers: { "X-Requested-With": "XMLHttpRequest" },
+            });
 
-        try {
-          const res = await fetch(url, {
-            method: 'POST',
-            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            if (!res.ok) throw new Error("Request failed");
+            const data = await res.json();
+
+            if (data.success) {
+              const cardBody = form.closest(".customer-card");
+              const statusBadge = cardBody.querySelector(".badge");
+
+              if (data.isBlocked) {
+          statusBadge.className = "badge bg-danger";
+          statusBadge.textContent = "Blocked";
+          form.outerHTML = `
+            <form method="POST" action="/admin/customers/unblock-user/${data.userId}" class="block-unblock-form">
+              <button type="submit" class="btn btn-sm btn-success w-100 btn-unblock">Unblock</button>
+            </form>
+          `;
+
+          // ✅ SweetAlert feedback
+          Swal.fire({
+            title: "User Blocked",
+            text: "The customer has been successfully blocked.",
+            icon: "success",
+            confirmButtonColor: "#3085d6",
           });
+        } else {
+          statusBadge.className = "badge bg-success";
+          statusBadge.textContent = "Active";
+          form.outerHTML = `
+            <form method="POST" action="/admin/customers/block-user/${data.userId}" class="block-unblock-form">
+              <button type="submit" class="btn btn-sm btn-danger w-100 btn-block">Block</button>
+            </form>
+          `;
 
-          if (!res.ok) {
-            const errorData = await res.json();
-            throw new Error(errorData.message || 'Request failed');
-          }
-
-          const data = await res.json();
-          if (data.success) {
-            const card = form.closest('.customer-card');
-            const statusBadge = card.querySelector('.status-badge');
-            const userId = data.userId;
-
-            // Update UI
-            statusBadge.className = `badge status-badge ${
-              data.isBlocked ? 'bg-danger' : 'bg-success'
-            }`;
-            statusBadge.textContent = data.isBlocked ? 'Blocked' : 'Active';
-            form.action = `/admin/customers/${
-              data.isBlocked ? 'unblock-user' : 'block-user'
-            }/${userId}`;
-            button.className = `btn btn-sm btn-action w-100 ${
-              data.isBlocked ? 'btn-success' : 'btn-danger'
-            }`;
-            button.textContent = data.isBlocked ? 'Unblock' : 'Block';
-            button.setAttribute(
-              'aria-label',
-              `${data.isBlocked ? 'Unblock' : 'Block'} ${card.querySelector('h6').textContent}`
-            );
-
-            // Show success toast
-            Toastify({
-              text: data.message,
-              duration: 3000,
-              gravity: 'top',
-              position: 'right',
-              backgroundColor: '#28a745',
-            }).showToast();
-          }
-        } catch (err) {
-          Toastify({
-            text: err.message || 'Something went wrong',
-            duration: 3000,
-            gravity: 'top',
-            position: 'right',
-            backgroundColor: '#dc3545',
-          }).showToast();
-        } finally {
-          button.disabled = false;
-          button.classList.remove('loading');
-          button.textContent = data.isBlocked ? 'Unblock' : 'Block';
+          // ✅ SweetAlert feedback
+          Swal.fire({
+            title: "User Unblocked",
+            text: "The customer has been successfully unblocked.",
+            icon: "success",
+            confirmButtonColor: "#3085d6",
+          });
         }
-      });
+            }
+          } catch (err) {
+            console.error("Error processing block/unblock:", err);
+            alert("Something went wrong!");
+          }
+        });
     </script>
+
+    <!-- Bootstrap 5 JS -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+      crossorigin="anonymous"></script>
   </body>
 </html>
