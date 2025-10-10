@@ -370,6 +370,71 @@ async function generatePdfContent(doc, salesData, orders, type, startDate, endDa
   }
 }
 
+async function generateCSVContent(res, orders, type, startDate, endDate) {
+  try {
+    // Fetch all users
+    const users = await User.find({});
+    const userMap = users.reduce((map, user) => {
+      map[user._id] = user.name;
+      return map;
+    }, {});
+
+    let csv =
+      'Order ID,Customer Name,Total Price (₹),Discount (₹),Net Price (₹),Order Date,Status\n';
+    orders.forEach((order) => {
+      const userName = userMap[order.userId] || 'Unknown User';
+      const netPrice = order.totalPrice - (order.discount || 0);
+      csv += `"${order._id}","${userName.replace(/"/g, '""')}","${order.totalPrice.toFixed(2)}","${(order.discount || 0).toFixed(2)}","${netPrice.toFixed(2)}","${new Date(order.orderDate).toISOString().split('T')[0]}","${order.status}"\n`;
+    });
+
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="individual-orders-${type}-${new Date().toISOString().split('T')[0]}.csv"`
+    );
+    res.send(csv);
+  } catch (error) {
+    console.error('Error generating CSV content:', error);
+    res.status(httpStatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Error generating CSV' });
+  }
+}
+
+async function generateXMLContent(res, orders, type, startDate, endDate) {
+  try {
+    // Fetch all users
+    const users = await User.find({});
+    const userMap = users.reduce((map, user) => {
+      map[user._id] = user.name;
+      return map;
+    }, {});
+
+    let xml = `<?xml version="1.0" encoding="UTF-8"?>\n<orders reportType="${type}" generated="${new Date().toISOString()}">\n`;
+    orders.forEach((order) => {
+      const userName = userMap[order.userId] || 'Unknown User';
+      const netPrice = order.totalPrice - (order.discount || 0);
+      xml += `  <order id="${order._id}">\n`;
+      xml += `    <customerName>${userName.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</customerName>\n`;
+      xml += `    <totalPrice>${order.totalPrice.toFixed(2)}</totalPrice>\n`;
+      xml += `    <discount>${(order.discount || 0).toFixed(2)}</discount>\n`;
+      xml += `    <netPrice>${netPrice.toFixed(2)}</netPrice>\n`;
+      xml += `    <orderDate>${new Date(order.orderDate).toISOString().split('T')[0]}</orderDate>\n`;
+      xml += `    <status>${order.status}</status>\n`;
+      xml += `  </order>\n`;
+    });
+    xml += `</orders>\n`;
+
+    res.setHeader('Content-Type', 'application/xml');
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="individual-orders-${type}-${new Date().toISOString().split('T')[0]}.xml"`
+    );
+    res.send(xml);
+  } catch (error) {
+    console.error('Error generating XML content:', error);
+    res.status(httpStatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Error generating XML' });
+  }
+}
+
 function getReportTitle(type, startDate, endDate) {
   const currentDate = new Date();
 
@@ -800,6 +865,108 @@ const getSalesReportPDF = async (req, res) => {
   }
 };
 
+const getSalesReportCSV = async (req, res) => {
+  const { type, startDate, endDate } = req.query;
+
+  // Validate that startDate and endDate are present for custom reports
+  if (type === 'custom' && (!startDate || !endDate)) {
+    return res
+      .status(httpStatusCodes.BAD_REQUEST)
+      .json({ message: 'Start date and end date are required for custom reports' });
+  }
+
+  // Validate and convert the dates for custom report
+  let start = type === 'custom' ? new Date(startDate) : null;
+  let end = type === 'custom' ? new Date(endDate) : null;
+
+  // Check if the dates are valid for custom report
+  if (type === 'custom' && (isNaN(start.getTime()) || isNaN(end.getTime()))) {
+    return res
+      .status(httpStatusCodes.BAD_REQUEST)
+      .json({ message: 'Invalid start date or end date' });
+  }
+
+  try {
+    // Fetch orders based on report type
+    let orders;
+    if (type === 'custom') {
+      orders = await Order.find({
+        orderDate: {
+          $gte: start,
+          $lte: end,
+        },
+      });
+    } else {
+      const dateRange = getDateRange(type);
+      orders = await Order.find({
+        orderDate: {
+          $gte: dateRange.start,
+          $lte: dateRange.end,
+        },
+      });
+    }
+
+    // Generate and send CSV
+    await generateCSVContent(res, orders, type, start, end);
+  } catch (error) {
+    console.error('Error generating CSV report:', error);
+    res
+      .status(httpStatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: 'Server error', error: error.message });
+  }
+};
+
+const getSalesReportXML = async (req, res) => {
+  const { type, startDate, endDate } = req.query;
+
+  // Validate that startDate and endDate are present for custom reports
+  if (type === 'custom' && (!startDate || !endDate)) {
+    return res
+      .status(httpStatusCodes.BAD_REQUEST)
+      .json({ message: 'Start date and end date are required for custom reports' });
+  }
+
+  // Validate and convert the dates for custom report
+  let start = type === 'custom' ? new Date(startDate) : null;
+  let end = type === 'custom' ? new Date(endDate) : null;
+
+  // Check if the dates are valid for custom report
+  if (type === 'custom' && (isNaN(start.getTime()) || isNaN(end.getTime()))) {
+    return res
+      .status(httpStatusCodes.BAD_REQUEST)
+      .json({ message: 'Invalid start date or end date' });
+  }
+
+  try {
+    // Fetch orders based on report type
+    let orders;
+    if (type === 'custom') {
+      orders = await Order.find({
+        orderDate: {
+          $gte: start,
+          $lte: end,
+        },
+      });
+    } else {
+      const dateRange = getDateRange(type);
+      orders = await Order.find({
+        orderDate: {
+          $gte: dateRange.start,
+          $lte: dateRange.end,
+        },
+      });
+    }
+
+    // Generate and send XML
+    await generateXMLContent(res, orders, type, start, end);
+  } catch (error) {
+    console.error('Error generating XML report:', error);
+    res
+      .status(httpStatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: 'Server error', error: error.message });
+  }
+};
+
 module.exports = {
   getSalesGraph,
   getOrdersCount,
@@ -807,4 +974,6 @@ module.exports = {
   getDashboard,
   getSalesReport,
   getSalesReportPDF,
+  getSalesReportCSV,
+  getSalesReportXML,
 };

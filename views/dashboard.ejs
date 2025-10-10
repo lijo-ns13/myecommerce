@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -256,6 +258,10 @@
                     class="btn btn-primary mt-3">Generate Report</button>
                 <button id="downloadPdf"
                     class="btn btn-secondary mt-3 d-none">Download PDF</button>
+                <button id="downloadCsv"
+                    class="btn btn-success mt-3 d-none">Download CSV</button>
+                <button id="downloadXml"
+                    class="btn btn-info mt-3 d-none">Download XML</button>
 
                 <div id="salesReport" class="mt-3"></div>
             </div>
@@ -311,8 +317,10 @@ document.getElementById('generateReport').addEventListener('click', function() {
             // Display the sales report
             salesReportDiv.innerHTML = generateSalesReportHtml(data);
 
-            // Show the download PDF button
+            // Show the download buttons
             document.getElementById('downloadPdf').classList.remove('d-none');
+            document.getElementById('downloadCsv').classList.remove('d-none');
+            document.getElementById('downloadXml').classList.remove('d-none');
             console.log('dataaaaaaaaaaaaaaaaaaaa',data)
         })
         .catch(error => console.error('Error fetching report:', error));
@@ -409,6 +417,26 @@ document.getElementById('downloadPdf').addEventListener('click', function() {
 
     // Make a request to generate the PDF
     window.open(`/admin/sales/report/pdf?type=${reportType}&startDate=${startDate}&endDate=${endDate}`, '_blank');
+});
+
+// Add event listener for downloading CSV
+document.getElementById('downloadCsv').addEventListener('click', function() {
+    const reportType = document.getElementById('reportType').value;
+    const startDate = reportType === 'custom' ? document.getElementById('startDate').value : null;
+    const endDate = reportType === 'custom' ? document.getElementById('endDate').value : null;
+
+    // Make a request to generate the CSV
+    window.open(`/admin/sales/report/csv?type=${reportType}&startDate=${startDate}&endDate=${endDate}`, '_blank');
+});
+
+// Add event listener for downloading XML
+document.getElementById('downloadXml').addEventListener('click', function() {
+    const reportType = document.getElementById('reportType').value;
+    const startDate = reportType === 'custom' ? document.getElementById('startDate').value : null;
+    const endDate = reportType === 'custom' ? document.getElementById('endDate').value : null;
+
+    // Make a request to generate the XML
+    window.open(`/admin/sales/report/xml?type=${reportType}&startDate=${startDate}&endDate=${endDate}`, '_blank');
 });
 
     </script>
