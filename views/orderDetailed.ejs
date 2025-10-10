@@ -30,13 +30,10 @@
             --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
         }
 
-
-
         .navbar {
             background-color: white;
             box-shadow: 0 2px 4px rgba(0,0,0,0.04);
         }
-
 
         @keyframes bounce {
             0%, 100% { transform: translateY(0); }
@@ -50,7 +47,8 @@
             padding: 0;
             margin: 0;
         }
-footer {
+
+        footer {
             background-color: #333;
             color: white;
             padding: 40px 0;
@@ -93,33 +91,29 @@ footer {
             color: white;
         }
 
-        
-
         @media (max-width: 768px) {
-            
-
             .footer-section {
                 flex: 100%;
                 margin-bottom: 30px;
             }
         }
-      
-.social-icons {
-  display: flex;
-  align-items: center;
-}
 
-.social-icons a {
-  color: white;
-  font-size: 1.5rem;
-  margin-right: 15px;
-  transition: transform 0.3s ease, color 0.3s ease;
-}
+        .social-icons {
+            display: flex;
+            align-items: center;
+        }
 
-.social-icons a:hover {
-  color: var(--accent-color);
-  transform: scale(1.2);
-}
+        .social-icons a {
+            color: white;
+            font-size: 1.5rem;
+            margin-right: 15px;
+            transition: transform 0.3s ease, color 0.3s ease;
+        }
+
+        .social-icons a:hover {
+            color: var(--accent-color);
+            transform: scale(1.2);
+        }
 
         .nav-item {
             margin: 0 10px;
@@ -161,8 +155,8 @@ footer {
             .nav-link i {
                 font-size: 20px;
             }
-
         }
+
         .order-container {
             max-width: 1200px;
             margin: 2rem auto;
@@ -244,6 +238,11 @@ footer {
             color: white;
         }
 
+        .badge-danger {
+            background: var(--danger);
+            color: white;
+        }
+
         .info-section {
             background: var(--card-bg);
             border-radius: 1rem;
@@ -319,6 +318,10 @@ footer {
             border-color: var(--primary);
             box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1);
         }
+
+        .cancelled-product {
+            opacity: 0.6;
+        }
     </style>
     </head>
     <body>
@@ -343,7 +346,6 @@ footer {
                         <li class="nav-item">
                             <a class="nav-link" href="/products">Products</a>
                         </li>
-
                     </ul>
                     <ul class="navbar-nav">
                         <li class="nav-item">
@@ -387,7 +389,7 @@ footer {
             <div class="status-card">
                 <div class="d-flex align-items-center gap-3">
                     <span
-                        class="badge <%= order.status === 'delivered' ? 'badge-success' : 'badge-warning' %>">
+                        class="badge <%= order.status === 'delivered' ? 'badge-success' : order.status === 'cancelled' ? 'badge-danger' : 'badge-warning' %>">
                         <%= order.status.charAt(0).toUpperCase() +
                         order.status.slice(1) %>
                     </span>
@@ -399,8 +401,8 @@ footer {
                         year: 'numeric', month: 'long', day: 'numeric' }) %>
                     </span>
                 </div>
-                <% if(order.status==='pending' || order.status==='processing' ||
-                order.status==='shipped'){ %>
+                <% if(['pending', 'processing',
+                'shipped'].includes(order.status)) { %>
                 <div class="text-secondary">
                     <i class="fas fa-truck me-2"></i>
                     Expected delivery: <%= deliveryDate %>
@@ -412,7 +414,8 @@ footer {
                 <div class="col-md-8">
                     <h3 class="mb-4">Products</h3>
                     <% for (const orderData of order.orderedProducts) { %>
-                    <div class="product-card">
+                    <div
+                        class="product-card <%= orderData.status === 'cancelled' ? 'cancelled-product' : '' %>">
                         <div class="d-flex p-3 gap-4">
                             <img src="<%= orderData.productImage %>"
                                 alt="<%= orderData.productName %>"
@@ -425,20 +428,31 @@ footer {
                                         <%= orderData.productSize %></span>
                                     <span class="badge bg-light text-dark">Qty:
                                         <%= orderData.productQuantity %></span>
+                                    <% if (orderData.status === 'cancelled') {
+                                    %>
+                                    <span
+                                        class="badge badge-danger">Cancelled</span>
+                                    <% } %>
                                 </div>
                                 <div
                                     class="d-flex justify-content-between align-items-center">
-                                    <span class="fs-5 fw-bold text-primary">₹<%=
-                                        orderData.productPrice.toLocaleString('en-IN')
-                                        %></span>
+                                    <span class="fs-5 fw-bold text-primary">
+                                        <%= orderData.status === 'cancelled' ?
+                                        '₹0' : '₹' +
+                                        orderData.finalUnitPrice.toLocaleString('en-IN')
+                                        %>
+                                    </span>
                                     <div class="d-flex gap-2">
+                                        <% if (orderData.status === 'active' &&
+                                        ['pending',
+                                        'processing'].includes(order.status)) {
+                                        %>
                                         <a
                                             href="/user/review/add/<%= orderData.productId %>"
                                             class="btn btn-sm btn-outline-primary">Rate
                                             Product</a>
-                                        <% if (order.status === 'pending' ||
-                                        order.status === 'processing') { %>
-                                        <form id="cancelForm"
+                                        <form
+                                            id="cancelForm-<%= orderData.productId %>"
                                             action="/user/orders/cancelsingle/<%= order._id %>/<%= orderData.productId %>/<%= orderData.productSize %>/<%= orderData.productQuantity %>"
                                             method="post" class="d-inline">
                                             <button type="submit"
@@ -472,8 +486,9 @@ footer {
                         <h4 class="mb-3">Payment Details</h4>
                         <p class="mb-2"><strong>Method:</strong> <%=
                             order.paymentDetails.paymentMethod %></p>
-                        <% if (order.paymentDetails.paymentMethod === 'razorpay'
-                        || order.paymentDetails.paymentMethod === 'wallet') { %>
+                        <% if (['razorpay',
+                        'wallet'].includes(order.paymentDetails.paymentMethod))
+                        { %>
                         <p class="mb-2"><strong>Amount Paid:</strong> ₹<%=
                             order.totalPrice.toLocaleString('en-IN') %></p>
                         <% } %>
@@ -506,30 +521,20 @@ footer {
                     <button id="cancelOrderBtn"
                         class="btn btn-danger w-100 mt-4">Cancel Order</button>
                     <% } %>
-
-                    <!-- <% if (order.status === 'pending' || order.status ===
-                    'processing') { %>
-                    <button id="cancelOrderBtn"
-                        class="btn btn-danger w-100 mt-4">Cancel Order</button>
-                    <% } %> -->
-
-                    <% if(order.status === 'delivered' ) { %>
+                    <% if (order.status === 'delivered') { %>
                     <button id="returnOrderBtn"
                         class="btn btn-primary w-100 mt-4"
                         data-bs-toggle="modal"
                         data-bs-target="#returnOrderModal">Return Order</button>
                     <% } %>
-
                     <% if (order.status === 'payment_failed') { %>
                     <button id="payNowButton"
                         class="btn btn-primary w-100 mt-4">Pay Now</button>
                     <% } %>
-
                     <a href="/user/orders/download-invoice/<%= order._id %>"
                         class="btn btn-outline-primary w-100 mt-3">
                         <i class="fas fa-download me-2"></i>Download Invoice
                     </a>
-
                     <a href="/user/orders"
                         class="btn btn-outline-secondary w-100 mt-3">
                         <i class="fas fa-arrow-left me-2"></i>Back to Orders
@@ -537,35 +542,10 @@ footer {
                 </div>
             </div>
 
-            <!-- <div id="returnOrderForm" class="return-form"
-                style="display: none;">
-                <h3 class="mb-4">Return Order Form</h3>
-                <form action="/user/orders/return/<%= order._id %>"
-                    method="post">
-                    <div class="mb-4">
-                        <label class="form-label">Reason for Return:</label>
-                        <select name="reason" class="form-select">
-                            <option value>Select a reason</option>
-                            <option value="wrong_item">Wrong item
-                                received</option>
-                            <option value="defective">Item is defective</option>
-                            <option value="not_as_described">Item not as
-                                described</option>
-                            <option value="no_longer_needed">No longer
-                                needed</option>
-                            <option value="other">Other</option>
-                        </select>
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100">Submit
-                        Return Request</button>
-                </form>
-            </div> -->
-            <!-- return order -->
             <!-- Return Order Modal -->
             <div class="modal fade" id="returnOrderModal" tabindex="-1"
                 aria-labelledby="returnOrderModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered">
-                    <!-- Center vertically -->
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title"
@@ -613,11 +593,8 @@ footer {
                     </div>
                 </div>
             </div>
-
-            <!--  -->
         </div>
 
-        <!-- Footer -->
         <footer>
             <div class="container">
                 <div class="footer-content">
@@ -632,7 +609,6 @@ footer {
                         <ul>
                             <li><a href="/">Home</a></li>
                             <li><a href="/products">Products</a></li>
-                            <!-- <li><a href="/about">About Us</a></li> -->
                             <li><a href="/contact">Contact</a></li>
                         </ul>
                     </div>
@@ -654,95 +630,88 @@ footer {
                             <a href="#" class="text-light"><i
                                     class="fab fa-pinterest"></i></a>
                         </div>
-
                     </div>
                 </div>
                 <hr>
                 <p class="text-center mt-4">© 2024 Trendy Kicks. All rights
-                    reserve</p>
+                    reserved</p>
             </div>
         </footer>
+
         <script>
-            // Initialize order data
-            window.orderData = {
-                totalPrice: <%= order.totalPrice %>,
-                orderId: '<%= order._id %>',
-                status: '<%= order.status %>'
-            };
-        </script>
+        window.orderData = {
+            totalPrice: <%= order.totalPrice %>,
+            orderId: '<%= order._id %>',
+            status: '<%= order.status %>'
+        };
+    </script>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
         <script>
-// Client-side JavaScript (in your HTML file)
-async function payNow() {
-    console.log('clicked');
-    const amount = window.orderData.totalPrice;
-    console.log("Amount to pay:", amount);
-    
-    const response = await fetch('/api/create-order', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ amount, currency: 'INR', orderId: window.orderData.orderId, notes: {} })
-    });
-
-    const orderData = await response.json();
-    console.log("Order Data:", orderData);
-    
-    const options = {
-        key: 'rzp_test_ovddchQMnrblMK',
-        amount: amount * 100,
-        currency: 'INR',
-        name: 'stridnest company',
-        description: 'Test Transaction',
-        order_id: orderData.razorpayOrderId,
-        prefill: {
-            name: 'Lijo N S',
-            email: 'lijons13@gmail.com',
-            contact: '8921580213'
-        },
-        theme: {
-            color: '#F37254'
-        },
-        handler: function (response) {
-            verifyPayment(response, orderData.razorpayOrderId, orderData.orderId);
+        async function payNow() {
+            console.log('clicked');
+            const amount = window.orderData.totalPrice;
+            console.log("Amount to pay:", amount);
+            const response = await fetch('/api/create-order', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ amount, currency: 'INR', orderId: window.orderData.orderId, notes: {} })
+            });
+            const orderData = await response.json();
+            console.log("Order Data:", orderData);
+            const options = {
+                key: 'rzp_test_ovddchQMnrblMK',
+                amount: amount * 100,
+                currency: 'INR',
+                name: 'stridnest company',
+                description: 'Test Transaction',
+                order_id: orderData.razorpayOrderId,
+                prefill: {
+                    name: 'Lijo N S',
+                    email: 'lijons13@gmail.com',
+                    contact: '8921580213'
+                },
+                theme: {
+                    color: '#F37254'
+                },
+                handler: function (response) {
+                    verifyPayment(response, orderData.razorpayOrderId, orderData.orderId);
+                }
+            };
+            console.log("Razorpay Options:", options);
+            const rzp = new Razorpay(options);
+            rzp.open();
         }
-    };
 
-    console.log("Razorpay Options:", options);
-    
-    const rzp = new Razorpay(options);
-    rzp.open();
-}
-
-function verifyPayment(response, razorpayOrderId, orderId) {
-    fetch('/api/verify-paymenttwo', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            razorpay_order_id: razorpayOrderId,
-            razorpay_payment_id: response.razorpay_payment_id,
-            razorpay_signature: response.razorpay_signature,
-            order_id: orderId
-        }),
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.success) {
-            window.location.href = `/checkout/order-confirmation/${orderId}`;
-        } else {
-            alert('Payment Verification Failed: ' + data.message);
+        function verifyPayment(response, razorpayOrderId, orderId) {
+            fetch('/api/verify-paymenttwo', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    razorpay_order_id: razorpayOrderId,
+                    razorpay_payment_id: response.razorpay_payment_id,
+                    razorpay_signature: response.razorpay_signature,
+                    order_id: orderId
+                }),
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = `/checkout/order-confirmation/${orderId}`;
+                } else {
+                    alert('Payment Verification Failed: ' + data.message);
+                }
+            })
+            .catch(err => {
+                console.error('Error verifying payment:', err);
+                alert('Error verifying payment. Please try again.');
+            });
         }
-    })
-    .catch(err => {
-        console.error('Error verifying payment:', err);
-        alert('Error verifying payment. Please try again.');
-    });
-}
-    
+
         document.addEventListener('DOMContentLoaded', function() {
             const payNowButton = document.getElementById('payNowButton');
             if (payNowButton && window.orderData.status === 'payment_failed') {
@@ -752,41 +721,33 @@ function verifyPayment(response, razorpayOrderId, orderId) {
 
         window.payNow = payNow;
     </script>
-
         <script>
-        document.getElementById('returnOrderBtn').addEventListener('click', function () {
-            const form = document.getElementById('returnOrderForm');
-            form.style.display = form.style.display === 'none' ? 'block' : 'none';
-        });
-
-        document.getElementById('reason').addEventListener('change', function () {
+        document.addEventListener('DOMContentLoaded', function () {
+            const reasonSelect = document.getElementById('reason');
             const otherReasonInput = document.getElementById('otherReasonInput');
-            if (this.value === 'other') {
-                otherReasonInput.style.display = 'block';
-            } else {
-                otherReasonInput.style.display = 'none';
+            if (reasonSelect) {
+                reasonSelect.addEventListener('change', function () {
+                    if (this.value === 'other') {
+                        otherReasonInput.style.display = 'block';
+                        otherReasonInput.setAttribute('required', 'required');
+                    } else {
+                        otherReasonInput.style.display = 'none';
+                        otherReasonInput.removeAttribute('required');
+                    }
+                });
             }
         });
 
-        document.querySelector('.return-form').addEventListener('submit', function (event) {
+        document.querySelector('#returnOrderModal form').addEventListener('submit', function (e) {
             const reasonSelect = document.getElementById('reason');
-            const otherReasonTextarea = document.getElementById('otherReason');
-
-            // If the selected reason is 'other', set the reason to the textarea value
-            if (reasonSelect.value === 'other') {
-                if (otherReasonTextarea.value.trim() === '') {
-                    alert("Please specify a reason for 'Other'");
-                    event.preventDefault(); // Prevent submission if no value is entered
-                } else {
-                    reasonSelect.value = otherReasonTextarea.value; // Set the select value to the textarea value
-                }
+            const otherReasonInput = document.getElementById('otherReasonInput');
+            if (reasonSelect.value === 'other' && otherReasonInput.value.trim() === '') {
+                e.preventDefault();
+                alert('Please specify a reason for "Other".');
             }
         });
     </script>
         <script>
-        // Previous scripts remain unchanged
-
-        // Add this new script for the cancel order functionality
         document.addEventListener('DOMContentLoaded', function() {
             const cancelOrderBtn = document.getElementById('cancelOrderBtn');
             if (cancelOrderBtn) {
@@ -801,12 +762,10 @@ function verifyPayment(response, razorpayOrderId, orderId) {
                         confirmButtonText: 'Yes, cancel it!'
                     }).then((result) => {
                         if (result.isConfirmed) {
-                            // If user confirms, submit the cancellation request
                             fetch(`/user/orders/<%= order._id %>/cancel`, {
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json',
-                                    // Add any necessary headers, like CSRF token if required
                                 },
                             })
                             .then(response => response.json())
@@ -817,7 +776,6 @@ function verifyPayment(response, razorpayOrderId, orderId) {
                                         'Your order has been cancelled.',
                                         'success'
                                     ).then(() => {
-                                        // Reload the page or redirect to order list
                                         window.location.reload();
                                     });
                                 } else {
@@ -841,86 +799,49 @@ function verifyPayment(response, razorpayOrderId, orderId) {
                 });
             }
         });
-
-        // Rest of the previous scripts remain unchanged
     </script>
         <script>
-            document.querySelectorAll('form[id^="cancelForm"]').forEach(form => {
-                form.addEventListener('submit', function(event) {
-                    event.preventDefault(); // Prevent the default form submission
-                    
-                    const formData = new FormData(this); // Create a FormData object
-        
-                    fetch(this.action, {
-                        method: 'POST',
-                        body: formData
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            // Show success message
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Success!',
-                                text: data.message,
-                                confirmButtonText: 'OK'
-                            }).then(() => {
-                                // Optionally redirect or reload the page
-                                location.reload(); // Reloads the page to reflect changes
-                            });
-                        } else {
-                            // Show error message
-                            Swal.fire({
-                                icon: 'warning',
-                                title: 'Oops!',
-                                text: data.message,
-                                confirmButtonText: 'OK'
-                            });
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
+        document.querySelectorAll('form[id^="cancelForm"]').forEach(form => {
+            form.addEventListener('submit', function(event) {
+                event.preventDefault();
+                const formData = new FormData(this);
+                fetch(this.action, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
                         Swal.fire({
-                            icon: 'error',
-                            title: 'Error!',
-                            text: 'Something went wrong. Please try again.',
+                            icon: 'success',
+                            title: 'Success!',
+                            text: data.message,
+                            confirmButtonText: 'OK'
+                        }).then(() => {
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Oops!',
+                            text: data.message,
                             confirmButtonText: 'OK'
                         });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: 'Something went wrong. Please try again.',
+                        confirmButtonText: 'OK'
                     });
                 });
             });
-        </script>
-        <script>
-document.addEventListener('DOMContentLoaded', function () {
-    const reasonSelect = document.getElementById('reason');
-    const otherReasonInput = document.getElementById('otherReasonInput');
-
-    if (reasonSelect) {
-        reasonSelect.addEventListener('change', function () {
-            if (this.value === 'other') {
-                otherReasonInput.style.display = 'block';
-                otherReasonInput.setAttribute('required', 'required');
-            } else {
-                otherReasonInput.style.display = 'none';
-                otherReasonInput.removeAttribute('required');
-            }
         });
-    }
-});
-</script>
-        <script>
-document.querySelector('#returnOrderModal form').addEventListener('submit', function (e) {
-    const reasonSelect = document.getElementById('reason');
-    const otherReasonInput = document.getElementById('otherReasonInput');
-
-    if (reasonSelect.value === 'other' && otherReasonInput.value.trim() === '') {
-        e.preventDefault();
-        alert('Please specify a reason for "Other".');
-    }
-});
-</script>
-
+    </script>
         <script
             src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-
-    </html>
+    </body>
+</html>

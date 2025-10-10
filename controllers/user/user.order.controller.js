@@ -21,7 +21,7 @@ const getOrders = async (req, res) => {
     // Fetch orders with skip & limit, sorted by newest first
     const orders = await Order.find({ userId }).sort({ createdAt: -1 }).skip(skip).limit(limit);
 
-    if (!orders || orders.length === 0) {
+    if (!orders) {
       return res.status(404).json({
         success: false,
         message: 'No orders found',
@@ -227,14 +227,15 @@ const formatCurrency = (amount) => {
     minimumFractionDigits: 2,
   }).format(amount);
 };
-// Use stored totals from Order whenever available
+
+// Helper function to calculate invoice totals
 const getInvoiceTotals = (order, taxRate = 0) => {
+  // Use only active products for subtotal calculation
   const subtotal =
     order.subtotalAfterOffers ||
-    order.orderedProducts.reduce(
-      (sum, item) => sum + item.productQuantity * item.finalUnitPrice,
-      0
-    );
+    order.orderedProducts
+      .filter((item) => item.status === 'active')
+      .reduce((sum, item) => sum + item.productQuantity * item.finalUnitPrice, 0);
 
   const totalDiscount =
     (order.discount || 0) + (order.couponDiscount || 0) + (order.offerTotalDiscount || 0);
@@ -265,9 +266,10 @@ const generateInvoice = (order, userName, companyDetails = {}) => {
     doc.on('error', (err) => reject(err));
 
     // Colors
-    const primaryColor = '#003087'; // Deep blue for professional look
-    const textColor = '#1a1a1a'; // Dark gray for readability
-    const accentColor = '#e6e6e6'; // Light gray for backgrounds
+    const primaryColor = '#003087';
+    const textColor = '#1a1a1a';
+    const accentColor = '#e6e6e6';
+    const cancelledColor = '#888888'; // Gray for cancelled items
     const REGULAR_FONT = 'Helvetica';
     const BOLD_FONT = 'Helvetica-Bold';
 
@@ -286,7 +288,7 @@ const generateInvoice = (order, userName, companyDetails = {}) => {
 
     // Header (Company Details, left-aligned)
     const companyX = 50;
-    const companyWidth = 130; // Reduced from 140 for tighter layout
+    const companyWidth = 130;
     doc
       .font(BOLD_FONT)
       .fillColor(primaryColor)
@@ -300,9 +302,9 @@ const generateInvoice = (order, userName, companyDetails = {}) => {
       .text(`Email: ${truncateText(company.email, 25)}`, companyX, 61, { width: companyWidth })
       .text(truncateText(company.taxId, 20), companyX, 69, { width: companyWidth });
 
-    // Invoice Metadata (right-aligned, stricter spacing)
-    const metadataX = doc.page.width - 110; // 485px (595 - 110) for larger gap
-    const metadataWidth = 60; // Reduced for tighter fit
+    // Invoice Metadata (right-aligned)
+    const metadataX = doc.page.width - 110;
+    const metadataWidth = 60;
     const metadataYStart = 30;
     doc
       .font(BOLD_FONT)
@@ -362,11 +364,11 @@ const generateInvoice = (order, userName, companyDetails = {}) => {
 
     // Items Table
     const tableTop = 300;
-    const tableWidth = doc.page.width - 100; // 595 - 100 = 495
-    const col1Width = tableWidth * 0.5; // Description: 50% (~247.5)
-    const col2Width = tableWidth * 0.15; // Quantity: 15% (~74.25)
-    const col3Width = tableWidth * 0.2; // Unit Price: 20% (~99)
-    const col4Width = tableWidth * 0.15; // Amount: 15% (~74.25)
+    const tableWidth = doc.page.width - 100;
+    const col1Width = tableWidth * 0.5;
+    const col2Width = tableWidth * 0.15;
+    const col3Width = tableWidth * 0.2;
+    const col4Width = tableWidth * 0.15;
 
     // Table Header
     drawLine(50, tableTop, doc.page.width - 50, tableTop);
@@ -386,35 +388,8 @@ const generateInvoice = (order, userName, companyDetails = {}) => {
       });
     drawLine(50, tableTop + 25, doc.page.width - 50, tableTop + 25);
 
-    // List Items (Option 1: Show only active products)
+    // List Items (Option 2: Show all products, marking cancelled ones)
     let position = tableTop + 35;
-    doc.font(REGULAR_FONT).fillColor(textColor).fontSize(10);
-    order.orderedProducts
-      .filter((item) => item.status === 'active')
-      .forEach((item) => {
-        const amount = item.productQuantity * item.finalUnitPrice;
-        doc
-          .text(truncateText(item.productName, 30), 50, position, {
-            width: col1Width - 10,
-            align: 'left',
-          })
-          .text(item.productQuantity, 50 + col1Width + 10, position, {
-            width: col2Width - 20,
-            align: 'right',
-          })
-          .text(formatCurrency(item.finalUnitPrice), 50 + col1Width + col2Width + 10, position, {
-            width: col3Width - 20,
-            align: 'right',
-          })
-          .text(formatCurrency(amount), 50 + col1Width + col2Width + col3Width + 10, position, {
-            width: col4Width - 20,
-            align: 'right',
-          });
-        position += 20;
-      });
-
-    // Option 2: Show all products, marking cancelled ones (commented out)
-    // let position = tableTop + 35;
     doc.font(REGULAR_FONT).fillColor(textColor).fontSize(10);
     order.orderedProducts.forEach((item) => {
       const isCancelled = item.status === 'cancelled';
@@ -423,7 +398,7 @@ const generateInvoice = (order, userName, companyDetails = {}) => {
         ? `${truncateText(item.productName, 25)} (Cancelled)`
         : truncateText(item.productName, 30);
       doc
-        .fillColor(isCancelled ? '#888888' : textColor) // Gray out cancelled items
+        .fillColor(isCancelled ? cancelledColor : textColor)
         .text(displayName, 50, position, { width: col1Width - 10, align: 'left' })
         .text(isCancelled ? '-' : item.productQuantity, 50 + col1Width + 10, position, {
           width: col2Width - 20,
@@ -433,10 +408,7 @@ const generateInvoice = (order, userName, companyDetails = {}) => {
           isCancelled ? '-' : formatCurrency(item.finalUnitPrice),
           50 + col1Width + col2Width + 10,
           position,
-          {
-            width: col3Width - 20,
-            align: 'right',
-          }
+          { width: col3Width - 20, align: 'right' }
         )
         .text(formatCurrency(amount), 50 + col1Width + col2Width + col3Width + 10, position, {
           width: col4Width - 20,
@@ -454,8 +426,7 @@ const generateInvoice = (order, userName, companyDetails = {}) => {
     const valueWidth = 80;
     const summaryValueX = summaryX + labelWidth + 10;
 
-    // Calculate totals using schema fields
-    const taxRate = 0; // Free delivery, no tax
+    const taxRate = 0;
     const { subtotal, totalDiscount, taxAmount, total } = getInvoiceTotals(order, taxRate);
 
     doc
@@ -524,7 +495,6 @@ const generateInvoice = (order, userName, companyDetails = {}) => {
     doc.end();
   });
 };
-
 const getInvoiceDowload = async (req, res) => {
   try {
     const orderId = req.params.orderId;

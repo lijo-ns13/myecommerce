@@ -13,6 +13,7 @@ const dotenv = require('dotenv').config();
 const Wallet = require('../../models/walletSchema');
 const crypto = require('crypto');
 const httpStatusCodes = require('../../constants/httpStatusCodes');
+const { CART } = require('../../constants/message');
 const getCheckout = async (req, res) => {
   try {
     const userId = req.user._id; // Assuming user is authenticated and user ID is available from the session or JWT
@@ -253,7 +254,7 @@ const postCheckout = async (req, res) => {
       });
 
       req.session.couponCode = null;
-
+      await Cart.deleteOne({ userId });
       return res.json({
         success: true,
         orderId: newOrder._id,
@@ -279,7 +280,7 @@ const postCheckout = async (req, res) => {
       await Cart.deleteOne({ userId });
 
       req.session.couponCode = null;
-
+      await Cart.deleteOne({ userId });
       return res.status(httpStatusCodes.OK).json({
         success: true,
         orderId: newOrder._id,
@@ -315,7 +316,7 @@ const postCheckout = async (req, res) => {
       await Cart.deleteOne({ userId });
 
       req.session.couponCode = null;
-
+      await Cart.deleteOne({ userId });
       return res.status(httpStatusCodes.OK).json({
         success: true,
         orderId: newOrder._id,
@@ -434,8 +435,7 @@ const postPaymentSuccess = async (req, res) => {
     // Clear the cart after successful order
     // req.session.cart = null;
 
-    cart = null;
-
+    await Cart.deleteOne({ userId: req.user._id });
     // Send success response
     res.status(httpStatusCodes.OK).send('Order placed successfully!');
   } catch (err) {
