@@ -51,14 +51,29 @@ const updateOrderStatus = async (req, res) => {
       quantity: item.quantity,
     }));
 
+    const previousStatus = order.status;
+
     // Update order status
     order.status = status;
+
+    // If the order status is failed, restock the products only if not coming from pending
+    let shouldRestock = false;
+    if (status === 'payment_failed' && previousStatus !== 'pending') {
+      shouldRestock = true;
+    } else if (status === 'payment_failed') {
+      // Mark products as cancelled
+      order.products.forEach((product) => {
+        product.status = 'cancelled';
+      });
+      order.orderedProducts.forEach((product) => {
+        product.status = 'cancelled';
+      });
+    }
 
     // Save the order
     await order.save();
 
-    // If the order status is failed, restock the products
-    if (status === 'payment_failed') {
+    if (shouldRestock) {
       const productsToUpdate = await Product.find({
         _id: { $in: productRestockInfo.map((info) => info.productId) },
       });
@@ -154,12 +169,33 @@ const verifyPaymentTwo = async (req, res) => {
       .digest('hex');
 
     if (generatedSignature === razorpay_signature) {
-      const result = await Order.updateOne({ _id: order_id }, { status: 'pending' });
-      if (result.modifiedCount === 0) {
+      const order = await Order.findById(order_id);
+      if (!order) {
         return res
           .status(httpStatusCodes.NOT_FOUND)
-          .json({ success: false, message: 'Order not found or status already updated.' });
+          .json({ success: false, message: 'Order not found.' });
       }
+
+      // Update order status to processing
+      order.status = 'processing';
+      await order.save();
+
+      // Decrement stock
+      for (const item of order.products) {
+        const product = await Product.findById(item.productId);
+        if (product) {
+          const sizeIndex = product.sizes.findIndex(
+            (size) => size.size.toString() === item.size.toString()
+          );
+          if (sizeIndex !== -1) {
+            product.sizes[sizeIndex].stock -= item.quantity;
+            await product.save();
+          }
+        }
+      }
+
+      // Clear the cart
+      await Cart.deleteOne({ userId: order.userId });
 
       return res.json({ success: true });
     } else {

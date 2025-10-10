@@ -1,152 +1,179 @@
-const mongoose=require('mongoose');
-const {Schema}=mongoose;
-const User=require('./userSchema')
+const mongoose = require('mongoose');
+const { Schema } = mongoose;
+const User = require('./userSchema');
 
-const orderSchema=new Schema({
-    userId:{
-        type:Schema.Types.ObjectId,
-        required:true,
-        ref:'User'
+const orderSchema = new Schema(
+  {
+    userId: {
+      type: Schema.Types.ObjectId,
+      required: true,
+      ref: 'User',
     },
-    products:[
-        {
-            productId:{
-                type:Schema.Types.ObjectId,
-                ref:'Product',
-                required:true
-            },
-            quantity:Number,
-            price:Number,
-            size:{
-                type:String,
-                required:true
-            }
-        }
+    products: [
+      {
+        productId: {
+          type: Schema.Types.ObjectId,
+          ref: 'Product',
+          required: true,
+        },
+        quantity: Number,
+        price: Number,
+        size: {
+          type: String,
+          required: true,
+        },
+        status: {
+          type: String,
+          enum: ['active', 'cancelled', 'returned'],
+          default: 'active',
+        },
+      },
     ],
-    totalPrice:{
-        type:Number,
-        required:true
+    totalPrice: {
+      type: Number,
+      required: true,
     },
-    shippingAddress:{
-        phoneNo:{
-            type:Number,
-            required:true
-        },
-        street:{
-            type:String,
-            required:true
-        },
-        city:{
-            type:String,
-            required:true
-        },
-        state:{
-            type:String,
-            required:true
-        },
-        postalCode:{
-            type:Number,
-            required:true
-        }
-        ,country:{
-            type:String,
-            required:true
-        }
+    shippingAddress: {
+      phoneNo: {
+        type: Number,
+        required: true,
+      },
+      street: {
+        type: String,
+        required: true,
+      },
+      city: {
+        type: String,
+        required: true,
+      },
+      state: {
+        type: String,
+        required: true,
+      },
+      postalCode: {
+        type: Number,
+        required: true,
+      },
+      country: {
+        type: String,
+        required: true,
+      },
     },
-    orderDate:{
-        type:Date,
-        default:Date.now
+    orderDate: {
+      type: Date,
+      default: Date.now,
     },
-    deliveryDate: { type: Date } ,
-    status:{
-        type:String,
-        enum:[ 'pending', 
-            'processing',
-            'shipped', 
-            'delivered', 
-            'pending_return',
-            'processing_return',
-            'initiated_return',
-            'rejected_return',
-            'returned',
-            'refunded',
-            'cancelled',
-            'payment_failed',
-            'out_of_stock',
-            'on_hold',
-            'failed'],
-        default:'pending'
-
+    deliveryDate: { type: Date },
+    status: {
+      type: String,
+      enum: [
+        'pending',
+        'processing',
+        'shipped',
+        'delivered',
+        'pending_return',
+        'processing_return',
+        'initiated_return',
+        'rejected_return',
+        'returned',
+        'refunded',
+        'cancelled',
+        'payment_failed',
+        'out_of_stock',
+        'on_hold',
+        'failed',
+      ],
+      default: 'pending',
     },
-    returnReason:{
-        type:String
+    returnReason: {
+      type: String,
     },
-    // paymentMethod:{
-    //     type:String,
-    //     required:true
-    // },
     paymentDetails: {
-        paymentMethod: {
-            type: String,
-            required: true
-        },
-        transactionId: {
-            type: String,
-            required: true
-        }
+      paymentMethod: {
+        type: String,
+        required: true,
+      },
+      transactionId: {
+        type: String,
+        required: true,
+      },
     },
     orderedProducts: [
-        {
-            productName: {
-                type: String,
-                required: true  // Consider adding required validation
-            },
-            productPrice: {
-                type: Number,
-                required: true  // Consider adding required validation
-            },
-            productQuantity: {
-                type: Number,
-                required: true  // Consider adding required validation
-            },
-            productSize: {
-                type: Number,  // Changed to String to accommodate different size formats
-                required: true  // Consider adding required validation
-            },
-            productImage:{
-                type:String,
-                required:true
-            },
-            productId:{
-                type:String,
-                required:true
-            }
-        }
+      {
+        productName: {
+          type: String,
+          required: true,
+        },
+        productPrice: {
+          type: Number,
+          required: true,
+        },
+        productQuantity: {
+          type: Number,
+          required: true,
+        },
+        productSize: {
+          type: Number,
+          required: true,
+        },
+        productImage: {
+          type: String,
+          required: true,
+        },
+        productId: {
+          type: String,
+          required: true,
+        },
+        offerDiscountPerUnit: {
+          type: Number,
+          default: 0,
+        },
+        finalUnitPrice: {
+          type: Number,
+          required: true,
+        },
+        status: {
+          type: String,
+          enum: ['active', 'cancelled', 'returned'],
+          default: 'active',
+        },
+      },
     ],
-
-    isDiscount:{
-        type:Boolean,
-        default:false
+    isDiscount: {
+      type: Boolean,
+      default: false,
     },
-    discount:{
-        type:Number
+    discount: {
+      type: Number,
     },
-    originalPrice:{
-        type:Number,
-        
+    originalPrice: {
+      type: Number,
     },
-    genOrderId:{
-        type:String,
-        default:'generatedOrderId'
-    }
-},{
-    timestamps:true
-})
+    genOrderId: {
+      type: String,
+      default: 'generatedOrderId',
+    },
+    couponDiscount: {
+      type: Number,
+      default: 0,
+    },
+    couponId: {
+      type: Schema.Types.ObjectId,
+      ref: 'coupon',
+      default: null,
+    },
+    offerTotalDiscount: {
+      type: Number,
+      default: 0,
+    },
+    subtotalAfterOffers: {
+      type: Number,
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
 
-const Order=mongoose.model('order',orderSchema);
-module.exports=Order;
-
-
-
-
-
+const Order = mongoose.model('order', orderSchema);
+module.exports = Order;
