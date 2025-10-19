@@ -9,6 +9,7 @@ router.use(methodOverride('_method'));
 router.use(jwtAuth, adminProtected);
 
 router.get('/', adminOfferController.getOffers);
+router.get('/data', adminOfferController.getOffersData);
 router.get('/add-offer', adminOfferController.getAddOffer);
 router.post('/add-offer', adminOfferController.addOffer);
 router.get('/edit-offer/:id', adminOfferController.getEditOffer);

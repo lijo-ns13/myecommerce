@@ -1,293 +1,509 @@
+
 <!DOCTYPE html>
 <html lang="en">
-
     <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Offers Page</title>
-        <link rel="stylesheet"
-            href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
-        <link rel="stylesheet"
-            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Offer Management</title>
         <link
-            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
-            rel="stylesheet">
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+            integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM"
+            crossorigin="anonymous" />
         <link
-            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
-            rel="stylesheet">
-        <script
-            src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+            rel="stylesheet"
+            integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA=="
+            crossorigin="anonymous" />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+            rel="stylesheet" />
         <style>
-        body {
-            background-color: #f0f2f5;
-            font-family: 'Arial', sans-serif;
-        }
-/* 
-.main-content {
-            margin-left: 250px;
-            padding: 20px;
-            width: calc(100% - 250px);
-        } */
-
+      body {
+        font-family: 'Inter', sans-serif;
+        background-color: #f4f6f8;
+        color: #333;
+      }
+      .content {
+        margin-left: 200px;
+        padding: 40px 20px;
+        min-height: 100vh;
+        transition: margin-left 0.3s ease;
+      }
+      .card {
+        border: none;
+        border-radius: 12px;
+        background: #ffffff;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+      .table {
+        margin-bottom: 0;
+        border-collapse: separate;
+        border-spacing: 0;
+      }
+      .table th {
+        background-color: #007bff;
+        color: #fff;
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        padding: 12px;
+        border: none;
+      }
+      .table td {
+        padding: 12px;
+        vertical-align: middle;
+        border: none;
+        background: #fff;
+      }
+      .table tr {
+        transition: background-color 0.2s ease;
+      }
+      .table tr:hover {
+        background-color: #f8f9fa;
+      }
+      .badge {
+        font-size: 0.8rem;
+        padding: 6px 12px;
+        border-radius: 12px;
+        font-weight: 500;
+      }
+      .btn-custom {
+        border-radius: 8px;
+        font-weight: 500;
+        padding: 6px 12px;
+        transition: background-color 0.2s ease;
+      }
+      .btn-custom:hover {
+        opacity: 0.9;
+      }
+      .search-container {
+        max-width: 400px;
+      }
+      .search-container .form-control {
+        border-radius: 8px;
+        border: 1px solid #ced4da;
+        padding: 10px 15px;
+        box-shadow: none;
+        font-size: 0.9rem;
+      }
+      .search-container .form-control:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+      }
+      .pagination .page-link {
+        border-radius: 6px;
+        margin: 0 3px;
+        color: #007bff;
+        border: 1px solid #dee2e6;
+        font-size: 0.9rem;
+      }
+      .pagination .page-item.active .page-link {
+        background-color: #007bff;
+        border-color: #007bff;
+        color: #fff;
+      }
+      .pagination .page-item.disabled .page-link {
+        color: #6c757d;
+      }
+      .form-check-input:checked {
+        background-color: #28a745;
+        border-color: #28a745;
+      }
+      @media (max-width: 768px) {
         .content {
-            margin-left: 250px;
-            padding: 20px;
-            transition: all 0.3s;
+          margin-left: 0;
+          padding: 20px;
         }
-
+        .search-container {
+          max-width: 100%;
+        }
+        .table {
+          font-size: 0.85rem;
+        }
+        .table th,
+        .table td {
+          padding: 8px;
+        }
         .btn-custom {
-            margin: 0.2rem;
+          padding: 4px 8px;
+          font-size: 0.85rem;
         }
-
-        .no-offers {
-            font-size: 18px;
-            color: #777;
-        }
-
-        .table-container {
-            background-color: #fff;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            margin-top: 20px;
-        }
-
-        .table th {
-            background-color: #f8f9fa;
-            font-weight: 600;
-        }
-
-        .table td, .table th {
-            vertical-align: middle;
-        }
-
-        .badge {
-            font-size: 0.8em;
-            margin: 2px;
-        }
-
-        .search-box {
-            max-width: 300px;
-            margin-bottom: 20px;
-        }
-
-        .pagination {
-            justify-content: center;
-            margin-top: 20px;
-        }
-
-        .status-toggle {
-            cursor: pointer;
-        }
-
-        @media (max-width: 768px) {
-            .sidebar {
-                width: 100%;
-                position: static;
-                height: auto;
-            }
-
-            .main-content {
-                margin-left: 0;
-                width: 100%;
-            }
-        }
+      }
     </style>
     </head>
-
     <body>
-
-        <!-- Main Content Area -->
         <div class="content">
-            <h1 class="mb-4">Manage Offers</h1>
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <a href="/admin/offers/add-offer" class="btn btn-primary"><i
-                        class="fas fa-plus"></i> Add New Offer</a>
-
+            <div
+                class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5">
+                <h2 class="mb-3 mb-md-0 fw-bold text-dark">Offer Management</h2>
+                <div class="d-flex flex-wrap gap-3">
+                    <div class="search-container">
+                        <input
+                            type="text"
+                            id="searchInput"
+                            class="form-control"
+                            placeholder="Search by offer name"
+                            value="<%= search || '' %>" />
+                    </div>
+                    <a href="/admin/offers/add-offer"
+                        class="btn btn-primary btn-custom">
+                        <i class="fas fa-plus"></i> Add Offer
+                    </a>
+                </div>
             </div>
 
-            <div class="table-container">
-                <table class="table table-hover" id="offersTable">
-                    <thead>
-                        <tr>
-                            <th>Offer Name <i class="fas fa-sort"></i></th>
-                            <th>Description</th>
-                            <th>Type <i class="fas fa-sort"></i></th>
-                            <th>Discount (%) <i class="fas fa-sort"></i></th>
-                            <th>Status</th>
-                            <th>Categories</th>
-                            <th>Products</th>
-                            <th>Date Range <i class="fas fa-sort"></i></th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <% if (offers && offers.length > 0) { %>
-                        <% for (const offer of offers) { %>
-                        <tr>
-                            <td><%= offer.offerName %></td>
-                            <td><%= offer.offerDescription %></td>
-                            <td><%= offer.offerType %></td>
-                            <td><%= offer.discountValue %></td>
-                            <td>
-                                <div class="form-check form-switch">
-                                    <input
-                                        class="form-check-input status-toggle"
-                                        type="checkbox"
-                                        id="status-<%= offer._id %>"
-                                        <%=offer.offerStatus === 'active' ?
-                                        'checked' : '' %>>
-                                    <label class="form-check-label"
-                                        for="status-<%= offer._id %>"><%=
-                                        offer.offerStatus %></label>
-                                </div>
-                            </td>
-                            <td>
-                                <% for (const category of offer.categoryIds) {
-                                %>
-                                <span class="badge bg-secondary"><%=
-                                    category.name %></span>
-                                <% } %>
-                            </td>
-                            <td>
-                                <% for (const productId of offer.productIds) {
-                                %>
-                                <% const product = products.find(p =>
-                                p._id.toString() === productId.toString()); %>
-                                <% if (product) { %>
-                                <span class="badge bg-info"><%= product._id
-                                    %></span>
-                                <% } %>
-                                <% } %>
-                            </td>
-                            <td>
-                                <%= new
-                                Date(offer.startDate).toLocaleDateString('en-IN')
-                                %> -
-                                <%= new
-                                Date(offer.endDate).toLocaleDateString('en-IN')
-                                %>
-                            </td>
-                            <td>
-                                <a
-                                    href="/admin/offers/edit-offer/<%= offer._id %>"
-                                    class="btn btn-warning btn-sm"><i
-                                        class="fas fa-edit"></i></a>
-                                <button
-                                    class="btn btn-danger btn-sm delete-offer"
-                                    data-offer-id="<%= offer._id %>"
-                                    data-offer-name="<%= offer.offerName %>">
-                                    <i class="fas fa-trash-alt"></i>
-                                </button>
-                            </td>
-                        </tr>
-                        <% } %>
-                        <% } else { %>
-                        <tr>
-                            <td colspan="9" class="text-center no-offers">No
-                                offers available at the moment.</td>
-                        </tr>
-                        <% } %>
-                    </tbody>
-                </table>
-            </div>
+            <div id="offers-content">
+                <% if (offers && offers.length > 0) { %>
+                <div class="card shadow-sm">
+                    <div class="card-body p-0">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Offer Name</th>
+                                    <th>Description</th>
+                                    <th>Type</th>
+                                    <th>Discount (%)</th>
+                                    <th>Status</th>
+                                    <th>Categories</th>
+                                    <th>Products</th>
+                                    <th>Date Range</th>
+                                    <th class="text-end">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% offers.forEach((offer) => { %>
+                                <tr>
+                                    <td><%= offer.offerName || 'N/A' %></td>
+                                    <td><%= offer.offerDescription || 'N/A'
+                                        %></td>
+                                    <td><%= offer.offerType || 'N/A' %></td>
+                                    <td><%= offer.discountValue || '0' %></td>
+                                    <td>
+                                        <div class="form-check form-switch">
+                                            <input
+                                                class="form-check-input status-toggle"
+                                                type="checkbox"
+                                                id="status-<%= offer._id %>"
+                                                <%=offer.offerStatus ===
+                                                'active' ? 'checked' : '' %>
+                                            data-offer-id="<%= offer._id %>">
+                                            <label class="form-check-label"
+                                                for="status-<%= offer._id %>">
+                                                <%= offer.offerStatus ||
+                                                'inactive' %>
+                                            </label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <% (offer.categoryIds ||
+                                        []).forEach((category) => { %>
+                                        <span class="badge bg-secondary"><%=
+                                            category.name || 'N/A' %></span>
+                                        <% }) %>
+                                    </td>
+                                    <td>
+                                        <% (offer.productIds ||
+                                        []).forEach((productId) => { %>
+                                        <% const product = products.find(p =>
+                                        p._id.toString() ===
+                                        productId.toString()); %>
+                                        <% if (product) { %>
+                                        <span class="badge bg-info"><%=
+                                            product._id %></span>
+                                        <% } %>
+                                        <% }) %>
+                                    </td>
+                                    <td>
+                                        <%= offer.startDate ? new
+                                        Date(offer.startDate).toLocaleDateString('en-IN')
+                                        : 'N/A' %> -
+                                        <%= offer.endDate ? new
+                                        Date(offer.endDate).toLocaleDateString('en-IN')
+                                        : 'N/A' %>
+                                    </td>
+                                    <td class="text-end">
+                                        <a
+                                            href="/admin/offers/edit-offer/<%= offer._id %>"
+                                            class="btn btn-warning btn-sm btn-custom me-1">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </a>
+                                        <button
+                                            class="btn btn-danger btn-sm btn-custom delete-offer"
+                                            data-offer-id="<%= offer._id %>"
+                                            data-offer-name="<%- (offer.offerName || 'N/A').replace(/"/g,
+                                            '&quot;').replace(/'/g, '&apos;')
+                                            %>">
+                                            <i class="fas fa-trash"></i> Delete
+                                        </button>
+                                    </td>
+                                </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <% } else { %>
+                <div class="alert alert-info" role="alert">
+                    No offers found
+                </div>
+                <% } %>
 
-            <nav aria-label="Page navigation">
-                <ul class="pagination">
-                    <li class="page-item disabled"><a class="page-link"
-                            href="#">Previous</a></li>
-                    <li class="page-item active"><a class="page-link"
-                            href="#">1</a></li>
-                    <li class="page-item"><a class="page-link"
-                            href="#">2</a></li>
-                    <li class="page-item"><a class="page-link"
-                            href="#">3</a></li>
-                    <li class="page-item"><a class="page-link"
-                            href="#">Next</a></li>
-                </ul>
-            </nav>
+                <nav aria-label="Offer pagination" class="mt-5">
+                    <ul class="pagination justify-content-center">
+                        <li
+                            class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
+                            <a class="page-link"
+                                data-page="<%= currentPage - 1 %>">Previous</a>
+                        </li>
+                        <% for (let i = 1; i <= totalPages; i++) { %>
+                        <li
+                            class="page-item <%= i === currentPage ? 'active' : '' %>">
+                            <a class="page-link" data-page="<%= i %>"><%= i
+                                %></a>
+                        </li>
+                        <% } %>
+                        <li
+                            class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
+                            <a class="page-link"
+                                data-page="<%= currentPage + 1 %>">Next</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
         </div>
 
+        <script
+            src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+            crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script>
-$(document).ready(function() {
-  
-
-    // Sorting functionality
-    $('th').click(function(){
-        var table = $(this).parents('table').eq(0);
-        var rows = table.find('tr:gt(0)').toArray().sort(comparer($(this).index()));
-        this.asc = !this.asc;
-        if (!this.asc){rows = rows.reverse();}
-        for (var i = 0; i < rows.length; i++){table.append(rows[i]);}
-    });
-
-    function comparer(index) {
-        return function(a, b) {
-            var valA = getCellValue(a, index), valB = getCellValue(b, index);
-            return $.isNumeric(valA) && $.isNumeric(valB) ? valA - valB : valA.localeCompare(valB);
+      function debounce(func, delay) {
+        let timer;
+        return function (...args) {
+          clearTimeout(timer);
+          timer = setTimeout(() => func.apply(this, args), delay);
         };
-    }
+      }
 
-    function getCellValue(row, index){ return $(row).children('td').eq(index).text(); }
+      async function fetchOffers(page = 1, search = '') {
+        try {
+          const response = await fetch(`/admin/offers/data?page=${page}&limit=<%= limit %>&search=${encodeURIComponent(search)}`);
+          if (!response.ok) {
+            throw new Error('Failed to fetch offers');
+          }
+          const data = await response.json();
+          console.log('Fetched data:', data);
+          updateContent(data);
 
-    // Status toggle
-    $('.status-toggle').change(function() {
-        var offerId = $(this).attr('id').split('-')[1];
-        var newStatus = $(this).prop('checked') ? 'active' : 'inactive';
-        
-        // Here you would typically send an AJAX request to update the status
-        console.log('Updating offer ' + offerId + ' status to ' + newStatus);
-        
-        // Update the label
-        $(this).next('label').text(newStatus);
-    });
-
-    // Delete offer
-    // Delete offer
-$('.delete-offer').click(function() {
-    var offerId = $(this).data('offer-id');
-    var offerName = $(this).data('offer-name');
-    
-    Swal.fire({
-        title: 'Are you sure?',
-        text: `You are about to delete the offer "${offerName}". This action cannot be undone.`,
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Yes, delete it!'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            $.ajax({
-                url: `/admin/offers/delete-offer/${offerId}`, // Change to your delete route
-                type: 'DELETE',
-                success: function(response) {
-                    // On success, remove the row from the table
-                    $(this).closest('tr').remove();
-                    Swal.fire(
-                        'Deleted!',
-                        'The offer has been deleted.',
-                        'success'
-                    );
-                }.bind(this), // Bind 'this' to the function to refer to the button element
-                error: function(xhr) {
-                    // Handle error
-                    Swal.fire(
-                        'Error!',
-                        'There was an error deleting the offer.',
-                        'error'
-                    );
-                }
-            });
+          const newUrl = `?page=${page}&limit=<%= limit %>&search=${encodeURIComponent(search)}`;
+          history.pushState({ page, search }, '', newUrl);
+        } catch (error) {
+          console.error('Fetch error:', error);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to load offers. Please try again.',
+            confirmButtonText: 'OK'
+          });
         }
-    });
-});
+      }
 
-});
-</script>
+      function updateContent(data) {
+        let html = '';
+        if (data.offers && data.offers.length > 0) {
+          html += `
+            <div class="card shadow-sm">
+              <div class="card-body p-0">
+                <table class="table table-hover align-middle mb-0">
+                  <thead>
+                    <tr>
+                      <th>Offer Name</th>
+                      <th>Description</th>
+                      <th>Type</th>
+                      <th>Discount (%)</th>
+                      <th>Status</th>
+                      <th>Categories</th>
+                      <th>Products</th>
+                      <th>Date Range</th>
+                      <th class="text-end">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>`;
+          data.offers.forEach(offer => {
+            html += `
+              <tr>
+                <td>${offer.offerName || 'N/A'}</td>
+                <td>${offer.offerDescription || 'N/A'}</td>
+                <td>${offer.offerType || 'N/A'}</td>
+                <td>${offer.discountValue || '0'}</td>
+                <td>
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input status-toggle"
+                      type="checkbox"
+                      id="status-${offer._id}"
+                      ${offer.offerStatus === 'active' ? 'checked' : ''}
+                      data-offer-id="${offer._id}">
+                    <label class="form-check-label" for="status-${offer._id}">
+                      ${offer.offerStatus || 'inactive'}
+                    </label>
+                  </div>
+                </td>
+                <td>
+                  ${(offer.categoryIds || []).map(category => `<span class="badge bg-secondary">${category.name || 'N/A'}</span>`).join(' ')}
+                </td>
+                <td>
+                  ${(offer.productIds || []).map(productId => {
+                    const product = data.products.find(p => p._id === productId.toString());
+                    return product ? `<span class="badge bg-info">${product._id}</span>` : '';
+                  }).join(' ')}
+                </td>
+                <td>
+                  ${offer.startDate ? new Date(offer.startDate).toLocaleDateString('en-IN') : 'N/A'} -
+                  ${offer.endDate ? new Date(offer.endDate).toLocaleDateString('en-IN') : 'N/A'}
+                </td>
+                <td class="text-end">
+                  <a
+                    href="/admin/offers/edit-offer/${offer._id}"
+                    class="btn btn-warning btn-sm btn-custom me-1">
+                    <i class="fas fa-edit"></i> Edit
+                  </a>
+                  <button
+                    class="btn btn-danger btn-sm btn-custom delete-offer"
+                    data-offer-id="${offer._id}"
+                    data-offer-name="${(offer.offerName || 'N/A').replace(/"/g, '&quot;').replace(/'/g, '&apos;')}">
+                    <i class="fas fa-trash"></i> Delete
+                  </button>
+                </td>
+              </tr>`;
+          });
+          html += `
+                  </tbody>
+                </table>
+              </div>
+            </div>`;
+        } else {
+          html += `
+            <div class="alert alert-info" role="alert">
+              No offers found
+            </div>`;
+        }
 
+        html += `
+          <nav aria-label="Offer pagination" class="mt-5">
+            <ul class="pagination justify-content-center">
+              <li class="page-item ${data.currentPage === 1 ? 'disabled' : ''}">
+                <a class="page-link" data-page="${data.currentPage - 1}">Previous</a>
+              </li>`;
+        for (let i = 1; i <= (data.totalPages || 1); i++) {
+          html += `
+              <li class="page-item ${i === data.currentPage ? 'active' : ''}">
+                <a class="page-link" data-page="${i}">${i}</a>
+              </li>`;
+        }
+        html += `
+              <li class="page-item ${data.currentPage === (data.totalPages || 1) ? 'disabled' : ''}">
+                <a class="page-link" data-page="${data.currentPage + 1}">Next</a>
+              </li>
+            </ul>
+          </nav>`;
+
+        document.getElementById('offers-content').innerHTML = html;
+
+        attachPaginationListeners();
+        attachStatusToggleListeners();
+        attachDeleteListeners();
+      }
+
+      function attachPaginationListeners() {
+        document.querySelectorAll('.page-link').forEach(link => {
+          link.addEventListener('click', (event) => {
+            event.preventDefault();
+            const page = parseInt(link.getAttribute('data-page'));
+            if (!isNaN(page)) {
+              const search = document.getElementById('searchInput').value.trim();
+              fetchOffers(page, search);
+            }
+          });
+        });
+      }
+
+      function attachStatusToggleListeners() {
+        document.querySelectorAll('.status-toggle').forEach(toggle => {
+          toggle.addEventListener('change', () => {
+            const offerId = toggle.getAttribute('data-offer-id');
+            const newStatus = toggle.checked ? 'active' : 'inactive';
+            console.log(`Updating offer ${offerId} status to ${newStatus}`);
+            toggle.nextElementSibling.textContent = newStatus;
+          });
+        });
+      }
+
+      function attachDeleteListeners() {
+        document.querySelectorAll('.delete-offer').forEach(button => {
+          button.addEventListener('click', () => {
+            const offerId = button.getAttribute('data-offer-id');
+            const offerName = button.getAttribute('data-offer-name');
+            deleteOffer(offerId, offerName);
+          });
+        });
+      }
+
+      function deleteOffer(offerId, offerName) {
+        Swal.fire({
+          title: 'Are you sure?',
+          text: `You are about to delete the offer "${offerName}". This action cannot be undone.`,
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#d33',
+          cancelButtonColor: '#3085d6',
+          confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            fetch(`/admin/offers/delete-offer/${offerId}`, {
+              method: 'DELETE',
+              headers: { 'Content-Type': 'application/json' }
+            })
+              .then(response => {
+                if (!response.ok) throw new Error('Failed to delete offer');
+                return response.json();
+              })
+              .then(data => {
+                Swal.fire({
+                  icon: 'success',
+                  title: 'Deleted',
+                  text: data.message,
+                  confirmButtonText: 'OK'
+                }).then(() => {
+                  const search = document.getElementById('searchInput').value.trim();
+                  const currentPage = parseInt(new URLSearchParams(window.location.search).get('page')) || 1;
+                  fetchOffers(currentPage, search);
+                });
+              })
+              .catch(error => {
+                console.error('Delete error:', error);
+                Swal.fire({
+                  icon: 'error',
+                  title: 'Error',
+                  text: error.message || 'Something went wrong.',
+                  confirmButtonText: 'OK'
+                });
+              });
+          }
+        });
+      }
+
+      const searchInput = document.getElementById('searchInput');
+      searchInput.addEventListener('keyup', debounce(() => {
+        const search = searchInput.value.trim();
+        fetchOffers(1, search);
+      }, 500));
+
+      attachPaginationListeners();
+      attachStatusToggleListeners();
+      attachDeleteListeners();
+    </script>
     </body>
 </html>
