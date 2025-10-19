@@ -110,33 +110,27 @@ const getProductDetailed = async (req, res) => {
 const getFullProducts = async (req, res) => {
   const { query = '', category = '', sort = '', page = 1, limit = 18 } = req.query;
   const currentPage = parseInt(page, 10) || 1;
-  const pageSize = parseInt(limit, 10) || 18;
+  const pageSize = parseInt(limit, 10) || 16;
+
   try {
-    currentUserId = req.user ? req.user._id : null;
-    // Normalize category: always a string or empty
+    const currentUserId = req.user ? req.user._id : null;
     const selectedCategory = category ? category.toString() : '';
-    const cart = await Cart.find({});
     const userWishlist = currentUserId
       ? await User.findById(currentUserId).populate('wishlist')
       : null;
     const wishlist = userWishlist ? userWishlist.wishlist : [];
-    // Prepare filter object
-    let filter = { isListed: true }; // Only fetch listed products
 
-    // Prepare search filter
+    let filter = { isListed: true };
     if (query) {
       filter.$or = [
-        { product: { $regex: query, $options: 'i' } }, // Case-insensitive search on product name
-        { description: { $regex: query, $options: 'i' } }, // Case-insensitive search on description
+        { product: { $regex: query, $options: 'i' } },
+        { description: { $regex: query, $options: 'i' } },
       ];
     }
-
-    // Filter by category if specified
     if (category) {
       filter.category = category;
     }
 
-    // Define sorting options
     const sortOptionsMap = {
       price_low_high: { finalPrice: 1 },
       price_high_low: { finalPrice: -1 },
@@ -144,19 +138,32 @@ const getFullProducts = async (req, res) => {
       a_z: { product: 1 },
       z_a: { product: -1 },
     };
+    const sortOption = sortOptionsMap[sort] || { createdAt: -1 };
 
-    const sortOption = sortOptionsMap[sort] || { createdAt: -1 }; // Default sorting to new arrivals if not specified
-
-    // Fetch categories for dropdown
     const categories = await Category.find();
     const totalProducts = await Product.countDocuments(filter);
-    // Fetch products based on filter and sort
     const products = await Product.find(filter)
+      .populate('category')
       .sort(sortOption)
       .skip((currentPage - 1) * pageSize)
       .limit(pageSize);
     const totalPages = Math.ceil(totalProducts / pageSize);
-    // Pass data to the view
+
+    // Check if request is for AJAX
+    if (req.xhr || req.headers['x-requested-with'] === 'XMLHttpRequest') {
+      return res.json({
+        products,
+        categories,
+        searchQuery: query,
+        selectedCategory,
+        selectedSort: sort,
+        wishlist,
+        currentPage,
+        totalPages,
+        pageSize,
+      });
+    }
+
     res.render('fullproducts', {
       products,
       categories,
@@ -169,7 +176,10 @@ const getFullProducts = async (req, res) => {
       pageSize,
     });
   } catch (error) {
-    res.status(httpStatusCodes.INTERNAL_SERVER_ERROR).send(messages.ERROR.SERVER_ERROR);
+    console.error('Error in getFullProducts:', error);
+    res
+      .status(httpStatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: messages.ERROR.SERVER_ERROR });
   }
 };
 const getOffer = async (_req, res) => {

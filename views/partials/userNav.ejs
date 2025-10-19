@@ -1,0 +1,229 @@
+<style>
+  :root {
+    --primary-color: #007bff;
+    --secondary-color: #6c757d;
+    --text-color: #212529;
+    --accent-color: #dc3545;
+    --background-color: #ffffff;
+    --hover-bg: rgba(0, 123, 255, 0.1);
+    --transition-speed: 0.3s;
+  }
+
+  /* Navbar container */
+  .navbar {
+    background-color: var(--background-color);
+    padding: 0.8rem 2rem;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    font-family: 'Inter', sans-serif;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+  }
+
+  .navbar-brand img {
+    height: 50px;
+    transition: transform var(--transition-speed) ease;
+  }
+  .navbar-brand:hover img {
+    transform: scale(1.1);
+  }
+
+  /* Center nav items */
+  .navbar-nav.center-nav {
+    flex-grow: 1;
+    justify-content: center;
+    gap: 2rem;
+  }
+
+  .navbar-nav.center-nav .nav-link {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text-color);
+    position: relative;
+    padding: 0.5rem 0.8rem;
+    border-radius: 8px;
+    transition: all var(--transition-speed) ease;
+  }
+
+  .navbar-nav.center-nav .nav-link::after {
+    content: '';
+    display: block;
+    width: 0;
+    height: 2px;
+    background: var(--primary-color);
+    transition: width var(--transition-speed) ease;
+    margin-top: 5px;
+  }
+
+  .navbar-nav.center-nav .nav-link:hover {
+    color: var(--primary-color);
+    background-color: var(--hover-bg);
+  }
+  .navbar-nav.center-nav .nav-link:hover::after {
+    width: 100%;
+  }
+
+  /* Right nav */
+  .navbar-nav.right-nav {
+    gap: 1rem;
+    display: flex;
+    align-items: center;
+  }
+
+  .right-nav .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.95rem;
+    padding: 0.4rem 0.7rem;
+    color: var(--text-color);
+    border-radius: 50px;
+    transition: all var(--transition-speed) ease;
+    position: relative;
+  }
+  .right-nav .nav-link:hover {
+    background-color: var(--hover-bg);
+    color: var(--primary-color);
+  }
+
+  .nav-icon {
+    height: 28px;
+    width: 28px;
+    border-radius: 50%;
+    transition: transform var(--transition-speed) ease;
+  }
+  .right-nav .nav-link:hover .nav-icon {
+    transform: scale(1.15);
+  }
+
+  /* Badge */
+  .badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: var(--accent-color);
+    color: white;
+    font-size: 0.65rem;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 50%;
+  }
+
+  /* Navbar toggler */
+  .navbar-toggler {
+    border: none;
+    padding: 0.3rem 0.6rem;
+    background-color: var(--hover-bg);
+    border-radius: 8px;
+    transition: all var(--transition-speed) ease;
+  }
+
+  .navbar-toggler:hover {
+    background-color: var(--primary-color);
+  }
+
+  .navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(0,123,255,0.9)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 992px) {
+    .navbar-nav.center-nav {
+      gap: 1rem;
+    }
+    .nav-icon { height: 24px; width: 24px; }
+  }
+
+  @media (max-width: 576px) {
+    .navbar {
+      padding: 0.5rem 1rem;
+    }
+    .navbar-brand img { height: 40px; }
+    .navbar-nav.center-nav,
+    .navbar-nav.right-nav {
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      width: 100%;
+    }
+    .nav-link {
+      width: 100%;
+      justify-content: center;
+      font-size: 1rem;
+      padding: 0.6rem;
+    }
+    .right-nav .nav-link { justify-content: center; gap: 0.6rem; }
+  }
+</style>
+
+<nav class="navbar navbar-expand-lg">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/">
+            <img src="/img/logo.png" alt="Trendy Kicks Logo">
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+            data-bs-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false"
+            aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <!-- Center Nav -->
+            <ul class="navbar-nav center-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="/">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/products">Products</a>
+                </li>
+            </ul>
+
+            <!-- Right Nav -->
+            <ul class="navbar-nav right-nav ms-auto">
+                <% if (!isAuthenticated) { %>
+                <li class="nav-item">
+                    <a class="nav-link" href="/auth/signin"
+                        data-bs-toggle="tooltip" title="Login">
+                        <img src="/img/log-in.png" alt="Login" class="nav-icon">
+                        <span>Login</span>
+                    </a>
+                </li>
+                <% } else { %>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="/user/wishlist"
+                        data-bs-toggle="tooltip" title="Wishlist">
+                        <img src="/img/wishlist.png" alt="Wishlist"
+                            class="nav-icon">
+                        <span>Wishlist</span>
+                    </a>
+                </li>
+                <li class="nav-item position-relative">
+                    <a class="nav-link" href="/cart" data-bs-toggle="tooltip"
+                        title="Cart">
+                        <img src="/img/cart.png" alt="Cart" class="nav-icon">
+                        <span>Cart</span>
+
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/user/profile"
+                        data-bs-toggle="tooltip" title="Profile">
+                        <img src="/img/userprofile.jpg" alt="Profile"
+                            class="nav-icon rounded-circle">
+                        <span>Profile</span>
+                    </a>
+                </li>
+                <% } %>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.forEach(el => new bootstrap.Tooltip(el));
+  });
+</script>
