@@ -30,6 +30,7 @@ router.use(jwtAuth, adminProtected);
 router.get('/', adminController.getProduct);
 router.get('/viewproducts', adminController.getViewProduct);
 router.get('/add-product', adminController.getAddProduct);
+router.get('/data', adminController.getProductsData);
 router.post('/add-product', upload.array('productImages', 5), adminController.postAddProduct);
 router.post('/unlist-product/:id', adminController.postUnlist);
 router.post('/list-product/:id', adminController.postList);

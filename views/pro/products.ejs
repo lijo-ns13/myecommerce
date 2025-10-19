@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -15,7 +16,6 @@
             background-color: #f8f9fa;
             color: #343a40;
         }
-       
         .content {
             margin-left: 250px;
             padding: 20px;
@@ -53,10 +53,9 @@
             border-radius: 20px;
             margin: 0 3px;
         }
-    </style>
+        </style>
     </head>
     <body>
-
         <div class="content">
             <div class="container">
                 <div
@@ -64,127 +63,124 @@
                     <h2 class="mb-0">Products</h2>
                     <a href="/admin/products/add-product"
                         class="btn btn-primary btn-custom">
-                        <i class="fas fa-plus me-2"></i>Add Product*
+                        <i class="fas fa-plus me-2"></i>Add Product
                     </a>
                 </div>
-                <!-- Search Bar -->
                 <div class="mb-3">
-                    <input
-                        type="text"
-                        id="searchInput"
-                        class="form-control"
+                    <input type="text" id="searchInput" class="form-control"
                         placeholder="Search products..."
                         value="<%= search || '' %>">
                 </div>
-                <% if (products.length > 0) { %>
-                <div class="card">
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Product Name</th>
-                                        <th>Brand</th>
-                                        <th>Price</th>
-                                        <th>Category</th>
-                                        <th>Sizes</th>
-                                        <th>Stock</th>
-                                        <th>Images</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <% for (const pro of products) { %>
-                                    <tr>
-                                        <td><%= pro.product %></td>
-                                        <td><%= pro.brand %></td>
-                                        <td>₹<%= pro.price %></td>
-                                        <td><%= pro.category.name %></td>
-                                        <td>
-                                            <% if (pro.sizes.length > 0) { %>
-                                            <ul class="list-unstyled mb-0">
-                                                <% for (const size of pro.sizes)
-                                                { %>
-                                                <li><%= size.size %></li>
+                <div id="products-content">
+                    <% if (products.length > 0) { %>
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Product Name</th>
+                                            <th>Brand</th>
+                                            <th>Price</th>
+                                            <th>Category</th>
+                                            <th>Sizes</th>
+                                            <th>Stock</th>
+                                            <th>Images</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% for (const pro of products) { %>
+                                        <tr>
+                                            <td><%= pro.product %></td>
+                                            <td><%= pro.brand %></td>
+                                            <td>₹<%= pro.price %></td>
+                                            <td><%= pro.category.name %></td>
+                                            <td>
+                                                <% if (pro.sizes.length > 0) {
+                                                %>
+                                                <ul class="list-unstyled mb-0">
+                                                    <% for (const size of
+                                                    pro.sizes) { %>
+                                                    <li><%= size.size %></li>
+                                                    <% } %>
+                                                </ul>
+                                                <% } else { %>
+                                                <span class="text-muted">No
+                                                    sizes</span>
                                                 <% } %>
-                                            </ul>
-                                            <% } else { %>
-                                            <span class="text-muted">No
-                                                sizes</span>
-                                            <% } %>
-                                        </td>
-                                        <td>
-                                            <% if (pro.sizes.length > 0) { %>
-                                            <ul class="list-unstyled mb-0">
-                                                <% for (const size of pro.sizes)
-                                                { %>
-                                                <li><%= size.stock %></li>
+                                            </td>
+                                            <td>
+                                                <% if (pro.sizes.length > 0) {
+                                                %>
+                                                <ul class="list-unstyled mb-0">
+                                                    <% for (const size of
+                                                    pro.sizes) { %>
+                                                    <li><%= size.stock %></li>
+                                                    <% } %>
+                                                </ul>
+                                                <% } else { %>
+                                                <span class="text-muted">No
+                                                    stock</span>
                                                 <% } %>
-                                            </ul>
-                                            <% } else { %>
-                                            <span class="text-muted">No
-                                                stock</span>
-                                            <% } %>
-                                        </td>
-                                        <td>
-                                            <img
-                                                src="<%=pro.images[0].secured_url%>"
-                                                alt="Product Image"
-                                                class="img-thumbnail"
-                                                style="max-width: 100px;">
-                                        </td>
-                                        <td>
-                                            <div class="btn-group" role="group">
-                                                <a
-                                                    href="/admin/products/edit/<%= pro._id %>"
-                                                    class="btn btn-warning btn-sm btn-custom">
-                                                    <i class="fas fa-edit"></i>
-                                                    Edit
-                                                </a>
-                                                <form
-                                                    action="/admin/products/<%= pro.isListed ? 'unlist-product' : 'list-product' %>/<%= pro._id %>"
-                                                    method="post"
-                                                    class="d-inline-block"
-                                                    id="form-<%= pro._id %>">
-                                                    <button type="submit"
-                                                        class="btn <%= pro.isListed ? 'btn-danger' : 'btn-success' %> btn-sm btn-custom ms-2">
+                                            </td>
+                                            <td>
+                                                <img
+                                                    src="<%= pro.images[0].secured_url %>"
+                                                    alt="Product Image"
+                                                    class="img-thumbnail"
+                                                    style="max-width: 100px;">
+                                            </td>
+                                            <td>
+                                                <div class="btn-group"
+                                                    role="group">
+                                                    <a
+                                                        href="/admin/products/edit/<%= pro._id %>"
+                                                        class="btn btn-warning btn-sm btn-custom">
                                                         <i
-                                                            class="fas <%= pro.isListed ? 'fa-times-circle' : 'fa-check-circle' %> me-1"></i>
-                                                        <%= pro.isListed ?
-                                                        'Unlist' : 'List' %>
-                                                    </button>
-                                                </form>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <% } %>
-                                </tbody>
-                            </table>
+                                                            class="fas fa-edit"></i>
+                                                        Edit
+                                                    </a>
+                                                    <form
+                                                        action="/admin/products/<%= pro.isListed ? 'unlist-product' : 'list-product' %>/<%= pro._id %>"
+                                                        method="post"
+                                                        class="d-inline-block"
+                                                        id="form-<%= pro._id %>">
+                                                        <button type="submit"
+                                                            class="btn <%= pro.isListed ? 'btn-danger' : 'btn-success' %> btn-sm btn-custom ms-2">
+                                                            <i
+                                                                class="fas <%= pro.isListed ? 'fa-times-circle' : 'fa-check-circle' %> me-1"></i>
+                                                            <%= pro.isListed ?
+                                                            'Unlist' : 'List' %>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <% } %>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
+                    <nav aria-label="Page navigation" class="mt-4">
+                        <ul class="pagination justify-content-center">
+                            <% for (let i = 1; i <= totalPages; i++) { %>
+                            <li
+                                class="page-item <%= i === currentPage ? 'active' : '' %>">
+                                <a class="page-link" data-page="<%= i %>"><%= i
+                                    %></a>
+                            </li>
+                            <% } %>
+                        </ul>
+                    </nav>
+                    <% } else { %>
+                    <div class="alert alert-info" role="alert">
+                        <i class="fas fa-info-circle me-2"></i> No products
+                        available
+                    </div>
+                    <% } %>
                 </div>
-
-                <!-- Pagination controls -->
-                <nav aria-label="Page navigation" class="mt-4">
-                    <ul class="pagination justify-content-center">
-                        <% for (let i = 1; i <= totalPages; i++) { %>
-                        <li
-                            class="page-item <%= i === currentPage ? 'active' : '' %>">
-                            <a class="page-link"
-                                href="?page=<%= i %>&search=<%= search || '' %>">
-                                <%= i %>
-                            </a>
-                        </li>
-                        <% } %>
-                    </ul>
-                </nav>
-
-                <% } else { %>
-                <div class="alert alert-info" role="alert">
-                    <i class="fas fa-info-circle me-2"></i> No products
-                    available
-                </div>
-                <% } %>
             </div>
         </div>
 
@@ -193,68 +189,186 @@
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
         <script>
-        document.querySelectorAll('form[id^="form-"]').forEach(form => {
-          form.addEventListener('submit', async (event) => {
-            event.preventDefault();
-            
-            const formId = form.id;
-            const url = form.action;
-            const formData = new FormData(form);
-      
-            try {
-              const response = await fetch(url, {
-                method: 'POST',
-                body: formData
-              });
-              const result = await response.json();
-      
-              if (response.ok) {
-                Swal.fire({
-                  icon: 'success',
-                  title: 'Success!',
-                  text: result.message || 'Operation successful.',
-                  confirmButtonText: 'OK'
-                }).then(() => {
-                  window.location.reload();
-                });
-              } else {
-                Swal.fire({
-                  icon: 'error',
-                  title: 'Oops...',
-                  text: result.message || 'Something went wrong.',
-                  confirmButtonText: 'OK'
-                });
-              }
-            } catch (error) {
-              Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'An error occurred. Please try again.',
-                confirmButtonText: 'OK'
-              });
+            function debounce(func, delay) {
+                let timer;
+                return function(...args) {
+                    clearTimeout(timer);
+                    timer = setTimeout(() => func.apply(this, args), delay);
+                };
             }
-          });
-        });
-    </script>
-        <script>
-  // Simple debounce utility
-  function debounce(func, delay) {
-    let timer;
-    return function(...args) {
-      clearTimeout(timer);
-      timer = setTimeout(() => func.apply(this, args), delay);
-    };
-  }
 
-  const searchInput = document.getElementById("searchInput");
+            async function fetchProducts(page = 1, search = '') {
+                try {
+                    const response = await fetch(`/admin/products/data?page=${page}&search=${encodeURIComponent(search)}`);
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch products');
+                    }
+                    const data = await response.json();
+                    updateContent(data);
 
-  // Trigger search after user stops typing
-  searchInput.addEventListener("keyup", debounce(() => {
-    const searchTerm = searchInput.value.trim();
-    const url = `?search=${encodeURIComponent(searchTerm)}&page=1`; // reset to page 1 on new search
-    window.location.href = url; // reload with search param
-  }, 500)); // 500ms delay
-</script>
+                    const newUrl = `?page=${page}&search=${encodeURIComponent(search)}`;
+                    history.pushState({ page, search }, '', newUrl);
+                } catch (error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to load products. Please try again.',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            }
 
+            function updateContent(data) {
+                let html = '';
+                if (data.products.length > 0) {
+                    html += `
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Product Name</th>
+                                                <th>Brand</th>
+                                                <th>Price</th>
+                                                <th>Category</th>
+                                                <th>Sizes</th>
+                                                <th>Stock</th>
+                                                <th>Images</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>`;
+                    data.products.forEach(pro => {
+                        html += `
+                            <tr>
+                                <td>${pro.product}</td>
+                                <td>${pro.brand}</td>
+                                <td>₹${pro.price}</td>
+                                <td>${pro.category.name}</td>
+                                <td>`;
+                        if (pro.sizes.length > 0) {
+                            html += '<ul class="list-unstyled mb-0">';
+                            pro.sizes.forEach(size => {
+                                html += `<li>${size.size}</li>`;
+                            });
+                            html += '</ul>';
+                        } else {
+                            html += '<span class="text-muted">No sizes</span>';
+                        }
+                        html += `</td>
+                                <td>`;
+                        if (pro.sizes.length > 0) {
+                            html += '<ul class="list-unstyled mb-0">';
+                            pro.sizes.forEach(size => {
+                                html += `<li>${size.stock}</li>`;
+                            });
+                            html += '</ul>';
+                        } else {
+                            html += '<span class="text-muted">No stock</span>';
+                        }
+                        html += `</td>
+                                <td><img src="${pro.images[0].secured_url}" alt="Product Image" class="img-thumbnail" style="max-width: 100px;"></td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="/admin/products/edit/${pro._id}" class="btn btn-warning btn-sm btn-custom">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </a>
+                                        <form action="/admin/products/${pro.isListed ? 'unlist-product' : 'list-product'}/${pro._id}" method="post" class="d-inline-block" id="form-${pro._id}">
+                                            <button type="submit" class="btn ${pro.isListed ? 'btn-danger' : 'btn-success'} btn-sm btn-custom ms-2">
+                                                <i class="fas ${pro.isListed ? 'fa-times-circle' : 'fa-check-circle'} me-1"></i>
+                                                ${pro.isListed ? 'Unlist' : 'List'}
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>`;
+                    });
+                    html += `
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <nav aria-label="Page navigation" class="mt-4">
+                            <ul class="pagination justify-content-center">`;
+                    for (let i = 1; i <= data.totalPages; i++) {
+                        html += `
+                            <li class="page-item ${i === data.currentPage ? 'active' : ''}">
+                                <a class="page-link" data-page="${i}">${i}</a>
+                            </li>`;
+                    }
+                    html += `</ul></nav>`;
+                } else {
+                    html += `
+                        <div class="alert alert-info" role="alert">
+                            <i class="fas fa-info-circle me-2"></i> No products available
+                        </div>`;
+                }
+                document.getElementById('products-content').innerHTML = html;
+
+                attachFormListeners();
+                attachPaginationListeners();
+            }
+
+            function attachFormListeners() {
+                document.querySelectorAll('form[id^="form-"]').forEach(form => {
+                    form.addEventListener('submit', async (event) => {
+                        event.preventDefault();
+                        const url = form.action;
+                        try {
+                            const response = await fetch(url, { method: 'POST' });
+                            const result = await response.json();
+                            if (response.ok) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Success!',
+                                    text: result.message || 'Operation successful.',
+                                    confirmButtonText: 'OK'
+                                }).then(() => {
+                                    const search = document.getElementById('searchInput').value.trim();
+                                    const currentPage = parseInt(new URLSearchParams(window.location.search).get('page')) || 1;
+                                    fetchProducts(currentPage, search);
+                                });
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Oops...',
+                                    text: result.message || 'Something went wrong.',
+                                    confirmButtonText: 'OK'
+                                });
+                            }
+                        } catch (error) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'An error occurred. Please try again.',
+                                confirmButtonText: 'OK'
+                            });
+                        }
+                    });
+                });
+            }
+
+            function attachPaginationListeners() {
+                document.querySelectorAll('.page-link').forEach(link => {
+                    link.addEventListener('click', (event) => {
+                        event.preventDefault();
+                        const page = parseInt(link.getAttribute('data-page'));
+                        const search = document.getElementById('searchInput').value.trim();
+                        fetchProducts(page, search);
+                    });
+                });
+            }
+
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('keyup', debounce(() => {
+                const searchTerm = searchInput.value.trim();
+                fetchProducts(1, searchTerm);
+            }, 500));
+
+            attachFormListeners();
+            attachPaginationListeners();
+        </script>
     </body>
 </html>
