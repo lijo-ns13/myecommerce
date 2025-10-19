@@ -1,16 +1,15 @@
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Customer Management</title>
-    <!-- Bootstrap 5 CSS -->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
       rel="stylesheet"
       integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM"
       crossorigin="anonymous" />
-    <!-- Google Fonts for modern typography -->
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet" />
@@ -21,7 +20,7 @@
         color: #333;
       }
       .main-content {
-        margin-left: 200px; /* Adjusted for sidebar */
+        margin-left: 200px;
         padding: 40px 20px;
         min-height: 100vh;
         transition: margin-left 0.3s ease;
@@ -112,7 +111,6 @@
   <body>
     <main class="main-content">
       <div class="container-fluid">
-        <!-- Header -->
         <div
           class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5">
           <h2 class="mb-3 mb-md-0 fw-bold text-dark">Customer Management</h2>
@@ -122,189 +120,244 @@
               id="searchInput"
               class="form-control"
               placeholder="Search by name or email"
-              value="<%= searchQuery %>" />
+              value="<%= searchQuery || '' %>" />
           </div>
         </div>
 
-        <!-- Customer Grid -->
-        <div class="row g-4" id="customerList">
-          <% customers.forEach((customer) => { %>
-          <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 customer-item">
-            <div class="customer-card text-center h-100">
-              <img
-                src="https://api.dicebear.com/7.x/initials/svg?seed=<%= customer.name %>"
-                alt="Customer Avatar"
-                class="rounded-circle mb-3" />
-              <h6 class="name mb-1"><%= customer.name %></h6>
-              <p class="email mb-2"><%= customer.email %></p>
-              <p class="mb-3">
-                Status:
+        <div id="customers-content">
+          <% if (customers.length > 0) { %>
+          <div class="row g-4">
+            <% customers.forEach((customer) => { %>
+            <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 customer-item">
+              <div class="customer-card text-center h-100">
+                <img
+                  src="https://api.dicebear.com/7.x/initials/svg?seed=<%= customer.name %>"
+                  alt="Customer Avatar"
+                  class="rounded-circle mb-3" />
+                <h6 class="name mb-1"><%= customer.name %></h6>
+                <p class="email mb-2"><%= customer.email %></p>
+                <p class="mb-3">
+                  Status:
+                  <% if (customer.isBlocked) { %>
+                  <span class="badge bg-danger">Blocked</span>
+                  <% } else { %>
+                  <span class="badge bg-success">Active</span>
+                  <% } %>
+                </p>
                 <% if (customer.isBlocked) { %>
-                <span class="badge bg-danger">Blocked</span>
+                <form
+                  method="POST"
+                  action="/admin/customers/unblock-user/<%= customer._id %>"
+                  class="block-unblock-form">
+                  <button
+                    type="submit"
+                    class="btn btn-sm btn-success w-100 btn-unblock">
+                    Unblock
+                  </button>
+                </form>
                 <% } else { %>
-                <span class="badge bg-success">Active</span>
+                <form
+                  method="POST"
+                  action="/admin/customers/block-user/<%= customer._id %>"
+                  class="block-unblock-form">
+                  <button
+                    type="submit"
+                    class="btn btn-sm btn-danger w-100 btn-block">
+                    Block
+                  </button>
+                </form>
                 <% } %>
-              </p>
-              <% if (customer.isBlocked) { %>
-              <form
-                method="POST"
-                action="/admin/customers/unblock-user/<%= customer._id %>"
-                class="block-unblock-form">
-                <button
-                  type="submit"
-                  class="btn btn-sm btn-success w-100 btn-unblock">
-                  Unblock
-                </button>
-              </form>
-              <% } else { %>
-              <form
-                method="POST"
-                action="/admin/customers/block-user/<%= customer._id %>"
-                class="block-unblock-form">
-                <button
-                  type="submit"
-                  class="btn btn-sm btn-danger w-100 btn-block">
-                  Block
-                </button>
-              </form>
-              <% } %>
+              </div>
             </div>
+            <% }) %>
           </div>
-          <% }) %>
+          <% } else { %>
+          <div class="alert alert-info" role="alert">
+            No customers found
+          </div>
+          <% } %>
+
+          <nav aria-label="Page navigation" class="mt-5">
+            <ul class="pagination justify-content-center">
+              <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
+                <a class="page-link"
+                  data-page="<%= currentPage - 1 %>">Previous</a>
+              </li>
+              <% for (let i = 1; i <= totalPages; i++) { %>
+              <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                <a class="page-link" data-page="<%= i %>"><%= i %></a>
+              </li>
+              <% } %>
+              <li
+                class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
+                <a class="page-link" data-page="<%= currentPage + 1 %>">Next</a>
+              </li>
+            </ul>
+          </nav>
         </div>
-
-        <!-- Pagination -->
-        <nav aria-label="Page navigation" class="mt-5">
-          <ul class="pagination justify-content-center">
-            <% if (currentPage > 1) { %>
-            <li class="page-item">
-              <a
-                class="page-link"
-                href="?page=<%= currentPage - 1 %><%= searchQuery ? '&search=' + searchQuery : '' %>">Previous</a>
-            </li>
-            <% } else { %>
-            <li class="page-item disabled">
-              <span class="page-link">Previous</span>
-            </li>
-            <% } %>
-
-            <% for (let i = 1; i <= totalPages; i++) { %>
-            <li class="page-item <%= i === currentPage ? 'active' : '' %>">
-              <a
-                class="page-link"
-                href="?page=<%= i %><%= searchQuery ? '&search=' + searchQuery : '' %>"><%=
-                i %></a>
-            </li>
-            <% } %>
-
-            <% if (currentPage < totalPages) { %>
-            <li class="page-item">
-              <a
-                class="page-link"
-                href="?page=<%= currentPage + 1 %><%= searchQuery ? '&search=' + searchQuery : '' %>">Next</a>
-            </li>
-            <% } else { %>
-            <li class="page-item disabled">
-              <span class="page-link">Next</span>
-            </li>
-            <% } %>
-          </ul>
-        </nav>
       </div>
     </main>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-    <script>
-      // Debounced search for customer list
-      let debounceTimer;
-      const searchInput = document.getElementById("searchInput");
-      const customerList = document.getElementById("customerList");
-
-      searchInput.addEventListener("input", () => {
-        clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(async () => {
-          const searchQuery = searchInput.value.trim();
-          try {
-            const res = await fetch(
-              `/admin/customers?search=${encodeURIComponent(searchQuery)}&ajax=1`
-            );
-            const data = await res.text();
-            customerList.innerHTML = data;
-          } catch (err) {
-            console.error("Error fetching search results:", err);
-          }
-        }, 500);
-      });
-
-      // Handle block/unblock form submissions
-      document
-        .getElementById("customerList")
-        .addEventListener("submit", async (e) => {
-          if (!e.target.classList.contains("block-unblock-form")) return;
-          e.preventDefault();
-
-          const form = e.target;
-          const url = form.action;
-          const method = form.method || "POST";
-
-          try {
-            const res = await fetch(url, {
-              method,
-              headers: { "X-Requested-With": "XMLHttpRequest" },
-            });
-
-            if (!res.ok) throw new Error("Request failed");
-            const data = await res.json();
-
-            if (data.success) {
-              const cardBody = form.closest(".customer-card");
-              const statusBadge = cardBody.querySelector(".badge");
-
-              if (data.isBlocked) {
-          statusBadge.className = "badge bg-danger";
-          statusBadge.textContent = "Blocked";
-          form.outerHTML = `
-            <form method="POST" action="/admin/customers/unblock-user/${data.userId}" class="block-unblock-form">
-              <button type="submit" class="btn btn-sm btn-success w-100 btn-unblock">Unblock</button>
-            </form>
-          `;
-
-          // ✅ SweetAlert feedback
-          Swal.fire({
-            title: "User Blocked",
-            text: "The customer has been successfully blocked.",
-            icon: "success",
-            confirmButtonColor: "#3085d6",
-          });
-        } else {
-          statusBadge.className = "badge bg-success";
-          statusBadge.textContent = "Active";
-          form.outerHTML = `
-            <form method="POST" action="/admin/customers/block-user/${data.userId}" class="block-unblock-form">
-              <button type="submit" class="btn btn-sm btn-danger w-100 btn-block">Block</button>
-            </form>
-          `;
-
-          // ✅ SweetAlert feedback
-          Swal.fire({
-            title: "User Unblocked",
-            text: "The customer has been successfully unblocked.",
-            icon: "success",
-            confirmButtonColor: "#3085d6",
-          });
-        }
-            }
-          } catch (err) {
-            console.error("Error processing block/unblock:", err);
-            alert("Something went wrong!");
-          }
-        });
-    </script>
-
-    <!-- Bootstrap 5 JS -->
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
       integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
       crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+      function debounce(func, delay) {
+        let timer;
+        return function (...args) {
+          clearTimeout(timer);
+          timer = setTimeout(() => func.apply(this, args), delay);
+        };
+      }
+
+      async function fetchCustomers(page = 1, search = '') {
+        try {
+          const response = await fetch(`/admin/customers/data?page=${page}&search=${encodeURIComponent(search)}`);
+          if (!response.ok) {
+            throw new Error('Failed to fetch customers');
+          }
+          const data = await response.json();
+          updateContent(data);
+
+          const newUrl = `?page=${page}&search=${encodeURIComponent(search)}`;
+          history.pushState({ page, search }, '', newUrl);
+        } catch (error) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to load customers. Please try again.',
+            confirmButtonText: 'OK'
+          });
+        }
+      }
+
+      function updateContent(data) {
+        let html = '';
+        if (data.customers.length > 0) {
+          html += '<div class="row g-4">';
+          data.customers.forEach(customer => {
+            html += `
+              <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 customer-item">
+                <div class="customer-card text-center h-100">
+                  <img
+                    src="https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(customer.name)}"
+                    alt="Customer Avatar"
+                    class="rounded-circle mb-3" />
+                  <h6 class="name mb-1">${customer.name}</h6>
+                  <p class="email mb-2">${customer.email}</p>
+                  <p class="mb-3">
+                    Status:
+                    <span class="badge ${customer.isBlocked ? 'bg-danger' : 'bg-success'}">
+                      ${customer.isBlocked ? 'Blocked' : 'Active'}
+                    </span>
+                  </p>
+                  <form
+                    method="POST"
+                    action="/admin/customers/${customer.isBlocked ? 'unblock-user' : 'block-user'}/${customer._id}"
+                    class="block-unblock-form">
+                    <button
+                      type="submit"
+                      class="btn btn-sm ${customer.isBlocked ? 'btn-success' : 'btn-danger'} w-100 ${customer.isBlocked ? 'btn-unblock' : 'btn-block'}">
+                      ${customer.isBlocked ? 'Unblock' : 'Block'}
+                    </button>
+                  </form>
+                </div>
+              </div>`;
+          });
+          html += '</div>';
+        } else {
+          html += `
+            <div class="alert alert-info" role="alert">
+              No customers found
+            </div>`;
+        }
+
+        html += `
+          <nav aria-label="Page navigation" class="mt-5">
+            <ul class="pagination justify-content-center">
+              <li class="page-item ${data.currentPage === 1 ? 'disabled' : ''}">
+                <a class="page-link" data-page="${data.currentPage - 1}">Previous</a>
+              </li>`;
+        for (let i = 1; i <= data.totalPages; i++) {
+          html += `
+              <li class="page-item ${i === data.currentPage ? 'active' : ''}">
+                <a class="page-link" data-page="${i}">${i}</a>
+              </li>`;
+        }
+        html += `
+              <li class="page-item ${data.currentPage === data.totalPages ? 'disabled' : ''}">
+                <a class="page-link" data-page="${data.currentPage + 1}">Next</a>
+              </li>
+            </ul>
+          </nav>`;
+
+        document.getElementById('customers-content').innerHTML = html;
+
+        attachFormListeners();
+        attachPaginationListeners();
+      }
+
+      function attachFormListeners() {
+        document.querySelectorAll('.block-unblock-form').forEach(form => {
+          form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const url = form.action;
+            try {
+              const response = await fetch(url, { method: 'POST' });
+              const data = await response.json();
+              if (response.ok) {
+                Swal.fire({
+                  icon: 'success',
+                  title: data.isBlocked ? 'User Blocked' : 'User Unblocked',
+                  text: data.message,
+                  confirmButtonText: 'OK'
+                }).then(() => {
+                  const search = document.getElementById('searchInput').value.trim();
+                  const currentPage = parseInt(new URLSearchParams(window.location.search).get('page')) || 1;
+                  fetchCustomers(currentPage, search);
+                });
+              } else {
+                Swal.fire({
+                  icon: 'error',
+                  title: 'Error',
+                  text: data.message || 'Something went wrong.',
+                  confirmButtonText: 'OK'
+                });
+              }
+            } catch (error) {
+              Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'An error occurred. Please try again.',
+                confirmButtonText: 'OK'
+              });
+            }
+          });
+        });
+      }
+
+      function attachPaginationListeners() {
+        document.querySelectorAll('.page-link').forEach(link => {
+          link.addEventListener('click', (event) => {
+            event.preventDefault();
+            const page = parseInt(link.getAttribute('data-page'));
+            if (!isNaN(page)) {
+              const search = document.getElementById('searchInput').value.trim();
+              fetchCustomers(page, search);
+            }
+          });
+        });
+      }
+
+      const searchInput = document.getElementById('searchInput');
+      searchInput.addEventListener('keyup', debounce(() => {
+        const search = searchInput.value.trim();
+        fetchCustomers(1, search);
+      }, 500));
+
+      attachFormListeners();
+      attachPaginationListeners();
+    </script>
   </body>
 </html>
