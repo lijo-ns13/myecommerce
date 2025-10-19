@@ -1,56 +1,119 @@
 const Product = require('../../models/productSchema');
+const Category = require('../../models/categorySchema');
+const Review = require('../../models/reviewSchema'); // Assume this exists with 'rating' field
 const httpStatusCodes = require('../../constants/httpStatusCodes');
 const messages = require('../../constants/message');
+
 const getInventory = async (req, res) => {
   try {
-    // Get page and limit from query parameters with defaults
-    const page = parseInt(req.query.page, 10) || 1;
-    const limit = parseInt(req.query.limit, 10) || 10;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 5; // Set to 5 per page
     const skip = (page - 1) * limit;
+    const search = req.query.search || '';
 
-    // Get total count of products for pagination info
-    const totalProducts = await Product.countDocuments();
+    const query = search
+      ? {
+          $or: [
+            { product: { $regex: search, $options: 'i' } },
+            { brand: { $regex: search, $options: 'i' } },
+          ],
+        }
+      : {};
 
-    // Fetch products with pagination
-    const products = await Product.find({}, 'product sizes').skip(skip).limit(limit);
+    const [totalProducts, products] = await Promise.all([
+      Product.countDocuments(query),
+      Product.find(query).populate('category').skip(skip).limit(limit),
+    ]);
 
-    // Calculate total pages
     const totalPages = Math.ceil(totalProducts / limit);
 
-    // Render the inventory page with pagination data
+    // Calculate average rating for each product (industry-level enhancement)
+    for (let product of products) {
+      const reviews = await Review.find({ _id: { $in: product.reviews } });
+      product.averageRating =
+        reviews.length > 0
+          ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)
+          : 'N/A';
+    }
+
     res.render('admininventory/inventory', {
       products,
       currentPath: '/inventory',
       layout: 'layouts/adminLayout',
-      pagination: {
-        totalProducts,
-        totalPages,
-        currentPage: page,
-        hasNextPage: page < totalPages,
-        hasPrevPage: page > 1,
-        nextPage: page < totalPages ? page + 1 : null,
-        prevPage: page > 1 ? page - 1 : null,
-      },
+      currentPage: page,
+      totalPages,
+      search,
+      limit,
     });
   } catch (error) {
     console.error('Error fetching inventory:', error);
-    res.status(httpStatusCodes.INTERNAL_SERVER_ERROR).send(messages.INVENTORY.FETCH_ERROR);
+    res.status(httpStatusCodes.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: messages.INVENTORY.FETCH_ERROR,
+    });
+  }
+};
+
+const getInventoryData = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 5; // Set to 5 per page
+    const skip = (page - 1) * limit;
+    const search = req.query.search || '';
+
+    const query = search
+      ? {
+          $or: [
+            { product: { $regex: search, $options: 'i' } },
+            { brand: { $regex: search, $options: 'i' } },
+          ],
+        }
+      : {};
+
+    const [totalProducts, products] = await Promise.all([
+      Product.countDocuments(query),
+      Product.find(query).populate('category').skip(skip).limit(limit),
+    ]);
+
+    const totalPages = Math.ceil(totalProducts / limit);
+
+    // Calculate average rating for each product
+    for (let product of products) {
+      const reviews = await Review.find({ _id: { $in: product.reviews } });
+      product.averageRating =
+        reviews.length > 0
+          ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)
+          : 'N/A';
+    }
+
+    res.json({
+      products: products.map((p) => p.toObject()),
+      currentPage: page,
+      totalPages,
+      search,
+      limit,
+    });
+  } catch (error) {
+    console.error('Error fetching inventory data:', error);
+    res.status(httpStatusCodes.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: messages.INVENTORY.FETCH_ERROR,
+    });
   }
 };
 
 const postInventoryUpdate = async (req, res) => {
   try {
     const { productId, size, changeInStock } = req.body;
+    const change = Number(changeInStock);
 
-    // Find the product
-    const product = await Product.findOne({ _id: productId });
+    const product = await Product.findById(productId);
     if (!product) {
       return res
         .status(httpStatusCodes.NOT_FOUND)
         .json({ success: false, message: messages.INVENTORY.PRODUCT_NOT_FOUND });
     }
 
-    // Find the size object
     const sizeObj = product.sizes.find((s) => s.size === Number(size));
     if (!sizeObj) {
       return res
@@ -58,20 +121,34 @@ const postInventoryUpdate = async (req, res) => {
         .json({ success: false, message: messages.INVENTORY.SIZE_NOT_FOUND });
     }
 
-    // Update stock
-    sizeObj.stock += Number(changeInStock); // Increase or decrease stock
+    // Prevent negative stock (industry-level validation)
+    if (sizeObj.stock + change < 0) {
+      return res
+        .status(httpStatusCodes.BAD_REQUEST)
+        .json({ success: false, message: messages.INVENTORY.NEGATIVE_STOCK_ERROR });
+    }
 
-    // Save changes
+    // Update stock
+    sizeObj.stock += change;
+
     await product.save();
 
-    res.redirect('/admin/inventory'); // Redirect back to inventory page
+    res.status(httpStatusCodes.OK).json({
+      success: true,
+      message: messages.INVENTORY.UPDATE_SUCCESS,
+      updatedStock: sizeObj.stock,
+    });
   } catch (error) {
-    res
-      .status(httpStatusCodes.INTERNAL_SERVER_ERROR)
-      .json({ success: false, message: messages.INVENTORY.UPDATE_ERROR, error: error.message });
+    console.error('Error updating inventory:', error);
+    res.status(httpStatusCodes.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: messages.INVENTORY.UPDATE_ERROR,
+    });
   }
 };
+
 module.exports = {
   getInventory,
+  getInventoryData,
   postInventoryUpdate,
 };

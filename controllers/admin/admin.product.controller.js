@@ -7,7 +7,6 @@ const Category = require('../../models/categorySchema');
 const uploadsDir = path.join(__dirname, '../../uploads');
 const httpStatusCodes = require('../../constants/httpStatusCodes');
 const messages = require('../../constants/message');
-
 const getProduct = async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = 10;
@@ -15,10 +14,7 @@ const getProduct = async (req, res) => {
 
   const search = req.query.search ? req.query.search.trim() : '';
 
-  // Build query
-  const query = search
-    ? { product: { $regex: search, $options: 'i' } } // case-insensitive search
-    : {};
+  const query = search ? { product: { $regex: search, $options: 'i' } } : {};
 
   const products = await Product.find(query).populate('category').skip(skip).limit(limit);
 
@@ -37,11 +33,76 @@ const getProduct = async (req, res) => {
 
 const getViewProduct = async (_req, res) => {
   const products = await Product.find({});
-  // res.json(products)
   res.render('viewproducts', {
     products: products,
     currentPath: '/product',
     layout: 'layouts/adminLayout',
+  });
+};
+
+const postUnlist = async (req, res) => {
+  try {
+    const productId = req.params.id;
+    const product = await Product.findOneAndUpdate(
+      { _id: productId },
+      { isListed: false },
+      { new: true }
+    );
+    if (!product) {
+      return res
+        .status(httpStatusCodes.NOT_FOUND)
+        .json({ success: false, message: messages.COMMON.PRODUCT_NOT_FOUND });
+    }
+    res
+      .status(httpStatusCodes.OK)
+      .json({ success: true, message: messages.PRODUCT.UNLIST_SUCCESS });
+  } catch (error) {
+    res
+      .status(httpStatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: error.message });
+  }
+};
+
+const postList = async (req, res) => {
+  try {
+    const productId = req.params.id;
+    const product = await Product.findOneAndUpdate(
+      { _id: productId },
+      { isListed: true },
+      { new: true }
+    );
+    if (!product) {
+      return res
+        .status(httpStatusCodes.NOT_FOUND)
+        .json({ success: false, message: messages.COMMON.PRODUCT_NOT_FOUND });
+    }
+    res.status(httpStatusCodes.OK).json({ success: true, message: messages.COMMON.LIST_SUCCESS });
+  } catch (error) {
+    res
+      .status(httpStatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: error.message });
+  }
+};
+
+const getProductsData = async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = 10;
+  const skip = (page - 1) * limit;
+
+  const search = req.query.search ? req.query.search.trim() : '';
+
+  const query = search ? { product: { $regex: search, $options: 'i' } } : {};
+
+  const products = await Product.find(query).populate('category').skip(skip).limit(limit);
+
+  const totalProducts = await Product.countDocuments(query);
+  const totalPages = Math.ceil(totalProducts / limit);
+
+  res.json({
+    products: products.map((p) => p.toObject()),
+    currentPage: page,
+    totalPages,
+    search,
   });
 };
 const getAddProduct = async (_req, res) => {
@@ -256,50 +317,7 @@ const postAddProduct = async (req, res) => {
 const generateUniqueFilename = () => {
   return `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
 };
-const postUnlist = async (req, res) => {
-  try {
-    const productId = req.params.id;
-    const product = await Product.findOneAndUpdate(
-      { _id: productId },
-      { isListed: false },
-      { new: true }
-    );
-    if (!product) {
-      return res
-        .status(httpStatusCodes.NOT_FOUND)
-        .json({ success: false, message: messages.COMMON.PRODUCT_NOT_FOUND });
-    }
-    // res.status(200).render('pro/unlistproductsuccess')
-    res
-      .status(httpStatusCodes.OK)
-      .json({ success: true, message: messages.PRODUCT.UNLIST_SUCCESS });
-  } catch (error) {
-    res
-      .status(httpStatusCodes.INTERNAL_SERVER_ERROR)
-      .json({ success: false, message: error.message });
-  }
-};
-const postList = async (req, res) => {
-  try {
-    const productId = req.params.id;
-    const product = await Product.findOneAndUpdate(
-      { _id: productId },
-      { isListed: true },
-      { new: true }
-    );
-    if (!product) {
-      return res
-        .status(httpStatusCodes.NOT_FOUND)
-        .json({ success: false, message: messages.COMMON.PRODUCT_NOT_FOUND });
-    }
-    // res.status(200).render('pro/listproductsuccess')
-    res.status(httpStatusCodes.OK).json({ success: true, message: messages.COMMON.LIST_SUCCESS });
-  } catch (error) {
-    res
-      .status(httpStatusCodes.INTERNAL_SERVER_ERROR)
-      .json({ success: false, message: error.message });
-  }
-};
+
 const getProductEdit = async (req, res) => {
   try {
     const productId = req.params.id;
@@ -481,6 +499,7 @@ const deleteProduct = async (req, res) => {
 };
 
 module.exports = {
+  getProductsData,
   getProduct,
   getViewProduct,
   getAddProduct,

@@ -1,595 +1,464 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Stunning Product Page</title>
-        <!-- Bootstrap CSS -->
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Products | Trendy Kicks</title>
         <link
-            href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
-            rel="stylesheet">
-        <!-- FontAwesome for icons -->
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+            integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM"
+            crossorigin="anonymous" />
         <link
-            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css"
-            rel="stylesheet">
-        <!-- Google Fonts -->
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+            rel="stylesheet"
+            integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA=="
+            crossorigin="anonymous" />
         <link
-            href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap"
-            rel="stylesheet">
-        <!-- Custom Styles -->
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+            rel="stylesheet" />
         <style>
-        :root {
-            --primary-color: #3498db;
-            --secondary-color: #2ecc71;
-            --background-color: #f9f9f9;
-            --text-color: #333;
-            --accent-color: #e74c3c;
+      :root {
+        --primary-color: #007bff;
+        --secondary-color: #28a745;
+        --accent-color: #dc3545;
+        --background-color: #f4f6f8;
+        --text-color: #333;
+      }
+
+      body {
+        font-family: 'Inter', sans-serif;
+        background-color: var(--background-color);
+        color: var(--text-color);
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+      }
+
+     
+
+      .badge-danger {
+        background-color: var(--accent-color);
+      }
+
+      .content {
+        flex: 1 0 auto;
+        padding: 40px 20px;
+      }
+
+      .filter-section {
+        background-color: #ffffff;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 40px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+
+      .form-control, .form-select {
+        border-radius: 8px;
+        border: 1px solid #ced4da;
+        padding: 10px;
+        font-size: 0.9rem;
+      }
+
+      .form-control:focus, .form-select:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+      }
+
+      .btn-primary {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        border-radius: 8px;
+        padding: 10px 20px;
+        font-weight: 500;
+        transition: background-color 0.2s ease;
+      }
+
+      .btn-primary:hover {
+        background-color: #0056b3;
+        border-color: #0056b3;
+      }
+
+      .product-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 30px;
+        padding: 0;
+      }
+
+      .product-box {
+        background-color: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        text-decoration: none;
+        color: inherit;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .product-box:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+      }
+
+      .product-images {
+        position: relative;
+        height: 280px;
+        overflow: hidden;
+      }
+
+      .product-images img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        position: absolute;
+        top: 0;
+        left: 0;
+        opacity: 0;
+        transition: opacity 0.5s ease, transform 0.5s ease;
+      }
+
+      .product-images img.active {
+        opacity: 1;
+        transform: scale(1.05);
+      }
+
+      .product-content {
+        padding: 20px;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+
+      .product-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 10px;
+        color: var(--text-color);
+      }
+
+      .price-container {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .original-price {
+        text-decoration: line-through;
+        color: #6c757d;
+        font-size: 0.9rem;
+      }
+
+      .final-price {
+        font-size: 1.4rem;
+        color: var(--accent-color);
+        font-weight: 600;
+      }
+
+      .discount-percentage {
+        background-color: var(--accent-color);
+        color: #fff;
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        margin-top: 5px;
+      }
+
+      .stock-status {
+        font-size: 0.85rem;
+        font-weight: 500;
+        padding: 6px 12px;
+        border-radius: 12px;
+      }
+
+      .in-stock {
+        background-color: var(--secondary-color);
+        color: #fff;
+      }
+
+      .out-of-stock {
+        background-color: var(--accent-color);
+        color: #fff;
+      }
+
+      .pagination .page-link {
+        border-radius: 6px;
+        margin: 0 3px;
+        color: var(--primary-color);
+        border: 1px solid #dee2e6;
+        font-size: 0.9rem;
+      }
+
+      .pagination .page-item.active .page-link {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        color: #fff;
+      }
+
+      .pagination .page-item.disabled .page-link {
+        color: #6c757d;
+      }
+
+      footer {
+        flex-shrink: 0;
+        background-color: #212529;
+        color: #fff;
+        padding: 40px 0;
+      }
+
+      .footer-content {
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 20px;
+      }
+
+      .footer-section {
+        flex: 1;
+        min-width: 200px;
+      }
+
+      .footer-section h3 {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: var(--primary-color);
+        margin-bottom: 20px;
+      }
+
+      .footer-section ul {
+        list-style: none;
+        padding: 0;
+      }
+
+      .footer-section ul li {
+        margin-bottom: 10px;
+      }
+
+      .footer-section ul li a {
+        color: #e9ecef;
+        text-decoration: none;
+        transition: color 0.3s ease;
+      }
+
+      .footer-section ul li a:hover {
+        color: var(--primary-color);
+      }
+
+      .social-icons a {
+        color: #e9ecef;
+        font-size: 1.5rem;
+        margin-right: 15px;
+        transition: color 0.3s ease, transform 0.3s ease;
+      }
+
+      .social-icons a:hover {
+        color: var(--primary-color);
+        transform: scale(1.2);
+      }
+
+      .wishlist-button {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: rgba(255, 255, 255, 0.7);
+        border: none;
+        border-radius: 50%;
+        padding: 8px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+
+      .wishlist-button .heart-icon {
+        font-size: 20px;
+        color: #ccc;
+        transition: color 0.3s ease;
+      }
+
+      .wishlist-button.in-wishlist .heart-icon {
+        color: var(--accent-color);
+      }
+
+      .wishlist-button:hover {
+        background-color: rgba(255, 255, 255, 0.9);
+      }
+
+      .wishlist-button:hover .heart-icon {
+        transform: scale(1.1);
+      }
+
+      .wishlist-button.loading .heart-icon {
+        animation: pulse 1s infinite;
+      }
+
+      .wishlist-button.success .heart-icon {
+        animation: success-pulse 0.5s;
+      }
+
+      .wishlist-button.error .heart-icon {
+        animation: error-shake 0.5s;
+      }
+
+      @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.2); }
+        100% { transform: scale(1); }
+      }
+
+      @keyframes success-pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.3); color: var(--secondary-color); }
+        100% { transform: scale(1); }
+      }
+
+      @keyframes error-shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-5px); }
+        75% { transform: translateX(5px); }
+      }
+
+      @media (max-width: 768px) {
+        .content {
+          padding: 20px;
         }
-        
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--background-color);
-            color: var(--text-color);
+        .filter-section form {
+          flex-direction: column;
+          gap: 10px;
         }
-        
-        .navbar {
-            background-color: white;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+        .form-control, .form-select {
+          width: 100%;
         }
-
-        footer {
-            background-color: #333;
-            color: white;
-            padding: 40px 0;
-        }
-
-        .footer-content {
-            display: flex;
-            justify-content: space-between;
-            flex-wrap: wrap;
-        }
-
-        .footer-section {
-            flex: 1;
-            margin-right: 20px;
-            min-width: 200px;
-        }
-
-        .footer-section h3 {
-            margin-bottom: 20px;
-            font-size: 1.2rem;
-            color: var(--accent-color);
-        }
-
-        .footer-section ul {
-            list-style-type: none;
-            padding: 0;
-        }
-
-        .footer-section ul li {
-            margin-bottom: 10px;
-        }
-
-        .footer-section ul li a {
-            color: #ccc;
-            text-decoration: none;
-            transition: color 0.3s ease;
-        }
-
-        .footer-section ul li a:hover {
-            color: white;
-        }
-
-        
-
-        @media (max-width: 768px) {
-            
-
-            .footer-section {
-                flex: 100%;
-                margin-bottom: 30px;
-            }
-        }
-      
-.social-icons {
-  display: flex;
-  align-items: center;
-}
-
-.social-icons a {
-  color: white;
-  font-size: 1.5rem;
-  margin-right: 15px;
-  transition: transform 0.3s ease, color 0.3s ease;
-}
-
-.social-icons a:hover {
-  color: var(--accent-color);
-  transform: scale(1.2);
-}
-
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-
-        .navbar-nav {
-            display: flex;
-            align-items: center;
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .nav-item {
-            margin: 0 10px;
-        }
-
-        .nav-link {
-            display: flex;
-            align-items: center;
-            text-decoration: none;
-            color: #333;
-            font-size: 18px;
-        }
-
-        .nav-link i {
-            font-size: 24px;
-            margin-right: 5px;
-        }
-
-        .rounded-circle {
-            width: 30px;
-            height: 30px;
-        }
-
-        @media (max-width: 767px) {
-            .navbar-nav {
-                flex-direction: row;
-                justify-content: center;
-                margin-top: 1rem;
-            }
-
-            .nav-item {
-                margin: 0 5px;
-            }
-
-            .nav-link {
-                font-size: 16px;
-            }
-
-            .nav-link i {
-                font-size: 20px;
-            }
-
-        }
-		
-        /* nab */
-        :root {
-    --primary-color: #3498db;
-    --secondary-color: #e74c3c;
-    --accent-color: #f39c12;
-    --background-color: #f4f4f4;
-    --text-color: #333;
-}
-
-body {
-    font-family: 'Poppins', sans-serif;
-    background-color: var(--background-color);
-    color: var(--text-color);
-}
-
-.rounded-circle {
-    width: 30px; /* Set a fixed width for the user profile image */
-    height: 30px; /* Set a fixed height for the user profile image */
-}
-
-        .filter-section {
-            background-color: #ffffff;
-            border-radius: 15px;
-            padding: 25px;
-            margin-bottom: 40px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        .custom-select {
-            border-radius: 30px;
-            border: 1px solid #e0e0e0;
-            padding: 12px 20px;
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5z' fill='%23333'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 15px center;
-        }
-
         .product-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 40px;
-            padding: 20px;
+          grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+          gap: 20px;
         }
-
-        .product-box {
-            background-color: #ffffff;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-            transition: all 0.4s ease;
-            text-decoration: none;
-            color: inherit;
-            display: flex;
-            flex-direction: column;
+        .footer-section {
+          flex: 100%;
+          margin-bottom: 20px;
         }
+      }
 
-        .product-box:hover {
-            transform: translateY(-15px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+      @media (max-width: 576px) {
+        .product-grid {
+          grid-template-columns: 1fr;
         }
-
         .product-images {
-            position: relative;
-            height: 300px;
-            overflow: hidden;
+          height: 240px;
         }
-
-        .product-images img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            position: absolute;
-            top: 0;
-            left: 0;
-            opacity: 0;
-            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
-        }
-
-        .product-images img.active {
-            opacity: 1;
-            transform: scale(1.05);
-        }
-
-        .product-content {
-            padding: 25px;
-        }
-
         .product-title {
-            font-size: 1.3rem;
-            font-weight: 600;
-            margin-bottom: 15px;
-            color: var(--text-color);
+          font-size: 1.1rem;
         }
-
-        .product-details {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .price-container {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-        }
-
-        .original-price {
-            text-decoration: line-through;
-            color: #999;
-            font-size: 0.9rem;
-        }
-
         .final-price {
-            font-size: 1.6rem;
-            color: var(--accent-color);
-            font-weight: bold;
+          font-size: 1.3rem;
         }
-
-        .discount-percentage {
-            background-color: var(--accent-color);
-            color: white;
-            padding: 4px 8px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: bold;
-            margin-top: 5px;
-        }
-
-        .stock-status {
-            font-size: 0.9rem;
-            font-weight: 600;
-            padding: 6px 12px;
-            border-radius: 20px;
-        }
-
-        .in-stock {
-            background-color: rgb(23, 145, 23);
-            color: white;
-        }
-
-        .out-of-stock {
-            background-color:red;
-            color: white;
-        }
-
-        .text-danger {
-            color: var(--accent-color);
-        }
-
-        .text-muted {
-            color: #95a5a6;
-        }
-.custom-select {
-    border-radius: 10px;
-    border: 1px solid #e0e0e0;
-    padding: 5px 5px;
-    appearance: none;
-    background-image: url("data:image/svg+xml,...");
-    background-repeat: no-repeat;
-    background-position: right 15px center;
-}
-
-        @media (max-width: 768px) {
-            .product-grid {
-                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-                gap: 30px;
-            }
-        }
-        .filter-section {
-    background-color: #ffffff;
-    border-radius: 15px;
-    padding: 15px; /* Reduce padding for compactness */
-    margin-bottom: 40px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-}
-
-.input-group {
-    flex: 1; /* Makes the search input take available space */
-}
-
-
-
-.btn-primary {
-    flex-shrink: 0; /* Prevents button from shrinking */
-    padding: 10px 15px; /* Adjusted padding for a better look */
-}
-
-@media (max-width: 576px) {
-    .filter-section form {
-        flex-direction: column; /* Stacks inputs vertically on small screens */
-    }
-}
-
-/* wishlist */
-/* in wishlist */
-.product-box {
-    position: relative;
-}
-.wishlist-button {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 8px;
-    transition: all 0.3s ease;
-    z-index: 10;
-    background-color: rgba(255, 255, 255, 0.7);
-    border-radius: 50%;
-}
-
-.wishlist-button .heart-icon {
-    font-size: 24px;
-    color: #ccc;
-    transition: all 0.3s ease;
-}
-
-.wishlist-button:hover .heart-icon {
-    transform: scale(1.1);
-}
-
-.wishlist-button.in-wishlist .heart-icon {
-    color: #e74c3c; /* Red color for items in wishlist */
-}
-
-.wishlist-button:hover {
-    background-color: rgba(255, 255, 255, 0.9);
-}
-
-/* Loading state */
-.wishlist-button.loading .heart-icon {
-    animation: pulse 1s infinite;
-}
-
-/* Success state */
-.wishlist-button.success .heart-icon {
-    animation: success-pulse 0.5s;
-}
-
-/* Error state */
-.wishlist-button.error .heart-icon {
-    animation: error-shake 0.5s;
-}
-
-@keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.2); }
-    100% { transform: scale(1); }
-}
-
-@keyframes success-pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.3); color: #2ecc71; }
-    100% { transform: scale(1); }
-}
-
-@keyframes error-shake {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-5px); }
-    75% { transform: translateX(5px); }
-}
-
+      }
     </style>
     </head>
     <body>
-        <nav class="navbar navbar-expand-lg navbar-light bg-light py-3 w-100">
-            <div class="container-fluid">
-                <a class="navbar-brand" href="/">
-                    <img src="/img/logo.png" alt="Logo"
-                        class="d-inline-block align-text-top"
-                        style="height: 40px;">
-                </a>
-                <button class="navbar-toggler" type="button"
-                    data-toggle="collapse" data-target="#navbarNav"
-                    aria-controls="navbarNav" aria-expanded="false"
-                    aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav ml-auto">
-                        <li class="nav-item">
-                            <a class="nav-link" href="/">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/products">Products</a>
-                        </li>
-                        <!-- <li class="nav-item">
-                            <a class="nav-link" href="/about">About</a>
-                        </li> -->
-                    </ul>
-                    <ul class="navbar-nav">
-                        <li class="nav-item">
-                            <a class="nav-link" href="/auth/signin">
-                                <img src="/img/log-in.png" alt="Login"
-                                    class="nav-icon" style="height: 24px;">
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/user/wishlist">
-                                <img src="/img/wishlist.png" alt="Wishlist"
-                                    class="nav-icon" style="height: 24px;">
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/cart">
-                                <img src="/img/cart.png" alt="Cart"
-                                    class="nav-icon" style="height: 24px;">
-                                <span
-                                    class="badge badge-pill badge-danger"></span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/user/profile">
-                                <img src="/img/userprofile.jpg"
-                                    alt="User Profile"
-                                    class="nav-icon rounded-circle"
-                                    style="height: 24px;">
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
-        <div class="container mt-4">
-            <div class="container mt-4">
-                <div class="filter-section mt-3">
-                    <form method="GET" action="/products"
-                        class="d-flex flex-column flex-md-row align-items-center">
-                        <div class="input-group mb-2 flex-grow-1 me-md-2">
-                            <input class="form-control" type="search"
+        <%- include('partials/userNav') %>
+
+        <div class="content">
+            <div class="container">
+                <div class="filter-section">
+                    <form id="filter-form"
+                        class="d-flex flex-column flex-md-row align-items-center gap-3">
+                        <div class="input-group flex-grow-1">
+                            <input
+                                id="search-input"
+                                class="form-control"
+                                type="search"
                                 name="query"
                                 placeholder="Search for products..."
-                                aria-label="Search" value="<%= searchQuery %>">
-                            <div class="input-group-append">
-                                <button class="btn btn-outline-primary"
-                                    type="submit">
-                                    <i class="fas fa-search"></i>
-                                </button>
-                            </div>
+                                aria-label="Search"
+                                value="<%= searchQuery %>" />
+                            <button class="btn btn-primary" type="submit">
+                                <i class="fas fa-search"></i>
+                            </button>
                         </div>
-
-                        <div class="form-group mb-2 flex-grow-1 me-md-2">
-                            <select id="category" name="category"
-                                class="custom-select">
-                                <option value <%=selectedCategory === '' ?
-                                    'selected' : '' %>>All Categories</option>
-                                <% categories.forEach(category => { %>
-                                <option value="<%= category._id %>"
-                                    <%=selectedCategory ===
-                                    category._id.toString() ? 'selected' : ''
-                                    %>>
-                                    <%= category.name %>
-                                </option>
-                                <% }); %>
-                            </select>
-
-                        </div>
-
-                        <div class="form-group mb-2 flex-grow-1 me-md-2">
-                            <select id="sort" name="sort" class="custom-select">
-                                <option value>Sort By</option>
-                                <option value="price_low_high" <%=selectedSort
-                                    === 'price_low_high' ? 'selected' : ''
-                                    %>>Price: Low to High</option>
-                                <option value="price_high_low" <%=selectedSort
-                                    === 'price_high_low' ? 'selected' : ''
-                                    %>>Price: High to Low</option>
-                                <option value="new_arrivals" <%=selectedSort ===
-                                    'new_arrivals' ? 'selected' : '' %>>New
-                                    Arrivals</option>
-                                <option value="a_z" <%=selectedSort === 'a_z' ?
-                                    'selected' : '' %>>A - Z</option>
-                                <option value="z_a" <%=selectedSort === 'z_a' ?
-                                    'selected' : '' %>>Z - A</option>
-                            </select>
-                        </div>
-
-                        <button type="submit"
-                            class="btn btn-primary mb-2 mb-md-0">Apply
-                            Filters</button>
+                        <select id="category-filter" name="category"
+                            class="form-select">
+                            <option value <%=selectedCategory === '' ?
+                                'selected' : '' %>>All Categories</option>
+                            <% categories.forEach(category => { %>
+                            <option value="<%= category._id %>"
+                                <%=selectedCategory === category._id.toString()
+                                ? 'selected' : '' %>>
+                                <%= category.name %>
+                            </option>
+                            <% }); %>
+                        </select>
+                        <select id="sort-filter" name="sort"
+                            class="form-select">
+                            <option value <%=selectedSort === '' ? 'selected' :
+                                '' %>>Sort By</option>
+                            <option value="price_low_high" <%=selectedSort ===
+                                'price_low_high' ? 'selected' : '' %>>Price: Low
+                                to High</option>
+                            <option value="price_high_low" <%=selectedSort ===
+                                'price_high_low' ? 'selected' : '' %>>Price:
+                                High to Low</option>
+                            <option value="new_arrivals" <%=selectedSort ===
+                                'new_arrivals' ? 'selected' : '' %>>New
+                                Arrivals</option>
+                            <option value="a_z" <%=selectedSort === 'a_z' ?
+                                'selected' : '' %>>A - Z</option>
+                            <option value="z_a" <%=selectedSort === 'z_a' ?
+                                'selected' : '' %>>Z - A</option>
+                        </select>
                     </form>
                 </div>
-            </div>
 
-            <div class="product-grid">
-                <% for (const product of products) { %>
-                <div class="product-box">
-                    <a href="/product-detail/<%= product._id %>">
-                        <div class="product-images"
-                            onmouseover="startSlideshow(this)"
-                            onmouseout="stopSlideshow(this)">
-                            <% for (const image of product.images) { %>
-                            <img src="<%= image.secured_url %>"
-                                alt="Product Image"
-                                class="<%= image === product.images[0] ? 'active' : '' %>">
-                            <% } %>
-                        </div>
-                    </a>
-                    <div class="product-content">
-                        <h3 class="product-title"><%= product.product %></h3>
-                        <div class="product-details">
-                            <div class="price-container">
-                                <% if (product.offerApplied) { %>
-                                <span class="original-price">₹<%=
-                                    product.price.toFixed(2) %></span>
-                                <span class="final-price">₹<%=
-                                    product.finalPrice.toFixed(2) %></span>
-                                <%
-                                const discountPercentage = ((product.price -
-                                product.finalPrice) / product.price) * 100;
-                                %>
-                                <span class="discount-percentage"><%=
-                                    discountPercentage.toFixed(0) %>% off</span>
-                                <% } else { %>
-                                <span class="final-price">₹<%=
-                                    product.price.toFixed(2) %></span>
+                <div id="product-grid" class="product-grid">
+                    <% if (products.length > 0) { %>
+                    <% for (const product of products) { %>
+                    <div class="product-box">
+                        <a href="/product-detail/<%= product._id %>">
+                            <div
+                                class="product-images"
+                                onmouseover="startSlideshow(this)"
+                                onmouseout="stopSlideshow(this)">
+                                <% for (const image of product.images) { %>
+                                <img
+                                    src="<%= image.secured_url %>"
+                                    alt="Product Image"
+                                    class="<%= image === product.images[0] ? 'active' : '' %>" />
                                 <% } %>
                             </div>
-                            <span
-                                class="stock-status <%= product.sizes.some(size => size.stock > 0) ? 'in-stock' : 'out-of-stock' %>">
-                                <%= product.sizes.some(size => size.stock > 0) ?
-                                'In Stock' : 'Out of Stock' %>
-                            </span>
+                        </a>
+                        <div class="product-content">
+                            <h3 class="product-title"><%= product.product
+                                %></h3>
+                            <div
+                                class="product-details d-flex justify-content-between align-items-center">
+                                <div class="price-container">
+                                    <% if (product.offerApplied) { %>
+                                    <span class="original-price">₹<%=
+                                        product.price.toFixed(2) %></span>
+                                    <span class="final-price">₹<%=
+                                        product.finalPrice.toFixed(2) %></span>
+                                    <%
+                                    const discountPercentage = ((product.price -
+                                    product.finalPrice) / product.price) * 100;
+                                    %>
+                                    <span class="discount-percentage"><%=
+                                        discountPercentage.toFixed(0) %>%
+                                        off</span>
+                                    <% } else { %>
+                                    <span class="final-price">₹<%=
+                                        product.price.toFixed(2) %></span>
+                                    <% } %>
+                                </div>
+                                <span
+                                    class="stock-status <%= product.sizes.some(size => size.stock > 0) ? 'in-stock' : 'out-of-stock' %>">
+                                    <%= product.sizes.some(size => size.stock >
+                                    0) ? 'In Stock' : 'Out of Stock' %>
+                                </span>
+                            </div>
                             <button
                                 class="wishlist-button <%= wishlist.some(item => item._id.toString() === product._id.toString()) ? 'in-wishlist' : 'not-in-wishlist' %>"
                                 onclick="toggleWishlist('<%= product._id %>', this)"
@@ -600,42 +469,39 @@ body {
                             </button>
                         </div>
                     </div>
+                    <% } %>
+                    <% } else { %>
+                    <div class="alert alert-info text-center" role="alert">
+                        <i class="fas fa-info-circle me-2"></i> No products
+                        found
+                    </div>
+                    <% } %>
                 </div>
-                <% } %>
-            </div>
-            <!-- Pagination -->
-            <div class="d-flex justify-content-center mt-4">
-                <nav aria-label="Page navigation">
-                    <ul class="pagination">
-                        <!-- Previous button -->
+
+                <nav aria-label="Page navigation" class="mt-5">
+                    <ul class="pagination justify-content-center">
                         <li
                             class="page-item <%= currentPage <= 1 ? 'disabled' : '' %>">
-                            <a class="page-link"
-                                href="?query=<%= searchQuery %>&category=<%= selectedCategory %>&sort=<%= selectedSort %>&page=<%= currentPage - 1 %>&limit=<%= pageSize %>">Previous</a>
+                            <a class="page-link" href="#"
+                                data-page="<%= currentPage - 1 %>">&laquo;</a>
                         </li>
-
-                        <!-- Page numbers -->
                         <% for (let i = 1; i <= totalPages; i++) { %>
                         <li
                             class="page-item <%= currentPage === i ? 'active' : '' %>">
-                            <a class="page-link"
-                                href="?query=<%= searchQuery %>&category=<%= selectedCategory %>&sort=<%= selectedSort %>&page=<%= i %>&limit=<%= pageSize %>"><%=
-                                i %></a>
+                            <a class="page-link" href="#"
+                                data-page="<%= i %>"><%= i %></a>
                         </li>
                         <% } %>
-
-                        <!-- Next button -->
                         <li
                             class="page-item <%= currentPage >= totalPages ? 'disabled' : '' %>">
-                            <a class="page-link"
-                                href="?query=<%= searchQuery %>&category=<%= selectedCategory %>&sort=<%= selectedSort %>&page=<%= currentPage + 1 %>&limit=<%= pageSize %>">Next</a>
+                            <a class="page-link" href="#"
+                                data-page="<%= currentPage + 1 %>">&raquo;</a>
                         </li>
                     </ul>
                 </nav>
             </div>
-
         </div>
-        <!-- Footer -->
+
         <footer>
             <div class="container">
                 <div class="footer-content">
@@ -650,7 +516,6 @@ body {
                         <ul>
                             <li><a href="/">Home</a></li>
                             <li><a href="/products">Products</a></li>
-                            <!-- <li><a href="/about">About Us</a></li> -->
                             <li><a href="/contact">Contact</a></li>
                         </ul>
                     </div>
@@ -672,70 +537,200 @@ body {
                             <a href="#" class="text-light"><i
                                     class="fab fa-pinterest"></i></a>
                         </div>
-
                     </div>
                 </div>
-                <hr>
-                <p class="text-center mt-4">© 2024 Trendy Kicks. All rights
-                    reserve</p>
+                <hr class="bg-light" />
+                <p class="text-center mt-4">© 2025 Trendy Kicks. All rights
+                    reserved.</p>
             </div>
         </footer>
-        <!-- Bootstrap JS and dependencies -->
-        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-        <script
-            src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
-        <script
-            src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
+        <script
+            src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+            crossorigin="anonymous"></script>
         <script>
-        function startSlideshow(element) {
-            element.slideshowInterval = setInterval(() => {
-                const images = element.querySelectorAll('img');
-                const activeImage = element.querySelector('img.active');
-                const nextImage = activeImage.nextElementSibling || images[0];
-                activeImage.classList.remove('active');
-                nextImage.classList.add('active');
-            }, 1000);
-        }
+      function debounce(func, delay) {
+        let timer;
+        return function (...args) {
+          clearTimeout(timer);
+          timer = setTimeout(() => func.apply(this, args), delay);
+        };
+      }
 
-        function stopSlideshow(element) {
-            clearInterval(element.slideshowInterval);
-            const images = element.querySelectorAll('img');
-            images.forEach((img, index) => {
-                img.classList.toggle('active', index === 0);
-            });
-        }
-    </script>
-        <script>
-        async function toggleWishlist(productId, button) {
-            try {
-                const isInWishlist = button.classList.contains('in-wishlist');
-                const url = isInWishlist ? `/user/wishlist/remove/${productId}` : `/user/wishlist/add/${productId}`;
-    
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'cookiestoken': `${localStorage.getItem('token')}`
-                    }
-                });
-    
-                const data = await response.json();
-    
-                if (data.success) {
-                    button.classList.toggle('in-wishlist', !isInWishlist);
-                    button.classList.toggle('not-in-wishlist', isInWishlist);
-                    button.setAttribute('data-in-wishlist', !isInWishlist);
-                    console.log(data.message || 'Successfully toggled wishlist!');
-                } else {
-                    // alert(data.message || 'An error occurred.');
-                }
-            } catch (error) {
-                console.error('Error toggling wishlist:', error);
-                // alert('Failed to toggle wishlist. Please try again later.');
+      async function fetchProducts(page = 1) {
+        const search = document.getElementById('search-input').value.trim();
+        const category = document.getElementById('category-filter').value;
+        const sort = document.getElementById('sort-filter').value;
+
+        try {
+          const response = await fetch(`/products?query=${encodeURIComponent(search)}&category=${encodeURIComponent(category)}&sort=${encodeURIComponent(sort)}&page=${page}&limit=18`, {
+            headers: {
+              'X-Requested-With': 'XMLHttpRequest'
             }
-        }
-    </script>
+          });
+          if (!response.ok) {
+            throw new Error('Failed to fetch products');
+          }
+          const data = await response.json();
+          updateContent(data);
 
+          const newUrl = `?query=${encodeURIComponent(search)}&category=${encodeURIComponent(category)}&sort=${encodeURIComponent(sort)}&page=${page}&limit=18`;
+          history.pushState({ page, search, category, sort }, '', newUrl);
+        } catch (error) {
+          console.error('Error fetching products:', error);
+          document.getElementById('product-grid').innerHTML = `
+            <div class="alert alert-danger text-center" role="alert">
+              <i class="fas fa-exclamation-circle me-2"></i> Failed to load products. Please try again.
+            </div>`;
+        }
+      }
+
+      function updateContent(data) {
+        const productGrid = document.getElementById('product-grid');
+        let html = '';
+        if (data.products.length > 0) {
+          data.products.forEach(product => {
+            html += `
+              <div class="product-box">
+                <a href="/product-detail/${product._id}">
+                  <div class="product-images" onmouseover="startSlideshow(this)" onmouseout="stopSlideshow(this)">
+                    ${product.images.map((image, index) => `
+                      <img src="${image.secured_url}" alt="Product Image" class="${index === 0 ? 'active' : ''}">
+                    `).join('')}
+                  </div>
+                </a>
+                <div class="product-content">
+                  <h3 class="product-title">${product.product}</h3>
+                  <div class="product-details d-flex justify-content-between align-items-center">
+                    <div class="price-container">
+                      ${product.offerApplied ? `
+                        <span class="original-price">₹${product.price.toFixed(2)}</span>
+                        <span class="final-price">₹${product.finalPrice.toFixed(2)}</span>
+                        <span class="discount-percentage">${((product.price - product.finalPrice) / product.price * 100).toFixed(0)}% off</span>
+                      ` : `
+                        <span class="final-price">₹${product.price.toFixed(2)}</span>
+                      `}
+                    </div>
+                    <span class="stock-status ${product.sizes.some(size => size.stock > 0) ? 'in-stock' : 'out-of-stock'}">
+                      ${product.sizes.some(size => size.stock > 0) ? 'In Stock' : 'Out of Stock'}
+                    </span>
+                  </div>
+                  <button
+                    class="wishlist-button ${data.wishlist.some(item => item._id.toString() === product._id.toString()) ? 'in-wishlist' : 'not-in-wishlist'}"
+                    onclick="toggleWishlist('${product._id}', this)"
+                    data-product-id="${product._id}"
+                    data-in-wishlist="${data.wishlist.some(item => item._id.toString() === product._id.toString())}"
+                    aria-label="Add to wishlist"
+                  >
+                    <i class="heart-icon fas fa-heart"></i>
+                  </button>
+                </div>
+              </div>`;
+          });
+        } else {
+          html = `
+            <div class="alert alert-info text-center" role="alert">
+              <i class="fas fa-info-circle me-2"></i> No products found
+            </div>`;
+        }
+        productGrid.innerHTML = html;
+
+        const pagination = document.querySelector('.pagination');
+        let paginationHtml = `
+          <li class="page-item ${data.currentPage <= 1 ? 'disabled' : ''}">
+            <a class="page-link" href="#" data-page="${data.currentPage - 1}">&laquo;</a>
+          </li>`;
+        for (let i = 1; i <= data.totalPages; i++) {
+          paginationHtml += `
+            <li class="page-item ${data.currentPage === i ? 'active' : ''}">
+              <a class="page-link" href="#" data-page="${i}">${i}</a>
+            </li>`;
+        }
+        paginationHtml += `
+          <li class="page-item ${data.currentPage >= data.totalPages ? 'disabled' : ''}">
+            <a class="page-link" href="#" data-page="${data.currentPage + 1}">&raquo;</a>
+          </li>`;
+        pagination.innerHTML = paginationHtml;
+
+        attachPaginationListeners();
+      }
+
+      function attachPaginationListeners() {
+        document.querySelectorAll('.page-link').forEach(link => {
+          link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const page = parseInt(link.getAttribute('data-page'));
+            if (!isNaN(page)) {
+              fetchProducts(page);
+            }
+          });
+        });
+      }
+
+      function startSlideshow(element) {
+        element.slideshowInterval = setInterval(() => {
+          const images = element.querySelectorAll('img');
+          const activeImage = element.querySelector('img.active');
+          const nextImage = activeImage.nextElementSibling || images[0];
+          activeImage.classList.remove('active');
+          nextImage.classList.add('active');
+        }, 1000);
+      }
+
+      function stopSlideshow(element) {
+        clearInterval(element.slideshowInterval);
+        const images = element.querySelectorAll('img');
+        images.forEach((img, index) => {
+          img.classList.toggle('active', index === 0);
+        });
+      }
+
+      document.getElementById('filter-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        fetchProducts(1);
+      });
+
+      document.getElementById('search-input').addEventListener('input', debounce(() => {
+        fetchProducts(1);
+      }, 500));
+
+      document.getElementById('category-filter').addEventListener('change', () => {
+        fetchProducts(1);
+      });
+
+      document.getElementById('sort-filter').addEventListener('change', () => {
+        fetchProducts(1);
+      });
+
+      attachPaginationListeners();
+    </script>
+        <script>
+      async function toggleWishlist(productId, button) {
+        try {
+          const isInWishlist = button.classList.contains('in-wishlist');
+          const url = isInWishlist ? `/user/wishlist/remove/${productId}` : `/user/wishlist/add/${productId}`;
+          const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'cookiestoken': `${localStorage.getItem('token')}`
+            }
+          });
+          const data = await response.json();
+          if (data.success) {
+            button.classList.toggle('in-wishlist', !isInWishlist);
+            button.classList.toggle('not-in-wishlist', isInWishlist);
+            button.setAttribute('data-in-wishlist', !isInWishlist);
+            console.log(data.message || 'Successfully toggled wishlist!');
+          } else {
+            // alert(data.message || 'An error occurred.');
+          }
+        } catch (error) {
+          console.error('Error toggling wishlist:', error);
+          // alert('Failed to toggle wishlist. Please try again later.');
+        }
+      }
+    </script>
     </body>
 </html>

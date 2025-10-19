@@ -8,7 +8,7 @@ exports.jwtAuth = async (req, res, next) => {
 
   if (!token) {
     console.log('No token provided');
-
+    res.locals.isAuthenticated = false;
     // return res.status(401).render('protected/userprotected')
     return next();
     // return res.status(401).json({success:false,message:'token is not provided'})
@@ -18,10 +18,12 @@ exports.jwtAuth = async (req, res, next) => {
   try {
     const payload = jwt.verify(token, process.env.JWT_SECRET);
     console.log('Payload:', payload);
+    res.locals.isAuthenticated = true;
     req.user = { _id: payload._id, role: payload.role };
 
     next();
   } catch (e) {
+    res.locals.isAuthenticated = false;
     console.log('Token verification error:', e);
     // return res.status(400).json({
     //     success: false,

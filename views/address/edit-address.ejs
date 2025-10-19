@@ -3,205 +3,176 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Address Edit Page</title>
-        <!-- Bootstrap CSS -->
+        <title>Edit Address</title>
         <link rel="stylesheet"
             href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-        <!-- SweetAlert2 CSS -->
         <link rel="stylesheet"
             href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
         <style>
-        .rounded-circle {
-            border-radius: 50% !important;
-        }
-        .bg-dark {
-            background-color: #343a40 !important;
-        }
-        .text-white {
-            color: #fff !important;
-        }
-        .list-unstyled a {
-            color: #fff;
-        }
-        
-		
-		
-        .navbar {
-            background-color: white;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #e74c3c;
+            --background-color: #f7f8fc;
+            --text-color: #333;
+            --border-radius: 8px;
         }
 
-
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
         }
 
-        .navbar-nav {
-            display: flex;
-            align-items: center;
-            list-style: none;
-            padding: 0;
-            margin: 0;
+        .address-container {
+            max-width: 600px;
+            margin: 2rem auto;
+            background: #fff;
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
 
-        .nav-item {
-            margin: 0 10px;
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--text-color);
+            text-align: center;
+            margin-bottom: 1.5rem;
         }
 
-        .nav-link {
-            display: flex;
-            align-items: center;
-            text-decoration: none;
-            color: #333;
-            font-size: 18px;
+        .form-group {
+            margin-bottom: 1.5rem;
         }
 
-        .nav-link i {
-            font-size: 24px;
-            margin-right: 5px;
+        .form-control {
+            border-radius: var(--border-radius);
+            border: 1px solid #ced4da;
+            padding: 0.75rem;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
         }
 
-        .rounded-circle {
-            width: 30px;
-            height: 30px;
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
         }
 
-        @media (max-width: 767px) {
-            .navbar-nav {
-                flex-direction: row;
-                justify-content: center;
-                margin-top: 1rem;
+        .form-label {
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            border: none;
+            padding: 0.75rem;
+            font-weight: 500;
+            border-radius: var(--border-radius);
+            width: 100%;
+            transition: background 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background: #2980b9;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            border: none;
+            padding: 0.75rem;
+            font-weight: 500;
+            border-radius: var(--border-radius);
+            width: 100%;
+            transition: background 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        #error {
+            color: var(--secondary-color);
+            font-size: 0.9rem;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 576px) {
+            .address-container {
+                margin: 1rem;
+                padding: 1.5rem;
             }
 
-            .nav-item {
-                margin: 0 5px;
+            h1 {
+                font-size: 1.5rem;
             }
 
-            .nav-link {
-                font-size: 16px;
+            .form-control {
+                font-size: 0.9rem;
             }
-
-            .nav-link i {
-                font-size: 20px;
-            }
-
         }
-		
     </style>
     </head>
     <body>
-
-        <nav class="navbar navbar-expand-lg navbar-light bg-light py-3 w-100">
-            <div class="container-fluid">
-                <a class="navbar-brand" href="/">
-                    <img src="/img/logo.png" alt="Logo"
-                        class="d-inline-block align-text-top"
-                        style="height: 40px;">
-                </a>
-                <button class="navbar-toggler" type="button"
-                    data-toggle="collapse" data-target="#navbarNav"
-                    aria-controls="navbarNav" aria-expanded="false"
-                    aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav ml-auto">
-                        <li class="nav-item">
-                            <a class="nav-link" href="/">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/products">Products</a>
-                        </li>
-
-                    </ul>
-                    <ul class="navbar-nav">
-                        <li class="nav-item">
-                            <a class="nav-link" href="/auth/signin">
-                                <img src="/img/log-in.png" alt="Login"
-                                    class="nav-icon" style="height: 24px;">
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/user/wishlist">
-                                <img src="/img/wishlist.png" alt="Wishlist"
-                                    class="nav-icon" style="height: 24px;">
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/cart">
-                                <img src="/img/cart.png" alt="Cart"
-                                    class="nav-icon" style="height: 24px;">
-                                <span
-                                    class="badge badge-pill badge-danger"></span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/user/profile">
-                                <img src="/img/userprofile.jpg"
-                                    alt="User Profile"
-                                    class="nav-icon rounded-circle"
-                                    style="height: 24px;">
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
-        <h1 class="text-center my-4">Address Edit Page</h1>
-        <div class="container">
+        <%- include('../partials/userNav')%>
+        <div class="address-container">
+            <h1>Edit Address</h1>
             <div id="error"></div>
-            <form id="updateForm">
+            <form id="updateForm" class="row g-3">
                 <input type="hidden" name="id" id="addressId"
                     value="<%= address._id %>">
-                <div class="form-group">
-                    <label for="phoneNo">Phone Number</label>
-                    <input type="tel" class="form-control" name="phoneNo"
-                        id="phoneNo" value="<%=address.phoneNo%>">
+                <div class="col-md-6">
+                    <label for="phoneNo" class="form-label">Phone Number</label>
+                    <input type="tel" class="form-control" id="phoneNo"
+                        name="phoneNo" value="<%= address.phoneNo %>" required>
                 </div>
-                <div class="form-group">
-                    <label for="street">Street</label>
-                    <input type="text" class="form-control" name="street"
-                        id="street" value="<%= address.street %>">
+                <div class="col-md-6">
+                    <label for="street" class="form-label">Street</label>
+                    <input type="text" class="form-control" id="street"
+                        name="street" value="<%= address.street %>" required>
                 </div>
-                <div class="form-group">
-                    <label for="city">City</label>
-                    <input type="text" class="form-control" name="city"
-                        id="city" value="<%= address.city %>">
+                <div class="col-md-6">
+                    <label for="city" class="form-label">City</label>
+                    <input type="text" class="form-control" id="city"
+                        name="city" value="<%= address.city %>" required>
                 </div>
-                <div class="form-group">
-                    <label for="state">State</label>
-                    <input type="text" class="form-control" name="state"
-                        id="state" value="<%= address.state %>">
+                <div class="col-md-6">
+                    <label for="state" class="form-label">State</label>
+                    <input type="text" class="form-control" id="state"
+                        name="state" value="<%= address.state %>" required>
                 </div>
-                <div class="form-group">
-                    <label for="postalCode">Postal Code</label>
-                    <input type="text" class="form-control" name="postalCode"
-                        id="postalCode" value="<%= address.postalCode %>">
+                <div class="col-md-6">
+                    <label for="postalCode" class="form-label">Postal
+                        Code</label>
+                    <input type="text" class="form-control" id="postalCode"
+                        name="postalCode" value="<%= address.postalCode %>"
+                        required>
                 </div>
-                <div class="form-group">
-                    <label for="country">Country</label>
-                    <input type="text" class="form-control" name="country"
-                        id="country" value="<%= address.country %>">
+                <div class="col-md-6">
+                    <label for="country" class="form-label">Country</label>
+                    <input type="text" class="form-control" id="country"
+                        name="country" value="<%= address.country %>" required>
                 </div>
-                <button type="submit" class="btn btn-primary">Update</button>
+                <div class="col-md-12">
+                    <button type="submit" class="btn btn-primary">Update
+                        Address</button>
+                </div>
             </form>
+            <div class="text-center mt-3">
+                <a href="/user/address" class="btn btn-secondary">Back to
+                    Addresses</a>
+            </div>
         </div>
 
-        <!-- Footer -->
         <footer class="bg-dark text-white mt-5">
             <div class="container py-4">
                 <div class="row">
-                    <!-- About Section -->
                     <div class="col-md-4">
                         <h5>About Us</h5>
                         <p>At our shoe e-commerce store, we provide the best
-                            quality footwear for every occasion. Explore our
-                            collection to find the perfect pair of shoes for
-                            you.</p>
+                            quality footwear for every occasion.</p>
                     </div>
-
-                    <!-- Quick Links -->
                     <div class="col-md-2">
                         <h5>Quick Links</h5>
                         <ul class="list-unstyled">
@@ -214,8 +185,6 @@
                                     class="text-white">Contact</a></li>
                         </ul>
                     </div>
-
-                    <!-- Support -->
                     <div class="col-md-2">
                         <h5>Support</h5>
                         <ul class="list-unstyled">
@@ -228,8 +197,6 @@
                                     class="text-white">Privacy Policy</a></li>
                         </ul>
                     </div>
-
-                    <!-- Follow Us -->
                     <div class="col-md-4">
                         <h5>Follow Us</h5>
                         <div class="d-flex">
@@ -260,71 +227,65 @@
             </div>
         </footer>
 
-        <!-- Bootstrap JS and dependencies -->
-        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+        <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
         <script
             src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
         <script
             src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-        <!-- SweetAlert2 JS -->
         <script
             src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
         <script>
-        document.getElementById('updateForm').addEventListener('submit', update);
+        $(document).ready(function() {
+            $('#updateForm').on('submit', async function(event) {
+                event.preventDefault();
+                const addressId = $('#addressId').val();
+                const formData = {
+                    phoneNo: $('#phoneNo').val().trim(),
+                    street: $('#street').val().trim(),
+                    city: $('#city').val().trim(),
+                    state: $('#state').val().trim(),
+                    postalCode: $('#postalCode').val().trim(),
+                    country: $('#country').val().trim()
+                };
 
-        async function update(event) {
-            event.preventDefault();
-            
-            // Get form values
-            const addressId = document.getElementById('addressId').value;
-            const phoneNo = document.getElementById('phoneNo').value;
-            const street = document.getElementById('street').value;
-            const city = document.getElementById('city').value;
-            const state = document.getElementById('state').value;
-            const postalCode = document.getElementById('postalCode').value;
-            const country = document.getElementById('country').value;
-
-            // Construct the URL dynamically
-            const url = `/user/address/edit-address/${addressId}`;
-
-            // Prepare the options for the fetch request
-            const options = {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ phoneNo,street, city, state, postalCode, country })
-            };
-
-            try {
-                const response = await fetch(url, options);
-                const result = await response.json();
-
-                if (response.ok) {
-                    // Clear form fields
-                    document.getElementById('street').value = '';
-                    document.getElementById('city').value = '';
-                    document.getElementById('state').value = '';
-                    document.getElementById('postalCode').value = '';
-                    document.getElementById('country').value = '';
-                    document.getElementById('phoneNo').value='';
-                    
-                    // Show success alert
-                    Swal.fire({
-                        title: 'Success!',
-                        text: 'Address successfully updated.',
-                        icon: 'success',
-                        confirmButtonText: 'OK'
-                    }).then(() => {
-                        window.location.href = '/user/profile';
+                try {
+                    const response = await fetch(`/user/address/edit-address/${addressId}`, {
+                        method: 'PATCH',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(formData)
                     });
-                } else {
-                    document.getElementById('error').innerText = result.message;
+
+                    const result = await response.json();
+
+                    if (response.ok) {
+                        Swal.fire({
+                            title: 'Success!',
+                            text: 'Address updated successfully.',
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        }).then(() => {
+                            window.location.href = '/user/address';
+                        });
+                    } else {
+                        Swal.fire({
+                            title: 'Error!',
+                            text: result.message || 'Failed to update address.',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                } catch (error) {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'An error occurred. Please try again.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
                 }
-            } catch (error) {
-                document.getElementById('error').innerText = 'An error occurred. Please try again.';
-            }
-        }
+            });
+        });
     </script>
     </body>
 </html>

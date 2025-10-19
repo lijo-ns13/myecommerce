@@ -1,37 +1,107 @@
 const Coupon = require('../../models/couponSchema');
 const httpStatusCodes = require('../../constants/httpStatusCodes');
 const messages = require('../../constants/message');
-
 const getCoupons = async (req, res) => {
   try {
-    // Get page and limit from query params, default to page 1, limit 10
     const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 1;
+    const limit = parseInt(req.query.limit) || 5; // Ensure limit is 5
     const skip = (page - 1) * limit;
+    const search = req.query.search || '';
 
-    // Get total count for pagination info
-    const totalCoupons = await Coupon.countDocuments({});
+    const query = search
+      ? {
+          $or: [
+            { couponCode: { $regex: search, $options: 'i' } },
+            { description: { $regex: search, $options: 'i' } },
+          ],
+        }
+      : {};
+
+    const [totalCoupons, coupons] = await Promise.all([
+      Coupon.countDocuments(query),
+      Coupon.find(query).skip(skip).limit(limit).sort({ createdAt: -1 }),
+    ]);
+
     const totalPages = Math.ceil(totalCoupons / limit);
 
-    // Fetch paginated data
-    const coupons = await Coupon.find({}).skip(skip).limit(limit).sort({ createdAt: -1 }); // Optional: sort by created date
-
     res.render('admincoupon/coupon', {
-      coupons: coupons,
+      coupons,
       currentPath: '/coupon',
       layout: 'layouts/adminLayout',
       currentPage: page,
-      totalPages: totalPages,
-      limit: limit,
+      totalPages,
+      limit,
+      search,
     });
   } catch (error) {
-    res.status(httpStatusCodes.BAD_REQUEST).json({
+    console.error('Error in getCoupons:', error);
+    res.status(httpStatusCodes.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: error.message,
     });
   }
 };
 
+const getCouponsData = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 5; // Ensure limit is 5
+    const skip = (page - 1) * limit;
+    const search = req.query.search || '';
+
+    const query = search
+      ? {
+          $or: [
+            { couponCode: { $regex: search, $options: 'i' } },
+            { description: { $regex: search, $options: 'i' } },
+          ],
+        }
+      : {};
+
+    const [totalCoupons, coupons] = await Promise.all([
+      Coupon.countDocuments(query),
+      Coupon.find(query).skip(skip).limit(limit).sort({ createdAt: -1 }),
+    ]);
+
+    const totalPages = Math.ceil(totalCoupons / limit);
+
+    res.json({
+      coupons: coupons.map((c) => c.toObject()),
+      currentPage: page,
+      totalPages,
+      limit,
+      search,
+    });
+  } catch (error) {
+    console.error('Error in getCouponsData:', error);
+    res.status(httpStatusCodes.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+const deleteCoupon = async (req, res) => {
+  try {
+    const couponId = req.params.id;
+
+    const coupon = await Coupon.findById(couponId);
+    if (!coupon) {
+      return res
+        .status(httpStatusCodes.NOT_FOUND)
+        .json({ success: false, message: messages.COUPON.NOT_FOUND });
+    }
+
+    await Coupon.findByIdAndDelete(couponId);
+
+    res.status(httpStatusCodes.OK).json({ success: true, message: messages.COUPON.DELETE_SUCCESS });
+  } catch (error) {
+    console.error('Error in deleteCoupon:', error);
+    res
+      .status(httpStatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: messages.ERROR.SERVER_ERROR });
+  }
+};
 const getEditCoupon = async (req, res) => {
   try {
     const couponId = req.params.id;
@@ -286,28 +356,10 @@ const addCoupon = async (req, res) => {
     res.status(httpStatusCodes.BAD_REQUEST).json({ success: false, message: error.message });
   }
 };
-const deleteCoupon = async (req, res) => {
-  try {
-    const couponId = req.params.id;
 
-    const coupon = await Coupon.findById(couponId);
-    if (!coupon) {
-      return res
-        .status(httpStatusCodes.NOT_FOUND)
-        .json({ success: false, message: messages.COUPON.NOT_FOUND });
-    }
-
-    await Coupon.findByIdAndDelete(couponId);
-
-    res.status(httpStatusCodes.OK).json({ success: true, message: messages.COUPON.DELETE_SUCCESS });
-  } catch (error) {
-    res
-      .status(httpStatusCodes.INTERNAL_SERVER_ERROR)
-      .json({ success: false, message: messages.ERROR.SERVER_ERROR });
-  }
-};
 module.exports = {
   getCoupons,
+  getCouponsData,
   addCoupon,
   getAddCoupon,
   editCoupon,
