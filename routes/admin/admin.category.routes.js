@@ -9,6 +9,7 @@ router.use(methodOverride('_method'));
 router.use(jwtAuth, adminProtected);
 
 router.get('/', adminController.getCategory);
+router.get('/data', adminController.getCategoriesData);
 router.get('/update/:id', adminController.getCategoryUpdate);
 router.patch('/update/:id', adminController.patchCategoryUpdate);
 // router.delete('/category/delete/:id',adminController.deleteCategoryDelete)

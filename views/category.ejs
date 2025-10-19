@@ -1,121 +1,167 @@
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Categories Management</title>
-    <!-- Bootstrap 5 -->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-      rel="stylesheet" />
-    <link
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
-      rel="stylesheet" />
-    <link
       rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" />
-
+      integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM"
+      crossorigin="anonymous" />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+      rel="stylesheet"
+      integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA=="
+      crossorigin="anonymous" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet" />
     <style>
       body {
-        background-color: #f8f9fc;
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        font-family: 'Inter', sans-serif;
+        background-color: #f4f6f8;
+        color: #333;
       }
-
-      .main-content {
-        margin-left: 180px;
-            padding: 30px;
-            transition: all 0.3s;
+      .content {
+        margin-left: 200px;
+        padding: 40px 20px;
+        min-height: 100vh;
+        transition: margin-left 0.3s ease;
       }
-
       .card {
         border: none;
-        border-radius: 0.75rem;
-        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08);
+        border-radius: 12px;
+        background: #ffffff;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       }
-
-      .card-header {
-        background-color: #fff;
-        border-bottom: 1px solid #e9ecef;
-        padding: 1rem 1.25rem;
+      .table {
+        margin-bottom: 0;
+        border-collapse: separate;
+        border-spacing: 0;
       }
-
       .table th {
-        background-color: #f1f3f9;
+        background-color: #007bff;
+        color: #fff;
         font-weight: 600;
+        font-size: 0.9rem;
         text-transform: uppercase;
-        font-size: 0.85rem;
+        padding: 12px;
+        border: none;
       }
-
-      .badge-success {
+      .table td {
+        padding: 12px;
+        vertical-align: middle;
+        border: none;
+        background: #fff;
+      }
+      .table tr {
+        transition: background-color 0.2s ease;
+      }
+      .table tr:hover {
+        background-color: #f8f9fa;
+      }
+      .status-badge {
+        font-size: 0.8rem;
+        padding: 6px 12px;
+        border-radius: 12px;
+        font-weight: 500;
+      }
+      .status-active {
         background-color: #28a745;
+        color: #fff;
       }
-      .badge-danger {
+      .status-blocked {
         background-color: #dc3545;
+        color: #fff;
       }
-
       .btn-custom {
-        margin: 0.15rem;
+        border-radius: 8px;
+        font-weight: 500;
+        padding: 6px 12px;
+        transition: background-color 0.2s ease;
       }
-
-      /* Search box */
-      .search-box input {
-        border-radius: 0.5rem 0 0 0.5rem;
+      .btn-custom:hover {
+        opacity: 0.9;
       }
-      .search-box .input-group-text {
-        border-radius: 0 0.5rem 0.5rem 0;
-        background-color: #fff;
+      .search-container {
+        max-width: 400px;
       }
-
-      /* Responsive adjustments */
+      .search-container .form-control {
+        border-radius: 8px;
+        border: 1px solid #ced4da;
+        padding: 10px 15px;
+        box-shadow: none;
+        font-size: 0.9rem;
+      }
+      .search-container .form-control:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+      }
+      .pagination .page-link {
+        border-radius: 6px;
+        margin: 0 3px;
+        color: #007bff;
+        border: 1px solid #dee2e6;
+        font-size: 0.9rem;
+      }
+      .pagination .page-item.active .page-link {
+        background-color: #007bff;
+        border-color: #007bff;
+        color: #fff;
+      }
+      .pagination .page-item.disabled .page-link {
+        color: #6c757d;
+      }
       @media (max-width: 768px) {
-        .toolbar {
-          flex-direction: column;
-          align-items: stretch;
+        .content {
+          margin-left: 0;
+          padding: 20px;
         }
-        .search-box {
-          margin-bottom: 10px;
-          width: 100%;
+        .search-container {
+          max-width: 100%;
         }
-        .btn-add {
-          width: 100%;
+        .table {
+          font-size: 0.85rem;
+        }
+        .table th,
+        .table td {
+          padding: 8px;
+        }
+        .btn-custom {
+          padding: 4px 8px;
+          font-size: 0.85rem;
         }
       }
     </style>
   </head>
   <body>
-    <div class="main-content">
+    <div class="content">
       <div
-        class="d-flex justify-content-between align-items-center flex-wrap toolbar mb-4">
-        <h2 class="h4 fw-bold mb-3 mb-md-0">Categories Management</h2>
-
-        <div class="d-flex flex-wrap gap-2">
-          <!-- Search Input -->
-          <div class="input-group search-box">
+        class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5">
+        <h2 class="mb-3 mb-md-0 fw-bold text-dark">Categories Management</h2>
+        <div class="d-flex flex-wrap gap-3">
+          <div class="search-container">
             <input
               type="text"
               id="searchInput"
               class="form-control"
-              placeholder="Search categories..."
-              value="<%= search %>" />
-            <span class="input-group-text">
-              <i class="fas fa-search"></i>
-            </span>
+              placeholder="Search by category name"
+              value="<%= search || '' %>" />
           </div>
-
           <a href="/admin/category/add-category"
-            class="btn btn-primary btn-add">
+            class="btn btn-primary btn-custom">
             <i class="fas fa-plus"></i> Add Category
           </a>
         </div>
       </div>
 
-      <div class="card">
-        <div class="card-header">
-          <h5 class="mb-0">Category List</h5>
-        </div>
-        <div class="card-body">
-          <div class="table-responsive">
-            <table class="table table-hover align-middle">
+      <div id="categories-content">
+        <% if (categories.length > 0) { %>
+        <div class="card shadow-sm">
+          <div class="card-body p-0">
+            <table class="table table-hover align-middle mb-0">
               <thead>
                 <tr>
                   <th>#</th>
@@ -131,7 +177,7 @@
                   <td><%= category.name %></td>
                   <td>
                     <span
-                      class="badge <%= category.isBlocked ? 'badge-danger' : 'badge-success' %>">
+                      class="status-badge status-<%= category.isBlocked ? 'blocked' : 'active' %>">
                       <%= category.isBlocked ? 'Blocked' : 'Active' %>
                     </span>
                   </td>
@@ -142,8 +188,8 @@
                       <i class="fas fa-edit"></i> Update
                     </a>
                     <button
-                      class="btn <%= category.isBlocked ? 'btn-success' : 'btn-danger' %> btn-sm btn-custom"
-                      onclick="toggleBlockStatus('<%= category._id %>', <%= category.isBlocked %>)">
+                      class="btn btn-sm btn-custom <%= category.isBlocked ? 'btn-success' : 'btn-danger' %>"
+                      onclick="toggleBlockStatus('<%= category._id %>', <%= category.isBlocked ? 'true' : 'false' %>)">
                       <i
                         class="fas <%= category.isBlocked ? 'fa-unlock' : 'fa-lock' %>"></i>
                       <%= category.isBlocked ? 'Unblock' : 'Block' %>
@@ -154,108 +200,206 @@
               </tbody>
             </table>
           </div>
-
-          <!-- Pagination -->
-          <nav aria-label="Category pagination">
-            <ul class="pagination justify-content-center mt-3">
-              <% if (currentPage > 1) { %>
-              <li class="page-item">
-                <a
-                  class="page-link"
-                  href="/admin/category?page=<%= currentPage - 1 %>&limit=<%= limit %>&search=<%= search %>">
-                  Previous
-                </a>
-              </li>
-              <% } %>
-
-              <% for(let i = 1; i <= totalPages; i++) { %>
-              <li class="page-item <%= i === currentPage ? 'active' : '' %>">
-                <a
-                  class="page-link"
-                  href="/admin/category?page=<%= i %>&limit=<%= limit %>&search=<%= search %>">
-                  <%= i %>
-                </a>
-              </li>
-              <% } %>
-
-              <% if (currentPage < totalPages) { %>
-              <li class="page-item">
-                <a
-                  class="page-link"
-                  href="/admin/category?page=<%= currentPage + 1 %>&limit=<%= limit %>&search=<%= search %>">
-                  Next
-                </a>
-              </li>
-              <% } %>
-            </ul>
-          </nav>
         </div>
+        <% } else { %>
+        <div class="alert alert-info" role="alert">
+          No categories found
+        </div>
+        <% } %>
+
+        <nav aria-label="Category pagination" class="mt-5">
+          <ul class="pagination justify-content-center">
+            <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
+              <a class="page-link"
+                data-page="<%= currentPage - 1 %>">Previous</a>
+            </li>
+            <% for (let i = 1; i <= totalPages; i++) { %>
+            <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+              <a class="page-link" data-page="<%= i %>"><%= i %></a>
+            </li>
+            <% } %>
+            <li
+              class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
+              <a class="page-link" data-page="<%= currentPage + 1 %>">Next</a>
+            </li>
+          </ul>
+        </nav>
       </div>
     </div>
 
     <script
-      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+      crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
     <script>
-      // Debounce helper
-      function debounce(fn, delay) {
+      function debounce(func, delay) {
         let timer;
         return function (...args) {
           clearTimeout(timer);
-          timer = setTimeout(() => fn.apply(this, args), delay);
+          timer = setTimeout(() => func.apply(this, args), delay);
         };
       }
 
-      const searchInput = document.getElementById("searchInput");
+      async function fetchCategories(page = 1, search = '') {
+        try {
+          const response = await fetch(`/admin/category/data?page=${page}&limit=<%= limit %>&search=${encodeURIComponent(search)}`);
+          if (!response.ok) {
+            throw new Error('Failed to fetch categories');
+          }
+          const data = await response.json();
+          updateContent(data);
 
-      const handleSearch = debounce(function () {
-        const searchValue = searchInput.value.trim();
-        window.location.href = `/admin/category?page=1&limit=<%= limit %>&search=${encodeURIComponent(
-          searchValue
-        )}`;
-      }, 500);
+          const newUrl = `?page=${page}&limit=<%= limit %>&search=${encodeURIComponent(search)}`;
+          history.pushState({ page, search }, '', newUrl);
+        } catch (error) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to load categories. Please try again.',
+            confirmButtonText: 'OK'
+          });
+        }
+      }
 
-      searchInput.addEventListener("keyup", handleSearch);
+      function updateContent(data) {
+        let html = '';
+        if (data.categories.length > 0) {
+          html += `
+            <div class="card shadow-sm">
+              <div class="card-body p-0">
+                <table class="table table-hover align-middle mb-0">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Category Name</th>
+                      <th>Status</th>
+                      <th class="text-end">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>`;
+          data.categories.forEach((category, index) => {
+            html += `
+              <tr>
+                <td>${(data.currentPage - 1) * data.limit + (index + 1)}</td>
+                <td>${category.name}</td>
+                <td>
+                  <span class="status-badge status-${category.isBlocked ? 'blocked' : 'active'}">
+                    ${category.isBlocked ? 'Blocked' : 'Active'}
+                  </span>
+                </td>
+                <td class="text-end">
+                  <a
+                    href="/admin/category/update/${category._id}"
+                    class="btn btn-warning btn-sm btn-custom">
+                    <i class="fas fa-edit"></i> Update
+                  </a>
+                  <button
+                    class="btn btn-sm btn-custom ${category.isBlocked ? 'btn-success' : 'btn-danger'}"
+                    onclick="toggleBlockStatus('${category._id}', ${category.isBlocked})">
+                    <i class="fas ${category.isBlocked ? 'fa-unlock' : 'fa-lock'}"></i>
+                    ${category.isBlocked ? 'Unblock' : 'Block'}
+                  </button>
+                </td>
+              </tr>`;
+          });
+          html += `
+                  </tbody>
+                </table>
+              </div>
+            </div>`;
+        } else {
+          html += `
+            <div class="alert alert-info" role="alert">
+              No categories found
+            </div>`;
+        }
 
-      // Toggle Block / Unblock
+        html += `
+          <nav aria-label="Category pagination" class="mt-5">
+            <ul class="pagination justify-content-center">
+              <li class="page-item ${data.currentPage === 1 ? 'disabled' : ''}">
+                <a class="page-link" data-page="${data.currentPage - 1}">Previous</a>
+              </li>`;
+        for (let i = 1; i <= data.totalPages; i++) {
+          html += `
+              <li class="page-item ${i === data.currentPage ? 'active' : ''}">
+                <a class="page-link" data-page="${i}">${i}</a>
+              </li>`;
+        }
+        html += `
+              <li class="page-item ${data.currentPage === data.totalPages ? 'disabled' : ''}">
+                <a class="page-link" data-page="${data.currentPage + 1}">Next</a>
+              </li>
+            </ul>
+          </nav>`;
+
+        document.getElementById('categories-content').innerHTML = html;
+
+        attachPaginationListeners();
+      }
+
+      function attachPaginationListeners() {
+        document.querySelectorAll('.page-link').forEach(link => {
+          link.addEventListener('click', (event) => {
+            event.preventDefault();
+            const page = parseInt(link.getAttribute('data-page'));
+            if (!isNaN(page)) {
+              const search = document.getElementById('searchInput').value.trim();
+              fetchCategories(page, search);
+            }
+          });
+        });
+      }
+
       function toggleBlockStatus(categoryId, isBlocked) {
-        const url = `/admin/category/${isBlocked ? "unblock" : "block"}/${categoryId}`;
-
         Swal.fire({
-          title: `Are you sure you want to ${
-            isBlocked ? "unblock" : "block"
-          } this category?`,
-          text: "This action can be reversed later.",
-          icon: "warning",
+          title: `Are you sure you want to ${isBlocked ? 'unblock' : 'block'} this category?`,
+          text: 'This action can be reversed later.',
+          icon: 'warning',
           showCancelButton: true,
-          confirmButtonColor: "#3085d6",
-          cancelButtonColor: "#d33",
-          confirmButtonText: "Yes, proceed!",
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'Yes, proceed!'
         }).then((result) => {
           if (result.isConfirmed) {
-            fetch(url, { method: "POST" })
-              .then((response) => {
-                if (response.ok) return response.json();
-                throw new Error("Failed to update category");
+            const url = `/admin/category/${isBlocked ? 'unblock' : 'block'}/${categoryId}`;
+            fetch(url, { method: 'POST' })
+              .then(response => {
+                if (!response.ok) throw new Error('Failed to update category');
+                return response.json();
               })
-              .then((data) => {
+              .then(data => {
                 Swal.fire({
-                  title: "Success!",
+                  icon: 'success',
+                  title: 'Success',
                   text: data.message,
-                  icon: "success",
-                }).then(() => location.reload());
+                  confirmButtonText: 'OK'
+                }).then(() => {
+                  const search = document.getElementById('searchInput').value.trim();
+                  const currentPage = parseInt(new URLSearchParams(window.location.search).get('page')) || 1;
+                  fetchCategories(currentPage, search);
+                });
               })
-              .catch((error) => {
+              .catch(error => {
                 Swal.fire({
-                  title: "Error",
-                  text: error.message,
-                  icon: "error",
+                  icon: 'error',
+                  title: 'Error',
+                  text: error.message || 'Something went wrong.',
+                  confirmButtonText: 'OK'
                 });
               });
           }
         });
       }
+
+      const searchInput = document.getElementById('searchInput');
+      searchInput.addEventListener('keyup', debounce(() => {
+        const search = searchInput.value.trim();
+        fetchCategories(1, search);
+      }, 500));
+
+      attachPaginationListeners();
     </script>
   </body>
 </html>
