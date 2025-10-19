@@ -231,19 +231,19 @@ const formatCurrency = (amount) => {
 // Helper function to calculate invoice totals
 const getInvoiceTotals = (order, taxRate = 0) => {
   // Use only active products for subtotal calculation
-  const subtotal =
-    order.subtotalAfterOffers ||
-    order.orderedProducts
-      .filter((item) => item.status === 'active')
-      .reduce((sum, item) => sum + item.productQuantity * item.finalUnitPrice, 0);
+  const subtotal = order.originalPrice;
+  // order.subtotalAfterOffers ||
+  // order.orderedProducts
+  //   .filter((item) => item.status === 'active')
+  //   .reduce((sum, item) => sum + item.productQuantity * item.finalUnitPrice, 0);
 
-  const totalDiscount =
-    (order.discount || 0) + (order.couponDiscount || 0) + (order.offerTotalDiscount || 0);
+  const totalDiscount = order.discount;
+  // (order.discount || 0) + (order.couponDiscount || 0) + (order.offerTotalDiscount || 0);
 
   const taxAmount = subtotal * (taxRate / 100);
 
   // Use stored totalPrice as fallback-safe final total
-  const total = order.totalPrice ?? subtotal - totalDiscount + taxAmount;
+  const total = order.totalPrice;
 
   return { subtotal, totalDiscount, taxAmount, total };
 };
