@@ -1,37 +1,59 @@
- <div class="sidebar">
-        <div class="p-3">
-            <h4>Dashboard</h4>
-        </div>
-        <!-- <a class="nav-link <%= currentPath === '/admin/customers' ? 'active' : '' %>" href="/admin/customers">Customers</a> -->
-
-        <ul class="nav flex-column p-3">
-            <li class="nav-item">
-                <a class="nav-link <%= currentPath === '/dashboard' ? 'active' : '' %>" href="/admin/dashboard">Dashboard</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link <%= currentPath === '/product' ? 'active' : '' %>" href="/admin/products">Products</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link <%= currentPath === '/order' ? 'active' : '' %>" href="/admin/orders">Orders</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link <%= currentPath === '/customer' ? 'active' : '' %>" href="/admin/customers">Customers</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link <%= currentPath === '/category' ? 'active' : '' %>" href="/admin/category">Category</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link <%= currentPath === '/coupon' ? 'active' : '' %>" href="/admin/coupons">Coupons</a>
-            </li>
-            <li class="nav-item"></li>
-                <a class="nav-link <%= currentPath === '/inventory' ? 'active' : '' %>" href="/admin/inventory">Inventory</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link <%= currentPath === '/offer' ? 'active' : '' %>" href="/admin/offers">Offers</a>
-            </li>
-            <li class="nav-item mt-auto">
-                <a class="nav-link text-danger" href="/auth/logout">Logout</a>
-            </li>
-        </ul>
-    </div>
-    
+<div class="p-3">
+    <!-- <img src="/images/logo.png" alt="Admin Logo" class="sidebar-logo" /> -->
+    <h4><i class="fas fa-tachometer-alt me-2"></i>Admin Dashboard</h4>
+</div>
+<ul class="nav flex-column p-3">
+    <li class="nav-item">
+        <a class="nav-link <%= currentPath === '/dashboard' ? 'active' : '' %>"
+            href="/admin/dashboard">
+            <i class="fas fa-home"></i> Dashboard
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link <%= currentPath === '/product' ? 'active' : '' %>"
+            href="/admin/products">
+            <i class="fas fa-box"></i> Products
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link <%= currentPath === '/order' ? 'active' : '' %>"
+            href="/admin/orders">
+            <i class="fas fa-shopping-cart"></i> Orders
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link <%= currentPath === '/customer' ? 'active' : '' %>"
+            href="/admin/customers">
+            <i class="fas fa-users"></i> Customers
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link <%= currentPath === '/category' ? 'active' : '' %>"
+            href="/admin/category">
+            <i class="fas fa-tags"></i> Category
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link <%= currentPath === '/coupon' ? 'active' : '' %>"
+            href="/admin/coupons">
+            <i class="fas fa-ticket-alt"></i> Coupons
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link <%= currentPath === '/inventory' ? 'active' : '' %>"
+            href="/admin/inventory">
+            <i class="fas fa-warehouse"></i> Inventory
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link <%= currentPath === '/offer' ? 'active' : '' %>"
+            href="/admin/offers">
+            <i class="fas fa-percentage"></i> Offers
+        </a>
+    </li>
+    <li class="nav-item mt-auto">
+        <a class="nav-link text-danger" href="/auth/logout">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+    </li>
+</ul>
