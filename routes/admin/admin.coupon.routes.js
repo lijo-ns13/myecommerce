@@ -9,6 +9,7 @@ router.use(methodOverride('_method'));
 router.use(jwtAuth, adminProtected);
 
 router.get('/coupons', couponController.getCoupons);
+router.get('/coupon/data', couponController.getCouponsData);
 router.get('/coupon/edit/:id', couponController.getEditCoupon);
 router.patch('/coupon/edit/:id', couponController.editCoupon);
 router.get('/coupon/add-coupon', couponController.getAddCoupon);

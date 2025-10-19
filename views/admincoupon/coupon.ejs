@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -6,146 +7,336 @@
     <title>Coupon Management</title>
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-      rel="stylesheet" />
+      rel="stylesheet"
+      integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM"
+      crossorigin="anonymous" />
     <link
-      href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css"
-      rel="stylesheet" />
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+      rel="stylesheet"
+      integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA=="
+      crossorigin="anonymous" />
     <link
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet" />
     <style>
       body {
-        background-color: #f8f9fa;
-        color: #212529;
+        font-family: 'Inter', sans-serif;
+        background-color: #f4f6f8;
+        color: #333;
       }
-
       .content {
-        padding: 60px;
-        max-width: 1200px;
-        margin: 0 auto;
+        margin-left: 200px;
+        padding: 40px 20px;
+        min-height: 100vh;
+        transition: margin-left 0.3s ease;
       }
-
-      .page-title {
-        font-weight: 600;
-        margin-bottom: 20px;
-      }
-
       .card {
         border: none;
         border-radius: 12px;
-        box-shadow: 0px 4px 12px rgba(0,0,0,0.05);
+        background: #ffffff;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       }
-
-      .table thead {
-        background-color: #f1f3f5;
+      .table {
+        margin-bottom: 0;
+        border-collapse: separate;
+        border-spacing: 0;
       }
-
-      .btn-sm {
-        padding: 4px 10px;
-        font-size: 14px;
+      .table th {
+        background-color: #007bff;
+        color: #fff;
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        padding: 12px;
+        border: none;
       }
-
-      .btn {
-        border-radius: 6px;
-      }
-
-      .table td, .table th {
+      .table td {
+        padding: 12px;
         vertical-align: middle;
+        border: none;
+        background: #fff;
+      }
+      .table tr {
+        transition: background-color 0.2s ease;
+      }
+      .table tr:hover {
+        background-color: #f8f9fa;
+      }
+      .btn-custom {
+        border-radius: 8px;
+        font-weight: 500;
+        padding: 6px 12px;
+        transition: background-color 0.2s ease;
+      }
+      .btn-custom:hover {
+        opacity: 0.9;
+      }
+      .search-container {
+        max-width: 400px;
+      }
+      .search-container .form-control {
+        border-radius: 8px;
+        border: 1px solid #ced4da;
+        padding: 10px 15px;
+        box-shadow: none;
+        font-size: 0.9rem;
+      }
+      .search-container .form-control:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+      }
+      .pagination .page-link {
+        border-radius: 6px;
+        margin: 0 3px;
+        color: #007bff;
+        border: 1px solid #dee2e6;
+        font-size: 0.9rem;
+      }
+      .pagination .page-item.active .page-link {
+        background-color: #007bff;
+        border-color: #007bff;
+        color: #fff;
+      }
+      .pagination .page-item.disabled .page-link {
+        color: #6c757d;
+      }
+      @media (max-width: 768px) {
+        .content {
+          margin-left: 0;
+          padding: 20px;
+        }
+        .search-container {
+          max-width: 100%;
+        }
+        .table {
+          font-size: 0.85rem;
+        }
+        .table th,
+        .table td {
+          padding: 8px;
+        }
+        .btn-custom {
+          padding: 4px 8px;
+          font-size: 0.85rem;
+        }
       }
     </style>
   </head>
   <body>
     <div class="content">
-      <h2 class="page-title">Coupon Management</h2>
-      <a href="/admin/coupon/add-coupon" class="btn btn-success mb-3">
-        <i class="fas fa-plus"></i> Add Coupon
-      </a>
-
-      <div class="card p-3">
-        <div class="table-responsive">
-          <table
-            class="table table-bordered table-striped align-middle">
-            <thead>
-              <tr>
-                <th scope="col">Coupon Code</th>
-                <th scope="col">Discount (%)</th>
-                <th scope="col">Min Purchase Amount</th>
-                <th scope="col">Expiry Date</th>
-                <th scope="col">Usage Limit</th>
-                <th scope="col" class="text-center">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <% if (coupons && coupons.length > 0) { %>
-              <% for (const coupon of coupons) { %>
-              <tr>
-                <td><%= coupon.couponCode %></td>
-                <td><%= coupon.discountValue %></td>
-                <td><%= coupon.minPurchaseAmount %></td>
-                <td><%= new
-                  Date(coupon.endDate).toLocaleDateString()
-                  %></td>
-                <td><%= coupon.usageLimit %></td>
-                <td class="text-center">
-                  <a
-                    href="/admin/coupon/edit/<%= coupon._id %>"
-                    class="btn btn-primary btn-sm me-1">
-                    <i class="fas fa-edit"></i> Edit
-                  </a>
-                  <button type="button"
-                    class="btn btn-danger btn-sm"
-                    onclick="confirmDelete('<%= coupon._id %>')">
-                    <i class="fas fa-trash"></i> Delete
-                  </button>
-                </td>
-              </tr>
-              <% } %>
-              <% } else { %>
-              <tr>
-                <td colspan="6"
-                  class="text-center text-muted">No coupons
-                  available</td>
-              </tr>
-              <% } %>
-            </tbody>
-          </table>
-          <!-- Pagination -->
-          <nav aria-label="Page navigation" class="mt-4">
-            <ul class="pagination justify-content-center">
-
-              <!-- Previous Page -->
-              <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
-                <a class="page-link"
-                  href="?page=<%= currentPage - 1 %>&limit=<%= limit %>">Previous</a>
-              </li>
-
-              <!-- Page Numbers -->
-              <% for (let i = 1; i <= totalPages; i++) { %>
-              <li class="page-item <%= currentPage === i ? 'active' : '' %>">
-                <a class="page-link"
-                  href="?page=<%= i %>&limit=<%= limit %>"><%= i %></a>
-              </li>
-              <% } %>
-
-              <!-- Next Page -->
-              <li
-                class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
-                <a class="page-link"
-                  href="?page=<%= currentPage + 1 %>&limit=<%= limit %>">Next</a>
-              </li>
-
-            </ul>
-          </nav>
-
+      <div
+        class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5">
+        <h2 class="mb-3 mb-md-0 fw-bold text-dark">Coupon Management</h2>
+        <div class="d-flex flex-wrap gap-3">
+          <div class="search-container">
+            <input
+              type="text"
+              id="searchInput"
+              class="form-control"
+              placeholder="Search by coupon code or description"
+              value="<%= search || '' %>" />
+          </div>
+          <a href="/admin/coupon/add-coupon" class="btn btn-primary btn-custom">
+            <i class="fas fa-plus"></i> Add Coupon
+          </a>
         </div>
+      </div>
+
+      <div id="coupons-content">
+        <% if (coupons.length > 0) { %>
+        <div class="card shadow-sm">
+          <div class="card-body p-0">
+            <table class="table table-hover align-middle mb-0">
+              <thead>
+                <tr>
+                  <th>Coupon Code</th>
+                  <th>Discount (%)</th>
+                  <th>Min Purchase Amount</th>
+                  <th>Expiry Date</th>
+                  <th>Usage Limit</th>
+                  <th class="text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% coupons.forEach((coupon) => { %>
+                <tr>
+                  <td><%= coupon.couponCode %></td>
+                  <td><%= coupon.discountValue %></td>
+                  <td><%= new Intl.NumberFormat('en-IN', { style: 'currency',
+                    currency: 'INR' }).format(coupon.minPurchaseAmount) %></td>
+                  <td><%= new Date(coupon.endDate).toLocaleDateString('en-GB', {
+                    day: '2-digit', month: 'short', year: 'numeric' }) %></td>
+                  <td><%= coupon.usageLimit %></td>
+                  <td class="text-end">
+                    <a
+                      href="/admin/coupon/edit/<%= coupon._id %>"
+                      class="btn btn-warning btn-sm btn-custom me-1">
+                      <i class="fas fa-edit"></i> Edit
+                    </a>
+                    <button
+                      class="btn btn-danger btn-sm btn-custom"
+                      onclick="confirmDelete('<%= coupon._id %>')">
+                      <i class="fas fa-trash"></i> Delete
+                    </button>
+                  </td>
+                </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <% } else { %>
+        <div class="alert alert-info" role="alert">
+          No coupons found
+        </div>
+        <% } %>
+
+        <nav aria-label="Coupon pagination" class="mt-5">
+          <ul class="pagination justify-content-center">
+            <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
+              <a class="page-link"
+                data-page="<%= currentPage - 1 %>">Previous</a>
+            </li>
+            <% for (let i = 1; i <= totalPages; i++) { %>
+            <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+              <a class="page-link" data-page="<%= i %>"><%= i %></a>
+            </li>
+            <% } %>
+            <li
+              class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
+              <a class="page-link" data-page="<%= currentPage + 1 %>">Next</a>
+            </li>
+          </ul>
+        </nav>
       </div>
     </div>
 
     <script
-      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script
-      src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+      crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+      function debounce(func, delay) {
+        let timer;
+        return function (...args) {
+          clearTimeout(timer);
+          timer = setTimeout(() => func.apply(this, args), delay);
+        };
+      }
+
+      async function fetchCoupons(page = 1, search = '') {
+        try {
+          const response = await fetch(`/admin/coupon/data?page=${page}&limit=<%= limit %>&search=${encodeURIComponent(search)}`);
+          if (!response.ok) {
+            throw new Error('Failed to fetch coupons');
+          }
+          const data = await response.json();
+          console.log('Fetched data:', data); // Debugging
+          updateContent(data);
+
+          const newUrl = `?page=${page}&limit=<%= limit %>&search=${encodeURIComponent(search)}`;
+          history.pushState({ page, search }, '', newUrl);
+        } catch (error) {
+          console.error('Fetch error:', error);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to load coupons. Please try again.',
+            confirmButtonText: 'OK'
+          });
+        }
+      }
+
+      function updateContent(data) {
+        let html = '';
+        if (data.coupons.length > 0) {
+          html += `
+            <div class="card shadow-sm">
+              <div class="card-body p-0">
+                <table class="table table-hover align-middle mb-0">
+                  <thead>
+                    <tr>
+                      <th>Coupon Code</th>
+                      <th>Discount (%)</th>
+                      <th>Min Purchase Amount</th>
+                      <th>Expiry Date</th>
+                      <th>Usage Limit</th>
+                      <th class="text-end">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>`;
+          data.coupons.forEach(coupon => {
+            html += `
+              <tr>
+                <td>${coupon.couponCode}</td>
+                <td>${coupon.discountValue}</td>
+                <td>${new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(coupon.minPurchaseAmount)}</td>
+                <td>${new Date(coupon.endDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</td>
+                <td>${coupon.usageLimit}</td>
+                <td class="text-end">
+                  <a
+                    href="/admin/coupon/edit/${coupon._id}"
+                    class="btn btn-warning btn-sm btn-custom me-1">
+                    <i class="fas fa-edit"></i> Edit
+                  </a>
+                  <button
+                    class="btn btn-danger btn-sm btn-custom"
+                    onclick="confirmDelete('${coupon._id}')">
+                    <i class="fas fa-trash"></i> Delete
+                  </button>
+                </td>
+              </tr>`;
+          });
+          html += `
+                  </tbody>
+                </table>
+              </div>
+            </div>`;
+        } else {
+          html += `
+            <div class="alert alert-info" role="alert">
+              No coupons found
+            </div>`;
+        }
+
+        html += `
+          <nav aria-label="Coupon pagination" class="mt-5">
+            <ul class="pagination justify-content-center">
+              <li class="page-item ${data.currentPage === 1 ? 'disabled' : ''}">
+                <a class="page-link" data-page="${data.currentPage - 1}">Previous</a>
+              </li>`;
+        for (let i = 1; i <= data.totalPages; i++) {
+          html += `
+              <li class="page-item ${i === data.currentPage ? 'active' : ''}">
+                <a class="page-link" data-page="${i}">${i}</a>
+              </li>`;
+        }
+        html += `
+              <li class="page-item ${data.currentPage === data.totalPages ? 'disabled' : ''}">
+                <a class="page-link" data-page="${data.currentPage + 1}">Next</a>
+              </li>
+            </ul>
+          </nav>`;
+
+        document.getElementById('coupons-content').innerHTML = html;
+
+        attachPaginationListeners();
+      }
+
+      function attachPaginationListeners() {
+        document.querySelectorAll('.page-link').forEach(link => {
+          link.addEventListener('click', (event) => {
+            event.preventDefault();
+            const page = parseInt(link.getAttribute('data-page'));
+            if (!isNaN(page)) {
+              const search = document.getElementById('searchInput').value.trim();
+              fetchCoupons(page, search);
+            }
+          });
+        });
+      }
+
       function confirmDelete(couponId) {
         Swal.fire({
           title: 'Are you sure?',
@@ -157,25 +348,46 @@
           confirmButtonText: 'Yes, delete it!'
         }).then((result) => {
           if (result.isConfirmed) {
-            fetch(`/admin/coupon/delete/${couponId}?_method=DELETE`, {
-              method: 'POST',
+            fetch(`/admin/coupon/delete/${couponId}`, {
+              method: 'DELETE',
               headers: { 'Content-Type': 'application/json' }
             })
-              .then(response => response.json())
-              .then(data => {
-                if (data.success) {
-                  Swal.fire('Deleted!','Your coupon has been deleted.','success')
-                    .then(() => location.reload());
-                } else {
-                  Swal.fire('Error!','Problem deleting the coupon.','error');
-                }
+              .then(response => {
+                if (!response.ok) throw new Error('Failed to delete coupon');
+                return response.json();
               })
-              .catch(() => {
-                Swal.fire('Error!','There was an error processing your request.','error');
+              .then(data => {
+                Swal.fire({
+                  icon: 'success',
+                  title: 'Deleted',
+                  text: data.message,
+                  confirmButtonText: 'OK'
+                }).then(() => {
+                  const search = document.getElementById('searchInput').value.trim();
+                  const currentPage = parseInt(new URLSearchParams(window.location.search).get('page')) || 1;
+                  fetchCoupons(currentPage, search);
+                });
+              })
+              .catch(error => {
+                console.error('Delete error:', error);
+                Swal.fire({
+                  icon: 'error',
+                  title: 'Error',
+                  text: error.message || 'Something went wrong.',
+                  confirmButtonText: 'OK'
+                });
               });
           }
         });
       }
+
+      const searchInput = document.getElementById('searchInput');
+      searchInput.addEventListener('keyup', debounce(() => {
+        const search = searchInput.value.trim();
+        fetchCoupons(1, search);
+      }, 500));
+
+      attachPaginationListeners();
     </script>
   </body>
 </html>
