@@ -11,22 +11,16 @@ const getOrders = async (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
 
-    const search = req.query.search ? req.query.search.trim() : '';
     const status = req.query.status ? req.query.status.trim() : '';
 
-    // Build query
     const query = {};
-
-    // 📦 Status filter
     if (status && status !== 'all') {
       query.status = status;
     }
 
-    // Get total count for pagination
     const totalOrders = await Order.countDocuments(query);
     const totalPages = Math.ceil(totalOrders / limit);
 
-    // Fetch orders with population
     const orders = await Order.find(query)
       .skip(skip)
       .limit(limit)
@@ -45,9 +39,48 @@ const getOrders = async (req, res) => {
       currentPage: page,
       totalPages,
       currentPath: 'order',
-      search,
       status,
       layout: 'layouts/adminLayout',
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+const getOrdersData = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const status = req.query.status ? req.query.status.trim() : '';
+
+    const query = {};
+    if (status && status !== 'all') {
+      query.status = status;
+    }
+
+    const totalOrders = await Order.countDocuments(query);
+    const totalPages = Math.ceil(totalOrders / limit);
+
+    const orders = await Order.find(query)
+      .skip(skip)
+      .limit(limit)
+      .populate({
+        path: 'userId',
+        select: 'name',
+      })
+      .populate({
+        path: 'products.productId',
+        select: 'product',
+      })
+      .sort({ createdAt: -1 });
+
+    res.json({
+      orders: orders.map((o) => o.toObject()),
+      currentPage: page,
+      totalPages,
+      status,
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -297,5 +330,6 @@ module.exports = {
   getOrderDetailedPage,
   postEditOrder,
   getOrders,
+  getOrdersData,
   getEditOrder,
 };

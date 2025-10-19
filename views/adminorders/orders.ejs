@@ -1,33 +1,31 @@
+
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Order Management</title>
-        <!-- Bootstrap 5 CSS -->
-        <link
-            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-            rel="stylesheet"
-            integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM"
-            crossorigin="anonymous" />
-        <!-- Font Awesome for icons -->
-        <link
-            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
-            rel="stylesheet"
-            integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA=="
-            crossorigin="anonymous" />
-        <!-- Google Fonts for Inter -->
-        <link
-            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-            rel="stylesheet" />
-        <style>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Order Management</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM"
+      crossorigin="anonymous" />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+      rel="stylesheet"
+      integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA=="
+      crossorigin="anonymous" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet" />
+    <style>
       body {
         font-family: 'Inter', sans-serif;
         background-color: #f4f6f8;
         color: #333;
       }
       .content {
-        margin-left: 200px; /* Adjusted for sidebar */
+        margin-left: 200px;
         padding: 40px 20px;
         min-height: 100vh;
         transition: margin-left 0.3s ease;
@@ -120,11 +118,9 @@
       .btn-custom:hover {
         background-color: #0056b3;
       }
-      .search-container,
       .filter-container {
         max-width: 300px;
       }
-      .form-control,
       .form-select {
         border-radius: 8px;
         border: 1px solid #ced4da;
@@ -132,7 +128,6 @@
         box-shadow: none;
         font-size: 0.9rem;
       }
-      .form-control:focus,
       .form-select:focus {
         border-color: #007bff;
         box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
@@ -157,7 +152,6 @@
           margin-left: 0;
           padding: 20px;
         }
-        .search-container,
         .filter-container {
           max-width: 100%;
         }
@@ -174,146 +168,217 @@
         }
       }
     </style>
-    </head>
-    <body>
-        <div class="content">
-            <h2 class="fw-bold mb-5 text-dark">Order Management</h2>
+  </head>
+  <body>
+    <div class="content">
+      <h2 class="fw-bold mb-5 text-dark">Order Management</h2>
 
-            <!-- Search + Filter -->
-            <div class="d-flex flex-wrap gap-3 mb-5">
-                <!-- Commented out as in original code -->
-                <!-- <input
-          type="text"
-          id="searchInput"
-          class="form-control search-container"
-          placeholder="Search by Order ID / Phone..."
-          value="<%= search || '' %>"
-        /> -->
-                <div class="filter-container">
-                    <select id="statusFilter" class="form-select">
-                        <option value="all" <%=!status || status === 'all' ?
-                            'selected' : '' %>>All Status</option>
-                        <% [
-                        'pending', 'processing', 'shipped', 'delivered',
-                        'pending_return', 'processing_return',
-                        'initiated_return',
-                        'rejected_return', 'returned', 'refunded', 'cancelled',
-                        'payment_failed', 'out_of_stock', 'on_hold', 'failed'
-                        ].forEach(s => { %>
-                        <option value="<%= s %>" <%=status === s ? 'selected' :
-                            '' %>><%= s.replace(/_/g, " ").toUpperCase()
-                            %></option>
-                        <% }) %>
-                    </select>
-                </div>
-            </div>
+      <div class="d-flex flex-wrap gap-3 mb-5">
+        <div class="filter-container">
+          <select id="statusFilter" class="form-select">
+            <option value="all" <%=!status || status === 'all' ? 'selected' : ''
+              %>>All Status</option>
+            <% [
+            'pending', 'processing', 'shipped', 'delivered',
+            'pending_return', 'processing_return', 'initiated_return',
+            'rejected_return', 'returned', 'refunded', 'cancelled',
+            'payment_failed', 'out_of_stock', 'on_hold', 'failed'
+            ].forEach(s => { %>
+            <option value="<%= s %>" <%=status === s ? 'selected' : '' %>>
+              <%= s.replace(/_/g, " ").toUpperCase() %>
+            </option>
+            <% }) %>
+          </select>
+        </div>
+      </div>
 
-            <!-- Orders Table -->
-            <div class="card shadow-sm">
-                <div class="card-body p-0">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead>
-                            <tr>
-                                <th>Order ID</th>
-                                <th>User</th>
-                                <th>Total</th>
-                                <th>Status</th>
-                                <th>Order Date</th>
-                                <th>Payment</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <% orders.forEach((order) => { %>
-                            <tr>
-                                <td class="fw-medium"><%= order.genOrderId
-                                    %></td>
-                                <td><%= order.userId ? order.userId.name :
-                                    'Guest' %></td>
-                                <td><%= new Intl.NumberFormat('en-IN', { style:
-                                    'currency', currency: 'INR'
-                                    }).format(order.totalPrice) %></td>
-                                <td>
-                                    <span
-                                        class="status-badge status-<%= order.status %>">
-                                        <%= order.status.replace(/_/g,
-                                        " ").toUpperCase() %>
-                                    </span>
-                                </td>
-                                <td><%= new Intl.DateTimeFormat('en-GB', {
-                                    dateStyle: 'medium' }).format(new
-                                    Date(order.orderDate)) %></td>
-                                <td><%= order.paymentDetails.paymentMethod
-                                    %></td>
-                                <td>
-                                    <a class="btn btn-sm btn-custom"
-                                        href="/admin/orders/<%= order._id %>">
-                                        <i class="fas fa-eye"></i> View
-                                    </a>
-                                </td>
-                            </tr>
-                            <% }) %>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Pagination -->
-            <nav aria-label="Page navigation" class="mt-5">
-                <ul class="pagination justify-content-center">
-                    <li
-                        class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
-                        <a
-                            class="page-link"
-                            href="?page=<%= currentPage - 1 %>&limit=10&search=<%= search || '' %>&status=<%= status || 'all' %>">&laquo;</a>
-                    </li>
-                    <% for (let i = 1; i <= totalPages; i++) { %>
-                    <li
-                        class="page-item <%= currentPage === i ? 'active' : '' %>">
-                        <a
-                            class="page-link"
-                            href="?page=<%= i %>&limit=10&search=<%= search || '' %>&status=<%= status || 'all' %>"><%=
-                            i %></a>
-                    </li>
-                    <% } %>
-                    <li
-                        class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
-                        <a
-                            class="page-link"
-                            href="?page=<%= currentPage + 1 %>&limit=10&search=<%= search || '' %>&status=<%= status || 'all' %>">&raquo;</a>
-                    </li>
-                </ul>
-            </nav>
+      <div id="orders-content">
+        <div class="card shadow-sm">
+          <div class="card-body p-0">
+            <table class="table table-hover align-middle mb-0">
+              <thead>
+                <tr>
+                  <th>Order ID</th>
+                  <th>User</th>
+                  <th>Total</th>
+                  <th>Status</th>
+                  <th>Order Date</th>
+                  <th>Payment</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <% orders.forEach((order) => { %>
+                <tr>
+                  <td class="fw-medium"><%= order.genOrderId %></td>
+                  <td><%= order.userId ? order.userId.name : 'Guest' %></td>
+                  <td><%= new Intl.NumberFormat('en-IN', { style: 'currency',
+                    currency: 'INR' }).format(order.totalPrice) %></td>
+                  <td>
+                    <span class="status-badge status-<%= order.status %>">
+                      <%= order.status.replace(/_/g, " ").toUpperCase() %>
+                    </span>
+                  </td>
+                  <td><%= new Intl.DateTimeFormat('en-GB', { dateStyle: 'medium'
+                    }).format(new Date(order.orderDate)) %></td>
+                  <td><%= order.paymentDetails.paymentMethod %></td>
+                  <td>
+                    <a class="btn btn-sm btn-custom"
+                      href="/admin/orders/<%= order._id %>">
+                      <i class="fas fa-eye"></i> View
+                    </a>
+                  </td>
+                </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
         </div>
 
-        <script
-            src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
-            integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
-            crossorigin="anonymous"></script>
-        <script>
-      // Debounced filter application for search and status
-      function debounce(func, delay) {
-        let timer;
-        return function (...args) {
-          clearTimeout(timer);
-          timer = setTimeout(() => func.apply(this, args), delay);
-        };
-      }
+        <nav aria-label="Page navigation" class="mt-5">
+          <ul class="pagination justify-content-center">
+            <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
+              <a class="page-link"
+                data-page="<%= currentPage - 1 %>">&laquo;</a>
+            </li>
+            <% for (let i = 1; i <= totalPages; i++) { %>
+            <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+              <a class="page-link" data-page="<%= i %>"><%= i %></a>
+            </li>
+            <% } %>
+            <li
+              class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
+              <a class="page-link"
+                data-page="<%= currentPage + 1 %>">&raquo;</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
 
-      const searchInput = document.getElementById("searchInput");
-      const statusFilter = document.getElementById("statusFilter");
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+      crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+            function debounce(func, delay) {
+                let timer;
+                return function (...args) {
+                    clearTimeout(timer);
+                    timer = setTimeout(() => func.apply(this, args), delay);
+                };
+            }
 
-      function applyFilters() {
-        const search = searchInput ? searchInput.value.trim() : "";
-        const status = statusFilter.value;
-        const url = `?search=${encodeURIComponent(search)}&status=${status}&page=1&limit=10`;
-        window.location.href = url;
-      }
+            async function fetchOrders(page = 1, status = 'all') {
+                try {
+                    const response = await fetch(`/admin/orders/data?page=${page}&limit=10&status=${encodeURIComponent(status)}`);
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch orders');
+                    }
+                    const data = await response.json();
+                    updateContent(data);
 
-      if (searchInput) {
-        searchInput.addEventListener("keyup", debounce(applyFilters, 500));
-      }
-      statusFilter.addEventListener("change", applyFilters);
-    </script>
-    </body>
+                    const newUrl = `?page=${page}&limit=10&status=${encodeURIComponent(status)}`;
+                    history.pushState({ page, status }, '', newUrl);
+                } catch (error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to load orders. Please try again.',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            }
+
+            function updateContent(data) {
+                let html = '';
+                html += `
+                    <div class="card shadow-sm">
+                        <div class="card-body p-0">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Order ID</th>
+                                        <th>User</th>
+                                        <th>Total</th>
+                                        <th>Status</th>
+                                        <th>Order Date</th>
+                                        <th>Payment</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>`;
+                data.orders.forEach(order => {
+                    html += `
+                        <tr>
+                            <td class="fw-medium">${order.genOrderId}</td>
+                            <td>${order.userId ? order.userId.name : 'Guest'}</td>
+                            <td>${new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(order.totalPrice)}</td>
+                            <td>
+                                <span class="status-badge status-${order.status}">
+                                    ${order.status.replace(/_/g, " ").toUpperCase()}
+                                </span>
+                            </td>
+                            <td>${new Intl.DateTimeFormat('en-GB', { dateStyle: 'medium' }).format(new Date(order.orderDate))}</td>
+                            <td>${order.paymentDetails.paymentMethod}</td>
+                            <td>
+                                <a class="btn btn-sm btn-custom" href="/admin/orders/${order._id}">
+                                    <i class="fas fa-eye"></i> View
+                                </a>
+                            </td>
+                        </tr>`;
+                });
+                html += `
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <nav aria-label="Page navigation" class="mt-5">
+                        <ul class="pagination justify-content-center">
+                            <li class="page-item ${data.currentPage === 1 ? 'disabled' : ''}">
+                                <a class="page-link" data-page="${data.currentPage - 1}">&laquo;</a>
+                            </li>`;
+                for (let i = 1; i <= data.totalPages; i++) {
+                    html += `
+                            <li class="page-item ${data.currentPage === i ? 'active' : ''}">
+                                <a class="page-link" data-page="${i}">${i}</a>
+                            </li>`;
+                }
+                html += `
+                            <li class="page-item ${data.currentPage === data.totalPages ? 'disabled' : ''}">
+                                <a class="page-link" data-page="${data.currentPage + 1}">&raquo;</a>
+                            </li>
+                        </ul>
+                    </nav>`;
+                document.getElementById('orders-content').innerHTML = html;
+
+                attachPaginationListeners();
+            }
+
+            function attachPaginationListeners() {
+                document.querySelectorAll('.page-link').forEach(link => {
+                    link.addEventListener('click', (event) => {
+                        event.preventDefault();
+                        const page = parseInt(link.getAttribute('data-page'));
+                        if (!isNaN(page)) {
+                            const status = document.getElementById('statusFilter').value;
+                            fetchOrders(page, status);
+                        }
+                    });
+                });
+            }
+
+            const statusFilter = document.getElementById('statusFilter');
+
+            function applyFilters() {
+                const status = statusFilter.value;
+                fetchOrders(1, status);
+            }
+
+            statusFilter.addEventListener('change', applyFilters);
+
+            attachPaginationListeners();
+        </script>
+  </body>
 </html>

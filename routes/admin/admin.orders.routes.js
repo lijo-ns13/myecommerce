@@ -12,7 +12,7 @@ router.use(methodOverride('_method'));
 router.use(jwtAuth, adminProtected);
 
 router.get('/', adminController.getOrders);
-
+router.get('/data', adminController.getOrdersData);
 router.get('/:orderId/edit', adminController.getEditOrder);
 router.post('/:orderId/edit', adminController.postEditOrder);
 router.get('/:orderId', adminController.getOrderDetailedPage);
