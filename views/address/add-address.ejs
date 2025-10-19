@@ -4,148 +4,286 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Add Address</title>
-        <!-- Bootstrap CSS -->
         <link rel="stylesheet"
             href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-        <!-- SweetAlert2 CSS -->
         <link rel="stylesheet"
             href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
         <style>
-        		:root {
-    --primary-color: #3498db;
-    --secondary-color: #e74c3c;
-    --accent-color: #f39c12;
-    --background-color: #f4f4f4;
-    --text-color: #333;
-}
-
-body {
-    font-family: 'Poppins', sans-serif;
-    background-color: var(--background-color);
-    color: var(--text-color);
-    width:100%;
-}
-
-		
-
-
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #e74c3c;
+            --background-color: #f7f8fc;
+            --text-color: #333;
+            --border-radius: 8px;
         }
 
-       
-        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
 
+        .address-container {
+            max-width: 600px;
+            margin: 2rem auto;
+            background: #fff;
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--text-color);
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-control {
+            border-radius: var(--border-radius);
+            border: 1px solid #ced4da;
+            padding: 0.75rem;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+        }
+
+        .form-label {
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            border: none;
+            padding: 0.75rem;
+            font-weight: 500;
+            border-radius: var(--border-radius);
+            width: 100%;
+            transition: background 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background: #2980b9;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            border: none;
+            padding: 0.75rem;
+            font-weight: 500;
+            border-radius: var(--border-radius);
+            width: 100%;
+            transition: background 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        #error {
+            color: var(--secondary-color);
+            font-size: 0.9rem;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 576px) {
+            .address-container {
+                margin: 1rem;
+                padding: 1.5rem;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .form-control {
+                font-size: 0.9rem;
+            }
+        }
     </style>
     </head>
     <body>
-
         <%- include('../partials/userNav')%>
-        <!-- Add Address Section -->
-        <div class="container mt-5 mb-5">
-            <h1 class="mb-4 text-center">Add Address</h1>
+        <div class="address-container">
+            <h1>Add New Address</h1>
             <div id="error"></div>
-            <form id="addressform" class="row g-3">
+            <form id="addressForm" class="row g-3">
                 <div class="col-md-6">
                     <label for="phoneNo" class="form-label">Phone Number</label>
-                    <input type="text" class="form-control" id="phoneNo"
-                        name="phoneNo" placeholder="Phone Number">
+                    <input type="tel" class="form-control" id="phoneNo"
+                        name="phoneNo" placeholder="Enter phone number"
+                        required>
                 </div>
                 <div class="col-md-6">
                     <label for="street" class="form-label">Street</label>
                     <input type="text" class="form-control" id="street"
-                        name="street" placeholder="Street">
+                        name="street" placeholder="Enter street" required>
                 </div>
                 <div class="col-md-6">
                     <label for="city" class="form-label">City</label>
                     <input type="text" class="form-control" id="city"
-                        name="city" placeholder="City">
+                        name="city" placeholder="Enter city" required>
                 </div>
                 <div class="col-md-6">
                     <label for="state" class="form-label">State</label>
                     <input type="text" class="form-control" id="state"
-                        name="state" placeholder="State">
+                        name="state" placeholder="Enter state" required>
                 </div>
                 <div class="col-md-6">
                     <label for="postalCode" class="form-label">Postal
                         Code</label>
                     <input type="text" class="form-control" id="postalCode"
-                        name="postalCode" placeholder="Postal Code">
+                        name="postalCode" placeholder="Enter postal code"
+                        required>
                 </div>
-                <div class="col-md-12">
+                <div class="col-md-6">
                     <label for="country" class="form-label">Country</label>
                     <input type="text" class="form-control" id="country"
-                        name="country" placeholder="Country">
+                        name="country" placeholder="Enter country" required>
                 </div>
                 <div class="col-md-12">
-                    <button type="submit"
-                        class="btn btn-primary btn-block mt-3">Submit</button>
+                    <button type="submit" class="btn btn-primary">Add
+                        Address</button>
                 </div>
             </form>
-
-            <!-- Back to Profile Button -->
-            <div class="text-center mt-4">
-                <a href="/user/profile" class="btn btn-secondary">Back to
-                    Profile</a>
+            <div class="text-center mt-3">
+                <a href="/user/address" class="btn btn-secondary">Back to
+                    Addresses</a>
             </div>
         </div>
+
+        <footer class="bg-dark text-white mt-5">
+            <div class="container py-4">
+                <div class="row">
+                    <div class="col-md-4">
+                        <h5>About Us</h5>
+                        <p>At our shoe e-commerce store, we provide the best
+                            quality footwear for every occasion.</p>
+                    </div>
+                    <div class="col-md-2">
+                        <h5>Quick Links</h5>
+                        <ul class="list-unstyled">
+                            <li><a href="/" class="text-white">Home</a></li>
+                            <li><a href="/products"
+                                    class="text-white">Products</a></li>
+                            <li><a href="/about"
+                                    class="text-white">About</a></li>
+                            <li><a href="/contact"
+                                    class="text-white">Contact</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-md-2">
+                        <h5>Support</h5>
+                        <ul class="list-unstyled">
+                            <li><a href="/faq" class="text-white">FAQ</a></li>
+                            <li><a href="/returns"
+                                    class="text-white">Returns</a></li>
+                            <li><a href="/shipping"
+                                    class="text-white">Shipping</a></li>
+                            <li><a href="/privacy-policy"
+                                    class="text-white">Privacy Policy</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-md-4">
+                        <h5>Follow Us</h5>
+                        <div class="d-flex">
+                            <a href="https://facebook.com"
+                                class="text-white mr-3"><img
+                                    src="img/facebook-icon.png" alt="Facebook"
+                                    style="width: 24px;"></a>
+                            <a href="https://twitter.com"
+                                class="text-white mr-3"><img
+                                    src="img/twitter-icon.png" alt="Twitter"
+                                    style="width: 24px;"></a>
+                            <a href="https://instagram.com"
+                                class="text-white mr-3"><img
+                                    src="img/instagram-icon.png" alt="Instagram"
+                                    style="width: 24px;"></a>
+                            <a href="https://linkedin.com"
+                                class="text-white"><img
+                                    src="img/linkedin-icon.png" alt="LinkedIn"
+                                    style="width: 24px;"></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-4">
+                    <div class="col text-center">
+                        <p>&copy; 2024 YourCompanyName. All Rights Reserved.</p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+
+        <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+        <script
+            src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+        <script
+            src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
         <script
             src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
         <script>
-        document.getElementById('addressform').addEventListener('submit', addr);
-        
-        async function addr(event) {
-            event.preventDefault();
-            const url = "/user/address/add-address";
-           
-           const street = document.getElementById('street').value;
-           const city = document.getElementById('city').value;
-           const state = document.getElementById('state').value;
-           const postalCode = document.getElementById('postalCode').value;
-           const country = document.getElementById('country').value;
-           const phoneNo=document.getElementById('phoneNo').value ;
-    
-            const options = {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({phoneNo,street,city,state,postalCode,country})
-            };
-    
-            try {
-                const response = await fetch(url, options);
-                const result = await response.json();
-                console.log('result', result);
-    
-                if (response.ok) {
-                    document.getElementById('street').value = '';
-                    document.getElementById('city').value = '';
-                    document.getElementById('state').value = '';
-                    document.getElementById('postalCode').value='';
-                    document.getElementById('phoneNo').value = '';
-                    document.getElementById('country').value = '';
-                    document.getElementById('error').value='';
+        $(document).ready(function() {
+            $('#addressForm').on('submit', async function(event) {
+                event.preventDefault();
+                const formData = {
+                    phoneNo: $('#phoneNo').val().trim(),
+                    street: $('#street').val().trim(),
+                    city: $('#city').val().trim(),
+                    state: $('#state').val().trim(),
+                    postalCode: $('#postalCode').val().trim(),
+                    country: $('#country').val().trim()
+                };
 
-                    // Show success alert
-                    Swal.fire({
-                        title: 'Success!',
-                        text: 'Address successfully updated.',
-                        icon: 'success',
-                        confirmButtonText: 'OK'
-                    }).then(() => {
-                        window.location.href = '/user/profile';
+                try {
+                    const response = await fetch('/user/address/add-address', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(formData)
                     });
-                } else {
-                    document.getElementById('error').innerText = result.message;
+
+                    const result = await response.json();
+
+                    if (response.ok) {
+                        Swal.fire({
+                            title: 'Success!',
+                            text: 'Address added successfully.',
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        }).then(() => {
+                            window.location.href = '/user/address';
+                        });
+                    } else {
+                        Swal.fire({
+                            title: 'Error!',
+                            text: result.message || 'Failed to add address.',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                } catch (error) {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'An error occurred. Please try again.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
                 }
-            } catch (error) {
-                document.getElementById('error').innerText = 'An error occurred. Please try again.';
-            }
-        }
+            });
+        });
     </script>
     </body>
 </html>
-
-<!-- street city state:postalCode:country: -->
