@@ -1,35 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Products | Trendy Kicks</title>
-        <link
-            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-            rel="stylesheet"
-            integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM"
-            crossorigin="anonymous" />
-        <link
-            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
-            rel="stylesheet"
-            integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA=="
-            crossorigin="anonymous" />
-        <link
-            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-            rel="stylesheet" />
-        <style>
-      :root {
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Products | Trendy Kicks</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM"
+      crossorigin="anonymous" />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+      rel="stylesheet"
+      integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA=="
+      crossorigin="anonymous" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet" />
+    <style>
+      /* :root {
         --primary-color: #007bff;
         --secondary-color: #28a745;
-        --accent-color: #dc3545;
+        --accent-color: #353ddc;
         --background-color: #f4f6f8;
         --text-color: #333;
-      }
+      } */
+
 
       body {
         font-family: 'Inter', sans-serif;
-        background-color: var(--background-color);
-        color: var(--text-color);
+        background-color: #F9FAFB;
+        color: #111827;
         margin: 0;
         display: flex;
         flex-direction: column;
@@ -39,7 +40,7 @@
      
 
       .badge-danger {
-        background-color: var(--accent-color);
+        background-color: #F59E0B;
       }
 
       .content {
@@ -63,13 +64,13 @@
       }
 
       .form-control:focus, .form-select:focus {
-        border-color: var(--primary-color);
+        border-color: #4F46E5;
         box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
       }
 
       .btn-primary {
-        background-color: var(--primary-color);
-        border-color: var(--primary-color);
+        background-color: #4F46E5;
+        border-color: #4F46E5;
         border-radius: 8px;
         padding: 10px 20px;
         font-weight: 500;
@@ -139,7 +140,7 @@
         font-size: 1.2rem;
         font-weight: 600;
         margin-bottom: 10px;
-        color: var(--text-color);
+        color: #111827;
       }
 
       .price-container {
@@ -156,12 +157,12 @@
 
       .final-price {
         font-size: 1.4rem;
-        color: var(--accent-color);
+        color: #F59E0B;
         font-weight: 600;
       }
 
       .discount-percentage {
-        background-color: var(--accent-color);
+        background-color: #F59E0B;
         color: #fff;
         padding: 4px 10px;
         border-radius: 12px;
@@ -178,26 +179,26 @@
       }
 
       .in-stock {
-        background-color: var(--secondary-color);
+        background-color: #10B981;
         color: #fff;
       }
 
       .out-of-stock {
-        background-color: var(--accent-color);
+        background-color: #F59E0B;
         color: #fff;
       }
 
       .pagination .page-link {
         border-radius: 6px;
         margin: 0 3px;
-        color: var(--primary-color);
+        color: #4F46E5;
         border: 1px solid #dee2e6;
         font-size: 0.9rem;
       }
 
       .pagination .page-item.active .page-link {
-        background-color: var(--primary-color);
-        border-color: var(--primary-color);
+        background-color: #4F46E5;
+        border-color: #4F46E5;
         color: #fff;
       }
 
@@ -227,7 +228,7 @@
       .footer-section h3 {
         font-size: 1.2rem;
         font-weight: 600;
-        color: var(--primary-color);
+        color: #4F46E5;
         margin-bottom: 20px;
       }
 
@@ -247,7 +248,7 @@
       }
 
       .footer-section ul li a:hover {
-        color: var(--primary-color);
+        color: #4F46E5;
       }
 
       .social-icons a {
@@ -258,7 +259,7 @@
       }
 
       .social-icons a:hover {
-        color: var(--primary-color);
+        color: #4F46E5;
         transform: scale(1.2);
       }
 
@@ -281,7 +282,7 @@
       }
 
       .wishlist-button.in-wishlist .heart-icon {
-        color: var(--accent-color);
+        color: #F59E0B;
       }
 
       .wishlist-button:hover {
@@ -358,198 +359,198 @@
         }
       }
     </style>
-    </head>
-    <body>
-        <%- include('partials/userNav') %>
+  </head>
+  <body>
+    <%- include('partials/userNav') %>
 
-        <div class="content">
-            <div class="container">
-                <div class="filter-section">
-                    <form id="filter-form"
-                        class="d-flex flex-column flex-md-row align-items-center gap-3">
-                        <div class="input-group flex-grow-1">
-                            <input
-                                id="search-input"
-                                class="form-control"
-                                type="search"
-                                name="query"
-                                placeholder="Search for products..."
-                                aria-label="Search"
-                                value="<%= searchQuery %>" />
-                            <button class="btn btn-primary" type="submit">
-                                <i class="fas fa-search"></i>
-                            </button>
-                        </div>
-                        <select id="category-filter" name="category"
-                            class="form-select">
-                            <option value <%=selectedCategory === '' ?
-                                'selected' : '' %>>All Categories</option>
-                            <% categories.forEach(category => { %>
-                            <option value="<%= category._id %>"
-                                <%=selectedCategory === category._id.toString()
-                                ? 'selected' : '' %>>
-                                <%= category.name %>
-                            </option>
-                            <% }); %>
-                        </select>
-                        <select id="sort-filter" name="sort"
-                            class="form-select">
-                            <option value <%=selectedSort === '' ? 'selected' :
-                                '' %>>Sort By</option>
-                            <option value="price_low_high" <%=selectedSort ===
-                                'price_low_high' ? 'selected' : '' %>>Price: Low
-                                to High</option>
-                            <option value="price_high_low" <%=selectedSort ===
-                                'price_high_low' ? 'selected' : '' %>>Price:
-                                High to Low</option>
-                            <option value="new_arrivals" <%=selectedSort ===
-                                'new_arrivals' ? 'selected' : '' %>>New
-                                Arrivals</option>
-                            <option value="a_z" <%=selectedSort === 'a_z' ?
-                                'selected' : '' %>>A - Z</option>
-                            <option value="z_a" <%=selectedSort === 'z_a' ?
-                                'selected' : '' %>>Z - A</option>
-                        </select>
-                    </form>
-                </div>
-
-                <div id="product-grid" class="product-grid">
-                    <% if (products.length > 0) { %>
-                    <% for (const product of products) { %>
-                    <div class="product-box">
-                        <a href="/product-detail/<%= product._id %>">
-                            <div
-                                class="product-images"
-                                onmouseover="startSlideshow(this)"
-                                onmouseout="stopSlideshow(this)">
-                                <% for (const image of product.images) { %>
-                                <img
-                                    src="<%= image.secured_url %>"
-                                    alt="Product Image"
-                                    class="<%= image === product.images[0] ? 'active' : '' %>" />
-                                <% } %>
-                            </div>
-                        </a>
-                        <div class="product-content">
-                            <h3 class="product-title"><%= product.product
-                                %></h3>
-                            <div
-                                class="product-details d-flex justify-content-between align-items-center">
-                                <div class="price-container">
-                                    <% if (product.offerApplied) { %>
-                                    <span class="original-price">₹<%=
-                                        product.price.toFixed(2) %></span>
-                                    <span class="final-price">₹<%=
-                                        product.finalPrice.toFixed(2) %></span>
-                                    <%
-                                    const discountPercentage = ((product.price -
-                                    product.finalPrice) / product.price) * 100;
-                                    %>
-                                    <span class="discount-percentage"><%=
-                                        discountPercentage.toFixed(0) %>%
-                                        off</span>
-                                    <% } else { %>
-                                    <span class="final-price">₹<%=
-                                        product.price.toFixed(2) %></span>
-                                    <% } %>
-                                </div>
-                                <span
-                                    class="stock-status <%= product.sizes.some(size => size.stock > 0) ? 'in-stock' : 'out-of-stock' %>">
-                                    <%= product.sizes.some(size => size.stock >
-                                    0) ? 'In Stock' : 'Out of Stock' %>
-                                </span>
-                            </div>
-                            <button
-                                class="wishlist-button <%= wishlist.some(item => item._id.toString() === product._id.toString()) ? 'in-wishlist' : 'not-in-wishlist' %>"
-                                onclick="toggleWishlist('<%= product._id %>', this)"
-                                data-product-id="<%= product._id %>"
-                                data-in-wishlist="<%= wishlist.some(item => item._id.toString() === product._id.toString()) %>"
-                                aria-label="Add to wishlist">
-                                <i class="heart-icon fas fa-heart"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <% } %>
-                    <% } else { %>
-                    <div class="alert alert-info text-center" role="alert">
-                        <i class="fas fa-info-circle me-2"></i> No products
-                        found
-                    </div>
-                    <% } %>
-                </div>
-
-                <nav aria-label="Page navigation" class="mt-5">
-                    <ul class="pagination justify-content-center">
-                        <li
-                            class="page-item <%= currentPage <= 1 ? 'disabled' : '' %>">
-                            <a class="page-link" href="#"
-                                data-page="<%= currentPage - 1 %>">&laquo;</a>
-                        </li>
-                        <% for (let i = 1; i <= totalPages; i++) { %>
-                        <li
-                            class="page-item <%= currentPage === i ? 'active' : '' %>">
-                            <a class="page-link" href="#"
-                                data-page="<%= i %>"><%= i %></a>
-                        </li>
-                        <% } %>
-                        <li
-                            class="page-item <%= currentPage >= totalPages ? 'disabled' : '' %>">
-                            <a class="page-link" href="#"
-                                data-page="<%= currentPage + 1 %>">&raquo;</a>
-                        </li>
-                    </ul>
-                </nav>
+    <div class="content">
+      <div class="container">
+        <div class="filter-section">
+          <form id="filter-form"
+            class="d-flex flex-column flex-md-row align-items-center gap-3">
+            <div class="input-group flex-grow-1">
+              <input
+                id="search-input"
+                class="form-control"
+                type="search"
+                name="query"
+                placeholder="Search for products..."
+                aria-label="Search"
+                value="<%= searchQuery %>" />
+              <button class="btn btn-primary" type="submit">
+                <i class="fas fa-search"></i>
+              </button>
             </div>
+            <select id="category-filter" name="category"
+              class="form-select">
+              <option value <%=selectedCategory === '' ?
+                'selected' : '' %>>All Categories</option>
+              <% categories.forEach(category => { %>
+              <option value="<%= category._id %>"
+                <%=selectedCategory === category._id.toString()
+                ? 'selected' : '' %>>
+                <%= category.name %>
+              </option>
+              <% }); %>
+            </select>
+            <select id="sort-filter" name="sort"
+              class="form-select">
+              <option value <%=selectedSort === '' ? 'selected' :
+                '' %>>Sort By</option>
+              <option value="price_low_high" <%=selectedSort ===
+                'price_low_high' ? 'selected' : '' %>>Price: Low
+                to High</option>
+              <option value="price_high_low" <%=selectedSort ===
+                'price_high_low' ? 'selected' : '' %>>Price:
+                High to Low</option>
+              <option value="new_arrivals" <%=selectedSort ===
+                'new_arrivals' ? 'selected' : '' %>>New
+                Arrivals</option>
+              <option value="a_z" <%=selectedSort === 'a_z' ?
+                'selected' : '' %>>A - Z</option>
+              <option value="z_a" <%=selectedSort === 'z_a' ?
+                'selected' : '' %>>Z - A</option>
+            </select>
+          </form>
         </div>
 
-        <footer>
-            <div class="container">
-                <div class="footer-content">
-                    <div class="footer-section">
-                        <h3>About Us</h3>
-                        <p>Trendy Kicks is your ultimate destination for stylish
-                            and comfortable footwear. We bring you the latest
-                            trends and timeless classics.</p>
-                    </div>
-                    <div class="footer-section">
-                        <h3>Quick Links</h3>
-                        <ul>
-                            <li><a href="/">Home</a></li>
-                            <li><a href="/products">Products</a></li>
-                            <li><a href="/contact">Contact</a></li>
-                        </ul>
-                    </div>
-                    <div class="footer-section">
-                        <h3>Contact Us</h3>
-                        <p>Email: info@trendykicks.com</p>
-                        <p>Phone: (123) 456-7890</p>
-                        <p>Address: 123 Shoe Street, Fashion City, FC 12345</p>
-                    </div>
-                    <div class="footer-section">
-                        <h3>Follow Us</h3>
-                        <div class="social-icons">
-                            <a href="#" class="text-light"><i
-                                    class="fab fa-facebook"></i></a>
-                            <a href="#" class="text-light"><i
-                                    class="fab fa-twitter"></i></a>
-                            <a href="#" class="text-light"><i
-                                    class="fab fa-instagram"></i></a>
-                            <a href="#" class="text-light"><i
-                                    class="fab fa-pinterest"></i></a>
-                        </div>
-                    </div>
+        <div id="product-grid" class="product-grid">
+          <% if (products.length > 0) { %>
+          <% for (const product of products) { %>
+          <div class="product-box">
+            <a href="/product-detail/<%= product._id %>">
+              <div
+                class="product-images"
+                onmouseover="startSlideshow(this)"
+                onmouseout="stopSlideshow(this)">
+                <% for (const image of product.images) { %>
+                <img
+                  src="<%= image.secured_url %>"
+                  alt="Product Image"
+                  class="<%= image === product.images[0] ? 'active' : '' %>" />
+                <% } %>
+              </div>
+            </a>
+            <div class="product-content">
+              <h3 class="product-title"><%= product.product
+                %></h3>
+              <div
+                class="product-details d-flex justify-content-between align-items-center">
+                <div class="price-container">
+                  <% if (product.offerApplied) { %>
+                  <span class="original-price">₹<%=
+                    product.price.toFixed(2) %></span>
+                  <span class="final-price">₹<%=
+                    product.finalPrice.toFixed(2) %></span>
+                  <%
+                  const discountPercentage = ((product.price -
+                  product.finalPrice) / product.price) * 100;
+                  %>
+                  <span class="discount-percentage"><%=
+                    discountPercentage.toFixed(0) %>%
+                    off</span>
+                  <% } else { %>
+                  <span class="final-price">₹<%=
+                    product.price.toFixed(2) %></span>
+                  <% } %>
                 </div>
-                <hr class="bg-light" />
-                <p class="text-center mt-4">© 2025 Trendy Kicks. All rights
-                    reserved.</p>
+                <span
+                  class="stock-status <%= product.sizes.some(size => size.stock > 0) ? 'in-stock' : 'out-of-stock' %>">
+                  <%= product.sizes.some(size => size.stock >
+                  0) ? 'In Stock' : 'Out of Stock' %>
+                </span>
+              </div>
+              <button
+                class="wishlist-button <%= wishlist.some(item => item._id.toString() === product._id.toString()) ? 'in-wishlist' : 'not-in-wishlist' %>"
+                onclick="toggleWishlist('<%= product._id %>', this)"
+                data-product-id="<%= product._id %>"
+                data-in-wishlist="<%= wishlist.some(item => item._id.toString() === product._id.toString()) %>"
+                aria-label="Add to wishlist">
+                <i class="heart-icon fas fa-heart"></i>
+              </button>
             </div>
-        </footer>
+          </div>
+          <% } %>
+          <% } else { %>
+          <div class="alert alert-info text-center" role="alert">
+            <i class="fas fa-info-circle me-2"></i> No products
+            found
+          </div>
+          <% } %>
+        </div>
 
-        <script
-            src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
-            integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
-            crossorigin="anonymous"></script>
-        <script>
+        <nav aria-label="Page navigation" class="mt-5">
+          <ul class="pagination justify-content-center">
+            <li
+              class="page-item <%= currentPage <= 1 ? 'disabled' : '' %>">
+              <a class="page-link" href="#"
+                data-page="<%= currentPage - 1 %>">&laquo;</a>
+            </li>
+            <% for (let i = 1; i <= totalPages; i++) { %>
+            <li
+              class="page-item <%= currentPage === i ? 'active' : '' %>">
+              <a class="page-link" href="#"
+                data-page="<%= i %>"><%= i %></a>
+            </li>
+            <% } %>
+            <li
+              class="page-item <%= currentPage >= totalPages ? 'disabled' : '' %>">
+              <a class="page-link" href="#"
+                data-page="<%= currentPage + 1 %>">&raquo;</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+
+    <footer>
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-section">
+            <h3>About Us</h3>
+            <p>Trendy Kicks is your ultimate destination for stylish
+              and comfortable footwear. We bring you the latest
+              trends and timeless classics.</p>
+          </div>
+          <div class="footer-section">
+            <h3>Quick Links</h3>
+            <ul>
+              <li><a href="/">Home</a></li>
+              <li><a href="/products">Products</a></li>
+              <li><a href="/contact">Contact</a></li>
+            </ul>
+          </div>
+          <div class="footer-section">
+            <h3>Contact Us</h3>
+            <p>Email: info@trendykicks.com</p>
+            <p>Phone: (123) 456-7890</p>
+            <p>Address: 123 Shoe Street, Fashion City, FC 12345</p>
+          </div>
+          <div class="footer-section">
+            <h3>Follow Us</h3>
+            <div class="social-icons">
+              <a href="#" class="text-light"><i
+                  class="fab fa-facebook"></i></a>
+              <a href="#" class="text-light"><i
+                  class="fab fa-twitter"></i></a>
+              <a href="#" class="text-light"><i
+                  class="fab fa-instagram"></i></a>
+              <a href="#" class="text-light"><i
+                  class="fab fa-pinterest"></i></a>
+            </div>
+          </div>
+        </div>
+        <hr class="bg-light" />
+        <p class="text-center mt-4">© 2025 Trendy Kicks. All rights
+          reserved.</p>
+      </div>
+    </footer>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+      crossorigin="anonymous"></script>
+    <script>
       function debounce(func, delay) {
         let timer;
         return function (...args) {
@@ -705,7 +706,7 @@
 
       attachPaginationListeners();
     </script>
-        <script>
+    <script>
       async function toggleWishlist(productId, button) {
         try {
           const isInWishlist = button.classList.contains('in-wishlist');
@@ -732,5 +733,5 @@
         }
       }
     </script>
-    </body>
+  </body>
 </html>
