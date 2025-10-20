@@ -1,62 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= product.product %> - Product Detail</title>
-    <link
-            href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title><%= product.product %> - Product Detail</title>
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
             rel="stylesheet">
         <link
-            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
             rel="stylesheet">
         <link
             href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
             rel="stylesheet">
         <style>
         :root {
-            --primary-color: #3498db;
-            --secondary-color: #e74c3c;
-            --accent-color: #f39c12;
-            --background-color: #f8f9fa;
-            --text-color: #333;
+            --primary-color: #2563eb;
+            --secondary-color: #dc2626;
+            --accent-color: #f59e0b;
+            --background-color: #f8fafc;
+            --text-color: #1e293b;
         }
 
         body {
             font-family: 'Inter', sans-serif;
             background-color: var(--background-color);
             color: var(--text-color);
+            line-height: 1.5;
         }
-
-      
-
-
-
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-
-
-       
-      
 
         .product-detail {
             background-color: #fff;
-            border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
-            padding: 40px;
-            margin-bottom: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            padding: 2.5rem;
+            margin-bottom: 2rem;
         }
 
         .main-image-container {
             position: relative;
             overflow: hidden;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            aspect-ratio: 4/3;
+            cursor: zoom-in;
         }
 
         .main-image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
             transition: transform 0.3s ease;
         }
 
@@ -65,504 +57,270 @@
         }
 
         .thumbnail-images {
-            margin-top: 20px;
+            margin-top: 1rem;
         }
 
         .thumbnail {
             cursor: pointer;
+            border: 2px solid transparent;
+            border-radius: 6px;
             transition: all 0.3s ease;
-            border-radius: 5px;
+        }
+
+        .thumbnail.active {
+            border-color: var(--primary-color);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
         .thumbnail:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transform: translateY(-3px);
         }
 
         .product-title {
-            font-size: 2.5rem;
+            font-size: 1.875rem;
             font-weight: 700;
-            margin-bottom: 20px;
+            margin-bottom: 1rem;
         }
 
         .product-rating {
-            font-size: 1.2rem;
-            margin-bottom: 20px;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            color: #f59e0b;
         }
 
         .product-price {
-            font-size: 2rem;
-            font-weight: 700;
+            font-size: 1.75rem;
+            font-weight: 600;
             color: var(--primary-color);
-            margin-bottom: 20px;
+            margin-bottom: 1rem;
         }
 
         .product-description {
-            font-size: 1.1rem;
-            line-height: 1.6;
-            margin-bottom: 30px;
-        }
-
-        .size-selection {
-            margin-bottom: 30px;
-        }
-
-        .size-button {
             font-size: 1rem;
-            font-weight: 500;
-            padding: 10px 20px;
-            margin-right: 10px;
-            margin-bottom: 10px;
-            border-radius: 25px;
-            transition: all 0.3s ease;
+            line-height: 1.6;
+            color: #4b5563;
+            margin-bottom: 1.5rem;
         }
 
-        .size-button:hover, .size-button.active {
+        .size-selection .btn {
+            border-radius: 50px;
+            padding: 0.5rem 1.25rem;
+            font-weight: 500;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .size-selection .btn.active {
             background-color: var(--primary-color);
             color: #fff;
+            border-color: var(--primary-color);
+        }
+
+        .action-buttons .btn {
+            border-radius: 50px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
         }
 
         .btn-primary {
             background-color: var(--primary-color);
-            border: none;
-            font-size: 1.1rem;
-            font-weight: 600;
-            padding: 12px 30px;
-            border-radius: 30px;
-            transition: all 0.3s ease;
+            border-color: var(--primary-color);
         }
 
         .btn-primary:hover {
-            background-color: #2980b9;
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+            background-color: #1d4ed8;
+            transform: translateY(-2px);
         }
 
         .btn-outline-danger {
-            font-size: 1.1rem;
-            font-weight: 600;
-            padding: 12px 30px;
-            border-radius: 30px;
-            transition: all 0.3s ease;
+            border-color: var(--secondary-color);
+            color: var(--secondary-color);
         }
 
         .btn-outline-danger:hover {
             background-color: var(--secondary-color);
             color: #fff;
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3);
+            transform: translateY(-2px);
         }
-        .reviews-containertwo {
-    max-height: 300px; /* Adjust the height as needed */
-    overflow-y: auto; /* Enable vertical scrolling */
-    padding: 15px; /* Add padding for better appearance */
-    border: 1px solid #ddd; /* Optional: Add a border */
-    border-radius: 8px; /* Optional: Rounded corners */
-    background-color: #f9f9f9; /* Optional: Background color */
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Optional: Slight shadow for depth */
-}
-
-.review-item {
-    padding: 10px;
-    border-bottom: 1px solid #eee; /* Divider between reviews */
-}
-
-.review-item:last-child {
-    border-bottom: none; /* Remove border from last review */
-}
-
-.no-reviews {
-    text-align: center; /* Center content for no reviews */
-    margin-top: 20px;
-}
 
         .reviews-container {
             background-color: #fff;
-            border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
-            padding: 40px;
-            margin-bottom: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .reviews-containertwo {
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 1rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background-color: #f9fafb;
         }
 
         .section-title {
-            font-size: 2.5rem;
+            font-size: 1.75rem;
             font-weight: 700;
-            color: var(--text-color);
-            margin-bottom: 30px;
+            margin-bottom: 1.5rem;
             text-align: center;
         }
 
         .rating-summary {
-            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-            color: white;
-            padding: 30px;
-            border-radius: 15px;
+            background: linear-gradient(135deg, var(--primary-color) 0%, #1d4ed8 100%);
+            color: #fff;
+            padding: 1.5rem;
+            border-radius: 8px;
             text-align: center;
-            margin-bottom: 30px;
         }
 
         .rating-number {
-            font-size: 5rem;
-            font-weight: bold;
+            font-size: 3rem;
+            font-weight: 700;
             line-height: 1;
-            margin-bottom: 10px;
         }
 
         .star-rating {
-            font-size: 2rem;
-            color: #f1c40f;
-            margin-bottom: 10px;
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
         }
 
         .review-count {
-            font-size: 1.2rem;
+            font-size: 0.875rem;
             opacity: 0.9;
         }
 
         .rating-bars {
-            background-color: #f8f9fa;
-            padding: 30px;
-            border-radius: 15px;
+            padding: 1.5rem;
+            background-color: #f8fafc;
+            border-radius: 8px;
         }
 
         .rating-bar {
             display: flex;
             align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .bar-label {
-            flex: 0 0 50px;
-            font-weight: bold;
-            font-size: 1.1rem;
+            margin-bottom: 0.75rem;
         }
 
         .progress {
-            flex-grow: 1;
-            height: 15px;
-            background-color: #e9ecef;
+            height: 0.75rem;
+            background-color: #e5e7eb;
             border-radius: 10px;
-            overflow: hidden;
-            margin: 0 15px;
+            margin: 0 1rem;
         }
 
         .progress-bar {
-            height: 100%;
             background-color: var(--primary-color);
-            transition: width 0.5s ease;
-        }
-
-        .bar-value {
-            flex: 0 0 40px;
-            text-align: right;
-            font-size: 1rem;
-            color: #6c757d;
-        }
-
-        .btn-review {
-            display: inline-block;
-            background-color: var(--primary-color);
-            color: white;
-            padding: 12px 30px;
-            border-radius: 30px;
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            margin-top: 20px;
-        }
-
-        .btn-review:hover {
-            background-color: #2980b9;
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
         }
 
         .review-item {
-            background-color: #ffffff;
-            border-radius: 10px;
-            padding: 25px;
-            margin-bottom: 25px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            padding: 1rem;
+            border-bottom: 1px solid #e5e7eb;
         }
 
-        .review-item:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        .review-item:last-child {
+            border-bottom: none;
         }
 
         .user-info {
             display: flex;
             align-items: center;
-            margin-bottom: 15px;
+            margin-bottom: 0.75rem;
         }
 
         .user-avatar {
-            width: 60px;
-            height: 60px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
-            margin-right: 15px;
-            object-fit: cover;
+            margin-right: 0.75rem;
         }
 
         .user-name {
             font-weight: 600;
-            font-size: 1.1rem;
-            margin-bottom: 5px;
+            font-size: 0.875rem;
         }
 
         .review-date {
-            font-size: 0.9rem;
-            color: #6c757d;
+            font-size: 0.75rem;
+            color: #6b7280;
         }
 
-        .review-content {
-            font-size: 1rem;
-            line-height: 1.6;
-            margin-bottom: 15px;
-        }
-
-        .btn-delete, .btn-edit {
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-size: 0.9rem;
+        .btn-review {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: #fff;
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            text-decoration: none;
             font-weight: 500;
-            margin-right: 10px;
+        }
+
+        .btn-review:hover {
+            background-color: #1d4ed8;
+        }
+
+        .related-products-section {
+            padding: 3rem 0;
+            background-color: #f8fafc;
+        }
+
+        .product-box {
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
             transition: all 0.3s ease;
         }
 
-        .btn-delete {
+        .product-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .product-images {
+            height: 200px;
+            overflow: hidden;
+            border-radius: 12px 12px 0 0;
+        }
+
+        .product-images img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .product-content {
+            padding: 1.25rem;
+        }
+
+        .stock-status {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+        }
+
+        .in-stock {
+            background-color: #22c55e;
+            color: #fff;
+        }
+
+        .out-of-stock {
             background-color: var(--secondary-color);
-            color: white;
-            border: none;
+            color: #fff;
         }
 
-        .btn-edit {
-            background-color: var(--accent-color);
-            color: white;
-            text-decoration: none;
-        }
-
-        .btn-delete:hover, .btn-edit:hover {
-            opacity: 0.8;
-            transform: translateY(-2px);
-        }
-        .related-products-section {
-    background-color: #f8f9fa;
-    padding: 60px 0;
-}
-
-.section-title {
-    font-size: 2rem;
-    font-weight: 700;
-    margin-bottom: 30px;
-    text-align: center;
-    color: var(--primary-color);
-}
-
-.product-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 30px;
-}
-
-.product-box {
-    background-color: #ffffff;
-    border-radius: 15px;
-    overflow: hidden;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
-    position: relative;
-}
-
-.product-box:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
-}
-
-.product-images {
-    position: relative;
-    height: 250px;
-    overflow: hidden;
-}
-
-.product-images img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: opacity 0.5s ease, transform 0.5s ease;
-}
-
-.product-images img.active {
-    opacity: 1;
-    transform: scale(1.05);
-}
-
-.product-content {
-    padding: 20px;
-}
-
-.product-title {
-    font-size: 1.2rem;
-    font-weight: 600;
-    margin-bottom: 10px;
-    color: var(--text-color);
-}
-
-.rating {
-    margin: 10px 0;
-}
-
-.star {
-    color: #ccc;
-    font-size: 1.2rem;
-}
-
-.star.filled {
-    color: #f39c12; /* Gold color for filled stars */
-}
-
-.price-container {
-    margin-bottom: 10px;
-}
-
-.original-price {
-    text-decoration: line-through;
-    color: #999;
-    margin-right: 5px;
-}
-
-.final-price {
-    font-size: 1.3rem;
-    font-weight: 700;
-    color: var(--primary-color);
-}
-
-.stock-status {
-    font-size: 0.9rem;
-    font-weight: 500;
-    padding: 5px 10px;
-    border-radius: 20px;
-    display: inline-block;
-}
-
-.in-stock {
-    background-color: #2ecc71;
-    color: white;
-}
-
-.out-of-stock {
-    background-color: var(--secondary-color);
-    color: white;
-}
-
-.btn.add-to-cart {
-    display: inline-block;
-    padding: 10px 15px;
-    background-color: var(--primary-color);
-    color: white;
-    border-radius: 25px;
-    text-align: center;
-    text-decoration: none;
-    font-weight: 600;
-    transition: background-color 0.3s ease;
-}
-
-.btn.add-to-cart:hover {
-    background-color: #27ae60; /* Darker shade of primary color */
-}
-
-        @media (max-width: 768px) {
-            .product-grid {
-                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            }
-        }
-         /* Additional responsive styles */
-         @media (max-width: 991px) {
-            .product-detail {
-                padding: 20px;
-            }
-
-            .product-title {
-                font-size: 2rem;
-            }
-
-            .product-price {
-                font-size: 1.5rem;
-            }
-
-            .btn-primary, .btn-outline-danger {
-                padding: 10px 20px;
-                font-size: 1rem;
-            }
-        }
-
-        @media (max-width: 767px) {
-            .rating-summary, .rating-bars {
-                margin-bottom: 20px;
-            }
-
-            .review-item {
-                padding: 15px;
-            }
-
-            .user-avatar {
-                width: 40px;
-                height: 40px;
-            }
-
-            .product-grid {
-                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            }
-        }
-
-        @media (max-width: 575px) {
-            .product-images {
-                height: 200px;
-            }
-
-            .product-title {
-                font-size: 1.5rem;
-            }
-
-            .product-price {
-                font-size: 1.2rem;
-            }
-
-            .size-button {
-                padding: 8px 15px;
-                font-size: 0.9rem;
-            }
-
-            .btn-primary, .btn-outline-danger {
-                width: 100%;
-                margin-bottom: 10px;
-            }
-
-            .rating-number {
-                font-size: 3rem;
-            }
-
-            .star-rating {
-                font-size: 1.5rem;
-            }
-        }
         @media (max-width: 991px) {
-            .product-detail {
-                padding: 20px;
+            .product-detail, .reviews-container {
+                padding: 1.5rem;
             }
 
             .product-title {
-                font-size: 2rem;
-            }
-
-            .product-price {
                 font-size: 1.5rem;
             }
 
-            .btn-primary, .btn-outline-danger {
-                padding: 10px 20px;
-                font-size: 1rem;
+            .product-price {
+                font-size: 1.25rem;
             }
         }
 
@@ -575,23 +333,6 @@
                 flex: 0 0 25%;
                 max-width: 25%;
             }
-
-            .rating-summary, .rating-bars {
-                margin-bottom: 20px;
-            }
-
-            .review-item {
-                padding: 15px;
-            }
-
-            .user-avatar {
-                width: 40px;
-                height: 40px;
-            }
-
-            .product-grid {
-                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            }
         }
 
         @media (max-width: 575px) {
@@ -599,663 +340,470 @@
                 height: 250px;
             }
 
-            .product-title {
-                font-size: 1.5rem;
-            }
-
-            .product-price {
-                font-size: 1.2rem;
-            }
-
-            .size-button {
-                padding: 8px 15px;
-                font-size: 0.9rem;
-            }
-
-            .btn-primary, .btn-outline-danger {
+            .action-buttons .btn {
                 width: 100%;
-                margin-bottom: 10px;
+                margin-bottom: 0.5rem;
             }
 
             .rating-number {
-                font-size: 3rem;
+                font-size: 2rem;
             }
 
             .star-rating {
-                font-size: 1.5rem;
-            }
-
-            .review-item {
-                padding: 10px;
-            }
-
-            .user-name {
-                font-size: 0.9rem;
-            }
-
-            .review-content {
-                font-size: 0.9rem;
+                font-size: 1rem;
             }
         }
     </style>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/elevatezoom/3.0.8/jquery.elevatezoom.min.js"></script>
-</head>
-</head>
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+        <script
+            src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+        <script
+            src="https://cdnjs.cloudflare.com/ajax/libs/elevatezoom/3.0.8/jquery.elevatezoom.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    </head>
+    <body>
+        <%- include('partials/userNav') %>
+        <div class="container my-5">
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb bg-transparent p-0 mb-3">
+                    <li class="breadcrumb-item"><a href="/"
+                            class="text-muted">Home</a></li>
+                    <li class="breadcrumb-item"><a
+                            href="/products?query=&category=<%=product.category._id%>&sort="
+                            class="text-muted"><%= product.category.name
+                            %></a></li>
+                    <li class="breadcrumb-item active" aria-current="page"><%=
+                        product.product %></li>
+                </ol>
+            </nav>
 
-<body>
-    
-   <%- include('partials/userNav')%>
-    <div class="container mt-5">
-        <!-- Breadcrumb -->
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb bg-transparent">
-                <li class="breadcrumb-item"><a href="/" class="text-muted">Home</a></li>
-                <li class="breadcrumb-item"><a href="/products?query=&category=<%=product.category._id%>&sort=" class="text-muted"><%= product.category.name %></a></li>
-                <li class="breadcrumb-item active" aria-current="page"><%= product.product %></li>
-            </ol>
-        </nav>
-    
-        <!-- Product Detail Section -->
-        <div class="product-detail row">
-            <div class="col-lg-6 mb-4">
-                <!-- Main Product Image -->
-                <div class="main-image-container position-relative overflow-hidden rounded shadow-sm">
-                    <img id="main-product-image" src="<%= product.images[0].secured_url %>" alt="<%= product.product %>" class="img-fluid w-100">
-                    <div id="zoomed-image-container" class="position-absolute" style="display:none;">
-                        <img id="zoomed-image" loading="lazy" src="" alt="Zoomed Image" style="width:300%; height:auto;"/>
+            <!-- Product Detail Section -->
+            <div class="product-detail row">
+                <div class="col-lg-6 mb-4">
+                    <div class="main-image-container">
+                        <img id="main-product-image"
+                            src="<%= product.images[0].secured_url %>"
+                            alt="<%= product.product %>" class="img-fluid">
                     </div>
-                </div>
-            
-                <!-- Thumbnail Images -->
-                <div class="thumbnail-images mt-3">
-                    <div class="row">
-                        <% product.images.forEach((image, index) => { %>
-                            <div class="col-3 mb-3">
-                                <img src="<%= image.secured_url %>" 
-                                     alt="<%= product.product %>" 
-                                     class="img-thumbnail thumbnail" 
-                                     loading="lazy"
-                                     onclick="changeMainImage('<%= image.secured_url %>', <%= index %>)">
+                    <div class="thumbnail-images">
+                        <div class="row g-2">
+                            <% product.images.forEach((image, index) => { %>
+                            <div class="col-3">
+                                <img src="<%= image.secured_url %>"
+                                    alt="<%= product.product %>"
+                                    class="img-fluid thumbnail <%= index === 0 ? 'active' : '' %>"
+                                    onclick="changeMainImage('<%= image.secured_url %>', <%= index %>)">
                             </div>
-                        <% }) %>
-                    </div>
-                </div>
-            </div>
-    
-            <div class="col-lg-6 product-info">
-                <h1 class="product-title mb-3"><%= product.product %></h1>
-    
-                <div class="d-flex align-items-center mb-3">
-                    <div class="product-rating mr-3">
-                        <% for (let i = 1; i <= 5; i++) { %>
-                            <% if (i <= Math.floor(avgRating)) { %>
-                                <i class="fas fa-star"></i> <!-- Full star -->
-                            <% } else if (i === Math.ceil(avgRating) && avgRating % 1 !== 0) { %>
-                                <i class="fas fa-star-half-alt"></i> <!-- Half star -->
-                            <% } else { %>
-                                <i class="far fa-star"></i> <!-- Empty star -->
-                            <% } %>
-                        <% } %>
-                    </div>
-                    <!-- <span class="text-muted">(<%= avgRating %> / 5)</span> -->
-                </div>
-    
-                <div class="pricing mb-4">
-                    <% if(isOffer) { %>
-                        <p class="product-price mb-0">
-                            <span class="text-muted text-decoration-line-through h5">₹<%= product.price.toFixed(2) %></span>
-                            <span class="ml-2 h3 text-success font-weight-bold">₹<%= product.finalPrice.toFixed(2) %></span>
-                        </p>
-                        <span class="badge badge-danger">Sale</span>
-                    <% } else { %>
-                        <p class="product-price h3 text-success font-weight-bold mb-0">₹<%= product.finalPrice.toFixed(2) %></p>
-                    <% } %>
-                </div>
-    
-                <p class="product-description text-muted mb-4"><%= product.description %></p>
-                
-                <div class="size-selection mb-4">
-                    <h5 class="mb-3">Select Size:</h5>
-                    <% if (product.sizes.length > 0) { %>
-                        <div class="size-buttons">
-                            <% product.sizes.forEach(size => { %>
-                                <button type="button" class="btn btn-outline-secondary size-button mr-2 mb-2" data-size="<%= size.size %>" onclick="selectSize(this)"><%= size.size %></button>
                             <% }) %>
                         </div>
-                    <% } else { %>
-                        <p class="text-muted">No sizes available</p>
-                    <% } %>
+                    </div>
                 </div>
-    
-                <div class="d-flex flex-wrap mb-4">
-                    <form id="addToCartForm" class="mr-2 mb-2">
-                        <input type="hidden" name="productId" value="<%= product._id %>">
-                        <input type="hidden" name="size" id="selectedSize">
-                        <button type="submit" class="btn btn-primary btn-lg">
-                            <i class="fas fa-shopping-cart mr-2"></i>Add to Cart
-                        </button>
-                    </form>
-    
-                    <form id="wishlistForm" class="mb-2">
-                        <input type="hidden" name="productId" id="productId" value="<%= product.id %>">
-                        
-                        <button type="submit" class="btn btn-outline-danger btn-lg">
-                            <i class="far fa-heart mr-2"></i>Add to Wishlist
-                        </button>
-                    </form>
-                </div>
-    
-               
-            </div>
-        </div>
-    </div>
-
-
-</div>
-<div class="container">
-<div class="reviews-container">
-    <h2 class="section-title">Customer Feedback</h2>
-    
-    <div class="row">
-        <div class="col-md-4">
-            <div class="rating-summary">
-                <div class="rating-number"><%=avgRating%></div>
-                <div class="star-rating">
-                    <% for (let i = 1; i <= 5; i++) { %>
+                <div class="col-lg-6">
+                    <h1 class="product-title"><%= product.product %></h1>
+                    <div class="product-rating">
+                        <% for (let i = 1; i <= 5; i++) { %>
                         <% if (i <= Math.floor(avgRating)) { %>
-                            <i class="fas fa-star"></i> <!-- Full star -->
-                        <% } else if (i === Math.ceil(avgRating) && avgRating % 1 !== 0) { %>
-                            <i class="fas fa-star-half-alt"></i> <!-- Half star -->
+                        <i class="fas fa-star"></i>
+                        <% } else if (i === Math.ceil(avgRating) && avgRating %
+                        1 !== 0) { %>
+                        <i class="fas fa-star-half-alt"></i>
                         <% } else { %>
-                            <i class="far fa-star"></i> <!-- Empty star -->
+                        <i class="far fa-star"></i>
                         <% } %>
-                    <% } %>
+                        <% } %>
+                        <span class="ms-2 text-muted">(<%=
+                            product.reviews.length %> reviews)</span>
+                    </div>
+                    <div class="product-price">
+                        <% if(isOffer) { %>
+                        <span
+                            class="text-muted text-decoration-line-through">₹<%=
+                            product.price.toFixed(2) %></span>
+                        <span class="text-success">₹<%=
+                            product.finalPrice.toFixed(2) %></span>
+                        <span class="badge bg-danger ms-2">Sale</span>
+                        <% } else { %>
+                        <span class="text-success">₹<%=
+                            product.finalPrice.toFixed(2) %></span>
+                        <% } %>
+                    </div>
+                    <p class="product-description"><%= product.description
+                        %></p>
+                    <div class="size-selection mb-4">
+                        <h5 class="mb-3">Select Size:</h5>
+                        <% if (product.sizes.length > 0) { %>
+                        <div class="size-buttons">
+                            <% product.sizes.forEach(size => { %>
+                            <button type="button"
+                                class="btn btn-outline-secondary size-button"
+                                data-size="<%= size.size %>"><%= size.size
+                                %></button>
+                            <% }) %>
+                        </div>
+                        <% } else { %>
+                        <p class="text-muted">No sizes available</p>
+                        <% } %>
+                    </div>
+                    <div class="action-buttons d-flex flex-wrap gap-2">
+                        <form id="addToCartForm">
+                            <input type="hidden" name="productId"
+                                value="<%= product._id %>">
+                            <input type="hidden" name="size" id="selectedSize">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-shopping-cart me-2"></i>Add to
+                                Cart
+                            </button>
+                        </form>
+                        <form id="wishlistForm">
+                            <input type="hidden" name="productId" id="productId"
+                                value="<%= product._id %>">
+                            <button type="submit"
+                                class="btn btn-outline-danger">
+                                <i class="far fa-heart me-2"></i>Add to Wishlist
+                            </button>
+                        </form>
+                    </div>
                 </div>
-                
-                <div class="review-count"><%= product.reviews.length %> reviews</div>
             </div>
-        </div>
-        <div class="col-md-8">
-            <div class="rating-bars">
-                <% for (let i = 5; i >= 1; i--) { %>
-                    <div class="rating-bar">
-                        <div class="bar-label"><%= i %> <i class="fas fa-star" style="color: #ffd700;"></i></div>
-                        <div class="progress">
-                            <% 
-                              // Calculate the number of reviews with rating i
-                              const countWithRatingI = product.reviews.filter(review => review.rating === i).length;
 
-                              // Calculate the percentage, ensuring no division by zero
-                              const percentage = product.reviews.length > 0 
-                                ? (countWithRatingI / product.reviews.length) * 100 
-                                : 0; 
-                            %>
-<div class="progress-bar" style="width: <%= percentage.toFixed(2) %>%"></div>
-
-                        </div>
-                        <div class="bar-value"><%= Math.round(percentage) %>%</div>
-                    </div>
-                <% } %>
-            </div>
-        </div>
-    </div>
-
-    <a href="/user/review/add/<%=product._id%>" class="btn-review">Write a Review</a>
-   
-
-    <div id="reviewsList" class="mt-5">
-        <% if (product.reviews.length > 0) { %>
-            <div class="reviews-containertwo">
-                <% product.reviews.forEach(review => { %>
-                    <div class="review-item">
-                        <div class="review-header">
-                            <div class="user-info">
-                                <img src="https://i.pravatar.cc/150?u=<%= review.user._id %>" alt="User Avatar" class="user-avatar">
-                                <div>
-                                    <div class="user-name"><%= review.user.name %></div>
-                                    <div class="star-rating">
-                                        <% for (let i = 5; i >= 1; i--) { %>  <!-- Start from 5 and go to 1 -->
-                                            <% if (i <= review.rating) { %>
-                                                <i class="fas fa-star"></i>  <!-- Filled star -->
-                                            <% } else { %>
-                                                <i class="far fa-star"></i>   <!-- Empty star -->
-                                            <% } %>
-                                        <% } %>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="review-date">
-                                <%= new Date(review.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %>
-                            </div>
-                        </div>
-                        <p class="review-content"><%= review.comment %></p>
-    
-                        <% if (currentUserId !== null && review.user && review.user._id && review.user._id.toString() === currentUserId.toString()) { %>
-                            <button class="btn-delete" onclick="deleteReview('<%= review._id %>', '<%= product._id %>')">Delete</button>
-                            <a href="/user/review/edit/<%= review._id %>" class="btn-edit">Edit</a>
-                        <% } %>
-                        
-                        
-                    </div>
-                <% }) %>
-            </div>
-        <% } else { %>
-            <div class="no-reviews">
-                <i class="fas fa-comment-alt fa-3x mb-3"></i>
-                <p>No reviews yet. Be the first to share your thoughts!</p>
-            </div>
-        <% } %>
-    </div>
-    
-</div>
-</div>
-  <!-- Related Products Section -->
-<section class="related-products-section py-5 bg-light">
-    <div class="container">
-        <h2 class="section-title">Related Products</h2>
-        <div class="product-grid">
-            <% for (const product of relatedProducts) { %>
-                <div class="product-box">
-                    <a href="/product-detail/<%= product._id %>">
-                        <div class="product-images" onmouseover="startSlideshow(this)" onmouseout="stopSlideshow(this)">
-                            <% for (const image of product.images) { %>
-                                <img src="<%= image.secured_url %>" alt="Product Image" loading="lazy" class="<%= image === product.images[0] ? 'active' : '' %>">
-                            <% } %>
-                        </div>
-                    </a>
-                    <div class="product-content">
-                        <h3 class="product-title"><%= product.product %></h3>
-                        <div class="rating">
-                            <% for (let i = 0; i < 5; i++) { %>
-                                <span class="star <%= i < product.rating ? 'filled' : '' %>">★</span>
-                            <% } %>
-                        </div>
-                        <div class="product-details">
-                            <div class="price-container">
-                                <% if (product.offerApplied) { %>
-                                    <span class="original-price">$<%= product.price.toFixed(2) %></span>
-                                    <span class="final-price">$<%= product.finalPrice.toFixed(2) %></span>
-                                    <%
-                                        const discountPercentage = ((product.price - product.finalPrice) / product.price) * 100;
-                                    %>
-                                    <span class="discount-percentage"><%= discountPercentage.toFixed(0) %>% off</span>
+            <!-- Reviews Section -->
+            <div class="reviews-container">
+                <h2 class="section-title">Customer Feedback</h2>
+                <div class="row">
+                    <div class="col-md-4 mb-4">
+                        <div class="rating-summary">
+                            <div class="rating-number"><%= avgRating %></div>
+                            <div class="star-rating">
+                                <% for (let i = 1; i <= 5; i++) { %>
+                                <% if (i <= Math.floor(avgRating)) { %>
+                                <i class="fas fa-star"></i>
+                                <% } else if (i === Math.ceil(avgRating) &&
+                                avgRating % 1 !== 0) { %>
+                                <i class="fas fa-star-half-alt"></i>
                                 <% } else { %>
-                                    <span class="final-price">$<%= product.price.toFixed(2) %></span>
+                                <i class="far fa-star"></i>
+                                <% } %>
                                 <% } %>
                             </div>
-                            <span class="stock-status <%= product.sizes.some(size => size.stock > 0) ? 'in-stock' : 'out-of-stock' %>">
-                                <%= product.sizes.some(size => size.stock > 0) ? 'In Stock' : 'Out of Stock' %>
-                            </span>
+                            <div class="review-count"><%= product.reviews.length
+                                %> reviews</div>
                         </div>
-                        
+                    </div>
+                    <div class="col-md-8">
+                        <div class="rating-bars">
+                            <% for (let i = 5; i >= 1; i--) { %>
+                            <div class="rating-bar">
+                                <div class="bar-label"><%= i %> <i
+                                        class="fas fa-star"></i></div>
+                                <div class="progress">
+                                    <%
+                                    const countWithRatingI =
+                                    product.reviews.filter(review =>
+                                    review.rating === i).length;
+                                    const percentage = product.reviews.length >
+                                    0 ? (countWithRatingI /
+                                    product.reviews.length) * 100 : 0;
+                                    %>
+                                    <div class="progress-bar"
+                                        style="width: <%= percentage.toFixed(2) %>%"></div>
+                                </div>
+                                <div class="bar-value"><%=
+                                    Math.round(percentage) %>%</div>
+                            </div>
+                            <% } %>
+                        </div>
                     </div>
                 </div>
-            <% } %>
+                <a href="/user/review/add/<%= product._id %>"
+                    class="btn-review">Write a Review</a>
+                <div class="reviews-containertwo mt-4">
+                    <% if (product.reviews.length > 0) { %>
+                    <% product.reviews.forEach(review => { %>
+                    <div class="review-item" id="review-<%= review._id %>">
+                        <div class="user-info">
+                            <img
+                                src="https://i.pravatar.cc/150?u=<%= review.user._id %>"
+                                alt="User Avatar" class="user-avatar">
+                            <div>
+                                <div class="user-name"><%= review.user.name
+                                    %></div>
+                                <div class="star-rating">
+                                    <% for (let i = 1; i <= 5; i++) { %>
+                                    <% if (i <= review.rating) { %>
+                                    <i class="fas fa-star"></i>
+                                    <% } else { %>
+                                    <i class="far fa-star"></i>
+                                    <% } %>
+                                    <% } %>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="review-date">
+                            <%= new
+                            Date(review.date).toLocaleDateString('en-US', {
+                            year: 'numeric', month: 'long', day: 'numeric' }) %>
+                        </div>
+                        <p class="review-content"><%= review.comment %></p>
+                        <% if (currentUserId && review.user && review.user._id
+                        && review.user._id.toString() ===
+                        currentUserId.toString()) { %>
+                        <button class="btn btn-sm btn-danger btn-delete"
+                            onclick="deleteReview('<%= review._id %>', '<%= product._id %>')">Delete</button>
+                        <a href="/user/review/edit/<%= review._id %>"
+                            class="btn btn-sm btn-warning btn-edit">Edit</a>
+                        <% } %>
+                    </div>
+                    <% }) %>
+                    <% } else { %>
+                    <div class="no-reviews text-center">
+                        <i class="fas fa-comment-alt fa-2x mb-3"></i>
+                        <p>No reviews yet. Be the first to share your
+                            thoughts!</p>
+                    </div>
+                    <% } %>
+                </div>
+            </div>
+
+            <!-- Related Products Section -->
+            <section class="related-products-section">
+                <h2 class="section-title">Related Products</h2>
+                <div class="product-grid row g-4">
+                    <% for (const product of relatedProducts) { %>
+                    <div class="col-md-4 col-sm-6">
+                        <div class="product-box">
+                            <a href="/product-detail/<%= product._id %>">
+                                <div class="product-images"
+                                    onmouseover="startSlideshow(this)"
+                                    onmouseout="stopSlideshow(this)">
+                                    <% for (const image of product.images) { %>
+                                    <img src="<%= image.secured_url %>"
+                                        alt="Product Image"
+                                        class="img-fluid <%= image === product.images[0] ? 'active' : '' %>">
+                                    <% } %>
+                                </div>
+                            </a>
+                            <div class="product-content">
+                                <h3 class="product-title"><%= product.product
+                                    %></h3>
+                                <div class="rating">
+                                    <% for (let i = 0; i < 5; i++) { %>
+                                    <span
+                                        class="star <%= i < product.rating ? 'filled' : '' %>">★</span>
+                                    <% } %>
+                                </div>
+                                <div class="price-container">
+                                    <% if (product.offerApplied) { %>
+                                    <span
+                                        class="original-price text-muted text-decoration-line-through">$<%=
+                                        product.price.toFixed(2) %></span>
+                                    <span class="final-price text-success">$<%=
+                                        product.finalPrice.toFixed(2) %></span>
+                                    <span class="badge bg-danger ms-2"><%=
+                                        ((product.price - product.finalPrice) /
+                                        product.price * 100).toFixed(0) %>%
+                                        off</span>
+                                    <% } else { %>
+                                    <span class="final-price text-success">$<%=
+                                        product.price.toFixed(2) %></span>
+                                    <% } %>
+                                </div>
+                                <span
+                                    class="stock-status <%= product.sizes.some(size => size.stock > 0) ? 'in-stock' : 'out-of-stock' %>">
+                                    <%= product.sizes.some(size => size.stock >
+                                    0) ? 'In Stock' : 'Out of Stock' %>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <% } %>
+                </div>
+            </section>
         </div>
-    </div>
-</section>
 
+        <%- include('partials/footer') %>
 
-
-
-
-    <%- include('partials/footer') %>
- <!-- Bootstrap JS and dependencies -->
- <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
- <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
- <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
- 
- <script>
-     function startSlideshow(element) {
-         element.slideshowInterval = setInterval(() => {
-             const images = element.querySelectorAll('img');
-             const activeImage = element.querySelector('img.active');
-             const nextImage = activeImage.nextElementSibling || images[0];
-             activeImage.classList.remove('active');
-             nextImage.classList.add('active');
-         }, 1000);
-     }
-
-     function stopSlideshow(element) {
-         clearInterval(element.slideshowInterval);
-         const images = element.querySelectorAll('img');
-         images.forEach((img, index) => {
-             img.classList.toggle('active', index === 0);
-         });
-     }
- </script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
-    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
+        <script>
         $(document).ready(function() {
-            // Initialize image zoom
+            // Initialize ElevateZoom
             $('#main-product-image').elevateZoom({
-                zoomType: "inner",
-                cursor: "crosshair",
-                zoomWindowFadeIn: 500,
-                zoomWindowFadeOut: 750
+                zoomType: "lens",
+                lensShape: "round",
+                lensSize: 200,
+                scrollZoom: true,
+                zoomWindowFadeIn: 300,
+                zoomWindowFadeOut: 300
             });
 
-            // Handle size selection
-            let selectedSize = null;
+            // Size selection
             $('.size-button').on('click', function() {
-                selectedSize = $(this).data('size');
-                $('#selectedSize').val(selectedSize);
-                $('.size-button').removeClass('btn-primary').addClass('btn-outline-primary');
-                $(this).removeClass('btn-outline-primary').addClass('btn-primary');
+                const size = $(this).data('size');
+                $('#selectedSize').val(size);
+                $('.size-button').removeClass('active').addClass('btn-outline-secondary');
+                $(this).addClass('active').removeClass('btn-outline-secondary');
             });
 
+            // Add to cart
             $('#addToCartForm').on('submit', function(e) {
-    e.preventDefault();
-
-    // Check if a size is selected
-    if (!selectedSize) {
-        Swal.fire({
-            icon: 'warning',
-            title: 'Size Required',
-            text: 'Please select a size before adding the product to your cart.',
-            confirmButtonText: 'OK'
-        });
-        return;
-    }
-
-    // Fetch API to submit form data
-    fetch('/cart/add', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            productId: $('input[name="productId"]').val(),
-            size: selectedSize
-        })
-    })
-    .then(response => {
-        if (response.status === 401) { // Unauthorized
-            return response.text().then(text => {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Unauthorized',
-                    text: 'You need to log in to add items to the cart.',
-                    confirmButtonText: 'Login',
-                    onClose: () => {
-                        window.location.href = '/auth/signin'; // Redirect to login page
-                    }
-                });
-            });
-        } else if (response.ok) { // Check if the response is ok (status code in the range 200-299)
-            return response.json().then(data => {
-                // Ensure data is an object with the expected properties
-                if (data && typeof data === 'object') {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Added to Cart',
-                        text: data.message || 'Item added to cart successfully.',
-                        confirmButtonText: 'OK'
-                    });
-                } else {
-                    throw new Error('Unexpected response format.');
-                }
-            });
-        } 
-        else if(response.status===403){
-            return response.json().then(data => {
-                // Ensure data is an object with the expected properties
-                if (data && typeof data === 'object') {
+                e.preventDefault();
+                const selectedSize = $('#selectedSize').val();
+                if (!selectedSize) {
                     Swal.fire({
                         icon: 'warning',
-                        title: 'limit',
-                        text: data.message || 'error occured.',
+                        title: 'Size Required',
+                        text: 'Please select a size before adding to cart.',
                         confirmButtonText: 'OK'
                     });
-                } else {
-                    throw new Error('Unexpected response format.');
+                    return;
                 }
-            });
-        }
-        else {
-            return response.text().then(text => {
-                throw new Error( text || 'Something went wrong');
-            });
-        }
-    })
-    .catch(error => {
-        console.error('Error adding to cart:', error);
-        Swal.fire({
-            icon: 'warning',
-            title: 'Oops!',
-            text: "Please login for add to cart",
-            confirmButtonText: 'OK',
-            footer: '<a href="/auth/signin">Log in now!</a>'
-        });
-    });
-});
 
-            // Function to change the main image and update zoom
-            window.changeMainImage = function(imageUrl, index) {
-                const mainImage = $('#main-product-image');
-                mainImage.attr('src', imageUrl);
-                mainImage.data('zoom-image', imageUrl);
-                mainImage.elevateZoom({
-                    zoomType: "inner",
-                    cursor: "crosshair",
-                    zoomWindowFadeIn: 500,
-                    zoomWindowFadeOut: 750
-                });
-
-                // Update active thumbnail
-                $('.thumbnail').removeClass('active-thumbnail');
-                $('.thumbnail').eq(index).addClass('active-thumbnail');
-            };
-
-            // Wishlist functionality
-            $('#wishlistForm').on('submit', function(e) {
-                e.preventDefault();
-                const productId = $('#productId').val();
-                
-                fetch(`/user/wishlist/add/${productId}`, {
+                fetch('/cart/add', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        productId: $('input[name="productId"]').val(),
+                        size: selectedSize
+                    })
                 })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        Swal.fire('Success!', 'Product added to wishlist', 'success');
+                .then(response => {
+                    if (response.status === 401) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Unauthorized',
+                            text: 'You need to log in to add items to the cart.',
+                            confirmButtonText: 'Login'
+                        }).then(() => window.location.href = '/auth/signin');
+                    } else if (response.status === 403) {
+                        return response.json().then(data => {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Limit Reached',
+                                text: data.message || 'Error occurred.',
+                                confirmButtonText: 'OK'
+                            });
+                        });
+                    } else if (response.ok) {
+                        return response.json().then(data => {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Added to Cart',
+                                text: data.message || 'Item added to cart successfully.',
+                                confirmButtonText: 'OK'
+                            });
+                        });
                     } else {
-                        Swal.fire('Oops!', 'This product is already in your wishlist!', 'info');
+                        throw new Error('Something went wrong');
                     }
                 })
                 .catch(error => {
-                    Swal.fire('Oops', 'Please login for add to wishlist', 'warning');
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Oops!',
+                        text: 'Please login to add to cart',
+                        confirmButtonText: 'OK',
+                        footer: '<a href="/auth/signin">Log in now!</a>'
+                    });
+                });
+            });
+
+            // Wishlist
+            $('#wishlistForm').on('submit', function(e) {
+                e.preventDefault();
+                fetch(`/user/wishlist/add/${$('#productId').val()}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    Swal.fire({
+                        icon: data.success ? 'success' : 'info',
+                        title: data.success ? 'Success!' : 'Oops!',
+                        text: data.success ? 'Product added to wishlist' : 'This product is already in your wishlist!',
+                        confirmButtonText: 'OK'
+                    });
+                })
+                .catch(error => {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Oops',
+                        text: 'Please login to add to wishlist',
+                        confirmButtonText: 'OK'
+                    });
                 });
             });
         });
-    </script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js"></script>
-    
-   <!-- <script>
-    // Wait until the DOM is fully loaded
-    document.addEventListener('DOMContentLoaded', function () {
-        // Ensure the form element is properly targeted
-        const wishlistForm = document.getElementById('wishlistForm');
-        const productId = document.getElementById('productId').value;
 
-        if (wishlistForm) {
-            wishlistForm.addEventListener('submit', wish);
-        }
-
-        async function wish(event) {
-            event.preventDefault(); // Prevent default form submission
-
-            const url = `/user/wishlist/add/${productId}`;
-            const options = {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({})
-            };
-
-            try {
-                const response = await fetch(url, options);
-                const result = await response.json();
-                console.log('result', result);
-
-                if (response.ok) {
-                    swal("Success!", "Product added to wishlist", "success");
-                } else {
-                    swal("Oops!", "This product is already in your wishlist!", "info");
-                }
-
-            } catch (error) {
-                window.alert(error.message);
-            }
-        }
-    });
-</script> -->
-<script>
-    function changeCarouselImage(index) {
-        $('#productCarousel').carousel(index);
-    }
-
-    function selectSize(button) {
-        document.getElementById('selectedSize').value = button.getAttribute('data-size');
-    }
-</script>
-<script>
-    // Function to change the main image
-function changeMainImage(imageUrl, index) {
-    document.getElementById('main-product-image').src = imageUrl;
-    
-    // Update active thumbnail
-    document.querySelectorAll('.thumbnail').forEach((thumb, i) => {
-        if (i === index) {
-            thumb.classList.add('active-thumbnail');
-        } else {
-            thumb.classList.remove('active-thumbnail');
-        }
-    });
-}
-
-// Function to open the zoom modal
-function openZoomModal() {
-    const mainImage = document.getElementById('main-product-image');
-    const zoomedImage = document.getElementById('zoomedImage');
-    zoomedImage.src = mainImage.src;
-    $('#imageZoomModal').modal('show');
-}
-
-// Event listener for thumbnail clicks
-document.addEventListener('DOMContentLoaded', function() {
-    const thumbnails = document.querySelectorAll('.thumbnail');
-    thumbnails.forEach((thumb, index) => {
-        thumb.addEventListener('click', function() {
-            changeMainImage(this.src, index);
-        });
-    });
-});
-</script>
-<script>
-    $(document).ready(function() {
-        const mainImage = $('#main-product-image');
-        const zoomedImage = $('#zoomed-image');
-        const zoomedImageContainer = $('#zoomed-image-container');
-
-        // Initialize Elevate Zoom
-        function initZoom() {
+        // Change main image
+        window.changeMainImage = function(imageUrl, index) {
+            const mainImage = $('#main-product-image');
+            mainImage.attr('src', imageUrl).data('zoom-image', imageUrl);
+            $('.thumbnail').removeClass('active');
+            $('.thumbnail').eq(index).addClass('active');
+            $('.zoomLens').remove();
             mainImage.elevateZoom({
                 zoomType: "lens",
                 lensShape: "round",
                 lensSize: 200,
                 scrollZoom: true,
-                onImageLoad: function() {
-                    zoomedImage.attr('src', mainImage.attr('src'));
-                },
-                onZoomedImageLoad: function() {
-                    zoomedImageContainer.show();
+                zoomWindowFadeIn: 300,
+                zoomWindowFadeOut: 300
+            });
+        };
+
+        // Related products slideshow
+        function startSlideshow(element) {
+            element.slideshowInterval = setInterval(() => {
+                const images = element.querySelectorAll('img');
+                const activeImage = element.querySelector('img.active');
+                const nextImage = activeImage.nextElementSibling || images[0];
+                activeImage.classList.remove('active');
+                nextImage.classList.add('active');
+            }, 1000);
+        }
+
+        function stopSlideshow(element) {
+            clearInterval(element.slideshowInterval);
+            const images = element.querySelectorAll('img');
+            images.forEach((img, index) => img.classList.toggle('active', index === 0));
+        }
+
+        // Delete review
+        function deleteReview(reviewId, productId) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: 'Do you really want to delete this review?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#2563eb',
+                cancelButtonColor: '#dc2626',
+                confirmButtonText: 'Yes, delete it!',
+                cancelButtonText: 'No, keep it'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`/user/review/delete/${reviewId}`, {
+                        method: 'DELETE',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ productId })
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            return response.json();
+                        }
+                        throw new Error('Failed to delete review');
+                    })
+                    .then(data => {
+                        Swal.fire('Deleted!', 'Your review has been deleted.', 'success');
+                        $(`#review-${reviewId}`).remove();
+                        if ($('.review-item').length === 0) {
+                            $('#reviewsList').html('<div class="no-reviews text-center"><i class="fas fa-comment-alt fa-2x mb-3"></i><p>No reviews yet. Be the first to share your thoughts!</p></div>');
+                        }
+                    })
+                    .catch(error => {
+                        Swal.fire('Error!', error.message, 'error');
+                    });
                 }
             });
         }
-
-        // Change the main image and update the zoom
-        window.changeMainImage = function(imageUrl, index) {
-            mainImage.attr('src', imageUrl); // Change the main image
-            zoomedImage.attr('src', imageUrl); // Update the zoomed image
-            initZoom(); // Re-initialize the zoom for the new image
-        };
-
-        // Initialize zoom on page load
-        initZoom();
-    });
-</script>
-<script>
-    function deleteReview(reviewId, productId) {
-        // Use SweetAlert2 for confirmation
-        Swal.fire({
-            title: 'Are you sure?',
-            text: 'Do you really want to delete this review?',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, delete it!',
-            cancelButtonText: 'No, keep it'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // Proceed with deletion if confirmed
-                fetch(`/user/review/delete/${reviewId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ productId }) // Send the productId in the request body if needed
-                })
-                .then(response => {
-                    // Check if the response is ok
-                    if (response.ok) {
-                        return response.json(); // If response is OK, parse JSON
-                    } else {
-                        throw new Error('Failed to delete review'); // Throw an error if not OK
-                    }
-                })
-                .then(data => {
-                    // Check if your response contains the expected data
-                    if (data.message) {
-                        Swal.fire(
-                            'Deleted!',
-                            'Your review has been deleted.',
-                            'success'
-                        );
-                        location.reload();
-                        // Check if the element exists before trying to remove it
-                        const reviewElement = document.getElementById(`review-${reviewId}`);
-                        if (reviewElement) {
-                            reviewElement.remove(); // Remove the review element
-                        } else {
-                            console.warn(`Element with ID review-${reviewId} not found.`);
-                        }
-                    } else {
-                        throw new Error('Unexpected response format'); // Handle unexpected format
-                    }
-                })
-                .catch(error => {
-                    console.error('There was a problem with the delete operation:', error);
-                    Swal.fire(
-                        'Error!',
-                        error.message || 'There was an error deleting the review.',
-                        'error'
-                    );
-                });
-            }
-        });
-    }
     </script>
-    
-    
-</body>
-
+    </body>
 </html>
