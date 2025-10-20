@@ -1,7 +1,6 @@
+// checkoutController.js
 const express = require('express');
-
 const Razorpay = require('razorpay');
-
 const User = require('../../models/userSchema');
 const Cart = require('../../models/cartSchema');
 const Product = require('../../models/productSchema');
@@ -9,38 +8,35 @@ const Order = require('../../models/orderSchema');
 const Address = require('../../models/addressSchema');
 const Coupon = require('../../models/couponSchema');
 const Category = require('../../models/categorySchema');
-const dotenv = require('dotenv').config();
 const Wallet = require('../../models/walletSchema');
 const crypto = require('crypto');
 const httpStatusCodes = require('../../constants/httpStatusCodes');
 const { CART } = require('../../constants/message');
+const mongoose = require('mongoose');
+
 const getCheckout = async (req, res) => {
   try {
-    const userId = req.user._id; // Assuming user is authenticated and user ID is available from the session or JWT
+    const userId = req.user._id;
 
-    // Fetch cart details for the user
     const cart = await Cart.findOne({ userId }).populate('products.productId');
     if (!cart || cart.products.length === 0) {
-      return res.redirect('/cart'); // Redirect to cart if it's empty
+      return res.redirect('/cart');
     }
 
-    // Fetch user details and addresses
     const user = await User.findById(userId).populate('address');
     if (!user) {
-      return res.redirect('/auth/signin'); // Redirect to sign-in if user is not found
+      return res.redirect('/auth/signin');
     }
 
-    // Calculate total price
     let totalPrice = 0;
     cart.products.forEach((item) => {
-      totalPrice += item.productId.finalPrice * item.quantity; // Assuming price is a field in product
+      totalPrice += item.productId.finalPrice * item.quantity;
     });
 
-    // Render the checkout page with cart, user data, and total price
     res.render('checkout', {
       cart,
       user,
-      totalPrice, // Pass totalPrice to the EJS view
+      totalPrice,
     });
   } catch (error) {
     console.error('Error fetching checkout data:', error);
@@ -51,48 +47,39 @@ const getCheckout = async (req, res) => {
 };
 
 const postCheckout = async (req, res) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
   try {
     const userId = req.user._id;
     const { paymentMethod, selectedAddress, addressDetails } = req.body;
 
-    console.log('Received data:', req.body);
-    console.log('paymentMethod:', paymentMethod);
-
     if (!paymentMethod) {
-      return res
-        .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'Payment method is required' });
+      throw new Error('Payment method is required');
     }
 
-    const cart = await Cart.findOne({ userId }).populate('products.productId');
-    // if (!cart || cart.products.length === 0) {
-    //     return res.status(400).json({ success: false, message: 'Your cart is empty' });
-    // }
+    const cart = await Cart.findOne({ userId }).populate('products.productId').session(session);
+    if (!cart || cart.products.length === 0) {
+      throw new Error('Your cart is empty');
+    }
+
     const orderedProducts = [];
     let originalPrice = 0;
     let subtotalAfterOffers = 0;
     let offerTotalDiscount = 0;
 
-    // Validate stock availability for each product in the cart and calculate prices
     for (const product of cart.products) {
       const { productId, size, quantity } = product;
-      const productDetails = await Product.findOne({ _id: productId, 'sizes.size': size });
+      const productDetails = await Product.findById(productId).session(session);
+
       if (!productDetails) {
-        return res
-          .status(httpStatusCodes.BAD_REQUEST)
-          .json({ success: false, message: `Product not found for ID: ${productId}` });
+        throw new Error(`Product not found for ID: ${productId}`);
       }
 
-      const sizeDetails = productDetails.sizes.find((s) => s.size === size);
-      // if (!sizeDetails || sizeDetails.stock < quantity) {
-      //     return res.status(400).json({ success: false, message: `Insufficient stock for product ${productDetails.name} in size ${size}. Available stock: ${sizeDetails ? sizeDetails.stock : 0}` });
-      // }
-
-      const categoryId = productDetails.category;
-      const checkCategory = await Category.findById(categoryId);
-      // if (checkCategory.isBlocked) {
-      //     return res.status(400).json({ success: false, message: 'Category is blocked' });
-      // }
+      const category = await Category.findById(productDetails.category).session(session);
+      if (category.isBlocked) {
+        throw new Error('Category is blocked');
+      }
 
       const offerDiscountPerUnit = productDetails.price - productDetails.finalPrice;
       const finalUnitPrice = productDetails.finalPrice;
@@ -101,14 +88,13 @@ const postCheckout = async (req, res) => {
       subtotalAfterOffers += finalUnitPrice * quantity;
       offerTotalDiscount += offerDiscountPerUnit * quantity;
 
-      // If all validations pass, push the ordered product details into the orderedProducts array
       orderedProducts.push({
         productName: productDetails.product,
         productPrice: productDetails.price,
         productQuantity: quantity,
         productSize: size,
         productId: productDetails._id.toString(),
-        productImage: productDetails.images[0].secured_url, // Assuming there's at least one image
+        productImage: productDetails.images[0].secured_url,
         offerDiscountPerUnit,
         finalUnitPrice,
       });
@@ -119,7 +105,7 @@ const postCheckout = async (req, res) => {
     let totalPriceAfterCoupon = subtotalAfterOffers;
 
     if (req.session.couponCode) {
-      const coupon = await Coupon.findOne({ couponCode: req.session.couponCode });
+      const coupon = await Coupon.findOne({ couponCode: req.session.couponCode }).session(session);
       if (coupon) {
         couponDiscount = subtotalAfterOffers - cart.finalPrice;
         totalPriceAfterCoupon = cart.finalPrice;
@@ -135,65 +121,64 @@ const postCheckout = async (req, res) => {
         user: userId,
         ...addressDetails,
       });
-
-      await address.save();
-      await User.findByIdAndUpdate(userId, { $push: { addresses: address._id } });
+      await address.save({ session });
+      await User.findByIdAndUpdate(userId, { $push: { addresses: address._id } }, { session });
     } else {
-      address = await Address.findById(selectedAddress);
+      address = await Address.findById(selectedAddress).session(session);
       if (!address) {
-        return res
-          .status(httpStatusCodes.BAD_REQUEST)
-          .json({ success: false, message: 'Invalid address selected' });
+        throw new Error('Invalid address selected');
       }
     }
-    // for push user id to product because of review
+
     for (const product of cart.products) {
-      const productDetails = await Product.findOne({ _id: product.productId });
+      const updateResult = await Product.updateOne(
+        {
+          _id: product.productId,
+          'sizes.size': product.size,
+          'sizes.stock': { $gte: product.quantity },
+        },
+        {
+          $inc: { 'sizes.$.stock': -product.quantity },
+        },
+        { session }
+      );
 
-      if (!productDetails) {
-        console.log(`Product with ID ${product.productId} not found.`);
-        continue; // Skip to the next product if not found
+      if (updateResult.modifiedCount === 0) {
+        throw new Error(
+          `Insufficient stock for product ID: ${product.productId} in size ${product.size}`
+        );
       }
+    }
 
+    for (const product of cart.products) {
+      const productDetails = await Product.findById(product.productId).session(session);
       productDetails.orderCount += product.quantity;
-      await productDetails.save();
-      const category = await Category.findById(productDetails.category);
+      await productDetails.save({ session });
+
+      const category = await Category.findById(productDetails.category).session(session);
       category.orderCount += product.quantity;
-      await category.save();
-      // if (!productDetails.purchasedByUserIds.includes(userId)) {
-
-      //     productDetails.purchasedByUserIds.push(userId);
-
-      //     await productDetails.save();
-      //     console.log(`User ${userId} added to purchasedByUserIds for product ${product.productId}`);
-      // } else {
-      //     console.log(`User ${userId} has already purchased product ${product.productId}`);
-      // }
+      await category.save({ session });
     }
 
     const calculateDeliveryDate = (daysToAdd) => {
       const currentDate = new Date();
       currentDate.setDate(currentDate.getDate() + daysToAdd);
-
-      // Format the date as MM-DD-YYYY
-      const month = String(currentDate.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+      const month = String(currentDate.getMonth() + 1).padStart(2, '0');
       const day = String(currentDate.getDate()).padStart(2, '0');
       const year = currentDate.getFullYear();
-
       return `${month}-${day}-${year}`;
     };
-    const generatedOrderId = () => {
-      const prefix = 'ORD'; // Prefix for the order ID
-      const timestamp = Date.now(); // Current timestamp
-      const randomPart = Math.floor(1000 + Math.random() * 9000); // Random 4-digit number for uniqueness
 
+    const generatedOrderId = () => {
+      const prefix = 'ORD';
+      const timestamp = Date.now();
+      const randomPart = Math.floor(1000 + Math.random() * 9000);
       return `${prefix}-${timestamp}-${randomPart}`;
     };
 
-    // Example usage:
     const genOrderId = generatedOrderId();
-    // Calculate delivery date with 7 days added
     const deliveryDate = calculateDeliveryDate(7);
+
     const orderData = {
       userId,
       products: cart.products,
@@ -201,137 +186,89 @@ const postCheckout = async (req, res) => {
       shippingAddress: address,
       paymentDetails: {
         paymentMethod,
-        transactionId: '11111111111111',
+        transactionId: 'pending',
       },
       originalPrice,
-      deliveryDate: deliveryDate,
+      deliveryDate,
       isDiscount: discount > 0,
       discount,
-      orderedProducts: orderedProducts,
-      status: 'pending',
-      genOrderId: genOrderId,
+      orderedProducts,
+      status: paymentMethod === 'razorpay' ? 'pending' : 'processing',
+      genOrderId,
       couponDiscount,
       couponId,
       offerTotalDiscount,
       subtotalAfterOffers,
     };
 
+    const newOrder = new Order(orderData);
+    await newOrder.save({ session });
+
+    const hash = crypto.createHash('sha256').update(newOrder._id.toString()).digest('hex');
+    const shortTransactionId = hash.substring(0, 10);
+    newOrder.paymentDetails.transactionId = shortTransactionId;
+    await newOrder.save({ session });
+
     if (paymentMethod === 'razorpay') {
       const razorpay = new Razorpay({
-        key_id: 'rzp_test_ovddchQMnrblMK',
-        key_secret: 'o0wUHZ0m3cvfpcgmhLx3N4UL',
+        key_id: process.env.RAZORPAY_KEY_ID,
+        key_secret: process.env.RAZORPAY_KEY_SECRET,
       });
-
       const options = {
-        amount: totalPriceAfterCoupon * 100, // amount in paise
+        amount: totalPriceAfterCoupon * 100,
         currency: 'INR',
         receipt: `receipt_order_${new Date().getTime()}`,
       };
 
-      const order = await razorpay.orders.create(options);
-      if (!order) {
-        return res
-          .status(httpStatusCodes.BAD_REQUEST)
-          .json({ success: false, message: 'some issues in razorpay order' });
+      const razorpayOrder = await razorpay.orders.create(options);
+      if (!razorpayOrder) {
+        throw new Error('Issue creating Razorpay order');
       }
 
-      const newOrder = new Order({
-        ...orderData,
-        status: 'pending',
-        razorpayOrderId: order.id, // save the Razorpay order ID
-      });
-      await newOrder.save();
-      // Generate a hashed transaction ID and take a substring of it
-      const hash = crypto.createHash('sha256').update(newOrder._id.toString()).digest('hex');
-      const shortTransactionId = hash.substring(0, 10); // Take the first 10 characters or adjust as needed
-      newOrder.paymentDetails.transactionId = shortTransactionId;
-      await newOrder.save();
-      console.log('Sending response:', {
-        success: true,
-        orderId: newOrder._id,
-        razorpayOrderId: order.id,
-        amount: order.amount,
-      });
-
-      req.session.couponCode = null;
-      await Cart.deleteOne({ userId });
-      return res.json({
-        success: true,
-        orderId: newOrder._id,
-        razorpayOrderId: order.id, // Return Razorpay order ID to client
-        amount: order.amount, // Return order amount
-      });
-    } else if (paymentMethod === 'cod') {
-      const newOrder = new Order(orderData);
-      await newOrder.save();
-
-      // Generate a hashed transaction ID and take a substring of it
-      const hash = crypto.createHash('sha256').update(newOrder._id.toString()).digest('hex');
-      const shortTransactionId = hash.substring(0, 10); // Take the first 10 characters or adjust as needed
-      newOrder.paymentDetails.transactionId = shortTransactionId;
-      await newOrder.save();
-      // Update stock and clear cart
-      for (const product of cart.products) {
-        await Product.findOneAndUpdate(
-          { _id: product.productId, 'sizes.size': product.size },
-          { $inc: { 'sizes.$.stock': -product.quantity } }
-        );
-      }
-      await Cart.deleteOne({ userId });
-
-      req.session.couponCode = null;
-      await Cart.deleteOne({ userId });
-      return res.status(httpStatusCodes.OK).json({
-        success: true,
-        orderId: newOrder._id,
-        amount: newOrder.totalPrice,
-      });
+      newOrder.razorpayOrderId = razorpayOrder.id;
+      await newOrder.save({ session });
     } else if (paymentMethod === 'wallet') {
-      const userWallet = await Wallet.findOne({ userId: req.user._id });
-
-      const newOrder = new Order(orderData);
-
-      await newOrder.save();
-      // Generate a hashed transaction ID and take a substring of it
-      const hash = crypto.createHash('sha256').update(newOrder._id.toString()).digest('hex');
-      const shortTransactionId = hash.substring(0, 10); // Take the first 10 characters or adjust as needed
-      newOrder.paymentDetails.transactionId = shortTransactionId;
-      await newOrder.save();
-      // Update stock and clear cart
-      for (const product of cart.products) {
-        await Product.findOneAndUpdate(
-          { _id: product.productId, 'sizes.size': product.size },
-          { $inc: { 'sizes.$.stock': -product.quantity } }
-        );
+      const userWallet = await Wallet.findOne({ userId }).session(session);
+      if (userWallet.balance < totalPriceAfterCoupon) {
+        throw new Error('Insufficient wallet balance');
       }
       userWallet.balance -= totalPriceAfterCoupon;
-      transaction = {
+      userWallet.transactions.push({
         amount: totalPriceAfterCoupon,
         type: 'debit',
         description: 'amount debited',
         date: new Date(),
-      };
-      userWallet.transactions.push(transaction);
-      await userWallet.save();
-      await Cart.deleteOne({ userId });
+      });
+      await userWallet.save({ session });
+    }
 
-      req.session.couponCode = null;
-      await Cart.deleteOne({ userId });
+    await session.commitTransaction();
+
+    req.session.couponCode = null;
+    await Cart.deleteOne({ userId });
+
+    if (paymentMethod === 'razorpay') {
+      return res.json({
+        success: true,
+        orderId: newOrder._id,
+        razorpayOrderId: newOrder.razorpayOrderId,
+        amount: totalPriceAfterCoupon * 100,
+      });
+    } else {
       return res.status(httpStatusCodes.OK).json({
         success: true,
         orderId: newOrder._id,
         amount: newOrder.totalPrice,
       });
-    } else {
-      return res
-        .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: 'Invalid payment method' });
     }
   } catch (error) {
+    await session.abortTransaction();
     console.error('Error processing order:', error);
     res
       .status(httpStatusCodes.INTERNAL_SERVER_ERROR)
       .json({ success: false, message: 'Internal Server Error', error: error.message });
+  } finally {
+    session.endSession();
   }
 };
 
@@ -403,59 +340,16 @@ const postCheckCatPro = async (req, res) => {
   }
 };
 
-const postPaymentSuccess = async (req, res) => {
-  try {
-    console.log('page commed in payment-success');
-    const { razorpay_payment_id, selectedAddress, totalPrice, coupon } = req.body;
-
-    // Optional: Verify the payment on server side
-    const payment = await razorpayInstance.payments.fetch(razorpay_payment_id);
-    if (payment.status !== 'captured') {
-      return res.status(httpStatusCodes.BAD_REQUEST).send('Payment not captured');
-    }
-
-    const cart = await Cart.find({ userId: req.user._id });
-    // Create and save the order
-    const newOrder = new Order({
-      userId: req.user._id, // Assuming you're using authentication
-      products: cart.products, // Products from the cart
-      totalPrice: totalPrice,
-      shippingAddress: selectedAddress, // If new address, handle it accordingly
-      paymentDetails: {
-        paymentMethod: 'Razorpay',
-        transactionId: razorpay_payment_id,
-      },
-      status: 'pending', // Initial order status
-      couponCode: coupon ? coupon : null, // If coupon applied
-      orderDate: new Date(),
-    });
-
-    await newOrder.save();
-
-    // Clear the cart after successful order
-    // req.session.cart = null;
-
-    await Cart.deleteOne({ userId: req.user._id });
-    // Send success response
-    res.status(httpStatusCodes.OK).send('Order placed successfully!');
-  } catch (err) {
-    console.error(err);
-    res.status(httpStatusCodes.INTERNAL_SERVER_ERROR).send('Error processing payment');
-  }
-};
-
 const postCouponCheck = async (req, res) => {
   try {
     const { couponCode } = req.body;
 
-    // Ensure the user is logged in
     if (!req.user || !req.user._id) {
       return res
         .status(httpStatusCodes.UNAUTHORIZED)
         .json({ success: false, message: 'User not authenticated' });
     }
 
-    // Fetch coupon details
     const coupon = await Coupon.findOne({ couponCode: couponCode });
     if (!coupon) {
       return res
@@ -463,7 +357,6 @@ const postCouponCheck = async (req, res) => {
         .json({ success: false, message: 'Invalid coupon' });
     }
 
-    // Check if the coupon is active
     const currentDate = new Date();
     if (currentDate < coupon.startDate || currentDate > coupon.endDate) {
       return res
@@ -471,14 +364,12 @@ const postCouponCheck = async (req, res) => {
         .json({ success: false, message: 'Coupon is expired or not valid yet' });
     }
 
-    // Check if the usage limit is exceeded
     if (coupon.usageLimit <= 0) {
       return res
         .status(httpStatusCodes.BAD_REQUEST)
         .json({ success: false, message: 'Coupon usage limit exceeded' });
     }
 
-    // Fetch the cart and check if it exists and has products
     const cart = await Cart.findOne({ userId: req.user._id });
     if (!cart || cart.products.length === 0) {
       return res
@@ -486,7 +377,6 @@ const postCouponCheck = async (req, res) => {
         .json({ success: false, message: 'Cart is empty' });
     }
 
-    // Calculate total price of the cart
     let totalPrice = 0;
     for (const product of cart.products) {
       const productDetails = await Product.findById(product.productId);
@@ -498,7 +388,6 @@ const postCouponCheck = async (req, res) => {
       totalPrice += productDetails.finalPrice * product.quantity;
     }
 
-    // Ensure the total price meets the minimum purchase amount
     if (totalPrice < coupon.minPurchaseAmount) {
       return res.status(httpStatusCodes.BAD_REQUEST).json({
         success: false,
@@ -510,7 +399,6 @@ const postCouponCheck = async (req, res) => {
         .status(httpStatusCodes.BAD_REQUEST)
         .json({ success: false, message: 'Coupon has already been used by this user' });
     }
-    // Calculate discount
     let discount = 0;
     let discountPercentage = 0;
 
@@ -519,10 +407,8 @@ const postCouponCheck = async (req, res) => {
       discount = (coupon.discountValue / 100) * totalPrice;
     }
 
-    // Apply the discount to the total price
     const finalPrice = totalPrice - discount;
 
-    // Prevent final price from being negative
     const adjustedFinalPrice = Math.max(finalPrice, 0);
     req.session.couponCode = couponCode;
     cart.finalPrice = adjustedFinalPrice;
@@ -536,7 +422,7 @@ const postCouponCheck = async (req, res) => {
         .status(httpStatusCodes.BAD_REQUEST)
         .json({ message: 'Coupon has already been used by this user' });
     }
-    // Send the response with the discounted price and percentage
+
     res.status(httpStatusCodes.OK).json({
       success: true,
       message: 'Coupon applied successfully',
@@ -546,7 +432,6 @@ const postCouponCheck = async (req, res) => {
       discountPercentage: Math.round(discountPercentage * 100) / 100,
     });
 
-    // Update coupon usage limit if applicable
     await Coupon.updateOne({ _id: coupon._id }, { $inc: { usageLimit: -1 } });
   } catch (error) {
     console.error('Error applying coupon:', error);
@@ -557,23 +442,20 @@ const postCouponCheck = async (req, res) => {
 };
 const postCouponDelete = async (req, res) => {
   try {
-    // Find the cart for the logged-in user
     const cart = await Cart.findOne({ userId: req.user._id });
 
     if (cart) {
-      // Reset the finalPrice to the totalPrice
       cart.finalPrice = cart.finalTotalPrice;
       await cart.save();
       req.session.finalPrice = cart.finalPrice;
-      const couponCode = req.session.couponCode; // Assuming couponCode is sent in the request body
+      const couponCode = req.session.couponCode;
       const coupon = await Coupon.findOne({ couponCode: couponCode });
 
       if (coupon) {
-        // Remove the user ID from the usedUsers array
         const userIndex = coupon.usedUsers.indexOf(req.user._id);
         if (userIndex > -1) {
-          coupon.usedUsers.splice(userIndex, 1); // Remove user ID
-          await coupon.save(); // Save the updated coupon
+          coupon.usedUsers.splice(userIndex, 1);
+          await coupon.save();
         } else {
           return res
             .status(httpStatusCodes.BAD_REQUEST)
@@ -584,14 +466,11 @@ const postCouponDelete = async (req, res) => {
       }
 
       await Coupon.updateOne({ _id: coupon._id }, { $inc: { usageLimit: 1 } });
-      // Respond with success
       res.status(httpStatusCodes.OK).json({ message: 'Coupon deleted and final price updated.' });
     } else {
-      // If no cart is found, send an error message
       res.status(httpStatusCodes.NOT_FOUND).json({ message: 'Cart not found.' });
     }
   } catch (error) {
-    // Handle any errors
     console.error(error);
     res
       .status(httpStatusCodes.INTERNAL_SERVER_ERROR)
@@ -621,7 +500,6 @@ const getOrderConfirmation = async (req, res) => {
     }
     req.session.couponCode = null;
 
-    // res.status(200).json({success:true})
     res.render('order/order-confirmation', {
       order,
     });
@@ -637,7 +515,6 @@ module.exports = {
   getCheckout,
   postCheckout,
   postCheckCatPro,
-  postPaymentSuccess,
   postCouponCheck,
   postCouponDelete,
   getPaymentFailed,
