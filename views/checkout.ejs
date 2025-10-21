@@ -697,7 +697,7 @@
                                 key: 'rzp_test_ovddchQMnrblMK',
                                 amount: data.amount,
                                 currency: "INR",
-                                name: "Your E-Commerce Site",
+                                name: "Stridnest",
                                 description: "Order Payment",
                                 order_id: data.razorpayOrderId,
                                 handler: function (response) {
@@ -729,7 +729,15 @@
                             window.location.href = `/checkout/order-confirmation/${data.orderId}`;
                         }
                     } else {
-                        handlePaymentFailure(data.orderId);
+                        console.log("data********",data);
+                        Swal.fire({
+  icon: 'warning',
+  title: 'Out of Stock',
+  text: 'Sorry, one or more items in your cart are no longer available. Please review your cart before proceeding.',
+});
+return;
+
+                        // handlePaymentFailure(data.orderId);
                     }
                 })
                 .catch((error) => {
