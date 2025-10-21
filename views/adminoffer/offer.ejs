@@ -1,31 +1,31 @@
 
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Offer Management</title>
-        <link
-            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-            rel="stylesheet"
-            integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM"
-            crossorigin="anonymous" />
-        <link
-            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
-            rel="stylesheet"
-            integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA=="
-            crossorigin="anonymous" />
-        <link
-            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-            rel="stylesheet" />
-        <style>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Offer Management</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM"
+      crossorigin="anonymous" />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+      rel="stylesheet"
+      integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA=="
+      crossorigin="anonymous" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet" />
+    <style>
       body {
         font-family: 'Inter', sans-serif;
         background-color: #f4f6f8;
         color: #333;
       }
       .content {
-        margin-left: 200px;
+        margin-left: 150px;
         padding: 40px 20px;
         min-height: 100vh;
         transition: margin-left 0.3s ease;
@@ -131,154 +131,154 @@
         }
       }
     </style>
-    </head>
-    <body>
-        <div class="content">
-            <div
-                class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5">
-                <h2 class="mb-3 mb-md-0 fw-bold text-dark">Offer Management</h2>
-                <div class="d-flex flex-wrap gap-3">
-                    <div class="search-container">
-                        <input
-                            type="text"
-                            id="searchInput"
-                            class="form-control"
-                            placeholder="Search by offer name"
-                            value="<%= search || '' %>" />
-                    </div>
-                    <a href="/admin/offers/add-offer"
-                        class="btn btn-primary btn-custom">
-                        <i class="fas fa-plus"></i> Add Offer
-                    </a>
-                </div>
-            </div>
-
-            <div id="offers-content">
-                <% if (offers && offers.length > 0) { %>
-                <div class="card shadow-sm">
-                    <div class="card-body p-0">
-                        <table class="table table-hover align-middle mb-0">
-                            <thead>
-                                <tr>
-                                    <th>Offer Name</th>
-                                    <th>Description</th>
-                                    <th>Type</th>
-                                    <th>Discount (%)</th>
-                                    <th>Status</th>
-                                    <th>Categories</th>
-                                    <th>Products</th>
-                                    <th>Date Range</th>
-                                    <th class="text-end">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <% offers.forEach((offer) => { %>
-                                <tr>
-                                    <td><%= offer.offerName || 'N/A' %></td>
-                                    <td><%= offer.offerDescription || 'N/A'
-                                        %></td>
-                                    <td><%= offer.offerType || 'N/A' %></td>
-                                    <td><%= offer.discountValue || '0' %></td>
-                                    <td>
-                                        <div class="form-check form-switch">
-                                            <input
-                                                class="form-check-input status-toggle"
-                                                type="checkbox"
-                                                id="status-<%= offer._id %>"
-                                                <%=offer.offerStatus ===
-                                                'active' ? 'checked' : '' %>
-                                            data-offer-id="<%= offer._id %>">
-                                            <label class="form-check-label"
-                                                for="status-<%= offer._id %>">
-                                                <%= offer.offerStatus ||
-                                                'inactive' %>
-                                            </label>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <% (offer.categoryIds ||
-                                        []).forEach((category) => { %>
-                                        <span class="badge bg-secondary"><%=
-                                            category.name || 'N/A' %></span>
-                                        <% }) %>
-                                    </td>
-                                    <td>
-                                        <% (offer.productIds ||
-                                        []).forEach((productId) => { %>
-                                        <% const product = products.find(p =>
-                                        p._id.toString() ===
-                                        productId.toString()); %>
-                                        <% if (product) { %>
-                                        <span class="badge bg-info"><%=
-                                            product._id %></span>
-                                        <% } %>
-                                        <% }) %>
-                                    </td>
-                                    <td>
-                                        <%= offer.startDate ? new
-                                        Date(offer.startDate).toLocaleDateString('en-IN')
-                                        : 'N/A' %> -
-                                        <%= offer.endDate ? new
-                                        Date(offer.endDate).toLocaleDateString('en-IN')
-                                        : 'N/A' %>
-                                    </td>
-                                    <td class="text-end">
-                                        <a
-                                            href="/admin/offers/edit-offer/<%= offer._id %>"
-                                            class="btn btn-warning btn-sm btn-custom me-1">
-                                            <i class="fas fa-edit"></i> Edit
-                                        </a>
-                                        <button
-                                            class="btn btn-danger btn-sm btn-custom delete-offer"
-                                            data-offer-id="<%= offer._id %>"
-                                            data-offer-name="<%- (offer.offerName || 'N/A').replace(/"/g,
-                                            '&quot;').replace(/'/g, '&apos;')
-                                            %>">
-                                            <i class="fas fa-trash"></i> Delete
-                                        </button>
-                                    </td>
-                                </tr>
-                                <% }) %>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                <% } else { %>
-                <div class="alert alert-info" role="alert">
-                    No offers found
-                </div>
-                <% } %>
-
-                <nav aria-label="Offer pagination" class="mt-5">
-                    <ul class="pagination justify-content-center">
-                        <li
-                            class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
-                            <a class="page-link"
-                                data-page="<%= currentPage - 1 %>">Previous</a>
-                        </li>
-                        <% for (let i = 1; i <= totalPages; i++) { %>
-                        <li
-                            class="page-item <%= i === currentPage ? 'active' : '' %>">
-                            <a class="page-link" data-page="<%= i %>"><%= i
-                                %></a>
-                        </li>
-                        <% } %>
-                        <li
-                            class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
-                            <a class="page-link"
-                                data-page="<%= currentPage + 1 %>">Next</a>
-                        </li>
-                    </ul>
-                </nav>
-            </div>
+  </head>
+  <body>
+    <div class="content">
+      <div
+        class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5">
+        <h2 class="mb-3 mb-md-0 fw-bold text-dark">Offer Management</h2>
+        <div class="d-flex flex-wrap gap-3">
+          <div class="search-container">
+            <input
+              type="text"
+              id="searchInput"
+              class="form-control"
+              placeholder="Search by offer name"
+              value="<%= search || '' %>" />
+          </div>
+          <a href="/admin/offers/add-offer"
+            class="btn btn-primary btn-custom">
+            <i class="fas fa-plus"></i> Add Offer
+          </a>
         </div>
+      </div>
 
-        <script
-            src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
-            integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
-            crossorigin="anonymous"></script>
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-        <script>
+      <div id="offers-content">
+        <% if (offers && offers.length > 0) { %>
+        <div class="card shadow-sm">
+          <div class="card-body p-0">
+            <table class="table table-hover align-middle mb-0">
+              <thead>
+                <tr>
+                  <th>Offer Name</th>
+                  <th>Description</th>
+                  <th>Type</th>
+                  <th>Discount (%)</th>
+                  <th>Status</th>
+                  <th>Categories</th>
+                  <th>Products</th>
+                  <th>Date Range</th>
+                  <th class="text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% offers.forEach((offer) => { %>
+                <tr>
+                  <td><%= offer.offerName || 'N/A' %></td>
+                  <td><%= offer.offerDescription || 'N/A'
+                    %></td>
+                  <td><%= offer.offerType || 'N/A' %></td>
+                  <td><%= offer.discountValue || '0' %></td>
+                  <td>
+                    <div class="form-check form-switch">
+                      <input
+                        class="form-check-input status-toggle"
+                        type="checkbox"
+                        id="status-<%= offer._id %>"
+                        <%=offer.offerStatus ===
+                        'active' ? 'checked' : '' %>
+                      data-offer-id="<%= offer._id %>">
+                      <label class="form-check-label"
+                        for="status-<%= offer._id %>">
+                        <%= offer.offerStatus ||
+                        'inactive' %>
+                      </label>
+                    </div>
+                  </td>
+                  <td>
+                    <% (offer.categoryIds ||
+                    []).forEach((category) => { %>
+                    <span class="badge bg-secondary"><%=
+                      category.name || 'N/A' %></span>
+                    <% }) %>
+                  </td>
+                  <td>
+                    <% (offer.productIds ||
+                    []).forEach((productId) => { %>
+                    <% const product = products.find(p =>
+                    p._id.toString() ===
+                    productId.toString()); %>
+                    <% if (product) { %>
+                    <span class="badge bg-info"><%=
+                      product._id %></span>
+                    <% } %>
+                    <% }) %>
+                  </td>
+                  <td>
+                    <%= offer.startDate ? new
+                    Date(offer.startDate).toLocaleDateString('en-IN')
+                    : 'N/A' %> -
+                    <%= offer.endDate ? new
+                    Date(offer.endDate).toLocaleDateString('en-IN')
+                    : 'N/A' %>
+                  </td>
+                  <td class="text-end">
+                    <a
+                      href="/admin/offers/edit-offer/<%= offer._id %>"
+                      class="btn btn-warning btn-sm btn-custom me-1">
+                      <i class="fas fa-edit"></i> Edit
+                    </a>
+                    <button
+                      class="btn btn-danger btn-sm btn-custom delete-offer"
+                      data-offer-id="<%= offer._id %>"
+                      data-offer-name="<%- (offer.offerName || 'N/A').replace(/"/g,
+                      '&quot;').replace(/'/g, '&apos;')
+                      %>">
+                      <i class="fas fa-trash"></i> Delete
+                    </button>
+                  </td>
+                </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <% } else { %>
+        <div class="alert alert-info" role="alert">
+          No offers found
+        </div>
+        <% } %>
+
+        <nav aria-label="Offer pagination" class="mt-5">
+          <ul class="pagination justify-content-center">
+            <li
+              class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
+              <a class="page-link"
+                data-page="<%= currentPage - 1 %>">Previous</a>
+            </li>
+            <% for (let i = 1; i <= totalPages; i++) { %>
+            <li
+              class="page-item <%= i === currentPage ? 'active' : '' %>">
+              <a class="page-link" data-page="<%= i %>"><%= i
+                %></a>
+            </li>
+            <% } %>
+            <li
+              class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
+              <a class="page-link"
+                data-page="<%= currentPage + 1 %>">Next</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+      crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
       function debounce(func, delay) {
         let timer;
         return function (...args) {
@@ -505,5 +505,5 @@
       attachStatusToggleListeners();
       attachDeleteListeners();
     </script>
-    </body>
+  </body>
 </html>

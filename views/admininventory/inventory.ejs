@@ -1,31 +1,31 @@
 
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Inventory Management</title>
-        <link
-            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-            rel="stylesheet"
-            integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM"
-            crossorigin="anonymous" />
-        <link
-            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
-            rel="stylesheet"
-            integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA=="
-            crossorigin="anonymous" />
-        <link
-            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-            rel="stylesheet" />
-        <style>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Inventory Management</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM"
+      crossorigin="anonymous" />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+      rel="stylesheet"
+      integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA=="
+      crossorigin="anonymous" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet" />
+    <style>
       body {
         font-family: 'Inter', sans-serif;
         background-color: #f4f6f8;
         color: #333;
       }
       .content {
-        margin-left: 200px;
+        margin-left: 150px;
         padding: 40px 20px;
         min-height: 100vh;
         transition: margin-left 0.3s ease;
@@ -144,138 +144,138 @@
         }
       }
     </style>
-    </head>
-    <body>
-        <div class="content">
-            <div
-                class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5">
-                <h2 class="mb-3 mb-md-0 fw-bold text-dark">Inventory
-                    Management</h2>
-                <div class="search-container">
-                    <input
-                        type="text"
-                        id="searchInput"
-                        class="form-control"
-                        placeholder="Search by product name or brand"
-                        value="<%= search || '' %>" />
-                </div>
-            </div>
-
-            <div id="inventory-content">
-                <% if (products.length > 0) { %>
-                <div class="card shadow-sm">
-                    <div class="card-body p-0">
-                        <table class="table table-hover align-middle mb-0">
-                            <thead>
-                                <tr>
-                                    <th>Product Name</th>
-                                    <th>Brand</th>
-                                    <th>Description</th>
-                                    <th>Price</th>
-                                    <th>Category</th>
-                                    <th>Average Rating</th>
-                                    <th>Size</th>
-                                    <th>Current Stock</th>
-                                    <th class="text-end">Update Stock</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <% products.forEach(product => { %>
-                                <% product.sizes.forEach((sizeObj, index) => {
-                                %>
-                                <tr
-                                    class="<%= index === 0 ? 'product-row' : 'size-row' %>">
-                                    <% if (index === 0) { %>
-                                    <td
-                                        rowspan="<%= product.sizes.length %>"><%=
-                                        product.product %></td>
-                                    <td
-                                        rowspan="<%= product.sizes.length %>"><%=
-                                        product.brand %></td>
-                                    <td
-                                        rowspan="<%= product.sizes.length %>"><%=
-                                        product.description %></td>
-                                    <td
-                                        rowspan="<%= product.sizes.length %>"><%=
-                                        new Intl.NumberFormat('en-IN', { style:
-                                        'currency', currency: 'INR'
-                                        }).format(product.price) %></td>
-                                    <td
-                                        rowspan="<%= product.sizes.length %>"><%=
-                                        product.category.name %></td>
-                                    <td rowspan="<%= product.sizes.length %>">
-                                        <span class="badge rating-badge"><%=
-                                            product.averageRating %></span>
-                                    </td>
-                                    <% } %>
-                                    <td><%= sizeObj.size %></td>
-                                    <td><%= sizeObj.stock %></td>
-                                    <td class="text-end">
-                                        <form class="update-stock-form"
-                                            data-product-id="<%= product._id %>"
-                                            data-size="<%= sizeObj.size %>">
-                                            <div class="form-group">
-                                                <button type="button"
-                                                    class="btn btn-outline-secondary btn-sm btn-decrement">-</button>
-                                                <input type="number"
-                                                    name="changeInStock"
-                                                    value="0"
-                                                    class="form-control stock-input form-control-sm"
-                                                    min="-<%= sizeObj.stock %>"
-                                                    max="1000">
-                                                <button type="button"
-                                                    class="btn btn-outline-secondary btn-sm btn-increment">+</button>
-                                                <button type="submit"
-                                                    class="btn btn-primary btn-sm btn-custom">
-                                                    <i class="fas fa-save"></i>
-                                                    Save
-                                                </button>
-                                            </div>
-                                        </form>
-                                    </td>
-                                </tr>
-                                <% }) %>
-                                <% }) %>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                <% } else { %>
-                <div class="alert alert-info" role="alert">
-                    No products found
-                </div>
-                <% } %>
-
-                <nav aria-label="Inventory pagination" class="mt-5">
-                    <ul class="pagination justify-content-center">
-                        <li
-                            class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
-                            <a class="page-link"
-                                data-page="<%= currentPage - 1 %>">Previous</a>
-                        </li>
-                        <% for (let i = 1; i <= totalPages; i++) { %>
-                        <li
-                            class="page-item <%= i === currentPage ? 'active' : '' %>">
-                            <a class="page-link" data-page="<%= i %>"><%= i
-                                %></a>
-                        </li>
-                        <% } %>
-                        <li
-                            class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
-                            <a class="page-link"
-                                data-page="<%= currentPage + 1 %>">Next</a>
-                        </li>
-                    </ul>
-                </nav>
-            </div>
+  </head>
+  <body>
+    <div class="content">
+      <div
+        class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5">
+        <h2 class="mb-3 mb-md-0 fw-bold text-dark">Inventory
+          Management</h2>
+        <div class="search-container">
+          <input
+            type="text"
+            id="searchInput"
+            class="form-control"
+            placeholder="Search by product name or brand"
+            value="<%= search || '' %>" />
         </div>
+      </div>
 
-        <script
-            src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
-            integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
-            crossorigin="anonymous"></script>
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-        <script>
+      <div id="inventory-content">
+        <% if (products.length > 0) { %>
+        <div class="card shadow-sm">
+          <div class="card-body p-0">
+            <table class="table table-hover align-middle mb-0">
+              <thead>
+                <tr>
+                  <th>Product Name</th>
+                  <th>Brand</th>
+                  <th>Description</th>
+                  <th>Price</th>
+                  <th>Category</th>
+                  <th>Average Rating</th>
+                  <th>Size</th>
+                  <th>Current Stock</th>
+                  <th class="text-end">Update Stock</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% products.forEach(product => { %>
+                <% product.sizes.forEach((sizeObj, index) => {
+                %>
+                <tr
+                  class="<%= index === 0 ? 'product-row' : 'size-row' %>">
+                  <% if (index === 0) { %>
+                  <td
+                    rowspan="<%= product.sizes.length %>"><%=
+                    product.product %></td>
+                  <td
+                    rowspan="<%= product.sizes.length %>"><%=
+                    product.brand %></td>
+                  <td
+                    rowspan="<%= product.sizes.length %>"><%=
+                    product.description %></td>
+                  <td
+                    rowspan="<%= product.sizes.length %>"><%=
+                    new Intl.NumberFormat('en-IN', { style:
+                    'currency', currency: 'INR'
+                    }).format(product.price) %></td>
+                  <td
+                    rowspan="<%= product.sizes.length %>"><%=
+                    product.category.name %></td>
+                  <td rowspan="<%= product.sizes.length %>">
+                    <span class="badge rating-badge"><%=
+                      product.averageRating %></span>
+                  </td>
+                  <% } %>
+                  <td><%= sizeObj.size %></td>
+                  <td><%= sizeObj.stock %></td>
+                  <td class="text-end">
+                    <form class="update-stock-form"
+                      data-product-id="<%= product._id %>"
+                      data-size="<%= sizeObj.size %>">
+                      <div class="form-group">
+                        <button type="button"
+                          class="btn btn-outline-secondary btn-sm btn-decrement">-</button>
+                        <input type="number"
+                          name="changeInStock"
+                          value="0"
+                          class="form-control stock-input form-control-sm"
+                          min="-<%= sizeObj.stock %>"
+                          max="1000">
+                        <button type="button"
+                          class="btn btn-outline-secondary btn-sm btn-increment">+</button>
+                        <button type="submit"
+                          class="btn btn-primary btn-sm btn-custom">
+                          <i class="fas fa-save"></i>
+                          Save
+                        </button>
+                      </div>
+                    </form>
+                  </td>
+                </tr>
+                <% }) %>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <% } else { %>
+        <div class="alert alert-info" role="alert">
+          No products found
+        </div>
+        <% } %>
+
+        <nav aria-label="Inventory pagination" class="mt-5">
+          <ul class="pagination justify-content-center">
+            <li
+              class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
+              <a class="page-link"
+                data-page="<%= currentPage - 1 %>">Previous</a>
+            </li>
+            <% for (let i = 1; i <= totalPages; i++) { %>
+            <li
+              class="page-item <%= i === currentPage ? 'active' : '' %>">
+              <a class="page-link" data-page="<%= i %>"><%= i
+                %></a>
+            </li>
+            <% } %>
+            <li
+              class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
+              <a class="page-link"
+                data-page="<%= currentPage + 1 %>">Next</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+      crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
       function debounce(func, delay) {
         let timer;
         return function (...args) {
@@ -487,5 +487,5 @@
       attachFormListeners();
       attachPaginationListeners();
     </script>
-    </body>
+  </body>
 </html>

@@ -11,7 +11,7 @@ router.post('/', checkoutController.postCheckout);
 router.post('/checkcatpro', checkoutController.postCheckCatPro);
 
 // Route to handle payment success
-router.post('/payment-success', checkoutController.postPaymentSuccess);
+// router.post('/payment-success', checkoutController.postPaymentSuccess);
 
 router.post('/coupon-check', checkoutController.postCouponCheck);
 
@@ -20,3 +20,12 @@ router.post('/coupon-delete', checkoutController.postCouponDelete);
 router.get('/order-confirmation/:orderId', checkoutController.getOrderConfirmation);
 router.get('/payment-failed/:orderId', checkoutController.getPaymentFailed);
 module.exports = router;
+// module.exports = {
+//   getCheckout,
+//   postCheckout,
+//   postCheckCatPro,
+//   postCouponCheck,
+//   postCouponDelete,
+//   getPaymentFailed,
+//   getOrderConfirmation,
+// };
