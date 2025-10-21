@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title><%= isEdit ? 'Update Product' : 'Add Product' %></title>
+        <link
+            href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+            rel="stylesheet">
+        <link
+            href="https://cdn.jsdelivr.net/npm/cropperjs@1.5.12/dist/cropper.min.css"
+            rel="stylesheet">
+        <link
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+            rel="stylesheet">
+        <style>
+        .form-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            background: linear-gradient(145deg, #ffffff, #f3f4f6);
+            border-radius: 16px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        .image-preview {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 2px solid #e5e7eb;
+            transition: transform 0.2s ease;
+        }
+        .image-preview:hover {
+            transform: scale(1.05);
+        }
+        .image-container {
+            position: relative;
+            display: inline-block;
+        }
+        .remove-image-btn {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #ef4444;
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+        .remove-image-btn:hover {
+            background: #dc2626;
+        }
+        #imageCropperModal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            max-width: 90%;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            display: none;
+            padding: 20px;
+        }
+        #imagePreview {
+            max-width: 100%;
+            max-height: 400px;
+            border-radius: 8px;
+        }
+        .form-control {
+            transition: all 0.3s ease;
+        }
+        .form-control:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+        .btn-primary {
+            background: #6366f1;
+            transition: background 0.3s ease;
+        }
+        .btn-primary:hover {
+            background: #4f46e5;
+        }
+        .error-message {
+            animation: slideIn 0.3s ease;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+    </head>
+    <body class="bg-gray-100 font-sans">
+        <div class="form-container p-8">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">
+                <%= isEdit ? 'Update Product' : 'Add New Product' %>
+            </h2>
+            <div id="error" class="mb-4"></div>
+            <form id="productForm"
+                action="<%= isEdit ? '/admin/products/edit-product/' + product._id + '?_method=PATCH' : '/admin/products/add-product' %>"
+                method="POST"
+                enctype="multipart/form-data"
+                class="space-y-6">
+                <div>
+                    <label for="product"
+                        class="block text-sm font-medium text-gray-700">Product
+                        Name</label>
+                    <input type="text" id="product" name="product"
+                        value="<%= isEdit ? product.product : '' %>"
+                        class="form-control mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 py-3 px-4"
+                        required>
+                </div>
+                <div>
+                    <label for="brand"
+                        class="block text-sm font-medium text-gray-700">Brand</label>
+                    <input type="text" id="brand" name="brand"
+                        value="<%= isEdit ? product.brand : '' %>"
+                        class="form-control mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 py-3 px-4"
+                        required>
+                </div>
+                <div>
+                    <label for="description"
+                        class="block text-sm font-medium text-gray-700">Description</label>
+                    <textarea id="description" name="description" rows="4"
+                        class="form-control mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 py-3 px-4"
+                        required><%= isEdit ? product.description : '' %></textarea>
+                </div>
+                <div>
+                    <label for="price"
+                        class="block text-sm font-medium text-gray-700">Price</label>
+                    <input type="number" id="price" name="price"
+                        value="<%= isEdit ? product.price : '' %>"
+                        class="form-control mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 py-3 px-4"
+                        required min="0" step="0.01">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Sizes
+                        and Stock</label>
+                    <div id="sizes-container" class="space-y-3 mt-2">
+                        <% if (isEdit && product.sizes && product.sizes.length)
+                        { %>
+                        <% product.sizes.forEach(function(size, index) { %>
+                        <div class="size-group flex space-x-3 items-center">
+                            <input type="text" name="sizes[<%= index %>][size]"
+                                placeholder="Size" value="<%= size.size %>"
+                                class="form-control flex-1 border-gray-300 rounded-lg shadow-sm py-3 px-4"
+                                required>
+                            <input type="number"
+                                name="sizes[<%= index %>][stock]"
+                                placeholder="Stock" value="<%= size.stock %>"
+                                class="form-control flex-1 border-gray-300 rounded-lg shadow-sm py-3 px-4"
+                                required min="0">
+                            <button type="button"
+                                class="remove-size-btn text-red-500 hover:text-red-700 text-sm font-medium">Remove</button>
+                        </div>
+                        <% }); %>
+                        <% } else { %>
+                        <div class="size-group flex space-x-3 items-center">
+                            <input type="text" name="sizes[0][size]"
+                                placeholder="Size"
+                                class="form-control flex-1 border-gray-300 rounded-lg shadow-sm py-3 px-4"
+                                required>
+                            <input type="number" name="sizes[0][stock]"
+                                placeholder="Stock"
+                                class="form-control flex-1 border-gray-300 rounded-lg shadow-sm py-3 px-4"
+                                required min="0">
+                            <button type="button"
+                                class="remove-size-btn text-red-500 hover:text-red-700 text-sm font-medium">Remove</button>
+                        </div>
+                        <% } %>
+                    </div>
+                    <button type="button" id="add-size-btn"
+                        class="mt-3 text-indigo-600 hover:text-indigo-800 text-sm font-medium">
+                        <i class="fas fa-plus mr-1"></i> Add Size
+                    </button>
+                </div>
+                <div>
+                    <label for="category"
+                        class="block text-sm font-medium text-gray-700">Category</label>
+                    <select id="category" name="category"
+                        class="form-control mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 py-3 px-4"
+                        required>
+                        <option value disabled <%=!isEdit ? 'selected' : ''
+                            %>>Select Category</option>
+                        <% categories.forEach(function(category) { %>
+                        <option value="<%= category._id %>"
+                            <%=isEdit && String(category._id) ===
+                            String(product.category) ? 'selected' : '' %>>
+                            <%= category.name %>
+                        </option>
+                        <% }) %>
+                    </select>
+                </div>
+                <% if (isEdit) { %>
+                <div>
+                    <label
+                        class="block text-sm font-medium text-gray-700">Existing
+                        Images</label>
+                    <div id="existingImages" class="flex flex-wrap gap-4 mt-2">
+                        <% if (product.images && product.images.length) { %>
+                        <% product.images.forEach(function(image) { %>
+                        <div class="image-container">
+                            <img src="<%= image.secured_url %>"
+                                alt="Product Image" class="image-preview">
+                            <span class="remove-image-btn"
+                                data-id="<%= image.id %>"
+                                data-product-id="<%= product._id %>">
+                                <i class="fas fa-times"></i>
+                            </span>
+                        </div>
+                        <% }) %>
+                        <% } %>
+                    </div>
+                </div>
+                <% } %>
+                <div>
+                    <label for="productImages"
+                        class="block text-sm font-medium text-gray-700">
+                        Product Images (At least 3 images required)
+                    </label>
+                    <input type="file" id="productImages" name="productImages"
+                        accept="image/*" multiple
+                        class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm py-3 px-4">
+                    <p class="mt-1 text-sm text-gray-500">Upload up to 5 images
+                        total. Crop each image before submitting.</p>
+                </div>
+                <div id="croppedImagesPreview"
+                    class="flex flex-wrap gap-4"></div>
+                <input type="hidden" id="croppedImages" name="croppedImages">
+                <div class="flex space-x-4">
+                    <button type="submit"
+                        class="btn-primary flex-1 text-white py-3 px-6 rounded-lg font-semibold">
+                        <%= isEdit ? 'Update Product' : 'Add Product' %>
+                    </button>
+                    <button type="button"
+                        onclick="window.location.href='/admin/products'"
+                        class="flex-1 bg-gray-200 text-gray-800 py-3 px-6 rounded-lg hover:bg-gray-300 font-semibold transition">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div id="imageCropperModal">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Crop Image</h3>
+            <img id="imagePreview" alt="Image preview" />
+            <div class="flex space-x-4 mt-4">
+                <button type="button" id="cropButton"
+                    class="flex-1 bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700">
+                    Crop Image
+                </button>
+                <button type="button" id="cancelCropButton"
+                    class="flex-1 bg-gray-200 text-gray-800 py-2 px-4 rounded-lg hover:bg-gray-300">
+                    Cancel
+                </button>
+            </div>
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script
+            src="https://cdn.jsdelivr.net/npm/cropperjs@1.5.12/dist/cropper.min.js"></script>
+        <script>
+        // Initialize variables
+        const productForm = document.getElementById('productForm');
+        const productImagesInput = document.getElementById('productImages');
+        const imageCropperModal = document.getElementById('imageCropperModal');
+        const imagePreview = document.getElementById('imagePreview');
+        const croppedImagesInput = document.getElementById('croppedImages');
+        const croppedImagesPreview = document.getElementById('croppedImagesPreview');
+        const cropButton = document.getElementById('cropButton');
+        const cancelCropButton = document.getElementById('cancelCropButton');
+        const existingImagesContainer = document.getElementById('existingImages');
+        let cropper;
+        let croppedImagesArray = [];
+        let filesToCrop = [];
+        let currentFileIndex = 0;
+
+        // Add size button functionality
+        document.getElementById('add-size-btn').addEventListener('click', () => {
+            const container = document.getElementById('sizes-container');
+            const sizeGroups = container.querySelectorAll('.size-group').length;
+            const sizeGroup = document.createElement('div');
+            sizeGroup.className = 'size-group flex space-x-3 items-center';
+            sizeGroup.innerHTML = `
+                <input type="text" name="sizes[${sizeGroups}][size]" placeholder="Size" 
+                       class="form-control flex-1 border-gray-300 rounded-lg shadow-sm py-3 px-4" required>
+                <input type="number" name="sizes[${sizeGroups}][stock]" placeholder="Stock" 
+                       class="form-control flex-1 border-gray-300 rounded-lg shadow-sm py-3 px-4" required min="0">
+                <button type="button" class="remove-size-btn text-red-500 hover:text-red-700 text-sm font-medium">Remove</button>
+            `;
+            container.appendChild(sizeGroup);
+        });
+
+        // Remove size button functionality
+        document.getElementById('sizes-container').addEventListener('click', (event) => {
+            if (event.target.classList.contains('remove-size-btn')) {
+                const sizeGroups = document.querySelectorAll('.size-group').length;
+                if (sizeGroups > 1) {
+                    event.target.parentElement.remove();
+                } else {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Cannot Remove',
+                        text: 'At least one size is required.',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                }
+            }
+        });
+
+        // Remove existing image functionality
+        if (existingImagesContainer) {
+            existingImagesContainer.addEventListener('click', async (event) => {
+                if (event.target.closest('.remove-image-btn')) {
+                    const button = event.target.closest('.remove-image-btn');
+                    const imageId = button.dataset.id;
+                    const productId = button.dataset.productId;
+
+                    try {
+                        const response = await fetch(`/admin/products/delete-image/${productId}/${imageId}`, {
+                            method: 'DELETE',
+                            headers: { 'Content-Type': 'application/json' }
+                        });
+                        const result = await response.json();
+                        if (response.ok) {
+                            button.parentElement.remove();
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Image Removed',
+                                text: 'The image was successfully removed.',
+                                timer: 1500,
+                                showConfirmButton: false
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: result.message || 'Failed to delete image.',
+                                timer: 1500,
+                                showConfirmButton: false
+                            });
+                        }
+                    } catch (error) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'An unexpected error occurred.',
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                    }
+                }
+            });
+        }
+
+        // Image upload and crop functionality
+        productImagesInput.addEventListener('change', function(event) {
+            filesToCrop = Array.from(event.target.files);
+            const existingImages = existingImagesContainer ? existingImagesContainer.querySelectorAll('.image-container').length : 0;
+            const totalImages = croppedImagesArray.length + existingImages + filesToCrop.length;
+
+            if (totalImages > 5) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Too Many Images',
+                    text: 'You can have up to 5 images in total (existing + new).',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+                event.target.value = '';
+                return;
+            }
+
+            if (filesToCrop.length > 0) {
+                currentFileIndex = 0;
+                loadImageForCropping(filesToCrop[currentFileIndex]);
+            }
+        });
+
+        function loadImageForCropping(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                imagePreview.src = e.target.result;
+                imageCropperModal.style.display = 'block';
+                if (cropper) cropper.destroy();
+                cropper = new Cropper(imagePreview, {
+                    aspectRatio: 1,
+                    viewMode: 1,
+                    autoCropArea: 1,
+                    scalable: true
+                });
+            };
+            reader.readAsDataURL(file);
+        }
+
+        cropButton.addEventListener('click', function() {
+            if (cropper) {
+                const canvas = cropper.getCroppedCanvas({ width: 400, height: 400 });
+                const croppedImageData = canvas.toDataURL('image/jpeg');
+                croppedImagesArray.push(croppedImageData);
+
+                // Create preview
+                const imageContainer = document.createElement('div');
+                imageContainer.className = 'image-container';
+                imageContainer.innerHTML = `
+                    <img src="${croppedImageData}" class="image-preview">
+                    <span class="remove-image-btn remove-cropped-btn">
+                        <i class="fas fa-times"></i>
+                    </span>
+                `;
+                croppedImagesPreview.appendChild(imageContainer);
+                croppedImagesInput.value = JSON.stringify(croppedImagesArray);
+
+                cropper.destroy();
+                imageCropperModal.style.display = 'none';
+                currentFileIndex++;
+                if (currentFileIndex < filesToCrop.length) {
+                    loadImageForCropping(filesToCrop[currentFileIndex]);
+                } else {
+                    productImagesInput.value = '';
+                }
+            }
+        });
+
+        cancelCropButton.addEventListener('click', function() {
+            if (cropper) cropper.destroy();
+            imageCropperModal.style.display = 'none';
+            productImagesInput.value = '';
+            currentFileIndex = 0;
+            filesToCrop = [];
+        });
+
+        // Remove cropped image functionality
+        croppedImagesPreview.addEventListener('click', (event) => {
+            if (event.target.closest('.remove-cropped-btn')) {
+                const imageContainer = event.target.closest('.image-container');
+                const imageSrc = imageContainer.querySelector('img').src;
+                croppedImagesArray = croppedImagesArray.filter(img => img !== imageSrc);
+                croppedImagesInput.value = JSON.stringify(croppedImagesArray);
+                imageContainer.remove();
+            }
+        });
+
+        // Form submission
+        productForm.addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const existingImages = existingImagesContainer ? existingImagesContainer.querySelectorAll('.image-container').length : 0;
+            const totalImages = croppedImagesArray.length + existingImages;
+
+            if (totalImages < 3) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Insufficient Images',
+                    text: `You have ${totalImages} images. Please ensure at least 3 images (existing + cropped) before submitting.`,
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+                return;
+            }
+
+            const formData = new FormData(event.target);
+            try {
+                const response = await fetch(productForm.action, {
+                    method: '<%= isEdit ? "PATCH" : "POST" %>',
+                    body: formData
+                });
+                const result = await response.json();
+                if (response.ok) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: `<%= isEdit ? 'Product updated' : 'Product added' %> successfully!`,
+                        confirmButtonText: 'OK'
+                    }).then(() => {
+                        window.location.href = '/admin/products';
+                    });
+                } else {
+                    document.getElementById('error').innerHTML = `
+                        <div class="error-message bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg">
+                            ${result.message}
+                        </div>`;
+                }
+            } catch (error) {
+                document.getElementById('error').innerHTML = `
+                    <div class="error-message bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg">
+                        An unexpected error occurred.
+                    </div>`;
+            }
+        });
+    </script>
+    </body>
+</html>

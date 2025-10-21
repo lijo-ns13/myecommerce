@@ -105,11 +105,48 @@ const getProductsData = async (req, res) => {
     search,
   });
 };
-const getAddProduct = async (_req, res) => {
+// const getAddProduct = async (_req, res) => {
+//   try {
+//     const categories = await Category.find({});
+//     res.status(httpStatusCodes.OK).render('add-product', {
+//       categories: categories,
+//       currentPath: '/product',
+//       layout: 'layouts/adminLayout',
+//     });
+//   } catch (error) {
+//     res
+//       .status(httpStatusCodes.INTERNAL_SERVER_ERROR)
+//       .json({ success: false, message: error.message });
+//   }
+// };
+// For Add Product
+const getAddProduct = async (req, res) => {
   try {
     const categories = await Category.find({});
-    res.status(httpStatusCodes.OK).render('add-product', {
-      categories: categories,
+    res.status(httpStatusCodes.OK).render('product-form', {
+      categories,
+      isEdit: false,
+      product: {},
+      currentPath: '/product',
+      layout: 'layouts/adminLayout',
+    });
+  } catch (error) {
+    res
+      .status(httpStatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: error.message });
+  }
+};
+
+// For Edit Product
+const getProductEdit = async (req, res) => {
+  try {
+    const productId = req.params.id;
+    const categories = await Category.find({});
+    const product = await Product.findById(productId);
+    res.render('product-form', {
+      product,
+      categories,
+      isEdit: true,
       currentPath: '/product',
       layout: 'layouts/adminLayout',
     });
@@ -232,11 +269,19 @@ const postAddProduct = async (req, res) => {
       });
     }
 
-    // Price validation
-    if (isNaN(price) || Number(price) < 1) {
+    // ====== PRICE VALIDATION ======
+    const numericPrice = Number(price);
+    if (isNaN(numericPrice)) {
       return res.status(httpStatusCodes.BAD_REQUEST).json({
         success: false,
         message: messages.COMMON.INVALID('price'),
+      });
+    }
+
+    if (numericPrice < 300 || numericPrice > 10000) {
+      return res.status(httpStatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: 'Product price must be between ₹300 and ₹10,000.',
       });
     }
 
@@ -264,8 +309,18 @@ const postAddProduct = async (req, res) => {
       });
     }
 
+    // ====== SIZE VALIDATION ======
     let errors = [];
+    const seenSizes = new Set();
+
     for (const size of sizes) {
+      // Duplicate size check
+      if (seenSizes.has(size.size)) {
+        errors.push(`Duplicate size detected: ${size.size}`);
+      } else {
+        seenSizes.add(size.size);
+      }
+
       if (isNaN(size.stock)) {
         errors.push('stock must be a valid number');
       } else if (size.stock < 1 || size.stock > 1000) {
@@ -285,6 +340,13 @@ const postAddProduct = async (req, res) => {
         message: errors.join(', '),
       });
     }
+
+    // if (errors.length > 0) {
+    //   return res.status(httpStatusCodes.BAD_REQUEST).json({
+    //     success: false,
+    //     message: errors.join(', '),
+    //   });
+    // }
 
     // ====== SAVE PRODUCT ======
     const newProduct = new Product({
@@ -318,21 +380,21 @@ const generateUniqueFilename = () => {
   return `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
 };
 
-const getProductEdit = async (req, res) => {
-  try {
-    const productId = req.params.id;
-    const categories = await Category.find({});
-    const product = await Product.findById(productId);
-    res.render('pro/updateproduct', {
-      product,
-      categories,
-      currentPath: '/product',
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(httpStatusCodes.INTERNAL_SERVER_ERROR).send(messages.ERROR.SERVER_ERROR);
-  }
-};
+// const getProductEdit = async (req, res) => {
+//   try {
+//     const productId = req.params.id;
+//     const categories = await Category.find({});
+//     const product = await Product.findById(productId);
+//     res.render('pro/updateproduct', {
+//       product,
+//       categories,
+//       currentPath: '/product',
+//     });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(httpStatusCodes.INTERNAL_SERVER_ERROR).send(messages.ERROR.SERVER_ERROR);
+//   }
+// };
 const patchProductEdit = async (req, res) => {
   try {
     const { product, brand, description, price, category, croppedImages } = req.body;
@@ -402,11 +464,22 @@ const patchProductEdit = async (req, res) => {
         .status(httpStatusCodes.BAD_REQUEST)
         .json({ success: false, message: messages.PRODUCT.DESCRIPTION_SHORT });
     }
-    if (Number(price) < 0) {
-      return res
-        .status(httpStatusCodes.BAD_REQUEST)
-        .json({ success: false, message: messages.PRODUCT.PRICE_INVALID });
+    // ====== PRICE VALIDATION ======
+    const numericPrice = Number(price);
+    if (isNaN(numericPrice)) {
+      return res.status(httpStatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: messages.COMMON.INVALID('price'),
+      });
     }
+
+    if (numericPrice < 300 || numericPrice > 10000) {
+      return res.status(httpStatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: 'Product price must be between ₹300 and ₹10,000.',
+      });
+    }
+
     // Validate sizes from the request body
     const sizes = req.body.sizes; // Ensure sizes is correctly assigned
 
@@ -438,9 +511,17 @@ const patchProductEdit = async (req, res) => {
     });
 
     let errors = [];
+    const seenSizes = new Set();
 
     // Validate sizes and stock
     for (const size of sizesArray) {
+      // Prevent duplicate sizes
+      if (seenSizes.has(size.size)) {
+        errors.push(`Duplicate size detected: ${size.size}`);
+      } else {
+        seenSizes.add(size.size);
+      }
+
       if (size.size <= 0) {
         errors.push(messages.PRODUCT.SIZE_POSITIVE);
       }
